@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Mapped from repository secrets; tests never call the live provider
+      # (stubbed gateway per the testing contract) — these exist for future
+      # eval-slice jobs and to pin the secret names.
+      AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
+      AI_GATEWAY_BASE_URL: ${{ secrets.AI_GATEWAY_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependency manifest
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Compile check
+        run: python -m compileall -q src apps tests scripts
+
+      - name: Tests (stubbed gateway)
+        run: pytest -q

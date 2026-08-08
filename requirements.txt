@@ -1,0 +1,30 @@
+# SmartReco — dependency manifest (locked stack: docs/implementation/stack-decisions.md)
+# Python 3.11
+
+# Backend framework
+fastapi>=0.115
+uvicorn[standard]>=0.30
+jinja2>=3.1
+python-multipart>=0.0.9
+itsdangerous>=2.2
+
+# Data layer
+sqlalchemy>=2.0
+chromadb>=0.5
+
+# Scheduler
+apscheduler>=3.10
+
+# AI Provider Gateway client (OpenAI-compatible; provider is deployment configuration)
+openai>=1.40
+
+# Agent framework (Google ADK; LangGraph is the documented fallback)
+google-adk>=1.0
+
+# Configuration
+pyyaml>=6.0
+python-dotenv>=1.0
+
+# Testing
+pytest>=8.0
+httpx>=0.27

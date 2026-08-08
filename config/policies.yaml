@@ -1,0 +1,365 @@
+# Policy Catalog v1 — transcription of docs/core/10-decision-policies.md ("Policy Catalog v1 — Initial Values").
+# This file is the single source of business thresholds (Law: no business thresholds in code).
+# Engines consume it only through the policy loader; every workflow run records policy_version.
+# Every value change produces a new catalog version.
+
+catalog_version: "1.0"
+
+policies:
+
+  # ---- Behavioral & Confidence Policies ----
+
+  POL-BEH-001:
+    name: Hypothesis promotion
+    category: behavioral
+    rule: "Create a Hypothesis at 2 supporting Evidence objects, or 1 with Strength >= Strong"
+    params:
+      min_supporting_evidence: 2
+      single_evidence_min_strength: Strong
+
+  POL-BEH-002:
+    name: Evidence expiration
+    category: behavioral
+    rule: "Evidence older than 30 days contributes at 50% weight"
+    params:
+      age_days: 30
+      aged_weight: 0.5
+
+  POL-CONF-001:
+    name: Confidence contribution
+    category: confidence
+    rule: "Weak +0.05, Medium +0.10, Strong +0.20, Very Strong +0.30 per Evidence; diversity increment +0.10 per distinct pattern beyond the first"
+    params:
+      contribution:
+        Weak: 0.05
+        Medium: 0.10
+        Strong: 0.20
+        VeryStrong: 0.30
+      diversity_increment: 0.10
+
+  POL-CONF-002:
+    name: Diminishing returns
+    category: confidence
+    rule: "Repeated identical Evidence contributes at 50% of prior contribution"
+    params:
+      repeat_factor: 0.5
+
+  POL-CONF-003:
+    name: Contradiction penalty
+    category: confidence
+    rule: "Contradicting Evidence subtracts at 75% of its class contribution"
+    params:
+      contradiction_factor: 0.75
+
+  POL-CONF-004:
+    name: Confidence saturation
+    category: confidence
+    rule: "Cap 0.95; floor 0.05"
+    params:
+      cap: 0.95
+      floor: 0.05
+
+  POL-CONF-005:
+    name: Hypothesis retirement
+    category: confidence
+    rule: "Retire when confidence < 0.15 for 2 consecutive updates"
+    params:
+      retirement_confidence: 0.15
+      consecutive_updates: 2
+
+  # ---- Requirement & Stage Policies ----
+
+  POL-REQ-001:
+    name: Requirement publication
+    category: requirement
+    rule: "Include a Requirement when derived confidence >= 0.5"
+    params:
+      min_confidence: 0.5
+
+  POL-REQ-002:
+    name: Priority bands
+    category: requirement
+    rule: "Critical >= 0.8 with stage >= Technical Validation; High >= 0.65; Medium >= 0.5; else Low"
+    params:
+      critical_min_confidence: 0.8
+      critical_min_stage: TechnicalValidation
+      high_min_confidence: 0.65
+      medium_min_confidence: 0.5
+
+  POL-REQ-003:
+    name: Requirement confidence derivation
+    category: requirement
+    rule: >-
+      Each active Hypothesis contributes (association weight x hypothesis confidence) to its
+      mapped Requirements — weights: Primary 1.0, Secondary 0.6, Supporting 0.3. Contributions
+      combine via noisy-OR: confidence = 1 - prod(1 - w_i * c_i). Retired hypotheses contribute nothing.
+    params:
+      association_weights:
+        Primary: 1.0
+        Secondary: 0.6
+        Supporting: 0.3
+      combination: noisy_or
+
+  POL-STAGE-001:
+    name: Stage advancement
+    category: stage
+    rule: >-
+      Current stage = highest stage whose Domain Pack milestone is satisfied
+      (Software Buying: 00 — section 4.1 Stage Qualification Milestones) with stage confidence >= 0.6,
+      where stage confidence = max confidence among hypotheses supported by the milestone-satisfying Evidence.
+    params:
+      min_stage_confidence: 0.6
+
+  POL-STAGE-002:
+    name: Stage regression
+    category: stage
+    rule: "Regress on 3 consecutive high-signal events characteristic of an earlier stage"
+    params:
+      consecutive_earlier_stage_events: 3
+
+  # ---- Recommendation & Readiness Policies ----
+
+  POL-REC-001:
+    name: Recommendation readiness
+    category: recommendation
+    rule: "READY when >= 1 Requirement at confidence >= 0.6 AND journey has >= 5 high-signal events"
+    params:
+      min_requirements: 1
+      min_requirement_confidence: 0.6
+      min_high_signal_events: 5
+
+  POL-REC-002:
+    name: Ranking
+    category: recommendation
+    rule: "Rank by weighted coverage: Critical x3, High x2, Medium x1, Low x0.5; tie-break on total capability count, then Product ID"
+    params:
+      priority_weights:
+        Critical: 3
+        High: 2
+        Medium: 1
+        Low: 0.5
+      tie_breakers: [total_capability_count, product_id]
+
+  POL-REC-003:
+    name: Publication
+    category: recommendation
+    rule: "Publish top 3 entries; include up to 2 alternatives"
+    params:
+      top_entries: 3
+      max_alternatives: 2
+
+  POL-REC-004:
+    name: Constraint derivation
+    category: recommendation
+    rule: >-
+      Budget Unknown when the journey contains no PRICING_VIEWED events; additional constraint rules
+      (deployment preference, team size, data residency) deferred to v1.1.
+    params:
+      budget_unknown_when_no_event: PRICING_VIEWED
+
+  # ---- Retrieval Policies (Tier 2) ----
+
+  POL-RETR-001:
+    name: Retrieval parameters
+    category: retrieval
+    rule: "top_K = 8 candidates"
+    params:
+      top_k: 8
+
+  POL-RETR-002:
+    name: Refinement loop
+    category: retrieval
+    rule: "max_refinements = 2; skip evaluation when top similarity >= 0.85"
+    params:
+      max_refinements: 2
+      skip_evaluation_min_similarity: 0.85
+
+  POL-RETR-003:
+    name: Candidate cache TTL
+    category: retrieval
+    rule: "1 hour"
+    params:
+      ttl_seconds: 3600
+
+  POL-RETR-004:
+    name: Dual-write reconciliation
+    category: retrieval
+    rule: >-
+      Sweep retries PENDING/FAILED with exponential backoff, max 5 automatic attempts; then sticky
+      FAILED, admin manual retry resets the counter.
+    params:
+      max_automatic_attempts: 5
+      backoff: exponential
+
+  POL-GATE-001:
+    name: Gateway call bounds
+    category: retrieval
+    rule: >-
+      Per-call timeout 30s; max 2 automatic retries with exponential backoff; then node failure ->
+      orchestration fallbacks (Chapter 21).
+    params:
+      timeout_seconds: 30
+      max_retries: 2
+      backoff: exponential
+
+  # ---- Trigger, Budget & Caching Policies ----
+
+  POL-TRIG-001:
+    name: Event accumulation
+    category: trigger
+    rule: "Run workflow after 5 unprocessed high/medium-signal events"
+    params:
+      unprocessed_event_threshold: 5
+
+  POL-TRIG-002:
+    name: Debounce / cooldown
+    category: trigger
+    rule: "Debounce 60s; cooldown 10min (STAGE_TRANSITION bypasses cooldown)"
+    params:
+      debounce_seconds: 60
+      cooldown_seconds: 600
+      cooldown_bypass_triggers: [STAGE_TRANSITION]
+
+  POL-TRIG-003:
+    name: AI budgets
+    category: trigger
+    rule: "Tier 1: 10 calls/user/day; Tier 2: 20 calls/user/day"
+    params:
+      tier1_calls_per_user_per_day: 10
+      tier2_calls_per_user_per_day: 20
+
+  POL-TRIG-004:
+    name: Material change
+    category: trigger
+    rule: "New/removed Requirement, priority band change, stage change, or top-candidate change"
+    params:
+      material_changes:
+        - requirement_added
+        - requirement_removed
+        - priority_band_change
+        - stage_change
+        - top_candidate_change
+
+  POL-TRIG-005:
+    name: Run concurrency
+    category: trigger
+    rule: >-
+      At most one in-flight workflow run per user; a trigger arriving during a run is recorded as
+      SKIP (already-running) and its events remain accumulated for the next evaluation.
+    params:
+      max_in_flight_runs_per_user: 1
+
+  POL-CACHE-001:
+    name: AAR cache
+    category: caching
+    rule: "One AAR per (Recommendation Package, prompt version, surface)"
+    params:
+      cache_key: [recommendation_package_id, prompt_version, surface]
+
+  # ---- Tracking & Session Policies ----
+
+  POL-TRACK-001:
+    name: Client batching
+    category: tracking
+    rule: >-
+      batch_size = 10 events; flush_interval = 15s; failed flushes retry max 3 times with exponential
+      backoff, then drop (low-signal first); server rejects batches > 50 events.
+    params:
+      batch_size: 10
+      flush_interval_seconds: 15
+      max_flush_retries: 3
+      backoff: exponential
+      drop_order: low_signal_first
+      server_max_batch: 50
+
+  POL-TRACK-002:
+    name: Dwell heartbeat
+    category: tracking
+    rule: "10s cadence, visible pages only"
+    params:
+      heartbeat_seconds: 10
+      visible_pages_only: true
+
+  POL-TRACK-003:
+    name: Session timeout
+    category: tracking
+    rule: "30 minutes of inactivity"
+    params:
+      inactivity_minutes: 30
+
+  # ---- Learning, Decay & Journey Policies ----
+
+  POL-LEARN-001:
+    name: Trait reinforcement
+    category: learning
+    rule: >-
+      Traits are concept-derived: one trait per Behavioral Concept whose final hypothesis confidence
+      >= 0.6 at journey closure (trait name = concept name). On CLOSED journey: reinforce existing
+      matching traits +0.1 (weighted by final hypothesis confidence); create new trait at strength 0.3.
+    params:
+      trait_min_final_confidence: 0.6
+      reinforcement_increment: 0.1
+      new_trait_strength: 0.3
+
+  POL-DECAY-001:
+    name: Trait decay
+    category: learning
+    rule: "-0.05 per 14 inactive days; resistance x(1 - 0.05 x min(Reinforcement Count, 10))"
+    params:
+      decay_amount: 0.05
+      inactive_days_per_step: 14
+      resistance_factor_per_reinforcement: 0.05
+      resistance_reinforcement_cap: 10
+
+  POL-JRES-001:
+    name: Journey resolution
+    category: journey_resolution
+    rule: >-
+      Reuse ACTIVE journey when resolution score >= 0.6 (weights: topic 0.4, behavioral 0.3,
+      time-decay 0.3); reactivate DORMANT >= 0.7; else create new. Signal functions defined in
+      Chapter 12 — Signal Computation (topic = Jaccard over entity sets; behavioral = cosine over
+      event-type histograms; time-decay half-life 7 days).
+    params:
+      reuse_active_min_score: 0.6
+      reactivate_dormant_min_score: 0.7
+      signal_weights:
+        topic: 0.4
+        behavioral: 0.3
+        time_decay: 0.3
+      time_decay_half_life_days: 7
+
+  POL-JRES-002:
+    name: Journey dormancy
+    category: journey_resolution
+    rule: "ACTIVE -> DORMANT after 7 days of inactivity (evaluated with other signals, never time alone at closure)"
+    params:
+      dormancy_inactive_days: 7
+
+  POL-JRES-003:
+    name: Journey closure
+    category: journey_resolution
+    rule: >-
+      PURCHASE_COMPLETED -> immediate CLOSED (Outcome: PURCHASED). TRIAL_STARTED followed by >= 7 days
+      without further journey activity -> CLOSED (Outcome: PURCHASED — trial-adoption fallback).
+      DORMANT > 30 days -> CLOSED (Outcome: ABANDONED). Only CLOSED journeys feed the Learning Engine.
+    params:
+      trial_adoption_inactive_days: 7
+      dormant_closure_days: 30
+
+  # ---- Delivery Policies ----
+
+  POL-DELIV-001:
+    name: Digest eligibility
+    category: delivery
+    rule: ">= 3 high-signal events since last digest; opted-in channel"
+    params:
+      min_high_signal_events_since_last: 3
+      requires_opt_in: true
+
+  POL-DELIV-002:
+    name: Digest schedule & cap
+    category: delivery
+    rule: "Daily 17:00 platform-local; max 1 digest/user/day"
+    params:
+      daily_time_local: "17:00"
+      max_digests_per_user_per_day: 1
