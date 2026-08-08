@@ -138,10 +138,13 @@ class EventBatch(BaseModel):
 
 def _evaluate_triggers_async(user_id: int):
     """Background: trigger evaluator decides whether reasoning runs (never inline)."""
+    from smartreco.orchestration import adk_executor
+
     state = _init_state()
     with state["session_factory"]() as db:
         run_workflow(db, state["chroma"], state["backend"], state["policies"],
-                     user_id, "EVENT_ACCUMULATION", gateway=state.get("gateway"))
+                     user_id, "EVENT_ACCUMULATION", gateway=state.get("gateway"),
+                     executor=adk_executor)
 
 
 @app.post("/events/batch", status_code=202)

@@ -1,36 +1,40 @@
-"""Deterministic workflow — plain-function pipeline (Phase 1; ADK graph wraps
-these functions in Phase 2 per docs/core/21).
+"""Deterministic workflow — the 13-node graph as named stage functions
+(docs/core/21). Each stage delegates to its owning engine; orchestration never
+implements engine logic. The explicit stage list (WORKFLOW_GRAPH) is the
+framework-neutral graph contract; the ADK wrapper (smartreco.orchestration)
+binds the same stages to the agent framework — swapping frameworks changes no
+engine, contract, or Runtime Object.
 
-Per run: trigger gates → journey resolution → BRE → confidence → requirements →
-stage → retrieval → matching → readiness → (stubbed) AAR — every step a pure
-engine; this module only moves Runtime Objects between them and persists new
-versions through the insert-only repository layer. Every run — including SKIP —
-writes one workflow_runs row (docs/core/23).
+Per run: trigger gates → resolve_journey → reason → score_confidence →
+infer_requirements → resolve_stage → decide_retrieve/retrieve/evaluate/refine
+(bounded loop inside the Semantic Retrieval Engine) → match → readiness_gate →
+clarify/generate (Tier 1) → persist. Every run — including SKIP — writes one
+workflow_runs row (docs/core/23).
 """
 
 import uuid
+from dataclasses import dataclass, field
 from datetime import datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session as OrmSession
 
 from smartreco import models, repos
-from smartreco.models import utcnow
-from smartreco.domain.software_buying import BC_TO_REQ, REQ_TO_CAP, REQUIREMENTS
+from smartreco.advisor import (
+    MalformedResponse,
+    assemble_aar_sections,
+    generate_sections,
+)
+from smartreco.domain.software_buying import BC_TO_REQ, CAPABILITIES, REQ_TO_CAP, REQUIREMENTS
 from smartreco.engines.confidence import EvidenceInput, compute_confidence
 from smartreco.engines.journey_resolution import resolve
 from smartreco.engines.matching import evaluate_readiness, rank_products
 from smartreco.engines.patterns import EventView, evaluate_patterns
 from smartreco.engines.requirements import derive_requirements
 from smartreco.engines.stages import determine_stage
-from smartreco.advisor import (
-    MalformedResponse,
-    assemble_aar_sections,
-    generate_sections,
-)
-from smartreco.domain.software_buying import CAPABILITIES
 from smartreco.engines.triggers import TriggerContext, evaluate_trigger
 from smartreco.gateway import GatewayUnavailable
+from smartreco.models import utcnow
 from smartreco.policies import PolicyCatalog
 from smartreco.retrieval import (
     EmbeddingBackend,
@@ -39,6 +43,12 @@ from smartreco.retrieval import (
 )
 
 _CAP_NAME = {cap_id: name for cap_id, name, _domain, _narrative in CAPABILITIES}
+
+
+# ---- shared helpers ----
+
+def _now(now: datetime | None) -> datetime:
+    return now or utcnow()
 
 
 def _today(now: datetime) -> str:
@@ -64,7 +74,7 @@ def record_ai_call(db: OrmSession, user_id: int, tier: str, now: datetime) -> No
 def _behavior_summary(events: list[models.Event]) -> str:
     """Deterministic plain-language summary of observed behavior for prompts —
     display vocabulary only, sourced from journey events."""
-    searches, topics, product_names = [], [], []
+    searches, topics = [], []
     for e in events:
         md = e.event_metadata or {}
         if e.event_type == "SEARCH" and md.get("query"):
@@ -78,10 +88,6 @@ def _behavior_summary(events: list[models.Event]) -> str:
         parts.append("read documentation and pages about: "
                      + ", ".join(dict.fromkeys(topics)))
     return ". ".join(parts) or "browsed the catalog"
-
-
-def _now(now: datetime | None) -> datetime:
-    return now or utcnow()
 
 
 def _entities(events: list[models.Event]) -> set[str]:
@@ -103,6 +109,20 @@ def _histogram(events: list[models.Event]) -> dict[str, int]:
         hist[e.event_type] = hist.get(e.event_type, 0) + 1
     return hist
 
+
+def _concept_name(bc_id: str) -> str:
+    from smartreco.domain.software_buying import BEHAVIORAL_CONCEPTS
+
+    return BEHAVIORAL_CONCEPTS.get(bc_id, bc_id)
+
+
+def _strength_ge(strength: str, minimum: str) -> bool:
+    from smartreco.enums import EVIDENCE_STRENGTH
+
+    return EVIDENCE_STRENGTH.index(strength) >= EVIDENCE_STRENGTH.index(minimum)
+
+
+# ---- journey resolution (node 1 engine work) ----
 
 def resolve_sessions(db: OrmSession, policies: PolicyCatalog, user_id: int,
                      now: datetime | None = None) -> None:
@@ -231,25 +251,271 @@ def _update_hypotheses(db: OrmSession, policies: PolicyCatalog, journey_id: str,
     return active
 
 
-def _strength_ge(strength: str, minimum: str) -> bool:
-    from smartreco.enums import EVIDENCE_STRENGTH
+# ---- graph context and stages ----
 
-    return EVIDENCE_STRENGTH.index(strength) >= EVIDENCE_STRENGTH.index(minimum)
+@dataclass
+class WorkflowContext:
+    db: OrmSession
+    chroma: object
+    backend: EmbeddingBackend
+    gateway: object
+    policies: PolicyCatalog
+    user_id: int
+    now: datetime
+    tier1_allowed: bool
+    tier2_allowed: bool
+    nodes: list = field(default_factory=list)
 
 
-def _concept_name(bc_id: str) -> str:
-    from smartreco.domain.software_buying import BEHAVIORAL_CONCEPTS
+def stage_resolve_journey(ctx: WorkflowContext, state: dict) -> bool:
+    """Node 1: journey ownership. Returns False to halt (no work)."""
+    resolve_sessions(ctx.db, ctx.policies, ctx.user_id, ctx.now)
+    target = ctx.db.execute(
+        select(models.Event).where(
+            models.Event.user_id == ctx.user_id, models.Event.processed_at.is_(None),
+            models.Event.journey_id.is_not(None))
+        .order_by(models.Event.ts.desc())
+    ).scalars().first()
+    if target is None:
+        return False
+    state["journey_id"] = target.journey_id
+    state["journey_events"] = repos.journey_events(ctx.db, target.journey_id)
+    ctx.nodes.append({"node": "resolve_journey", "class": "deterministic"})
+    return True
 
-    return BEHAVIORAL_CONCEPTS.get(bc_id, bc_id)
+
+def stage_reason(ctx: WorkflowContext, state: dict) -> bool:
+    """Node 2: BRE pattern evaluation + evidence dedup."""
+    journey_id = state["journey_id"]
+    views = [EventView(event_id=e.event_id, event_type=e.event_type,
+                       session_id=e.session_id, metadata=e.event_metadata or {})
+             for e in state["journey_events"]]
+    drafts = evaluate_patterns(views, ctx.policies)
+    existing_keys = {
+        (ev.pattern_id, tuple(sorted(ev.supporting_event_ids)))
+        for ev in repos.journey_evidence(ctx.db, journey_id)
+    }
+    new_count = 0
+    for draft in drafts:
+        if draft.dedup_key in existing_keys:
+            continue
+        existing_keys.add(draft.dedup_key)  # same draft may surface once per session window
+        new_count += 1
+        repos.insert_evidence(ctx.db, models.Evidence(
+            evidence_id=f"BE-{uuid.uuid4().hex[:10]}",
+            journey_id=journey_id, pattern_id=draft.pattern_id,
+            strength=draft.strength,
+            supporting_event_ids=sorted(draft.supporting_event_ids),
+            concept_ids=draft.concept_ids, explanation=draft.explanation,
+            created_at=ctx.now))
+    ctx.db.commit()
+    ctx.nodes.append({"node": "reason", "class": "deterministic",
+                      "new_evidence": new_count})
+    return True
 
 
-def _tier1_node(db, gateway, policies, user_id, rpkg, requirements, journey_events,
-                stage, constraints, tier1_allowed, nodes, now) -> None:
+def stage_score_confidence(ctx: WorkflowContext, state: dict) -> bool:
+    """Node 3: Confidence Engine → hypothesis versions."""
+    state["active"] = _update_hypotheses(ctx.db, ctx.policies, state["journey_id"], ctx.now)
+    ctx.db.commit()
+    ctx.nodes.append({"node": "score_confidence", "class": "deterministic",
+                      "active_hypotheses": dict(sorted(state["active"].items()))})
+    return True
+
+
+def stage_infer_requirements(ctx: WorkflowContext, state: dict) -> bool:
+    """Node 4: Requirement Engine. Priority banding uses the stored Journey
+    Stage (node 5 resolves the new one — canonical core 21 order)."""
+    journey_id = state["journey_id"]
+    stored_stage = ctx.db.execute(
+        select(models.JourneyStage).where(models.JourneyStage.journey_id == journey_id)
+        .order_by(models.JourneyStage.version.desc())
+    ).scalars().first()
+    banding_stage = stored_stage.stage if stored_stage else "Awareness"
+    requirements = derive_requirements(state["active"], BC_TO_REQ, banding_stage, ctx.policies)
+
+    latest_rp = ctx.db.execute(
+        select(models.RequirementProfile)
+        .where(models.RequirementProfile.journey_id == journey_id)
+        .order_by(models.RequirementProfile.version.desc())
+    ).scalars().first()
+    if latest_rp is None or latest_rp.requirements != requirements:
+        rp = models.RequirementProfile(
+            rp_id=f"RP-{uuid.uuid4().hex[:10]}", journey_id=journey_id,
+            version=1 if latest_rp is None else latest_rp.version + 1,
+            requirements=requirements, created_at=ctx.now)
+        repos.insert_requirement_profile(db=ctx.db, row=rp)
+        latest_rp = rp
+    ctx.db.commit()
+    state["requirements"] = requirements
+    state["latest_rp"] = latest_rp
+    ctx.nodes.append({"node": "infer_requirements", "class": "deterministic",
+                      "published": [r["req_id"] for r in requirements]})
+    return True
+
+
+def stage_resolve_stage(ctx: WorkflowContext, state: dict) -> bool:
+    """Node 5: Journey Stage Engine."""
+    journey_id = state["journey_id"]
+    evidence_dicts = [
+        {"evidence_id": ev.evidence_id, "pattern_id": ev.pattern_id,
+         "strength": ev.strength, "concept_ids": ev.concept_ids}
+        for ev in repos.journey_evidence(ctx.db, journey_id)
+    ]
+    event_types = [e.event_type for e in state["journey_events"]]
+    stage, stage_conf, stage_explanation = determine_stage(
+        evidence_dicts, state["active"], event_types, ctx.policies)
+    latest_stage = ctx.db.execute(
+        select(models.JourneyStage).where(models.JourneyStage.journey_id == journey_id)
+        .order_by(models.JourneyStage.version.desc())
+    ).scalars().first()
+    if latest_stage is None or latest_stage.stage != stage:
+        repos.insert_journey_stage(ctx.db, models.JourneyStage(
+            journey_id=journey_id,
+            version=1 if latest_stage is None else latest_stage.version + 1,
+            stage=stage, confidence=stage_conf, explanation=stage_explanation,
+            created_at=ctx.now))
+        ctx.db.commit()
+    state["stage"] = stage
+    ctx.nodes.append({"node": "resolve_stage", "class": "deterministic", "stage": stage})
+    return True
+
+
+def stage_retrieval(ctx: WorkflowContext, state: dict) -> bool:
+    """Nodes 6-9: decide_retrieve → retrieve → evaluate → refine. The bounded
+    evaluate→refine loop lives inside the Semantic Retrieval Engine
+    (POL-RETR-002); this node delegates and records the loop history.
+    Skip branch exists only into a valid cached Candidate Set (core 21)."""
+    state["cs"] = None
+    if not state["requirements"]:
+        return True  # no requirements → nothing to retrieve; Story 3 stays Tier-2-free
+
+    db, journey_id, latest_rp = ctx.db, state["journey_id"], state["latest_rp"]
+    ttl = ctx.policies.param("POL-RETR-003", "ttl_seconds")
+    cached_cs = db.execute(
+        select(models.CandidateSet)
+        .where(models.CandidateSet.journey_id == journey_id,
+               models.CandidateSet.rp_id == latest_rp.rp_id)
+        .order_by(models.CandidateSet.created_at.desc())
+    ).scalars().first()
+    cache_valid = (cached_cs is not None
+                   and (ctx.now - cached_cs.created_at).total_seconds() <= ttl)
+
+    if cache_valid:
+        state["cs"] = cached_cs
+        ctx.nodes.append({"node": "retrieve", "class": "tier2",
+                          "cache_hit": True, "candidates": len(cached_cs.candidates)})
+        return True
+
+    concept_names = sorted(_concept_name(c) for c in state["active"])
+    recent_terms = list(dict.fromkeys(
+        str((e.event_metadata or {}).get("query"))
+        for e in state["journey_events"]
+        if e.event_type == "SEARCH" and (e.event_metadata or {}).get("query")))
+    query_document = compose_query_document(
+        state["requirements"], concept_names, state["stage"], recent_terms, REQUIREMENTS)
+    tier2_budget = ctx.policies.param("POL-TRIG-003", "tier2_calls_per_user_per_day")
+
+    def _tier2_call():
+        record_ai_call(db, ctx.user_id, "tier2", ctx.now)
+
+    try:
+        if ctx.backend is ctx.gateway:  # gateway embeddings spend Tier 2 budget
+            _tier2_call()
+        candidates, history, final_query = retrieve_with_refinement(
+            db, ctx.chroma, ctx.backend, ctx.gateway, query_document, ctx.policies,
+            tier2_llm_allowed=(
+                ctx.tier2_allowed
+                and _usage_calls(db, ctx.user_id, _today(ctx.now), "tier2") < tier2_budget),
+            record_tier2_call=_tier2_call)
+        cs = models.CandidateSet(
+            cs_id=f"CS-{uuid.uuid4().hex[:10]}", journey_id=journey_id,
+            rp_id=latest_rp.rp_id, query_document=final_query,
+            params={"top_k": ctx.policies.param("POL-RETR-001", "top_k"),
+                    "query_template": "qd-v1"},
+            candidates=candidates, refinement_history=history, created_at=ctx.now)
+        repos.insert_candidate_set(db, cs)
+        db.flush()
+        state["cs"] = cs
+        ctx.nodes.append({"node": "retrieve", "class": "tier2", "cache_hit": False,
+                          "candidates": len(candidates),
+                          "refinements": len([h for h in history
+                                              if h.get("action") == "refine"])})
+    except GatewayUnavailable as exc:
+        # Tier 2 failure ladder: best available cached set, else full-catalog
+        # matching with a null Candidate Set ref (Core 21)
+        state["cs"] = cached_cs
+        ctx.nodes.append({"node": "retrieve", "class": "tier2",
+                          "cache_hit": cached_cs is not None, "failure": str(exc)})
+    return True
+
+
+def stage_match(ctx: WorkflowContext, state: dict) -> bool:
+    """Nodes 10-11: Recommendation Engine matching + readiness gate."""
+    db = ctx.db
+    journey_events = state["journey_events"]
+    high_signal = sum(1 for e in journey_events if e.signal_class == "HIGH")
+    readiness = evaluate_readiness(state["requirements"], high_signal, ctx.policies)
+    constraints = {}
+    if not any(e.event_type == "PRICING_VIEWED" for e in journey_events):
+        constraints["budget"] = "Unknown"  # POL-REC-004
+
+    published_entries: list[dict] = []
+    if state["requirements"]:
+        cs = state["cs"]
+        if cs is not None:
+            candidate_ids = [c["product_id"] for c in cs.candidates]
+        else:
+            candidate_ids = db.execute(
+                select(models.Product.product_id).where(
+                    models.Product.sync_status == "SYNCED",
+                    models.Product.deleted_at.is_(None))
+            ).scalars().all()
+            ctx.nodes.append({"node": "match_fallback", "class": "deterministic",
+                              "mode": "full-catalog"})
+        product_caps: dict[str, set[str]] = {}
+        for product_id in candidate_ids:
+            caps = db.execute(
+                select(models.ProductCapability.capability_id).where(
+                    models.ProductCapability.product_id == product_id)
+            ).scalars().all()
+            product_caps[product_id] = set(caps)
+        entries = rank_products(state["requirements"], list(candidate_ids),
+                                product_caps, REQ_TO_CAP, ctx.policies)
+        top = ctx.policies.param("POL-REC-003", "top_entries")
+        alternatives = ctx.policies.param("POL-REC-003", "max_alternatives")
+        published_entries = entries[: top + alternatives]
+
+    latest_pkg = db.execute(
+        select(models.RecommendationPackage)
+        .where(models.RecommendationPackage.journey_id == state["journey_id"])
+        .order_by(models.RecommendationPackage.created_at.desc())
+    ).scalars().first()
+    if (latest_pkg is None or latest_pkg.entries != published_entries
+            or latest_pkg.readiness != readiness):
+        rpkg = models.RecommendationPackage(
+            rpkg_id=f"RPKG-{uuid.uuid4().hex[:10]}", journey_id=state["journey_id"],
+            rp_id=state["latest_rp"].rp_id,
+            cs_id=state["cs"].cs_id if state["cs"] is not None else None,
+            entries=published_entries, readiness=readiness, constraints=constraints,
+            policy_version=ctx.policies.version, created_at=ctx.now)
+        repos.insert_recommendation_package(db, rpkg)
+        db.flush()  # AAR row references the package; enforce insert order
+    else:
+        rpkg = latest_pkg
+    state["rpkg"] = rpkg
+    state["constraints"] = constraints
+    ctx.nodes.append({"node": "match", "class": "deterministic", "readiness": readiness})
+    return True
+
+
+def stage_tier1(ctx: WorkflowContext, state: dict) -> bool:
     """Nodes 12a/12b: clarify (NOT_READY) / generate (READY) — Tier 1.
     Cache-first (POL-CACHE-001); budget gate serves the last stored AAR;
     malformed twice / gateway failure → package stands without a fresh AAR."""
     from smartreco.advisor import PROMPT_VERSION_CLARIFY, PROMPT_VERSION_GENERATE
 
+    db, rpkg = ctx.db, state["rpkg"]
     readiness = rpkg.readiness
     surface = "ONSITE"
     prompt_version = (PROMPT_VERSION_GENERATE if readiness == "READY"
@@ -263,16 +529,16 @@ def _tier1_node(db, gateway, policies, user_id, rpkg, requirements, journey_even
             models.AdvisoryResponse.surface == surface)
     ).scalars().first()
     if existing is not None:
-        nodes.append({"node": node_name, "class": "tier1", "cache_hit": True})
-        return
-    if gateway is None:
-        nodes.append({"node": node_name, "class": "tier1",
-                      "skipped": "gateway unavailable"})
-        return
-    if not tier1_allowed:
-        nodes.append({"node": node_name, "class": "tier1",
-                      "skipped": "budget-gated; serving last stored AAR"})
-        return
+        ctx.nodes.append({"node": node_name, "class": "tier1", "cache_hit": True})
+        return True
+    if ctx.gateway is None:
+        ctx.nodes.append({"node": node_name, "class": "tier1",
+                          "skipped": "gateway unavailable"})
+        return True
+    if not ctx.tier1_allowed:
+        ctx.nodes.append({"node": node_name, "class": "tier1",
+                          "skipped": "budget-gated; serving last stored AAR"})
+        return True
 
     products = []
     for entry in rpkg.entries[:3]:
@@ -293,36 +559,56 @@ def _tier1_node(db, gateway, policies, user_id, rpkg, requirements, journey_even
         "requirements": [
             {"name": REQUIREMENTS.get(r["req_id"], r["req_id"]),
              "priority": r["priority"].title(), "confidence": r["confidence"]}
-            for r in requirements],
-        "stage": stage,
-        "behavior_summary": _behavior_summary(journey_events),
+            for r in state["requirements"]],
+        "stage": state["stage"],
+        "behavior_summary": _behavior_summary(state["journey_events"]),
         "alternatives": [
             db.get(models.Product, e["product_id"]).name for e in rpkg.entries[3:]],
-        "constraints": constraints,
+        "constraints": state["constraints"],
     }
 
     try:
-        payload, version, calls = generate_sections(gateway, facts, readiness)
+        payload, version, calls = generate_sections(ctx.gateway, facts, readiness)
     except MalformedResponse as exc:
         for _ in range(2):  # both attempts spent budget
-            record_ai_call(db, user_id, "tier1", now)
-        nodes.append({"node": node_name, "class": "tier1",
-                      "failure": f"malformed twice: {exc}"})
-        return
+            record_ai_call(db, ctx.user_id, "tier1", ctx.now)
+        ctx.nodes.append({"node": node_name, "class": "tier1",
+                          "failure": f"malformed twice: {exc}"})
+        return True
     except GatewayUnavailable as exc:
-        record_ai_call(db, user_id, "tier1", now)
-        nodes.append({"node": node_name, "class": "tier1", "failure": str(exc)})
-        return
+        record_ai_call(db, ctx.user_id, "tier1", ctx.now)
+        ctx.nodes.append({"node": node_name, "class": "tier1", "failure": str(exc)})
+        return True
 
     for _ in range(calls):
-        record_ai_call(db, user_id, "tier1", now)
+        record_ai_call(db, ctx.user_id, "tier1", ctx.now)
     repos.insert_advisory_response(db, models.AdvisoryResponse(
         aar_id=f"AAR-{uuid.uuid4().hex[:10]}", rpkg_id=rpkg.rpkg_id,
-        surface=surface, prompt_version=version, model_id=gateway.model,
+        surface=surface, prompt_version=version, model_id=ctx.gateway.model,
         sections=assemble_aar_sections(payload, facts, readiness),
-        created_at=now))
-    nodes.append({"node": node_name, "class": "tier1", "cache_hit": False,
-                  "prompt_version": version, "model_id": gateway.model})
+        created_at=ctx.now))
+    ctx.nodes.append({"node": node_name, "class": "tier1", "cache_hit": False,
+                      "prompt_version": version, "model_id": ctx.gateway.model})
+    return True
+
+
+# The explicit framework-neutral graph: named stages in canonical order.
+WORKFLOW_GRAPH = [
+    ("resolve_journey", stage_resolve_journey),
+    ("reason", stage_reason),
+    ("score_confidence", stage_score_confidence),
+    ("infer_requirements", stage_infer_requirements),
+    ("resolve_stage", stage_resolve_stage),
+    ("retrieval", stage_retrieval),
+    ("match", stage_match),
+    ("tier1", stage_tier1),
+]
+
+
+def _execute_plain(ctx: WorkflowContext, state: dict) -> None:
+    for _name, stage_fn in WORKFLOW_GRAPH:
+        if not stage_fn(ctx, state):
+            break
 
 
 def run_workflow(
@@ -334,12 +620,13 @@ def run_workflow(
     trigger_type: str,
     now: datetime | None = None,
     gateway=None,
+    executor=None,
 ) -> models.WorkflowRun:
-    """One orchestration workflow execution (Core 21 shape, plain functions).
-    gateway=None runs fully deterministic (Tier 1/2 degrade per Core 21/23)."""
+    """One orchestration workflow execution. `executor` runs the stage graph
+    (default: plain sequential executor; the ADK wrapper supplies its own —
+    same stages, same state, different framework)."""
     now = _now(now)
     run_id = f"WR-{uuid.uuid4().hex[:12]}"
-    nodes: list[dict] = []
 
     # --- Trigger gates ---
     unprocessed = db.execute(
@@ -361,7 +648,7 @@ def run_workflow(
             models.WorkflowRun.status == "RUNNING")
     ).scalar()
 
-    ctx = TriggerContext(
+    trigger_ctx = TriggerContext(
         unprocessed_high_medium_events=len(unprocessed),
         newest_event_age_seconds=newest_age,
         seconds_since_last_run=(now - last_run_ts).total_seconds() if last_run_ts else None,
@@ -369,7 +656,7 @@ def run_workflow(
         tier1_calls_today=_usage_calls(db, user_id, _today(now), "tier1"),
         tier2_calls_today=_usage_calls(db, user_id, _today(now), "tier2"),
     )
-    decision = evaluate_trigger(trigger_type, ctx, policies)
+    decision = evaluate_trigger(trigger_type, trigger_ctx, policies)
     gates = {"trigger": trigger_type, "decision": decision.reason,
              "tier1_allowed": decision.tier1_allowed, "tier2_allowed": decision.tier2_allowed}
 
@@ -382,15 +669,14 @@ def run_workflow(
         db.commit()
         return run
 
-    # --- Journey resolution ---
-    resolve_sessions(db, policies, user_id, now)
-    target = db.execute(
-        select(models.Event).where(
-            models.Event.user_id == user_id, models.Event.processed_at.is_(None),
-            models.Event.journey_id.is_not(None))
-        .order_by(models.Event.ts.desc())
-    ).scalars().first()
-    if target is None:
+    ctx = WorkflowContext(db=db, chroma=chroma_client, backend=backend,
+                          gateway=gateway, policies=policies, user_id=user_id,
+                          now=now, tier1_allowed=decision.tier1_allowed,
+                          tier2_allowed=decision.tier2_allowed)
+    state: dict = {}
+    (executor or _execute_plain)(ctx, state)
+
+    if "journey_id" not in state:
         run = models.WorkflowRun(run_id=run_id, user_id=user_id, journey_id=None,
                                  trigger_type=trigger_type, gates=gates, nodes=[],
                                  policy_version=policies.version, status="SKIPPED",
@@ -398,199 +684,12 @@ def run_workflow(
         repos.insert_workflow_run(db, run)
         db.commit()
         return run
-    journey_id = target.journey_id
-    nodes.append({"node": "journey_resolution", "class": "deterministic"})
 
-    # --- BRE: pattern evaluation + evidence dedup ---
-    journey_events = repos.journey_events(db, journey_id)
-    views = [EventView(event_id=e.event_id, event_type=e.event_type,
-                       session_id=e.session_id, metadata=e.event_metadata or {})
-             for e in journey_events]
-    drafts = evaluate_patterns(views, policies)
-    existing_keys = {
-        (ev.pattern_id, tuple(sorted(ev.supporting_event_ids)))
-        for ev in repos.journey_evidence(db, journey_id)
-    }
-    new_count = 0
-    for draft in drafts:
-        if draft.dedup_key in existing_keys:
-            continue
-        existing_keys.add(draft.dedup_key)  # same draft may surface once per session window
-        new_count += 1
-        repos.insert_evidence(db, models.Evidence(
-            evidence_id=f"BE-{uuid.uuid4().hex[:10]}",
-            journey_id=journey_id, pattern_id=draft.pattern_id,
-            strength=draft.strength,
-            supporting_event_ids=sorted(draft.supporting_event_ids),
-            concept_ids=draft.concept_ids, explanation=draft.explanation,
-            created_at=now))
-    db.commit()
-    nodes.append({"node": "behavioral_reasoning", "class": "deterministic",
-                  "new_evidence": new_count})
-
-    # --- Confidence (hypothesis versions) ---
-    active = _update_hypotheses(db, policies, journey_id, now)
-    db.commit()
-    nodes.append({"node": "confidence", "class": "deterministic",
-                  "active_hypotheses": {k: v for k, v in sorted(active.items())}})
-
-    # --- Stage ---
-    evidence_dicts = [
-        {"evidence_id": ev.evidence_id, "pattern_id": ev.pattern_id,
-         "strength": ev.strength, "concept_ids": ev.concept_ids}
-        for ev in repos.journey_evidence(db, journey_id)
-    ]
-    event_types = [e.event_type for e in journey_events]
-    stage, stage_conf, stage_explanation = determine_stage(
-        evidence_dicts, active, event_types, policies)
-    latest_stage = db.execute(
-        select(models.JourneyStage).where(models.JourneyStage.journey_id == journey_id)
-        .order_by(models.JourneyStage.version.desc())
-    ).scalars().first()
-    if latest_stage is None or latest_stage.stage != stage:
-        repos.insert_journey_stage(db, models.JourneyStage(
-            journey_id=journey_id,
-            version=1 if latest_stage is None else latest_stage.version + 1,
-            stage=stage, confidence=stage_conf, explanation=stage_explanation,
-            created_at=now))
-    nodes.append({"node": "journey_stage", "class": "deterministic", "stage": stage})
-
-    # --- Requirements ---
-    requirements = derive_requirements(active, BC_TO_REQ, stage, policies)
-    latest_rp = db.execute(
-        select(models.RequirementProfile)
-        .where(models.RequirementProfile.journey_id == journey_id)
-        .order_by(models.RequirementProfile.version.desc())
-    ).scalars().first()
-    if latest_rp is None or latest_rp.requirements != requirements:
-        rp = models.RequirementProfile(
-            rp_id=f"RP-{uuid.uuid4().hex[:10]}", journey_id=journey_id,
-            version=1 if latest_rp is None else latest_rp.version + 1,
-            requirements=requirements, created_at=now)
-        repos.insert_requirement_profile(db, rp)
-        latest_rp = rp
-    db.commit()
-    nodes.append({"node": "requirements", "class": "deterministic",
-                  "published": [r["req_id"] for r in requirements]})
-
-    # --- decide_retrieve → retrieve/evaluate/refine (Tier 2) → match → readiness ---
-    high_signal = sum(1 for e in journey_events if e.signal_class == "HIGH")
-    readiness = evaluate_readiness(requirements, high_signal, policies)
-    constraints = {}
-    if not any(e.event_type == "PRICING_VIEWED" for e in journey_events):
-        constraints["budget"] = "Unknown"  # POL-REC-004
-
-    cs = None
-    published_entries: list[dict] = []
-    if requirements:
-        ttl = policies.param("POL-RETR-003", "ttl_seconds")
-        cached_cs = db.execute(
-            select(models.CandidateSet)
-            .where(models.CandidateSet.journey_id == journey_id,
-                   models.CandidateSet.rp_id == latest_rp.rp_id)
-            .order_by(models.CandidateSet.created_at.desc())
-        ).scalars().first()
-        cache_valid = (cached_cs is not None
-                       and (now - cached_cs.created_at).total_seconds() <= ttl)
-
-        if cache_valid:
-            cs = cached_cs
-            nodes.append({"node": "retrieve", "class": "tier2",
-                          "cache_hit": True, "candidates": len(cs.candidates)})
-        else:
-            concept_names = sorted(
-                f"{_concept_name(c)}" for c in active)
-            recent_terms = list(dict.fromkeys(
-                str((e.event_metadata or {}).get("query"))
-                for e in journey_events
-                if e.event_type == "SEARCH" and (e.event_metadata or {}).get("query")))
-            query_document = compose_query_document(
-                requirements, concept_names, stage, recent_terms, REQUIREMENTS)
-            tier2_budget = policies.param("POL-TRIG-003", "tier2_calls_per_user_per_day")
-
-            def _tier2_call():
-                record_ai_call(db, user_id, "tier2", now)
-
-            try:
-                if backend is gateway:  # gateway embeddings spend Tier 2 budget
-                    _tier2_call()
-                candidates, history, final_query = retrieve_with_refinement(
-                    db, chroma_client, backend, gateway, query_document, policies,
-                    tier2_llm_allowed=(
-                        decision.tier2_allowed
-                        and _usage_calls(db, user_id, _today(now), "tier2") < tier2_budget),
-                    record_tier2_call=_tier2_call)
-                cs = models.CandidateSet(
-                    cs_id=f"CS-{uuid.uuid4().hex[:10]}", journey_id=journey_id,
-                    rp_id=latest_rp.rp_id, query_document=final_query,
-                    params={"top_k": policies.param("POL-RETR-001", "top_k"),
-                            "query_template": "qd-v1"},
-                    candidates=candidates, refinement_history=history, created_at=now)
-                repos.insert_candidate_set(db, cs)
-                db.flush()
-                nodes.append({"node": "retrieve", "class": "tier2", "cache_hit": False,
-                              "candidates": len(candidates),
-                              "refinements": len([h for h in history
-                                                  if h.get("action") == "refine"])})
-            except GatewayUnavailable as exc:
-                # Tier 2 failure ladder: best available cached set, else
-                # full-catalog matching with a null Candidate Set ref (Core 21)
-                cs = cached_cs
-                nodes.append({"node": "retrieve", "class": "tier2", "cache_hit": cs is not None,
-                              "failure": str(exc)})
-
-        if cs is not None:
-            candidate_ids = [c["product_id"] for c in cs.candidates]
-        else:
-            candidate_ids = db.execute(
-                select(models.Product.product_id).where(
-                    models.Product.sync_status == "SYNCED",
-                    models.Product.deleted_at.is_(None))
-            ).scalars().all()
-            nodes.append({"node": "match_fallback", "class": "deterministic",
-                          "mode": "full-catalog"})
-
-        product_caps: dict[str, set[str]] = {}
-        for product_id in candidate_ids:
-            caps = db.execute(
-                select(models.ProductCapability.capability_id).where(
-                    models.ProductCapability.product_id == product_id)
-            ).scalars().all()
-            product_caps[product_id] = set(caps)
-        entries = rank_products(requirements, list(candidate_ids), product_caps,
-                                REQ_TO_CAP, policies)
-        top = policies.param("POL-REC-003", "top_entries")
-        alternatives = policies.param("POL-REC-003", "max_alternatives")
-        published_entries = entries[: top + alternatives]
-
-    latest_pkg = db.execute(
-        select(models.RecommendationPackage)
-        .where(models.RecommendationPackage.journey_id == journey_id)
-        .order_by(models.RecommendationPackage.created_at.desc())
-    ).scalars().first()
-    if (latest_pkg is None or latest_pkg.entries != published_entries
-            or latest_pkg.readiness != readiness):
-        rpkg = models.RecommendationPackage(
-            rpkg_id=f"RPKG-{uuid.uuid4().hex[:10]}", journey_id=journey_id,
-            rp_id=latest_rp.rp_id if latest_rp else None,
-            cs_id=cs.cs_id if cs is not None else None,
-            entries=published_entries, readiness=readiness, constraints=constraints,
-            policy_version=policies.version, created_at=now)
-        repos.insert_recommendation_package(db, rpkg)
-        db.flush()  # AAR row references the package; enforce insert order
-    else:
-        rpkg = latest_pkg
-    nodes.append({"node": "match", "class": "deterministic", "readiness": readiness})
-
-    # --- readiness_gate → clarify / generate (Tier 1) ---
-    _tier1_node(db, gateway, policies, user_id, rpkg, requirements, journey_events,
-                stage, constraints, decision.tier1_allowed, nodes, now)
-
-    # --- Finish: stamp processed, record run ---
+    # --- Node 13: persist_deliver — stamp processed, record run ---
     repos.stamp_processed(db, [e.event_id for e in unprocessed], now)
     run = models.WorkflowRun(
-        run_id=run_id, user_id=user_id, journey_id=journey_id,
-        trigger_type=trigger_type, gates=gates, nodes=nodes,
+        run_id=run_id, user_id=user_id, journey_id=state["journey_id"],
+        trigger_type=trigger_type, gates=gates, nodes=ctx.nodes,
         policy_version=policies.version, status="COMPLETED",
         started_at=now, finished_at=now)
     repos.insert_workflow_run(db, run)
