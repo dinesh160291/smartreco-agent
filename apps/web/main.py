@@ -69,6 +69,28 @@ def _init_state():
 
             seed_canonical_products(db, _state["chroma"], _state["backend"])
         reconcile_pending(db, _state["chroma"], _state["backend"])
+
+    # Real background scheduler — the digest's only initiation path (Core 24).
+    from apscheduler.schedulers.background import BackgroundScheduler
+
+    from smartreco.delivery import run_digest_cycle
+    from smartreco.models import utcnow as _utcnow
+
+    hour, minute = map(int, str(policies.param(
+        "POL-DELIV-002", "daily_time_local")).split(":"))
+
+    def _digest_job():
+        with _state["session_factory"]() as job_db:
+            records = run_digest_cycle(job_db, _state["chroma"], _state["backend"],
+                                       _state.get("gateway"), policies, _utcnow())
+            sent = sum(1 for r in records if r.status == "SENT")
+            print(f"[digest] window fired: {len(records)} evaluated, {sent} sent")
+
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(_digest_job, "cron", hour=hour, minute=minute,
+                      id="daily-digest")
+    scheduler.start()
+    _state["scheduler"] = scheduler
     return _state
 
 

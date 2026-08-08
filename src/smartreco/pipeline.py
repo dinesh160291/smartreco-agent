@@ -40,6 +40,7 @@ from smartreco.models import utcnow
 from smartreco.policies import PolicyCatalog
 from smartreco.retrieval import (
     EmbeddingBackend,
+    catalog_index_version,
     compose_query_document,
     retrieve_with_refinement,
 )
@@ -494,8 +495,10 @@ def stage_retrieval(ctx: WorkflowContext, state: dict) -> bool:
                models.CandidateSet.rp_id == latest_rp.rp_id)
         .order_by(models.CandidateSet.created_at.desc())
     ).scalars().first()
+    index_version = catalog_index_version(db)
     cache_valid = (cached_cs is not None
-                   and (ctx.now - cached_cs.created_at).total_seconds() <= ttl)
+                   and (ctx.now - cached_cs.created_at).total_seconds() <= ttl
+                   and cached_cs.params.get("index_version") == index_version)
 
     if cache_valid:
         state["cs"] = cached_cs
@@ -528,7 +531,7 @@ def stage_retrieval(ctx: WorkflowContext, state: dict) -> bool:
             cs_id=f"CS-{uuid.uuid4().hex[:10]}", journey_id=journey_id,
             rp_id=latest_rp.rp_id, query_document=final_query,
             params={"top_k": ctx.policies.param("POL-RETR-001", "top_k"),
-                    "query_template": "qd-v1"},
+                    "query_template": "qd-v1", "index_version": index_version},
             candidates=candidates, refinement_history=history, created_at=ctx.now)
         repos.insert_candidate_set(db, cs)
         db.flush()

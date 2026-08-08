@@ -134,6 +134,15 @@ class FakeGateway:
                 "clarifying_questions": ["What are you evaluating for — your team or yourself?"],
                 "next_best_actions": ["Explore a category that matches your needs"],
             })
+        if "### TASK: aar-digest" in prompt:
+            if self.malformed_tier1_remaining > 0:
+                self.malformed_tier1_remaining -= 1
+                return "prose, not the contract"
+            return json.dumps({
+                "recap": "Today you kept returning to security and SSO research.",
+                "top_recommendation": "One product keeps standing out for what you value.",
+                "next_action": "Review its security documentation",
+            })
         if "### TASK: retrieval-evaluate" in prompt:
             if self.malformed_tier2_remaining > 0:
                 self.malformed_tier2_remaining -= 1

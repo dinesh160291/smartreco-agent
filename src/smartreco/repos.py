@@ -76,6 +76,10 @@ def insert_workflow_run(db: OrmSession, row: models.WorkflowRun) -> None:
     db.add(row)
 
 
+def insert_delivery_record(db: OrmSession, row: models.DeliveryRecord) -> None:
+    db.add(row)
+
+
 def insert_journey_transition(db: OrmSession, row: models.JourneyTransition) -> None:
     db.add(row)
 

@@ -72,6 +72,21 @@ def get_collection(chroma_client):
     return chroma_client.get_or_create_collection(name="products")
 
 
+def catalog_index_version(db: OrmSession) -> str:
+    """Deterministic catalog index version — changes whenever any product
+    mutates (dual-write bumps updated_at/record_version). Candidate-set cache
+    keys include it so catalog changes invalidate by construction (core 23)."""
+    rows = db.execute(
+        select(models.Product.product_id, models.Product.record_version)
+        .where(models.Product.deleted_at.is_(None))
+        .order_by(models.Product.product_id)
+    ).all()
+    import hashlib
+
+    digest = hashlib.md5(str(rows).encode()).hexdigest()[:12]
+    return digest
+
+
 def save_product(
     db: OrmSession,
     chroma_client,
