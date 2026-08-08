@@ -3,7 +3,7 @@
 # Engines consume it only through the policy loader; every workflow run records policy_version.
 # Every value change produces a new catalog version.
 
-catalog_version: "1.0"
+catalog_version: "1.1"
 
 policies:
 
@@ -218,10 +218,10 @@ policies:
   POL-TRIG-002:
     name: Debounce / cooldown
     category: trigger
-    rule: "Debounce 60s; cooldown 10min (STAGE_TRANSITION bypasses cooldown)"
+    rule: "Debounce 30s; cooldown 3min (STAGE_TRANSITION bypasses cooldown) — v1.1 demo pacing (Decision #038; v1 was 60s/10min)"
     params:
-      debounce_seconds: 60
-      cooldown_seconds: 600
+      debounce_seconds: 30
+      cooldown_seconds: 180
       cooldown_bypass_triggers: [STAGE_TRANSITION]
 
   POL-TRIG-003:

@@ -31,3 +31,32 @@ def seed_canonical_products(db: OrmSession, chroma_client, backend: EmbeddingBac
         product.description = entry["description"]
         product.business_purpose = entry["business_purpose"]
         save_product(db, chroma_client, backend, product, entry["capabilities"])
+
+
+def seed_demo_catalog(db: OrmSession, chroma_client, backend: EmbeddingBackend) -> int:
+    """Demo database only: loads the ~240 committed seed products
+    (seed/products.json) through the standard dual-write path. Automated tests
+    never call this — fixture separation."""
+    import json
+    from pathlib import Path
+
+    seed_file = Path(__file__).resolve().parents[2] / "seed" / "products.json"
+    if not seed_file.exists():
+        return 0
+    payload = json.loads(seed_file.read_text(encoding="utf-8"))
+    count = 0
+    for entry in payload["products"]:
+        if db.get(models.Product, entry["product_id"]) is not None:
+            continue
+        product = models.Product(
+            product_id=entry["product_id"], name=entry["name"],
+            vendor=entry["vendor"], category=entry["category"],
+            description=entry["description"],
+            business_purpose=entry["business_purpose"],
+            business_value_narrative=entry["business_value_narrative"])
+        try:
+            save_product(db, chroma_client, backend, product, entry["capabilities"])
+            count += 1
+        except Exception:
+            continue  # stays PENDING/FAILED; reconciliation sweep retries
+    return count

@@ -263,17 +263,20 @@ def test_story5_frenzy_burst_and_duplicates(seeded, chroma, backend, policies, f
                             t0 + timedelta(seconds=20 * wave), specs[wave * 10:(wave + 1) * 10])
     assert inserted == 10  # duplicate UUIDs no-op (server dedupe)
 
-    # Trigger storm during the burst: debounced → SKIP rows
+    # Trigger storm during the burst: debounced → SKIP rows. Probe times sit
+    # inside the policy's debounce window (duplicate UUIDs no-op, so the newest
+    # unprocessed event is from the first wave at t0).
+    debounce = policies.param("POL-TRIG-002", "debounce_seconds")
     s1 = run_workflow(db, chroma, backend, policies, user.id, "SIGNIFICANT_EVENT",
-                      now=t0 + timedelta(seconds=25), gateway=fake_gateway)
+                      now=t0 + timedelta(seconds=debounce - 10), gateway=fake_gateway)
     s2 = run_workflow(db, chroma, backend, policies, user.id, "SIGNIFICANT_EVENT",
-                      now=t0 + timedelta(seconds=55), gateway=fake_gateway)
+                      now=t0 + timedelta(seconds=debounce - 2), gateway=fake_gateway)
     assert s1.status == "SKIPPED" and "debounce" in s1.gates["decision"]
     assert s2.status == "SKIPPED" and "debounce" in s2.gates["decision"]
 
     # Burst over → exactly one run covers it
     run = run_workflow(db, chroma, backend, policies, user.id, "SIGNIFICANT_EVENT",
-                       now=t0 + timedelta(seconds=140), gateway=fake_gateway)
+                       now=t0 + timedelta(seconds=debounce + 80), gateway=fake_gateway)
     assert run.status == "COMPLETED"
 
     runs = db.execute(select(models.WorkflowRun).where(

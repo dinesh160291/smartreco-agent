@@ -1222,3 +1222,25 @@ The alternatives were worse: trimming Microsoft 365's capability profile to forc
 ## Consequences
 
 user-journey-stories.md Story 2 amended. The acceptance test asserts exact coverages, relative order, and automation-product absence. Scenario 2 in Domain 09 is unchanged.
+
+# Decision #038
+
+## Title
+
+Policy Catalog v1.1 — trigger pacing retuned for live demonstration
+
+## Status
+
+Accepted
+
+## Decision
+
+POL-TRIG-002 changes from debounce 60s / cooldown 10min to debounce 30s / cooldown 3min, publishing Policy Catalog v1.1. No other policy value changes. Historical workflow runs recorded policy_version 1.0 and remain replayable under it.
+
+## Rationale
+
+The v1 values were correct efficiency defaults but made the live demonstration arc (browse → recommendations building over successive runs) take tens of minutes of wall-clock waiting. The catalog is explicitly configuration ("values are deliberately demo-friendly and are expected to be tuned; every change produces a new policy version" — Chapter 10). A 3-minute cooldown preserves the burst-coalescing and anti-churn guarantees at demo timescales.
+
+## Consequences
+
+config/policies.yaml carries catalog_version 1.1; the Chapter 10 table records both values; engines are untouched (they read the loader). Tests pin the new values; acceptance-story fixtures already space runs beyond both cooldown values.

@@ -65,10 +65,12 @@ def _init_state():
     with _state["session_factory"]() as db:
         seed_capabilities(db)
         if db.query(models.Product).count() == 0:
-            from smartreco.seeding import seed_canonical_products
+            from smartreco.seeding import seed_canonical_products, seed_demo_catalog
 
             seed_canonical_products(db, _state["chroma"], _state["backend"])
+            seed_demo_catalog(db, _state["chroma"], _state["backend"])
         reconcile_pending(db, _state["chroma"], _state["backend"])
+        _bootstrap_admin(db)
 
     # Real background scheduler — the digest's only initiation path (Core 24).
     from apscheduler.schedulers.background import BackgroundScheduler
@@ -92,6 +94,22 @@ def _init_state():
     scheduler.start()
     _state["scheduler"] = scheduler
     return _state
+
+
+def _bootstrap_admin(db) -> None:
+    """Demo convenience: create/promote an admin account from environment
+    (ADMIN_EMAIL + ADMIN_PASSWORD). No-op when unset."""
+    admin_email = os.environ.get("ADMIN_EMAIL")
+    admin_password = os.environ.get("ADMIN_PASSWORD")
+    if not admin_email or not admin_password:
+        return
+    user = db.query(models.User).filter(models.User.email == admin_email).first()
+    if user is None:
+        db.add(models.User(email=admin_email,
+                           password_hash=_hash_password(admin_password), role="admin"))
+    else:
+        user.role = "admin"
+    db.commit()
 
 
 def get_state():

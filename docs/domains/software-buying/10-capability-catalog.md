@@ -374,3 +374,44 @@ New Capabilities are added only through a new Domain Pack version, following the
 The Capability Catalog defines the complete, collision-free capability vocabulary of the Software Buying Domain: 27 Capabilities across 6 Capability Domains. Product Capability Profiles compose these Capabilities into product knowledge; the Business Requirement Mapping connects them to business needs; the Recommendation Engine matches against them at runtime. One ID, one meaning, everywhere.
 
 ---
+
+---
+
+# Appendix — Capability Catalog v1.1 Extension
+
+**Status:** Accepted (Phase 6; data-model §Catalog Seed Strategy rule 1)
+
+The catalog extends append-only from 27 to 55 capabilities so wide-catalog products can express themselves honestly. Six new Capability Domains are introduced: **CRM, HR, Finance, Marketing, DevOps, Data & Analytics**. The five Business Requirement → Capability mappings (Domain 07) are **unchanged** — none of the v1.1 capabilities participates in requirement coverage; out-of-domain products are the realistic noise retrieval and matching must cut through.
+
+| ID | Capability | Domain |
+|---|---|---|
+| CAP-028 | Contact Management | CRM |
+| CAP-029 | Sales Pipeline | CRM |
+| CAP-030 | Lead Scoring | CRM |
+| CAP-031 | Customer Support Ticketing | CRM |
+| CAP-032 | Live Chat | CRM |
+| CAP-033 | Applicant Tracking | HR |
+| CAP-034 | Onboarding Workflows | HR |
+| CAP-035 | Payroll Processing | HR |
+| CAP-036 | Time & Attendance | HR |
+| CAP-037 | Performance Reviews | HR |
+| CAP-038 | Invoicing | Finance |
+| CAP-039 | Expense Management | Finance |
+| CAP-040 | General Ledger | Finance |
+| CAP-041 | Budgeting & Forecasting | Finance |
+| CAP-042 | Payment Processing | Finance |
+| CAP-043 | Email Campaigns | Marketing |
+| CAP-044 | Marketing Automation | Marketing |
+| CAP-045 | Social Media Management | Marketing |
+| CAP-046 | SEO Analytics | Marketing |
+| CAP-047 | A/B Testing | Marketing |
+| CAP-048 | CI/CD Pipelines | DevOps |
+| CAP-049 | Infrastructure Monitoring | DevOps |
+| CAP-050 | Log Management | DevOps |
+| CAP-051 | Incident Response | DevOps |
+| CAP-052 | Container Orchestration | DevOps |
+| CAP-053 | Data Visualization | Data & Analytics |
+| CAP-054 | ETL Pipelines | Data & Analytics |
+| CAP-055 | Data Warehousing | Data & Analytics |
+
+Business value narratives for the v1.1 capabilities live with the canonical transcription in the reference implementation's Domain Pack module.

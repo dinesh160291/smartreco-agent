@@ -30,7 +30,10 @@ def catalog():
 
 
 def test_catalog_version_is_recorded(catalog):
-    assert catalog.version == "1.0"
+    # v1.1: POL-TRIG-002 retuned for demo pacing (Decision #038)
+    assert catalog.version == "1.1"
+    assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
+    assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 180
 
 
 def test_every_v1_policy_id_present_and_no_extras(catalog):

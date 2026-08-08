@@ -1,0 +1,4056 @@
+{
+ "disclaimer": "Editorial demonstration catalog: capability profiles are illustrative editorial interpretations for demonstration purposes, not vendor claims. Fictional products are marked.",
+ "products": [
+  {
+   "product_id": "PROD-100",
+   "name": "Salesforce Sales Cloud",
+   "vendor": "Salesforce",
+   "category": "CRM",
+   "description": "Salesforce Sales Cloud is a crm platform offering Workflow Automation, Integration Connectors, Event Triggers, Contact Management, Sales Pipeline.",
+   "business_purpose": "Help crm teams work faster with workflow automation at the core.",
+   "business_value_narrative": "Salesforce Sales Cloud enhances productivity through streamlined workflow automation and seamless integration with various business tools.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-016",
+    "CAP-017",
+    "CAP-028",
+    "CAP-029",
+    "CAP-030"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-101",
+   "name": "HubSpot CRM",
+   "vendor": "HubSpot",
+   "category": "CRM",
+   "description": "HubSpot CRM is a crm platform offering Sales Pipeline, Lead Scoring, Customer Support Ticketing, Live Chat, Marketing Automation.",
+   "business_purpose": "Help crm teams work faster with sales pipeline at the core.",
+   "business_value_narrative": "HubSpot CRM optimizes sales processes with tools for managing pipelines and enhancing customer interactions through live support.",
+   "capabilities": [
+    "CAP-029",
+    "CAP-030",
+    "CAP-031",
+    "CAP-032",
+    "CAP-044",
+    "CAP-045",
+    "CAP-046",
+    "CAP-047"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-102",
+   "name": "Pipedrive",
+   "vendor": "Pipedrive",
+   "category": "CRM",
+   "description": "Pipedrive is a crm platform offering Contact Management, Sales Pipeline, Lead Scoring, Customer Support Ticketing, Live Chat.",
+   "business_purpose": "Help crm teams work faster with contact management at the core.",
+   "business_value_narrative": "Pipedrive provides essential contact management and sales pipeline tracking for effective customer engagement and support.",
+   "capabilities": [
+    "CAP-028",
+    "CAP-029",
+    "CAP-030",
+    "CAP-031",
+    "CAP-032"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-103",
+   "name": "Zoho CRM",
+   "vendor": "Zoho",
+   "category": "CRM",
+   "description": "Zoho CRM is a crm platform offering Contact Management, Customer Support Ticketing, Live Chat, Email Campaigns, SEO Analytics.",
+   "business_purpose": "Help crm teams work faster with contact management at the core.",
+   "business_value_narrative": "Zoho CRM integrates various communication channels, enabling businesses to manage customer interactions effectively.",
+   "capabilities": [
+    "CAP-028",
+    "CAP-031",
+    "CAP-032",
+    "CAP-043",
+    "CAP-046",
+    "CAP-047"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-104",
+   "name": "Freshsales",
+   "vendor": "Freshworks",
+   "category": "CRM",
+   "description": "Freshsales is a crm platform offering Contact Management, Sales Pipeline, Lead Scoring, Live Chat.",
+   "business_purpose": "Help crm teams work faster with contact management at the core.",
+   "business_value_narrative": "Freshsales delivers key insights into sales pipelines and lead scoring to improve overall customer engagement.",
+   "capabilities": [
+    "CAP-028",
+    "CAP-029",
+    "CAP-030",
+    "CAP-032"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-105",
+   "name": "Zendesk",
+   "vendor": "Zendesk",
+   "category": "Customer Support",
+   "description": "Zendesk is a customer support platform offering Contact Management, Sales Pipeline, Lead Scoring, Customer Support Ticketing, Live Chat.",
+   "business_purpose": "Help customer support teams work faster with contact management at the core.",
+   "business_value_narrative": "Zendesk streamlines customer support with efficient contact management and ticketing features.",
+   "capabilities": [
+    "CAP-028",
+    "CAP-029",
+    "CAP-030",
+    "CAP-031",
+    "CAP-032"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-106",
+   "name": "Freshdesk",
+   "vendor": "Freshworks",
+   "category": "Customer Support",
+   "description": "Freshdesk is a customer support platform offering Sales Pipeline, Lead Scoring, Customer Support Ticketing.",
+   "business_purpose": "Help customer support teams work faster with sales pipeline at the core.",
+   "business_value_narrative": "Freshdesk facilitates effective customer support with comprehensive ticket management and lead scoring capabilities.",
+   "capabilities": [
+    "CAP-029",
+    "CAP-030",
+    "CAP-031"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-107",
+   "name": "Intercom",
+   "vendor": "Intercom",
+   "category": "Customer Support",
+   "description": "Intercom is a customer support platform offering AI Chat, Intelligent Search, Document Summarization, AI Workflow Assistance, Contact Management.",
+   "business_purpose": "Help customer support teams work faster with ai chat at the core.",
+   "business_value_narrative": "Intercom enhances user interactions through AI-driven chat solutions and intelligent document management.",
+   "capabilities": [
+    "CAP-020",
+    "CAP-022",
+    "CAP-023",
+    "CAP-024",
+    "CAP-028",
+    "CAP-030",
+    "CAP-031",
+    "CAP-032"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-108",
+   "name": "Help Scout",
+   "vendor": "Help Scout",
+   "category": "Customer Support",
+   "description": "Help Scout is a customer support platform offering Contact Management, Sales Pipeline, Lead Scoring, Customer Support Ticketing, Live Chat.",
+   "business_purpose": "Help customer support teams work faster with contact management at the core.",
+   "business_value_narrative": "Help Scout combines contact management with customer support ticketing for a streamlined support experience.",
+   "capabilities": [
+    "CAP-028",
+    "CAP-029",
+    "CAP-030",
+    "CAP-031",
+    "CAP-032"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-109",
+   "name": "Workday HCM",
+   "vendor": "Workday",
+   "category": "HR",
+   "description": "Workday HCM is a hr platform offering Applicant Tracking, Onboarding Workflows, Performance Reviews, Invoicing, Expense Management.",
+   "business_purpose": "Help hr teams work faster with applicant tracking at the core.",
+   "business_value_narrative": "Workday HCM simplifies talent management processes from hiring to performance evaluation.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-034",
+    "CAP-037",
+    "CAP-038",
+    "CAP-039",
+    "CAP-042"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-110",
+   "name": "BambooHR",
+   "vendor": "BambooHR",
+   "category": "HR",
+   "description": "BambooHR is a hr platform offering Applicant Tracking, Onboarding Workflows, Payroll Processing, Time & Attendance.",
+   "business_purpose": "Help hr teams work faster with applicant tracking at the core.",
+   "business_value_narrative": "BambooHR provides comprehensive HR solutions, including streamlined tracking of applicants and payroll processing.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-034",
+    "CAP-035",
+    "CAP-036"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-111",
+   "name": "Gusto",
+   "vendor": "Gusto",
+   "category": "HR",
+   "description": "Gusto is a hr platform offering Applicant Tracking, Onboarding Workflows, Payroll Processing, Time & Attendance, Performance Reviews.",
+   "business_purpose": "Help hr teams work faster with applicant tracking at the core.",
+   "business_value_narrative": "Gusto offers essential HR functionalities with an emphasis on onboarding and payroll efficiency.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-034",
+    "CAP-035",
+    "CAP-036",
+    "CAP-037",
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-112",
+   "name": "Rippling",
+   "vendor": "Rippling",
+   "category": "HR",
+   "description": "Rippling is a hr platform offering SCIM Provisioning, Conditional Access, Identity Federation, Payroll Processing, Time & Attendance.",
+   "business_purpose": "Help hr teams work faster with scim provisioning at the core.",
+   "business_value_narrative": "Rippling integrates advanced identity management with payroll solutions to secure organizational access.",
+   "capabilities": [
+    "CAP-003",
+    "CAP-004",
+    "CAP-008",
+    "CAP-035",
+    "CAP-036",
+    "CAP-037"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-113",
+   "name": "Greenhouse",
+   "vendor": "Greenhouse",
+   "category": "HR",
+   "description": "Greenhouse is a hr platform offering Applicant Tracking, Onboarding Workflows, Time & Attendance, Performance Reviews.",
+   "business_purpose": "Help hr teams work faster with applicant tracking at the core.",
+   "business_value_narrative": "Greenhouse simplifies recruitment with robust application tracking and performance review processes.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-034",
+    "CAP-036",
+    "CAP-037"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-114",
+   "name": "Lever",
+   "vendor": "Lever",
+   "category": "HR",
+   "description": "Lever is a hr platform offering Applicant Tracking, Onboarding Workflows, Payroll Processing, Time & Attendance, Performance Reviews.",
+   "business_purpose": "Help hr teams work faster with applicant tracking at the core.",
+   "business_value_narrative": "Lever effectively manages applicant tracking and payroll processing for enhanced hiring outcomes.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-034",
+    "CAP-035",
+    "CAP-036",
+    "CAP-037"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-115",
+   "name": "Deel",
+   "vendor": "Deel",
+   "category": "HR",
+   "description": "Deel is a hr platform offering Applicant Tracking, Onboarding Workflows, Payroll Processing, Invoicing, Expense Management.",
+   "business_purpose": "Help hr teams work faster with applicant tracking at the core.",
+   "business_value_narrative": "Deel streamlines onboarding and payroll processes, making international hiring manageable.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-034",
+    "CAP-035",
+    "CAP-038",
+    "CAP-039",
+    "CAP-040"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-116",
+   "name": "Personio",
+   "vendor": "Personio",
+   "category": "HR",
+   "description": "Personio is a hr platform offering Onboarding Workflows, Payroll Processing, Time & Attendance, Performance Reviews.",
+   "business_purpose": "Help hr teams work faster with onboarding workflows at the core.",
+   "business_value_narrative": "Personio enhances HR operations with effective onboarding and performance review mechanisms.",
+   "capabilities": [
+    "CAP-034",
+    "CAP-035",
+    "CAP-036",
+    "CAP-037"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-117",
+   "name": "QuickBooks Online",
+   "vendor": "Intuit",
+   "category": "Finance",
+   "description": "QuickBooks Online is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Help finance teams work faster with invoicing at the core.",
+   "business_value_narrative": "QuickBooks Online simplifies financial management with invoicing and expense tracking features tailored for businesses.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-118",
+   "name": "Xero",
+   "vendor": "Xero",
+   "category": "Finance",
+   "description": "Xero is a finance platform offering Invoicing, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Help finance teams work faster with invoicing at the core.",
+   "business_value_narrative": "Xero effortlessly manages invoicing and payment processing for efficient financial operations.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-119",
+   "name": "NetSuite",
+   "vendor": "Oracle",
+   "category": "Finance",
+   "description": "NetSuite is a finance platform offering Workflow Automation, Integration Connectors, Event Triggers, API Integration, Invoicing.",
+   "business_purpose": "Help finance teams work faster with workflow automation at the core.",
+   "business_value_narrative": "NetSuite automates workflows and integrates various business processes for improved operational efficiency.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-016",
+    "CAP-017",
+    "CAP-019",
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-042"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-120",
+   "name": "FreshBooks",
+   "vendor": "FreshBooks",
+   "category": "Finance",
+   "description": "FreshBooks is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Help finance teams work faster with invoicing at the core.",
+   "business_value_narrative": "FreshBooks provides intuitive features for managing invoices and expenses, aiding business financial clarity.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-121",
+   "name": "Expensify",
+   "vendor": "Expensify",
+   "category": "Finance",
+   "description": "Expensify is a finance platform offering Expense Management, General Ledger, Budgeting & Forecasting.",
+   "business_purpose": "Help finance teams work faster with expense management at the core.",
+   "business_value_narrative": "Expensify streamlines expense management and reporting, making financial oversight simpler.",
+   "capabilities": [
+    "CAP-039",
+    "CAP-040",
+    "CAP-041"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-122",
+   "name": "Ramp",
+   "vendor": "Ramp",
+   "category": "Finance",
+   "description": "Ramp is a finance platform offering Invoicing, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Help finance teams work faster with invoicing at the core.",
+   "business_value_narrative": "Ramp enhances financial operations through comprehensive general ledger management and streamlined invoicing.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-123",
+   "name": "Brex",
+   "vendor": "Brex",
+   "category": "Finance",
+   "description": "Brex is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Help finance teams work faster with invoicing at the core.",
+   "business_value_narrative": "Brex enables efficient expense management while providing robust budgeting tools for financial control.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-124",
+   "name": "Stripe Billing",
+   "vendor": "Stripe",
+   "category": "Finance",
+   "description": "Stripe Billing is a finance platform offering Workflow Automation, Integration Connectors, API Integration, Invoicing, Expense Management.",
+   "business_purpose": "Help finance teams work faster with workflow automation at the core.",
+   "business_value_narrative": "Stripe Billing automates invoicing and integrations, enhancing the efficiency of payment processing.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-016",
+    "CAP-019",
+    "CAP-038",
+    "CAP-039",
+    "CAP-042"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-125",
+   "name": "Bill.com",
+   "vendor": "BILL",
+   "category": "Finance",
+   "description": "Bill.com is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting.",
+   "business_purpose": "Help finance teams work faster with invoicing at the core.",
+   "business_value_narrative": "Bill.com streamlines financial processes, enhancing efficiency in invoicing and expense management for businesses of all sizes.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-126",
+   "name": "Mailchimp",
+   "vendor": "Intuit",
+   "category": "Marketing",
+   "description": "Mailchimp is a marketing platform offering Email Campaigns, Marketing Automation, Social Media Management, SEO Analytics, A/B Testing.",
+   "business_purpose": "Help marketing teams work faster with email campaigns at the core.",
+   "business_value_narrative": "Mailchimp enables marketers to effectively manage email campaigns and automate marketing processes across various channels.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-044",
+    "CAP-045",
+    "CAP-046",
+    "CAP-047"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-127",
+   "name": "Klaviyo",
+   "vendor": "Klaviyo",
+   "category": "Marketing",
+   "description": "Klaviyo is a marketing platform offering Social Media Management, SEO Analytics, A/B Testing, Data Visualization, ETL Pipelines.",
+   "business_purpose": "Help marketing teams work faster with social media management at the core.",
+   "business_value_narrative": "Klaviyo provides tools for social media management and data visualization, helping brands optimize their marketing strategies.",
+   "capabilities": [
+    "CAP-045",
+    "CAP-046",
+    "CAP-047",
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-128",
+   "name": "Marketo Engage",
+   "vendor": "Adobe",
+   "category": "Marketing",
+   "description": "Marketo Engage is a marketing platform offering Workflow Automation, Integration Connectors, Business Rules, API Integration, Email Campaigns.",
+   "business_purpose": "Help marketing teams work faster with workflow automation at the core.",
+   "business_value_narrative": "Marketo Engage facilitates seamless workflow automation and API integrations, allowing businesses to streamline their marketing operations.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-016",
+    "CAP-018",
+    "CAP-019",
+    "CAP-043",
+    "CAP-044",
+    "CAP-046",
+    "CAP-047"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-129",
+   "name": "Braze",
+   "vendor": "Braze",
+   "category": "Marketing",
+   "description": "Braze is a marketing platform offering Email Campaigns, Marketing Automation, Social Media Management, SEO Analytics, A/B Testing.",
+   "business_purpose": "Help marketing teams work faster with email campaigns at the core.",
+   "business_value_narrative": "Braze helps businesses automate marketing campaigns across multiple channels to enhance customer engagement and retention.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-044",
+    "CAP-045",
+    "CAP-046",
+    "CAP-047"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-130",
+   "name": "Hootsuite",
+   "vendor": "Hootsuite",
+   "category": "Marketing",
+   "description": "Hootsuite is a marketing platform offering Email Campaigns, Marketing Automation, Social Media Management.",
+   "business_purpose": "Help marketing teams work faster with email campaigns at the core.",
+   "business_value_narrative": "Hootsuite simplifies social media management and marketing automation, enabling businesses to enhance their online presence effectively.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-044",
+    "CAP-045"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-131",
+   "name": "Buffer",
+   "vendor": "Buffer",
+   "category": "Marketing",
+   "description": "Buffer is a marketing platform offering Marketing Automation, Social Media Management, SEO Analytics, A/B Testing.",
+   "business_purpose": "Help marketing teams work faster with marketing automation at the core.",
+   "business_value_narrative": "Buffer combines marketing automation and analytics, helping businesses optimize their social media strategies efficiently.",
+   "capabilities": [
+    "CAP-044",
+    "CAP-045",
+    "CAP-046",
+    "CAP-047"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-132",
+   "name": "Semrush",
+   "vendor": "Semrush",
+   "category": "Marketing",
+   "description": "Semrush is a marketing platform offering Email Campaigns, Marketing Automation, Social Media Management, SEO Analytics, A/B Testing.",
+   "business_purpose": "Help marketing teams work faster with email campaigns at the core.",
+   "business_value_narrative": "Semrush offers an integrated platform for managing email campaigns and social media, optimizing marketing efforts across channels.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-044",
+    "CAP-045",
+    "CAP-046",
+    "CAP-047",
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-133",
+   "name": "Ahrefs",
+   "vendor": "Ahrefs",
+   "category": "Marketing",
+   "description": "Ahrefs is a marketing platform offering Email Campaigns, SEO Analytics, A/B Testing.",
+   "business_purpose": "Help marketing teams work faster with email campaigns at the core.",
+   "business_value_narrative": "Ahrefs equips marketers with essential tools for email campaigns and SEO analysis to improve online visibility.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-046",
+    "CAP-047"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-134",
+   "name": "Optimizely",
+   "vendor": "Optimizely",
+   "category": "Marketing",
+   "description": "Optimizely is a marketing platform offering Email Campaigns, Marketing Automation, Social Media Management, A/B Testing.",
+   "business_purpose": "Help marketing teams work faster with email campaigns at the core.",
+   "business_value_narrative": "Optimizely supports multi-channel email marketing and automation, allowing businesses to enhance customer experiences.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-044",
+    "CAP-045",
+    "CAP-047"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-135",
+   "name": "GitHub",
+   "vendor": "GitHub",
+   "category": "DevOps",
+   "description": "GitHub is a devops platform offering Integration Connectors, Event Triggers, Business Rules, API Integration, CI/CD Pipelines.",
+   "business_purpose": "Help devops teams work faster with integration connectors at the core.",
+   "business_value_narrative": "GitHub enables developers to integrate applications seamlessly with efficient event triggers and business rules.",
+   "capabilities": [
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019",
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-136",
+   "name": "GitLab",
+   "vendor": "GitLab",
+   "category": "DevOps",
+   "description": "GitLab is a devops platform offering Encryption, Integration Connectors, Event Triggers, Business Rules, Threat Protection.",
+   "business_purpose": "Help devops teams work faster with encryption at the core.",
+   "business_value_narrative": "GitLab enhances DevOps workflows with robust encryption and integration capabilities for streamlined project management.",
+   "capabilities": [
+    "CAP-011",
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-025",
+    "CAP-026",
+    "CAP-049",
+    "CAP-050",
+    "CAP-051"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-137",
+   "name": "Bitbucket",
+   "vendor": "Atlassian",
+   "category": "DevOps",
+   "description": "Bitbucket is a devops platform offering CI/CD Pipelines, Log Management, Incident Response, Container Orchestration.",
+   "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
+   "business_value_narrative": "Bitbucket provides powerful CI/CD pipelines and log management for improved software delivery and operations.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-050",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-138",
+   "name": "CircleCI",
+   "vendor": "CircleCI",
+   "category": "DevOps",
+   "description": "CircleCI is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management, Incident Response, Container Orchestration.",
+   "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
+   "business_value_narrative": "CircleCI supports effective CI/CD pipelines and infrastructure monitoring for enhanced software development processes.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-139",
+   "name": "Jenkins",
+   "vendor": "CloudBees",
+   "category": "DevOps",
+   "description": "Jenkins is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Container Orchestration.",
+   "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
+   "business_value_narrative": "Jenkins facilitates container orchestration and infrastructure monitoring, optimizing development workflows.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-052"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-140",
+   "name": "Datadog",
+   "vendor": "Datadog",
+   "category": "DevOps",
+   "description": "Datadog is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management, Incident Response, Data Visualization.",
+   "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
+   "business_value_narrative": "Datadog enhances infrastructure monitoring and incident response capabilities for more reliable software applications.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-051",
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-141",
+   "name": "New Relic",
+   "vendor": "New Relic",
+   "category": "DevOps",
+   "description": "New Relic is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management, Incident Response, Container Orchestration.",
+   "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
+   "business_value_narrative": "New Relic provides tools for infrastructure monitoring and incident management, supporting improved application performance.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-142",
+   "name": "Grafana Cloud",
+   "vendor": "Grafana Labs",
+   "category": "DevOps",
+   "description": "Grafana Cloud is a devops platform offering Log Management, Incident Response, Container Orchestration, Data Visualization, ETL Pipelines.",
+   "business_purpose": "Help devops teams work faster with log management at the core.",
+   "business_value_narrative": "Grafana Cloud enables data visualization and log management, assisting teams in monitoring application performance effectively.",
+   "capabilities": [
+    "CAP-050",
+    "CAP-051",
+    "CAP-052",
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-143",
+   "name": "Splunk",
+   "vendor": "Cisco",
+   "category": "DevOps",
+   "description": "Splunk is a devops platform offering Encryption, Threat Protection, Data Loss Prevention, CI/CD Pipelines, Infrastructure Monitoring.",
+   "business_purpose": "Help devops teams work faster with encryption at the core.",
+   "business_value_narrative": "Splunk enhances security through encryption and threat protection while providing robust CI/CD pipeline capabilities.",
+   "capabilities": [
+    "CAP-011",
+    "CAP-025",
+    "CAP-026",
+    "CAP-048",
+    "CAP-049",
+    "CAP-051",
+    "CAP-052",
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-144",
+   "name": "PagerDuty",
+   "vendor": "PagerDuty",
+   "category": "DevOps",
+   "description": "PagerDuty is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management, Incident Response, Container Orchestration.",
+   "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
+   "business_value_narrative": "PagerDuty improves incident response and infrastructure monitoring, ensuring software reliability during development and production.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-145",
+   "name": "Opsgenie",
+   "vendor": "Atlassian",
+   "category": "DevOps",
+   "description": "Opsgenie is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management.",
+   "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
+   "business_value_narrative": "Opsgenie streamlines CI/CD pipelines and infrastructure monitoring, enhancing incident management for development teams.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-050"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-146",
+   "name": "Sentry",
+   "vendor": "Sentry",
+   "category": "DevOps",
+   "description": "Sentry is a devops platform offering Infrastructure Monitoring, Log Management, Incident Response, Container Orchestration.",
+   "business_purpose": "Help devops teams work faster with infrastructure monitoring at the core.",
+   "business_value_narrative": "Sentry provides developers with infrastructure monitoring and incident response tools to improve application performance.",
+   "capabilities": [
+    "CAP-049",
+    "CAP-050",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-147",
+   "name": "Docker Hub",
+   "vendor": "Docker",
+   "category": "DevOps",
+   "description": "Docker Hub is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management, Incident Response, Container Orchestration.",
+   "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
+   "business_value_narrative": "Docker Hub streamlines CI/CD pipelines and incident response processes for efficient application management.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-148",
+   "name": "Kubernetes Engine",
+   "vendor": "CNCF Partners",
+   "category": "DevOps",
+   "description": "Kubernetes Engine is a devops platform offering CI/CD Pipelines, Incident Response, Container Orchestration.",
+   "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
+   "business_value_narrative": "Kubernetes Engine simplifies CI/CD pipelines and incident response, enhancing container orchestration for development teams.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-149",
+   "name": "Tableau",
+   "vendor": "Salesforce",
+   "category": "Data & Analytics",
+   "description": "Tableau is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
+   "business_value_narrative": "Tableau enables organizations to visualize data effectively while streamlining ETL pipelines and data warehousing.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-150",
+   "name": "Power BI",
+   "vendor": "Microsoft",
+   "category": "Data & Analytics",
+   "description": "Power BI is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
+   "business_value_narrative": "Power BI streamlines data visualization and analysis, enhancing decision-making processes for organizations.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-151",
+   "name": "Looker Studio",
+   "vendor": "Google",
+   "category": "Data & Analytics",
+   "description": "Looker Studio is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
+   "business_value_narrative": "Looker Studio enables effective data visualization and analysis, supporting informed decisions and strategic planning.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-152",
+   "name": "Mode Analytics",
+   "vendor": "ThoughtSpot",
+   "category": "Data & Analytics",
+   "description": "Mode Analytics is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
+   "business_value_narrative": "Mode Analytics offers comprehensive data visualization tools, facilitating easier analysis and insights for businesses.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-153",
+   "name": "Fivetran",
+   "vendor": "Fivetran",
+   "category": "Data & Analytics",
+   "description": "Fivetran is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
+   "business_value_narrative": "Fivetran simplifies data integration, allowing organizations to focus on insightful analytics and strategic initiatives.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-154",
+   "name": "Airbyte",
+   "vendor": "Airbyte",
+   "category": "Data & Analytics",
+   "description": "Airbyte is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
+   "business_value_narrative": "Airbyte provides efficient data integration capabilities, which empower teams to transform datasets for actionable insights.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-155",
+   "name": "dbt Cloud",
+   "vendor": "dbt Labs",
+   "category": "Data & Analytics",
+   "description": "dbt Cloud is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
+   "business_value_narrative": "dbt Cloud enhances data modeling and analytics efficiency, supporting robust business intelligence strategies.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-156",
+   "name": "Snowflake",
+   "vendor": "Snowflake",
+   "category": "Data & Analytics",
+   "description": "Snowflake is a data & analytics platform offering Encryption, Threat Protection, Data Loss Prevention, Data Visualization, ETL Pipelines.",
+   "business_purpose": "Help data & analytics teams work faster with encryption at the core.",
+   "business_value_narrative": "Snowflake provides secure data management solutions, helping organizations safeguard data while enabling insightful analysis.",
+   "capabilities": [
+    "CAP-011",
+    "CAP-025",
+    "CAP-026",
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-157",
+   "name": "BigQuery",
+   "vendor": "Google",
+   "category": "Data & Analytics",
+   "description": "BigQuery is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
+   "business_value_narrative": "BigQuery leverages powerful data analytics capabilities, streamlining data processing for agile business decisions.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-158",
+   "name": "Databricks",
+   "vendor": "Databricks",
+   "category": "Data & Analytics",
+   "description": "Databricks is a data & analytics platform offering AI Chat, Content Generation, Document Summarization, AI Workflow Assistance, Data Visualization.",
+   "business_purpose": "Help data & analytics teams work faster with ai chat at the core.",
+   "business_value_narrative": "Databricks enhances productivity with AI-driven analytics tools, facilitating collaboration and efficient data processing.",
+   "capabilities": [
+    "CAP-020",
+    "CAP-021",
+    "CAP-023",
+    "CAP-024",
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-159",
+   "name": "Amplitude",
+   "vendor": "Amplitude",
+   "category": "Data & Analytics",
+   "description": "Amplitude is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
+   "business_value_narrative": "Amplitude supports companies in analyzing user behavior through intuitive data visualizations and reporting mechanisms.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-160",
+   "name": "Mixpanel",
+   "vendor": "Mixpanel",
+   "category": "Data & Analytics",
+   "description": "Mixpanel is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
+   "business_value_narrative": "Mixpanel empowers businesses with insights into user engagement and behavior, driving effective product strategies.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-161",
+   "name": "Segment",
+   "vendor": "Twilio",
+   "category": "Data & Analytics",
+   "description": "Segment is a data & analytics platform offering Integration Connectors, Event Triggers, Business Rules, API Integration, Data Visualization.",
+   "business_purpose": "Help data & analytics teams work faster with integration connectors at the core.",
+   "business_value_narrative": "Segment offers robust integration capabilities, allowing seamless data flow across business applications for improved analytics.",
+   "capabilities": [
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019",
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-162",
+   "name": "Asana",
+   "vendor": "Asana",
+   "category": "Work Management",
+   "description": "Asana is a work management platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, Integration Connectors.",
+   "business_purpose": "Help work management teams work faster with messaging at the core.",
+   "business_value_narrative": "Asana fosters collaboration among teams through effective messaging and file-sharing tools, enhancing project management efficiency.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-163",
+   "name": "Monday.com",
+   "vendor": "monday.com",
+   "category": "Work Management",
+   "description": "Monday.com is a work management platform offering Messaging, Video Meetings, File Sharing, Workflow Automation, Business Rules.",
+   "business_purpose": "Help work management teams work faster with messaging at the core.",
+   "business_value_narrative": "Monday.com streamlines team communication and project workflows, simplifying task management and collaboration efforts.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-009",
+    "CAP-015",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-164",
+   "name": "ClickUp",
+   "vendor": "ClickUp",
+   "category": "Work Management",
+   "description": "ClickUp is a work management platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, Workflow Automation.",
+   "business_purpose": "Help work management teams work faster with messaging at the core.",
+   "business_value_narrative": "ClickUp enhances team collaboration and project management with integrated messaging and document-sharing tools.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-015",
+    "CAP-016",
+    "CAP-017",
+    "CAP-019",
+    "CAP-020",
+    "CAP-021",
+    "CAP-022",
+    "CAP-024"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-165",
+   "name": "Trello",
+   "vendor": "Atlassian",
+   "category": "Work Management",
+   "description": "Trello is a work management platform offering Messaging, Video Meetings, Document Collaboration, File Sharing.",
+   "business_purpose": "Help work management teams work faster with messaging at the core.",
+   "business_value_narrative": "Trello aids project organization and team collaboration by providing effective messaging and document-sharing capabilities.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-166",
+   "name": "Basecamp",
+   "vendor": "37signals",
+   "category": "Work Management",
+   "description": "Basecamp is a work management platform offering Messaging, Document Collaboration, File Sharing.",
+   "business_purpose": "Help work management teams work faster with messaging at the core.",
+   "business_value_narrative": "Basecamp centralizes team communication and project documentation, promoting collaboration and task clarity.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-167",
+   "name": "Wrike",
+   "vendor": "Wrike",
+   "category": "Work Management",
+   "description": "Wrike is a work management platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, Workflow Automation.",
+   "business_purpose": "Help work management teams work faster with messaging at the core.",
+   "business_value_narrative": "Wrike enhances project management with collaborative tools, streamlining communication and document handling among teams.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-015",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-168",
+   "name": "Smartsheet",
+   "vendor": "Smartsheet",
+   "category": "Work Management",
+   "description": "Smartsheet is a work management platform offering Integration Connectors, Event Triggers, Business Rules, API Integration, Data Visualization.",
+   "business_purpose": "Help work management teams work faster with integration connectors at the core.",
+   "business_value_narrative": "Smartsheet integrates various business functions, enabling efficient workflows and automation for project management.",
+   "capabilities": [
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019",
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-169",
+   "name": "Airtable",
+   "vendor": "Airtable",
+   "category": "Work Management",
+   "description": "Airtable is a work management platform offering Workflow Automation, Integration Connectors, API Integration, Data Visualization, ETL Pipelines.",
+   "business_purpose": "Help work management teams work faster with workflow automation at the core.",
+   "business_value_narrative": "Airtable combines workflow automation with powerful integration tools, supporting customized project management solutions.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-016",
+    "CAP-019",
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-170",
+   "name": "Miro",
+   "vendor": "Miro",
+   "category": "Collaboration",
+   "description": "Miro is a collaboration platform offering Messaging, Video Meetings, Document Collaboration, File Sharing.",
+   "business_purpose": "Help collaboration teams work faster with messaging at the core.",
+   "business_value_narrative": "Miro facilitates remote collaboration through integrated messaging and document-sharing solutions for teams.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-171",
+   "name": "Figma",
+   "vendor": "Figma",
+   "category": "Design",
+   "description": "Figma is a design platform offering Messaging, Video Meetings, Document Collaboration, File Sharing.",
+   "business_purpose": "Help design teams work faster with messaging at the core.",
+   "business_value_narrative": "Figma enhances team collaboration in design with integrated tools for messaging and file sharing.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-172",
+   "name": "Canva",
+   "vendor": "Canva",
+   "category": "Design",
+   "description": "Canva is a design platform offering Messaging, Video Meetings, Document Collaboration, Intelligent Search, Document Summarization.",
+   "business_purpose": "Help design teams work faster with messaging at the core.",
+   "business_value_narrative": "Canva simplifies graphic design collaboration with intelligent search and effective messaging tools for teams.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-022",
+    "CAP-023",
+    "CAP-024"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-173",
+   "name": "Dropbox Business",
+   "vendor": "Dropbox",
+   "category": "Content Management",
+   "description": "Dropbox Business is a content management platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, Encryption.",
+   "business_purpose": "Help content management teams work faster with messaging at the core.",
+   "business_value_narrative": "Dropbox Business provides secure file sharing and collaboration tools, enhancing productivity across teams.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-011",
+    "CAP-025",
+    "CAP-026"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-174",
+   "name": "Egnyte",
+   "vendor": "Egnyte",
+   "category": "Content Management",
+   "description": "Egnyte is a content management platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, Encryption.",
+   "business_purpose": "Help content management teams work faster with messaging at the core.",
+   "business_value_narrative": "Egnyte supports seamless content management and collaboration, enabling efficient document sharing among team members.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-011",
+    "CAP-012",
+    "CAP-013",
+    "CAP-014",
+    "CAP-025",
+    "CAP-026",
+    "CAP-027"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-175",
+   "name": "M-Files",
+   "vendor": "M-Files",
+   "category": "Content Management",
+   "description": "M-Files is a content management platform offering Audit Logging, Information Governance, Data Retention, Workflow Automation, Integration Connectors.",
+   "business_purpose": "Help content management teams work faster with audit logging at the core.",
+   "business_value_narrative": "M-Files enhances data governance and workflow automation for effective content management.",
+   "capabilities": [
+    "CAP-010",
+    "CAP-012",
+    "CAP-013",
+    "CAP-015",
+    "CAP-016",
+    "CAP-017"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-176",
+   "name": "DocuSign",
+   "vendor": "DocuSign",
+   "category": "Content Management",
+   "description": "DocuSign is a content management platform offering Information Governance, Data Retention, eDiscovery, Integration Connectors, Event Triggers.",
+   "business_purpose": "Help content management teams work faster with information governance at the core.",
+   "business_value_narrative": "DocuSign facilitates secure information governance and seamless integration with existing systems.",
+   "capabilities": [
+    "CAP-012",
+    "CAP-013",
+    "CAP-014",
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019",
+    "CAP-027"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-177",
+   "name": "PandaDoc",
+   "vendor": "PandaDoc",
+   "category": "Content Management",
+   "description": "PandaDoc is a content management platform offering Integration Connectors, Event Triggers, Business Rules, API Integration.",
+   "business_purpose": "Help content management teams work faster with integration connectors at the core.",
+   "business_value_narrative": "PandaDoc enables dynamic content management through robust API integration and event-driven workflows.",
+   "capabilities": [
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-178",
+   "name": "Confluence",
+   "vendor": "Atlassian",
+   "category": "Knowledge & Docs",
+   "description": "Confluence is a knowledge & docs platform offering Messaging, Document Collaboration, File Sharing, AI Chat, Document Summarization.",
+   "business_purpose": "Help knowledge & docs teams work faster with messaging at the core.",
+   "business_value_narrative": "Confluence supports collaborative documentation and knowledge sharing within teams using advanced messaging features.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009",
+    "CAP-020",
+    "CAP-023",
+    "CAP-024"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-179",
+   "name": "Guru",
+   "vendor": "Guru",
+   "category": "Knowledge & Docs",
+   "description": "Guru is a knowledge & docs platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, AI Chat.",
+   "business_purpose": "Help knowledge & docs teams work faster with messaging at the core.",
+   "business_value_narrative": "Guru fosters effective team collaboration with integrated messaging and video meeting capabilities.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-020",
+    "CAP-021",
+    "CAP-022",
+    "CAP-024"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-180",
+   "name": "Coda",
+   "vendor": "Coda",
+   "category": "Knowledge & Docs",
+   "description": "Coda is a knowledge & docs platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, Integration Connectors.",
+   "business_purpose": "Help knowledge & docs teams work faster with messaging at the core.",
+   "business_value_narrative": "Coda enhances collaboration with versatile document sharing and video meeting tools.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-181",
+   "name": "Evernote Teams",
+   "vendor": "Bending Spoons",
+   "category": "Knowledge & Docs",
+   "description": "Evernote Teams is a knowledge & docs platform offering Video Meetings, Document Collaboration, File Sharing.",
+   "business_purpose": "Help knowledge & docs teams work faster with video meetings at the core.",
+   "business_value_narrative": "Evernote Teams streamlines document collaboration with integrated video meeting functionalities.",
+   "capabilities": [
+    "CAP-006",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-182",
+   "name": "Auth0",
+   "vendor": "Okta",
+   "category": "Identity & Access Management",
+   "description": "Auth0 is a identity & access management platform offering Single Sign-On, SCIM Provisioning, Conditional Access, Identity Federation, Encryption.",
+   "business_purpose": "Help identity & access management teams work faster with single sign-on at the core.",
+   "business_value_narrative": "Auth0 ensures secure identity management with advanced single sign-on and access control features.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008",
+    "CAP-011",
+    "CAP-025",
+    "CAP-026"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-183",
+   "name": "Ping Identity",
+   "vendor": "Ping Identity",
+   "category": "Identity & Access Management",
+   "description": "Ping Identity is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Help identity & access management teams work faster with single sign-on at the core.",
+   "business_value_narrative": "Ping Identity provides comprehensive identity protection through multi-factor authentication and single sign-on capabilities.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-184",
+   "name": "OneLogin",
+   "vendor": "One Identity",
+   "category": "Identity & Access Management",
+   "description": "OneLogin is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, Identity Federation.",
+   "business_purpose": "Help identity & access management teams work faster with single sign-on at the core.",
+   "business_value_narrative": "OneLogin simplifies user authentication processes with robust single sign-on and identity federation features.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-008"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-185",
+   "name": "JumpCloud",
+   "vendor": "JumpCloud",
+   "category": "Identity & Access Management",
+   "description": "JumpCloud is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, CI/CD Pipelines.",
+   "business_purpose": "Help identity & access management teams work faster with single sign-on at the core.",
+   "business_value_narrative": "JumpCloud delivers secure access management through multi-factor authentication and conditional access protocols.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-051"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-186",
+   "name": "CyberArk",
+   "vendor": "CyberArk",
+   "category": "Identity & Access Management",
+   "description": "CyberArk is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Help identity & access management teams work faster with single sign-on at the core.",
+   "business_value_narrative": "CyberArk safeguards identities with strong authentication practices and streamlined access management.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008",
+    "CAP-011",
+    "CAP-025",
+    "CAP-026"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-187",
+   "name": "Duo Security",
+   "vendor": "Cisco",
+   "category": "Identity & Access Management",
+   "description": "Duo Security is a identity & access management platform offering SCIM Provisioning, Conditional Access, Identity Federation, Encryption, Threat Protection.",
+   "business_purpose": "Help identity & access management teams work faster with scim provisioning at the core.",
+   "business_value_narrative": "Duo Security enhances security protocols through encryption and conditional access measures.",
+   "capabilities": [
+    "CAP-003",
+    "CAP-004",
+    "CAP-008",
+    "CAP-011",
+    "CAP-025",
+    "CAP-026"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-188",
+   "name": "1Password Business",
+   "vendor": "1Password",
+   "category": "Security",
+   "description": "1Password Business is a security platform offering Single Sign-On, Multi-Factor Authentication, Conditional Access, Identity Federation, Encryption.",
+   "business_purpose": "Help security teams work faster with single sign-on at the core.",
+   "business_value_narrative": "1Password Business offers streamlined access management with secure single sign-on capabilities.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-004",
+    "CAP-008",
+    "CAP-011",
+    "CAP-025",
+    "CAP-026"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-189",
+   "name": "LastPass",
+   "vendor": "LastPass",
+   "category": "Security",
+   "description": "LastPass is a security platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Help security teams work faster with single sign-on at the core.",
+   "business_value_narrative": "LastPass provides efficient identity management with multi-factor authentication and conditional access solutions.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008",
+    "CAP-011",
+    "CAP-025",
+    "CAP-026"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-190",
+   "name": "CrowdStrike Falcon",
+   "vendor": "CrowdStrike",
+   "category": "Security",
+   "description": "CrowdStrike Falcon is a security platform offering Encryption, Threat Protection, Data Loss Prevention.",
+   "business_purpose": "Help security teams work faster with encryption at the core.",
+   "business_value_narrative": "CrowdStrike Falcon protects against threats with advanced encryption and data loss prevention features.",
+   "capabilities": [
+    "CAP-011",
+    "CAP-025",
+    "CAP-026"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-191",
+   "name": "SentinelOne",
+   "vendor": "SentinelOne",
+   "category": "Security",
+   "description": "SentinelOne is a security platform offering Encryption, Threat Protection, Data Loss Prevention.",
+   "business_purpose": "Help security teams work faster with encryption at the core.",
+   "business_value_narrative": "SentinelOne delivers ongoing threat protection focused on encryption and data integrity.",
+   "capabilities": [
+    "CAP-011",
+    "CAP-025",
+    "CAP-026"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-192",
+   "name": "Vanta",
+   "vendor": "Vanta",
+   "category": "Security",
+   "description": "Vanta is a security platform offering Encryption, Information Governance, Data Retention, eDiscovery, Threat Protection.",
+   "business_purpose": "Help security teams work faster with encryption at the core.",
+   "business_value_narrative": "Vanta strengthens data governance through encryption and comprehensive compliance mechanisms.",
+   "capabilities": [
+    "CAP-011",
+    "CAP-012",
+    "CAP-013",
+    "CAP-014",
+    "CAP-025",
+    "CAP-026",
+    "CAP-027"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-193",
+   "name": "Drata",
+   "vendor": "Drata",
+   "category": "Security",
+   "description": "Drata is a security platform offering Audit Logging, Encryption, eDiscovery, Threat Protection, Data Loss Prevention.",
+   "business_purpose": "Help security teams work faster with audit logging at the core.",
+   "business_value_narrative": "Drata enhances security compliance with efficient audit logging and threat protection measures.",
+   "capabilities": [
+    "CAP-010",
+    "CAP-011",
+    "CAP-014",
+    "CAP-025",
+    "CAP-026",
+    "CAP-027"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-194",
+   "name": "OneTrust",
+   "vendor": "OneTrust",
+   "category": "Compliance",
+   "description": "OneTrust is a compliance platform offering Audit Logging, Information Governance, Data Retention, Compliance Reporting.",
+   "business_purpose": "Help compliance teams work faster with audit logging at the core.",
+   "business_value_narrative": "OneTrust supports organizations in maintaining compliance with robust audit logging and information governance.",
+   "capabilities": [
+    "CAP-010",
+    "CAP-012",
+    "CAP-013",
+    "CAP-027"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-195",
+   "name": "LogicGate",
+   "vendor": "LogicGate",
+   "category": "Compliance",
+   "description": "LogicGate is a compliance platform offering Information Governance, Data Retention, eDiscovery, Integration Connectors, Event Triggers.",
+   "business_purpose": "Help compliance teams work faster with information governance at the core.",
+   "business_value_narrative": "LogicGate streamlines compliance processes with effective data governance and information retention strategies.",
+   "capabilities": [
+    "CAP-012",
+    "CAP-013",
+    "CAP-014",
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019",
+    "CAP-027"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-196",
+   "name": "Microsoft Teams",
+   "vendor": "Microsoft",
+   "category": "Collaboration",
+   "description": "Microsoft Teams is a collaboration platform offering Messaging, Video Meetings, Document Collaboration, Content Generation, Intelligent Search.",
+   "business_purpose": "Help collaboration teams work faster with messaging at the core.",
+   "business_value_narrative": "Microsoft Teams improves collaboration through rich messaging and content generation tools.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-021",
+    "CAP-022",
+    "CAP-023"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-197",
+   "name": "Webex",
+   "vendor": "Cisco",
+   "category": "Collaboration",
+   "description": "Webex is a collaboration platform offering Messaging, Video Meetings, Document Collaboration, File Sharing.",
+   "business_purpose": "Help collaboration teams work faster with messaging at the core.",
+   "business_value_narrative": "Webex enhances team collaboration with integrated messaging and document sharing features.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-198",
+   "name": "GoTo Meeting",
+   "vendor": "GoTo",
+   "category": "Collaboration",
+   "description": "GoTo Meeting is a collaboration platform offering Messaging, Video Meetings, Document Collaboration, File Sharing.",
+   "business_purpose": "Help collaboration teams work faster with messaging at the core.",
+   "business_value_narrative": "GoTo Meeting facilitates seamless collaboration with effective tools for messaging and document sharing.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-199",
+   "name": "RingCentral",
+   "vendor": "RingCentral",
+   "category": "Collaboration",
+   "description": "RingCentral is a collaboration platform offering Messaging, Video Meetings, File Sharing.",
+   "business_purpose": "Help collaboration teams work faster with messaging at the core.",
+   "business_value_narrative": "RingCentral ensures effective team communication with enhanced messaging and video conferencing capabilities.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-009"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-200",
+   "name": "Twilio Flex",
+   "vendor": "Twilio",
+   "category": "Customer Support",
+   "description": "Twilio Flex is a customer support platform offering Workflow Automation, Integration Connectors, Event Triggers, Business Rules, Contact Management.",
+   "business_purpose": "Help customer support teams work faster with workflow automation at the core.",
+   "business_value_narrative": "Twilio Flex optimizes customer support processes through automation and seamless integrations, enhancing overall efficiency and response times.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-028",
+    "CAP-029",
+    "CAP-030",
+    "CAP-031"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-201",
+   "name": "Calendly",
+   "vendor": "Calendly",
+   "category": "Productivity",
+   "description": "Calendly is a productivity platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, Integration Connectors.",
+   "business_purpose": "Help productivity teams work faster with messaging at the core.",
+   "business_value_narrative": "Calendly streamlines scheduling tasks, enabling effective collaboration through messaging and video meetings.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-202",
+   "name": "Loom",
+   "vendor": "Atlassian",
+   "category": "Productivity",
+   "description": "Loom is a productivity platform offering Messaging, Document Collaboration, File Sharing, Intelligent Search, Document Summarization.",
+   "business_purpose": "Help productivity teams work faster with messaging at the core.",
+   "business_value_narrative": "Loom facilitates efficient communication and knowledge sharing with document collaboration and intelligent search capabilities.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009",
+    "CAP-022",
+    "CAP-023",
+    "CAP-024"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-203",
+   "name": "Grammarly Business",
+   "vendor": "Grammarly",
+   "category": "Productivity",
+   "description": "Grammarly Business is a productivity platform offering AI Chat, Content Generation, Document Summarization, AI Workflow Assistance.",
+   "business_purpose": "Help productivity teams work faster with ai chat at the core.",
+   "business_value_narrative": "Grammarly Business enhances productivity by providing AI-driven assistance in content creation and document management.",
+   "capabilities": [
+    "CAP-020",
+    "CAP-021",
+    "CAP-023",
+    "CAP-024"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-204",
+   "name": "Otter.ai",
+   "vendor": "Otter.ai",
+   "category": "Productivity",
+   "description": "Otter.ai is a productivity platform offering AI Chat, Content Generation, Intelligent Search, Document Summarization, AI Workflow Assistance.",
+   "business_purpose": "Help productivity teams work faster with ai chat at the core.",
+   "business_value_narrative": "Otter.ai simplifies content management with AI-powered transcription and intelligent search features.",
+   "capabilities": [
+    "CAP-020",
+    "CAP-021",
+    "CAP-022",
+    "CAP-023",
+    "CAP-024"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-205",
+   "name": "Jasper",
+   "vendor": "Jasper AI",
+   "category": "Productivity",
+   "description": "Jasper is a productivity platform offering AI Chat, Content Generation, Intelligent Search, Email Campaigns, Marketing Automation.",
+   "business_purpose": "Help productivity teams work faster with ai chat at the core.",
+   "business_value_narrative": "Jasper empowers teams in crafting personalized content and managing email campaigns with AI support.",
+   "capabilities": [
+    "CAP-020",
+    "CAP-021",
+    "CAP-022",
+    "CAP-043",
+    "CAP-044",
+    "CAP-045"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-206",
+   "name": "Todoist",
+   "vendor": "Doist",
+   "category": "Productivity",
+   "description": "Todoist is a productivity platform offering Messaging, Video Meetings, Document Collaboration, File Sharing.",
+   "business_purpose": "Help productivity teams work faster with messaging at the core.",
+   "business_value_narrative": "Todoist enhances team productivity by organizing tasks and enabling collaboration through efficient sharing tools.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-207",
+   "name": "Linear",
+   "vendor": "Linear",
+   "category": "Work Management",
+   "description": "Linear is a work management platform offering Integration Connectors, Event Triggers, Business Rules, API Integration, CI/CD Pipelines.",
+   "business_purpose": "Help work management teams work faster with integration connectors at the core.",
+   "business_value_narrative": "Linear improves workflow management by integrating various development processes through event triggers and APIs.",
+   "capabilities": [
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019",
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-208",
+   "name": "Shortcut",
+   "vendor": "Shortcut",
+   "category": "Work Management",
+   "description": "Shortcut is a work management platform offering CI/CD Pipelines, Incident Response, Container Orchestration.",
+   "business_purpose": "Help work management teams work faster with ci/cd pipelines at the core.",
+   "business_value_narrative": "Shortcut supports agile workflows with tools for incident response and container orchestration.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-209",
+   "name": "Retool",
+   "vendor": "Retool",
+   "category": "DevOps",
+   "description": "Retool is a devops platform offering Workflow Automation, Integration Connectors, Event Triggers, API Integration, CI/CD Pipelines.",
+   "business_purpose": "Help devops teams work faster with workflow automation at the core.",
+   "business_value_narrative": "Retool accelerates development processes by automating workflows and integrating applications seamlessly.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-016",
+    "CAP-017",
+    "CAP-019",
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-052"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-210",
+   "name": "Make",
+   "vendor": "Make.com",
+   "category": "Workflow Automation",
+   "description": "Make is a workflow automation platform offering Integration Connectors, Event Triggers, Business Rules, API Integration.",
+   "business_purpose": "Help workflow automation teams work faster with integration connectors at the core.",
+   "business_value_narrative": "Make streamlines business operations by facilitating integration and automation of various tasks.",
+   "capabilities": [
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-211",
+   "name": "Workato",
+   "vendor": "Workato",
+   "category": "Workflow Automation",
+   "description": "Workato is a workflow automation platform offering Integration Connectors, Event Triggers, Business Rules.",
+   "business_purpose": "Help workflow automation teams work faster with integration connectors at the core.",
+   "business_value_narrative": "Workato enables businesses to automate workflows and integrate their applications effortlessly.",
+   "capabilities": [
+    "CAP-016",
+    "CAP-017",
+    "CAP-018"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-212",
+   "name": "Tray.io",
+   "vendor": "Tray.io",
+   "category": "Workflow Automation",
+   "description": "Tray.io is a workflow automation platform offering Workflow Automation, Event Triggers, Business Rules, API Integration.",
+   "business_purpose": "Help workflow automation teams work faster with workflow automation at the core.",
+   "business_value_narrative": "Tray.io transforms workflow management with automation and reliable integration across systems.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-213",
+   "name": "n8n",
+   "vendor": "n8n",
+   "category": "Workflow Automation",
+   "description": "n8n is a workflow automation platform offering Integration Connectors, Event Triggers, Business Rules, API Integration, CI/CD Pipelines.",
+   "business_purpose": "Help workflow automation teams work faster with integration connectors at the core.",
+   "business_value_narrative": "n8n provides flexible automation options, integrating multiple applications for streamlined operations.",
+   "capabilities": [
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019",
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-214",
+   "name": "Nintex",
+   "vendor": "Nintex",
+   "category": "Workflow Automation",
+   "description": "Nintex is a workflow automation platform offering Audit Logging, Information Governance, Workflow Automation, Integration Connectors, API Integration.",
+   "business_purpose": "Help workflow automation teams work faster with audit logging at the core.",
+   "business_value_narrative": "Nintex enhances compliance and process management through robust workflow automation and auditing features.",
+   "capabilities": [
+    "CAP-010",
+    "CAP-012",
+    "CAP-015",
+    "CAP-016",
+    "CAP-019",
+    "CAP-027"
+   ],
+   "fictional": false
+  },
+  {
+   "product_id": "PROD-300",
+   "name": "FlowDesk",
+   "vendor": "Flow Labs",
+   "category": "CRM",
+   "description": "FlowDesk is a crm platform offering Contact Management, Sales Pipeline, Lead Scoring.",
+   "business_purpose": "Give crm teams contact management without the overhead.",
+   "business_value_narrative": "FlowDesk helps sales teams manage contacts and pipelines effectively to drive revenue growth.",
+   "capabilities": [
+    "CAP-028",
+    "CAP-029",
+    "CAP-030"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-301",
+   "name": "FlowCrew",
+   "vendor": "Flow Labs",
+   "category": "HR",
+   "description": "FlowCrew is a hr platform offering Onboarding Workflows, Payroll Processing, Time & Attendance, Performance Reviews.",
+   "business_purpose": "Give hr teams onboarding workflows without the overhead.",
+   "business_value_narrative": "FlowCrew streamlines HR management through efficient onboarding, payroll, and performance review processes.",
+   "capabilities": [
+    "CAP-034",
+    "CAP-035",
+    "CAP-036",
+    "CAP-037"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-302",
+   "name": "FlowCount",
+   "vendor": "Flow Labs",
+   "category": "Finance",
+   "description": "FlowCount is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Give finance teams invoicing without the overhead.",
+   "business_value_narrative": "FlowCount simplifies finance operations by offering tools for invoicing and budget management.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-303",
+   "name": "FlowReach",
+   "vendor": "Flow Labs",
+   "category": "Marketing",
+   "description": "FlowReach is a marketing platform offering Email Campaigns, SEO Analytics, A/B Testing.",
+   "business_purpose": "Give marketing teams email campaigns without the overhead.",
+   "business_value_narrative": "FlowReach enhances marketing strategies with automated email campaigns and insightful SEO analytics.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-046",
+    "CAP-047"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-304",
+   "name": "FlowWatch",
+   "vendor": "Flow Labs",
+   "category": "DevOps",
+   "description": "FlowWatch is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management, Container Orchestration.",
+   "business_purpose": "Give devops teams ci/cd pipelines without the overhead.",
+   "business_value_narrative": "FlowWatch ensures operational efficiency by monitoring infrastructure and managing CI/CD pipelines effectively.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-052"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-305",
+   "name": "FlowInsight",
+   "vendor": "Flow Labs",
+   "category": "Data & Analytics",
+   "description": "FlowInsight is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+   "business_value_narrative": "FlowInsight transforms data analysis with powerful visualization and ETL capabilities.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-306",
+   "name": "FlowSpace",
+   "vendor": "Flow Labs",
+   "category": "Collaboration",
+   "description": "FlowSpace is a collaboration platform offering Messaging, Document Collaboration, File Sharing.",
+   "business_purpose": "Give collaboration teams messaging without the overhead.",
+   "business_value_narrative": "FlowSpace boosts team collaboration through effective messaging and document-sharing features.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-307",
+   "name": "FlowChain",
+   "vendor": "Flow Labs",
+   "category": "Workflow Automation",
+   "description": "FlowChain is a workflow automation platform offering Workflow Automation, Event Triggers, Business Rules, API Integration.",
+   "business_purpose": "Give workflow automation teams workflow automation without the overhead.",
+   "business_value_narrative": "FlowChain simplifies workflow automation and management with robust event triggers and API integrations.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-308",
+   "name": "FlowKey",
+   "vendor": "Flow Labs",
+   "category": "Identity & Access Management",
+   "description": "FlowKey is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Give identity & access management teams single sign-on without the overhead.",
+   "business_value_narrative": "FlowKey secures organizational data with advanced identity and access management solutions.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-309",
+   "name": "FlowDocs",
+   "vendor": "Flow Labs",
+   "category": "Content Management",
+   "description": "FlowDocs is a content management platform offering Video Meetings, Document Collaboration, File Sharing, Audit Logging, Information Governance.",
+   "business_purpose": "Give content management teams video meetings without the overhead.",
+   "business_value_narrative": "FlowDocs enhances content management by facilitating collaboration and ensuring compliance through audit logging.",
+   "capabilities": [
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-010",
+    "CAP-012",
+    "CAP-027"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-310",
+   "name": "FlowSprint",
+   "vendor": "Flow Labs",
+   "category": "Productivity",
+   "description": "FlowSprint is a productivity platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, AI Chat.",
+   "business_purpose": "Give productivity teams messaging without the overhead.",
+   "business_value_narrative": "FlowSprint enhances collaboration through integrated messaging, video meetings, and document sharing, improving overall productivity.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-020",
+    "CAP-021",
+    "CAP-022",
+    "CAP-023"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-311",
+   "name": "NovaDesk",
+   "vendor": "Nova Labs",
+   "category": "CRM",
+   "description": "NovaDesk is a crm platform offering Lead Scoring, Customer Support Ticketing, Live Chat.",
+   "business_purpose": "Give crm teams lead scoring without the overhead.",
+   "business_value_narrative": "NovaDesk streamlines customer interactions with features for lead scoring and support ticketing, optimizing sales and support processes.",
+   "capabilities": [
+    "CAP-030",
+    "CAP-031",
+    "CAP-032"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-312",
+   "name": "NovaCrew",
+   "vendor": "Nova Labs",
+   "category": "HR",
+   "description": "NovaCrew is a hr platform offering Applicant Tracking, Onboarding Workflows, Time & Attendance, Performance Reviews.",
+   "business_purpose": "Give hr teams applicant tracking without the overhead.",
+   "business_value_narrative": "NovaCrew simplifies HR processes with tools for applicant tracking and onboarding workflows, increasing efficiency in employee management.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-034",
+    "CAP-036",
+    "CAP-037"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-313",
+   "name": "NovaCount",
+   "vendor": "Nova Labs",
+   "category": "Finance",
+   "description": "NovaCount is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Give finance teams invoicing without the overhead.",
+   "business_value_narrative": "NovaCount supports financial accuracy and planning through comprehensive invoicing and expense management features.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-314",
+   "name": "NovaReach",
+   "vendor": "Nova Labs",
+   "category": "Marketing",
+   "description": "NovaReach is a marketing platform offering Email Campaigns, Marketing Automation, Social Media Management.",
+   "business_purpose": "Give marketing teams email campaigns without the overhead.",
+   "business_value_narrative": "NovaReach drives marketing efforts with effective email campaigns and automation tools, enhancing engagement with target audiences.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-044",
+    "CAP-045"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-315",
+   "name": "NovaWatch",
+   "vendor": "Nova Labs",
+   "category": "DevOps",
+   "description": "NovaWatch is a devops platform offering Infrastructure Monitoring, Log Management, Incident Response, Container Orchestration.",
+   "business_purpose": "Give devops teams infrastructure monitoring without the overhead.",
+   "business_value_narrative": "NovaWatch ensures system reliability with infrastructure monitoring and incident response capabilities for proactive DevOps management.",
+   "capabilities": [
+    "CAP-049",
+    "CAP-050",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-316",
+   "name": "NovaInsight",
+   "vendor": "Nova Labs",
+   "category": "Data & Analytics",
+   "description": "NovaInsight is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+   "business_value_narrative": "NovaInsight enables data-driven decisions by providing robust data visualization and warehousing solutions.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-317",
+   "name": "NovaSpace",
+   "vendor": "Nova Labs",
+   "category": "Collaboration",
+   "description": "NovaSpace is a collaboration platform offering Messaging, Document Collaboration, File Sharing.",
+   "business_purpose": "Give collaboration teams messaging without the overhead.",
+   "business_value_narrative": "NovaSpace fosters teamwork through enhanced messaging and document collaboration features, facilitating seamless project execution.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-318",
+   "name": "NovaChain",
+   "vendor": "Nova Labs",
+   "category": "Workflow Automation",
+   "description": "NovaChain is a workflow automation platform offering Workflow Automation, Integration Connectors, Event Triggers, API Integration.",
+   "business_purpose": "Give workflow automation teams workflow automation without the overhead.",
+   "business_value_narrative": "NovaChain automates workflows with integration connectors and event triggers, optimizing operational efficiency.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-016",
+    "CAP-017",
+    "CAP-019"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-319",
+   "name": "NovaKey",
+   "vendor": "Nova Labs",
+   "category": "Identity & Access Management",
+   "description": "NovaKey is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Give identity & access management teams single sign-on without the overhead.",
+   "business_value_narrative": "NovaKey secures user access through single sign-on and multi-factor authentication, strengthening organizational security.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-320",
+   "name": "NovaDocs",
+   "vendor": "Nova Labs",
+   "category": "Content Management",
+   "description": "NovaDocs is a content management platform offering Video Meetings, Document Collaboration, File Sharing, Information Governance, Data Retention.",
+   "business_purpose": "Give content management teams video meetings without the overhead.",
+   "business_value_narrative": "NovaDocs enhances content management with efficient collaboration tools and information governance practices.",
+   "capabilities": [
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-012",
+    "CAP-013",
+    "CAP-014"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-321",
+   "name": "NovaSprint",
+   "vendor": "Nova Labs",
+   "category": "Productivity",
+   "description": "NovaSprint is a productivity platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, AI Chat.",
+   "business_purpose": "Give productivity teams messaging without the overhead.",
+   "business_value_narrative": "NovaSprint boosts team productivity with integrated messaging and document collaboration capabilities.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-020",
+    "CAP-022",
+    "CAP-023",
+    "CAP-024"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-322",
+   "name": "BrightDesk",
+   "vendor": "Bright Labs",
+   "category": "CRM",
+   "description": "BrightDesk is a crm platform offering Contact Management, Sales Pipeline, Live Chat.",
+   "business_purpose": "Give crm teams contact management without the overhead.",
+   "business_value_narrative": "BrightDesk organizes customer relationships effectively through contact management and sales pipeline features.",
+   "capabilities": [
+    "CAP-028",
+    "CAP-029",
+    "CAP-032"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-323",
+   "name": "BrightCrew",
+   "vendor": "Bright Labs",
+   "category": "HR",
+   "description": "BrightCrew is a hr platform offering Applicant Tracking, Onboarding Workflows, Payroll Processing, Time & Attendance.",
+   "business_purpose": "Give hr teams applicant tracking without the overhead.",
+   "business_value_narrative": "BrightCrew modernizes human resources with streamlined applicant tracking and payroll processing solutions.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-034",
+    "CAP-035",
+    "CAP-036"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-324",
+   "name": "BrightCount",
+   "vendor": "Bright Labs",
+   "category": "Finance",
+   "description": "BrightCount is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Give finance teams invoicing without the overhead.",
+   "business_value_narrative": "BrightCount facilitates accurate financial management with comprehensive invoicing and budgeting tools.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-325",
+   "name": "BrightReach",
+   "vendor": "Bright Labs",
+   "category": "Marketing",
+   "description": "BrightReach is a marketing platform offering Social Media Management, SEO Analytics, A/B Testing.",
+   "business_purpose": "Give marketing teams social media management without the overhead.",
+   "business_value_narrative": "BrightReach improves online presence with social media management and A/B testing functionalities.",
+   "capabilities": [
+    "CAP-045",
+    "CAP-046",
+    "CAP-047"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-326",
+   "name": "BrightWatch",
+   "vendor": "Bright Labs",
+   "category": "DevOps",
+   "description": "BrightWatch is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Incident Response, Container Orchestration.",
+   "business_purpose": "Give devops teams ci/cd pipelines without the overhead.",
+   "business_value_narrative": "BrightWatch enhances operational efficiency through CI/CD pipelines and proactive incident responses.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-327",
+   "name": "BrightInsight",
+   "vendor": "Bright Labs",
+   "category": "Data & Analytics",
+   "description": "BrightInsight is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+   "business_value_narrative": "BrightInsight supports analysis and decision-making through detailed data visualization and ETL pipeline capabilities.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-328",
+   "name": "BrightSpace",
+   "vendor": "Bright Labs",
+   "category": "Collaboration",
+   "description": "BrightSpace is a collaboration platform offering Messaging, Document Collaboration, File Sharing.",
+   "business_purpose": "Give collaboration teams messaging without the overhead.",
+   "business_value_narrative": "BrightSpace enables effective collaboration with integrated messaging and document sharing functionalities.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-329",
+   "name": "BrightChain",
+   "vendor": "Bright Labs",
+   "category": "Workflow Automation",
+   "description": "BrightChain is a workflow automation platform offering Integration Connectors, Event Triggers, Business Rules, API Integration.",
+   "business_purpose": "Give workflow automation teams integration connectors without the overhead.",
+   "business_value_narrative": "BrightChain streamlines business processes through integration connectors and automated event triggers.",
+   "capabilities": [
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-330",
+   "name": "BrightKey",
+   "vendor": "Bright Labs",
+   "category": "Identity & Access Management",
+   "description": "BrightKey is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Give identity & access management teams single sign-on without the overhead.",
+   "business_value_narrative": "BrightKey enhances security with multi-factor authentication and single sign-on solutions for identity management.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-331",
+   "name": "BrightDocs",
+   "vendor": "Bright Labs",
+   "category": "Content Management",
+   "description": "BrightDocs is a content management platform offering Video Meetings, Document Collaboration, File Sharing, Audit Logging, eDiscovery.",
+   "business_purpose": "Give content management teams video meetings without the overhead.",
+   "business_value_narrative": "BrightDocs optimizes content governance and document collaboration through comprehensive management tools.",
+   "capabilities": [
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-010",
+    "CAP-014",
+    "CAP-027"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-332",
+   "name": "BrightSprint",
+   "vendor": "Bright Labs",
+   "category": "Productivity",
+   "description": "BrightSprint is a productivity platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, AI Chat.",
+   "business_purpose": "Give productivity teams messaging without the overhead.",
+   "business_value_narrative": "BrightSprint increases workplace productivity through integrated messaging and document collaboration functionalities.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-020",
+    "CAP-021",
+    "CAP-022",
+    "CAP-024"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-333",
+   "name": "QuillDesk",
+   "vendor": "Quill Labs",
+   "category": "CRM",
+   "description": "QuillDesk is a crm platform offering Sales Pipeline, Lead Scoring, Customer Support Ticketing.",
+   "business_purpose": "Give crm teams sales pipeline without the overhead.",
+   "business_value_narrative": "QuillDesk enhances sales efficiency by managing pipelines and customer support seamlessly.",
+   "capabilities": [
+    "CAP-029",
+    "CAP-030",
+    "CAP-031"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-334",
+   "name": "QuillCrew",
+   "vendor": "Quill Labs",
+   "category": "HR",
+   "description": "QuillCrew is a hr platform offering Applicant Tracking, Payroll Processing, Time & Attendance, Performance Reviews.",
+   "business_purpose": "Give hr teams applicant tracking without the overhead.",
+   "business_value_narrative": "QuillCrew streamlines HR operations through efficient applicant tracking and payroll processing solutions.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-035",
+    "CAP-036",
+    "CAP-037"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-335",
+   "name": "QuillCount",
+   "vendor": "Quill Labs",
+   "category": "Finance",
+   "description": "QuillCount is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Give finance teams invoicing without the overhead.",
+   "business_value_narrative": "QuillCount streamlines financial management with integrated invoicing, expense tracking, and forecasting capabilities.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-336",
+   "name": "QuillReach",
+   "vendor": "Quill Labs",
+   "category": "Marketing",
+   "description": "QuillReach is a marketing platform offering Email Campaigns, Marketing Automation, A/B Testing.",
+   "business_purpose": "Give marketing teams email campaigns without the overhead.",
+   "business_value_narrative": "QuillReach enhances marketing efficiency through targeted email campaigns and automated workflows.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-044",
+    "CAP-047"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-337",
+   "name": "QuillWatch",
+   "vendor": "Quill Labs",
+   "category": "DevOps",
+   "description": "QuillWatch is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management, Incident Response.",
+   "business_purpose": "Give devops teams ci/cd pipelines without the overhead.",
+   "business_value_narrative": "QuillWatch optimizes DevOps processes with continuous integration and infrastructure monitoring.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-051"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-338",
+   "name": "QuillInsight",
+   "vendor": "Quill Labs",
+   "category": "Data & Analytics",
+   "description": "QuillInsight is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+   "business_value_narrative": "QuillInsight provides insights into business data through comprehensive visualization and ETL solutions.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-339",
+   "name": "QuillSpace",
+   "vendor": "Quill Labs",
+   "category": "Collaboration",
+   "description": "QuillSpace is a collaboration platform offering Messaging, Document Collaboration, File Sharing.",
+   "business_purpose": "Give collaboration teams messaging without the overhead.",
+   "business_value_narrative": "QuillSpace facilitates team collaboration with seamless messaging and document sharing tools.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-340",
+   "name": "QuillChain",
+   "vendor": "Quill Labs",
+   "category": "Workflow Automation",
+   "description": "QuillChain is a workflow automation platform offering Workflow Automation, Integration Connectors, Business Rules, API Integration.",
+   "business_purpose": "Give workflow automation teams workflow automation without the overhead.",
+   "business_value_narrative": "QuillChain automates workflows and integrates disparate systems for improved operational efficiency.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-016",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-341",
+   "name": "QuillKey",
+   "vendor": "Quill Labs",
+   "category": "Identity & Access Management",
+   "description": "QuillKey is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Give identity & access management teams single sign-on without the overhead.",
+   "business_value_narrative": "QuillKey secures access management with features like single sign-on and multi-factor authentication.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-342",
+   "name": "QuillDocs",
+   "vendor": "Quill Labs",
+   "category": "Content Management",
+   "description": "QuillDocs is a content management platform offering Video Meetings, Document Collaboration, File Sharing, Audit Logging, Information Governance.",
+   "business_purpose": "Give content management teams video meetings without the overhead.",
+   "business_value_narrative": "QuillDocs supports collaborative content management within video meetings and secure file sharing.",
+   "capabilities": [
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-010",
+    "CAP-012",
+    "CAP-013"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-343",
+   "name": "QuillSprint",
+   "vendor": "Quill Labs",
+   "category": "Productivity",
+   "description": "QuillSprint is a productivity platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, Content Generation.",
+   "business_purpose": "Give productivity teams messaging without the overhead.",
+   "business_value_narrative": "QuillSprint fosters productivity by combining messaging and collaboration tools in a unified platform.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-021",
+    "CAP-022",
+    "CAP-023",
+    "CAP-024"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-344",
+   "name": "VertexDesk",
+   "vendor": "Vertex Labs",
+   "category": "CRM",
+   "description": "VertexDesk is a crm platform offering Contact Management, Customer Support Ticketing, Live Chat.",
+   "business_purpose": "Give crm teams contact management without the overhead.",
+   "business_value_narrative": "VertexDesk enhances customer relationship management through effective contact management and support tools.",
+   "capabilities": [
+    "CAP-028",
+    "CAP-031",
+    "CAP-032"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-345",
+   "name": "VertexCrew",
+   "vendor": "Vertex Labs",
+   "category": "HR",
+   "description": "VertexCrew is a hr platform offering Applicant Tracking, Onboarding Workflows, Payroll Processing, Performance Reviews.",
+   "business_purpose": "Give hr teams applicant tracking without the overhead.",
+   "business_value_narrative": "VertexCrew improves HR operations with streamlined applicant tracking and onboarding processes.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-034",
+    "CAP-035",
+    "CAP-037"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-346",
+   "name": "VertexCount",
+   "vendor": "Vertex Labs",
+   "category": "Finance",
+   "description": "VertexCount is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Give finance teams invoicing without the overhead.",
+   "business_value_narrative": "VertexCount simplifies financial operations with an integrated suite for invoicing and budgeting.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-347",
+   "name": "VertexReach",
+   "vendor": "Vertex Labs",
+   "category": "Marketing",
+   "description": "VertexReach is a marketing platform offering Marketing Automation, Social Media Management, SEO Analytics.",
+   "business_purpose": "Give marketing teams marketing automation without the overhead.",
+   "business_value_narrative": "VertexReach amplifies marketing efforts with automation and effective social media management.",
+   "capabilities": [
+    "CAP-044",
+    "CAP-045",
+    "CAP-046"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-348",
+   "name": "VertexWatch",
+   "vendor": "Vertex Labs",
+   "category": "DevOps",
+   "description": "VertexWatch is a devops platform offering CI/CD Pipelines, Log Management, Incident Response, Container Orchestration.",
+   "business_purpose": "Give devops teams ci/cd pipelines without the overhead.",
+   "business_value_narrative": "VertexWatch enhances DevOps effectiveness by integrating CI/CD pipelines and incident response management.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-050",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-349",
+   "name": "VertexInsight",
+   "vendor": "Vertex Labs",
+   "category": "Data & Analytics",
+   "description": "VertexInsight is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+   "business_value_narrative": "VertexInsight transforms data into actionable insights through robust visualization and warehousing capabilities.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-350",
+   "name": "VertexSpace",
+   "vendor": "Vertex Labs",
+   "category": "Collaboration",
+   "description": "VertexSpace is a collaboration platform offering Messaging, Document Collaboration, File Sharing.",
+   "business_purpose": "Give collaboration teams messaging without the overhead.",
+   "business_value_narrative": "VertexSpace promotes collaboration with efficient messaging and document collaboration features.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-351",
+   "name": "VertexChain",
+   "vendor": "Vertex Labs",
+   "category": "Workflow Automation",
+   "description": "VertexChain is a workflow automation platform offering Workflow Automation, Integration Connectors, Event Triggers, Business Rules.",
+   "business_purpose": "Give workflow automation teams workflow automation without the overhead.",
+   "business_value_narrative": "VertexChain improves business operations by automating workflows and connecting various systems.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-016",
+    "CAP-017",
+    "CAP-018"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-352",
+   "name": "VertexKey",
+   "vendor": "Vertex Labs",
+   "category": "Identity & Access Management",
+   "description": "VertexKey is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Give identity & access management teams single sign-on without the overhead.",
+   "business_value_narrative": "VertexKey enhances identity security through advanced single sign-on and conditional access capabilities.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-353",
+   "name": "VertexDocs",
+   "vendor": "Vertex Labs",
+   "category": "Content Management",
+   "description": "VertexDocs is a content management platform offering Video Meetings, Document Collaboration, File Sharing, Data Retention, eDiscovery.",
+   "business_purpose": "Give content management teams video meetings without the overhead.",
+   "business_value_narrative": "VertexDocs offers a comprehensive solution for content management with video meetings and data retention features.",
+   "capabilities": [
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-013",
+    "CAP-014",
+    "CAP-027"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-354",
+   "name": "VertexSprint",
+   "vendor": "Vertex Labs",
+   "category": "Productivity",
+   "description": "VertexSprint is a productivity platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, AI Chat.",
+   "business_purpose": "Give productivity teams messaging without the overhead.",
+   "business_value_narrative": "VertexSprint enhances team productivity with integrated messaging and collaboration tools.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-020",
+    "CAP-021",
+    "CAP-023",
+    "CAP-024"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-355",
+   "name": "LumenDesk",
+   "vendor": "Lumen Labs",
+   "category": "CRM",
+   "description": "LumenDesk is a crm platform offering Contact Management, Sales Pipeline, Lead Scoring.",
+   "business_purpose": "Give crm teams contact management without the overhead.",
+   "business_value_narrative": "LumenDesk improves customer relationship management with effective contact and sales pipeline management.",
+   "capabilities": [
+    "CAP-028",
+    "CAP-029",
+    "CAP-030"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-356",
+   "name": "LumenCrew",
+   "vendor": "Lumen Labs",
+   "category": "HR",
+   "description": "LumenCrew is a hr platform offering Onboarding Workflows, Payroll Processing, Time & Attendance, Performance Reviews.",
+   "business_purpose": "Give hr teams onboarding workflows without the overhead.",
+   "business_value_narrative": "LumenCrew streamlines HR functions with efficient onboarding and payroll processes.",
+   "capabilities": [
+    "CAP-034",
+    "CAP-035",
+    "CAP-036",
+    "CAP-037"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-357",
+   "name": "LumenCount",
+   "vendor": "Lumen Labs",
+   "category": "Finance",
+   "description": "LumenCount is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Give finance teams invoicing without the overhead.",
+   "business_value_narrative": "LumenCount optimizes financial management with comprehensive invoicing and budgeting tools.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-358",
+   "name": "LumenReach",
+   "vendor": "Lumen Labs",
+   "category": "Marketing",
+   "description": "LumenReach is a marketing platform offering Email Campaigns, SEO Analytics, A/B Testing.",
+   "business_purpose": "Give marketing teams email campaigns without the overhead.",
+   "business_value_narrative": "LumenReach enhances marketing effectiveness through targeted email campaigns and SEO analytics.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-046",
+    "CAP-047"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-359",
+   "name": "LumenWatch",
+   "vendor": "Lumen Labs",
+   "category": "DevOps",
+   "description": "LumenWatch is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management, Container Orchestration.",
+   "business_purpose": "Give devops teams ci/cd pipelines without the overhead.",
+   "business_value_narrative": "LumenWatch improves DevOps efficiency with advanced CI/CD pipeline management and monitoring tools.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-052"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-360",
+   "name": "LumenInsight",
+   "vendor": "Lumen Labs",
+   "category": "Data & Analytics",
+   "description": "LumenInsight is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+   "business_value_narrative": "Enhance data decision-making through robust visualization and streamlined ETL processes.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-361",
+   "name": "LumenSpace",
+   "vendor": "Lumen Labs",
+   "category": "Collaboration",
+   "description": "LumenSpace is a collaboration platform offering Messaging, Document Collaboration, File Sharing.",
+   "business_purpose": "Give collaboration teams messaging without the overhead.",
+   "business_value_narrative": "Streamline teamwork and improve productivity with efficient messaging and document collaboration tools.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-362",
+   "name": "LumenChain",
+   "vendor": "Lumen Labs",
+   "category": "Workflow Automation",
+   "description": "LumenChain is a workflow automation platform offering Workflow Automation, Event Triggers, Business Rules, API Integration.",
+   "business_purpose": "Give workflow automation teams workflow automation without the overhead.",
+   "business_value_narrative": "Automate workflows and integrate essential business rules to increase operational efficiency.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-363",
+   "name": "LumenKey",
+   "vendor": "Lumen Labs",
+   "category": "Identity & Access Management",
+   "description": "LumenKey is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Give identity & access management teams single sign-on without the overhead.",
+   "business_value_narrative": "Secure identity management using Single Sign-On and Multi-Factor Authentication for access control.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-364",
+   "name": "LumenDocs",
+   "vendor": "Lumen Labs",
+   "category": "Content Management",
+   "description": "LumenDocs is a content management platform offering Video Meetings, Document Collaboration, File Sharing, Audit Logging, Information Governance.",
+   "business_purpose": "Give content management teams video meetings without the overhead.",
+   "business_value_narrative": "Manage content effectively while ensuring compliance with audit logging capabilities.",
+   "capabilities": [
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-010",
+    "CAP-012",
+    "CAP-027"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-365",
+   "name": "LumenSprint",
+   "vendor": "Lumen Labs",
+   "category": "Productivity",
+   "description": "LumenSprint is a productivity platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, AI Chat.",
+   "business_purpose": "Give productivity teams messaging without the overhead.",
+   "business_value_narrative": "Boost team productivity with integrated messaging and collaboration features.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-020",
+    "CAP-021",
+    "CAP-022",
+    "CAP-023"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-366",
+   "name": "PaceDesk",
+   "vendor": "Pace Labs",
+   "category": "CRM",
+   "description": "PaceDesk is a crm platform offering Lead Scoring, Customer Support Ticketing, Live Chat.",
+   "business_purpose": "Give crm teams lead scoring without the overhead.",
+   "business_value_narrative": "Improve customer relationships through effective lead scoring and support ticket management.",
+   "capabilities": [
+    "CAP-030",
+    "CAP-031",
+    "CAP-032"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-367",
+   "name": "PaceCrew",
+   "vendor": "Pace Labs",
+   "category": "HR",
+   "description": "PaceCrew is a hr platform offering Applicant Tracking, Onboarding Workflows, Time & Attendance, Performance Reviews.",
+   "business_purpose": "Give hr teams applicant tracking without the overhead.",
+   "business_value_narrative": "Simplify HR processes with comprehensive applicant tracking and onboarding solutions.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-034",
+    "CAP-036",
+    "CAP-037"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-368",
+   "name": "PaceCount",
+   "vendor": "Pace Labs",
+   "category": "Finance",
+   "description": "PaceCount is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Give finance teams invoicing without the overhead.",
+   "business_value_narrative": "Enhance financial management with efficient invoicing and budgeting capabilities.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-369",
+   "name": "PaceReach",
+   "vendor": "Pace Labs",
+   "category": "Marketing",
+   "description": "PaceReach is a marketing platform offering Email Campaigns, Marketing Automation, Social Media Management.",
+   "business_purpose": "Give marketing teams email campaigns without the overhead.",
+   "business_value_narrative": "Automate marketing efforts while effectively managing email campaigns and social media.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-044",
+    "CAP-045"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-370",
+   "name": "PaceWatch",
+   "vendor": "Pace Labs",
+   "category": "DevOps",
+   "description": "PaceWatch is a devops platform offering Infrastructure Monitoring, Log Management, Incident Response, Container Orchestration.",
+   "business_purpose": "Give devops teams infrastructure monitoring without the overhead.",
+   "business_value_narrative": "Optimize DevOps practices with real-time infrastructure monitoring and incident management.",
+   "capabilities": [
+    "CAP-049",
+    "CAP-050",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-371",
+   "name": "PaceInsight",
+   "vendor": "Pace Labs",
+   "category": "Data & Analytics",
+   "description": "PaceInsight is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+   "business_value_narrative": "Facilitate data-driven decisions with advanced visualization and continuous ETL capabilities.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-372",
+   "name": "PaceSpace",
+   "vendor": "Pace Labs",
+   "category": "Collaboration",
+   "description": "PaceSpace is a collaboration platform offering Messaging, Document Collaboration, File Sharing.",
+   "business_purpose": "Give collaboration teams messaging without the overhead.",
+   "business_value_narrative": "Foster collaboration with integrated messaging and sharing features for teams.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-373",
+   "name": "PaceChain",
+   "vendor": "Pace Labs",
+   "category": "Workflow Automation",
+   "description": "PaceChain is a workflow automation platform offering Workflow Automation, Integration Connectors, Event Triggers, API Integration.",
+   "business_purpose": "Give workflow automation teams workflow automation without the overhead.",
+   "business_value_narrative": "Streamline operations by automating workflows and connecting different software solutions.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-016",
+    "CAP-017",
+    "CAP-019"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-374",
+   "name": "PaceKey",
+   "vendor": "Pace Labs",
+   "category": "Identity & Access Management",
+   "description": "PaceKey is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Give identity & access management teams single sign-on without the overhead.",
+   "business_value_narrative": "Control access and secure user identities with advanced authentication features.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-375",
+   "name": "PaceDocs",
+   "vendor": "Pace Labs",
+   "category": "Content Management",
+   "description": "PaceDocs is a content management platform offering Video Meetings, Document Collaboration, File Sharing, Information Governance, Data Retention.",
+   "business_purpose": "Give content management teams video meetings without the overhead.",
+   "business_value_narrative": "Ensure compliance and organization with robust document management and governance tools.",
+   "capabilities": [
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-012",
+    "CAP-013",
+    "CAP-014"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-376",
+   "name": "PaceSprint",
+   "vendor": "Pace Labs",
+   "category": "Productivity",
+   "description": "PaceSprint is a productivity platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, AI Chat.",
+   "business_purpose": "Give productivity teams messaging without the overhead.",
+   "business_value_narrative": "Support productivity with seamless communication and collaborative document features.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-020",
+    "CAP-022",
+    "CAP-023",
+    "CAP-024"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-377",
+   "name": "HarborDesk",
+   "vendor": "Harbor Labs",
+   "category": "CRM",
+   "description": "HarborDesk is a crm platform offering Contact Management, Sales Pipeline, Live Chat.",
+   "business_purpose": "Give crm teams contact management without the overhead.",
+   "business_value_narrative": "Enhance customer management with streamlined sales pipelines and live chat.",
+   "capabilities": [
+    "CAP-028",
+    "CAP-029",
+    "CAP-032"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-378",
+   "name": "HarborCrew",
+   "vendor": "Harbor Labs",
+   "category": "HR",
+   "description": "HarborCrew is a hr platform offering Applicant Tracking, Onboarding Workflows, Payroll Processing, Time & Attendance.",
+   "business_purpose": "Give hr teams applicant tracking without the overhead.",
+   "business_value_narrative": "Facilitate HR efficiency with comprehensive tools for tracking applicants and managing payroll.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-034",
+    "CAP-035",
+    "CAP-036"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-379",
+   "name": "HarborCount",
+   "vendor": "Harbor Labs",
+   "category": "Finance",
+   "description": "HarborCount is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Give finance teams invoicing without the overhead.",
+   "business_value_narrative": "Manage finances effectively with comprehensive invoicing and expense tracking solutions.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-380",
+   "name": "HarborReach",
+   "vendor": "Harbor Labs",
+   "category": "Marketing",
+   "description": "HarborReach is a marketing platform offering Social Media Management, SEO Analytics, A/B Testing.",
+   "business_purpose": "Give marketing teams social media management without the overhead.",
+   "business_value_narrative": "Enhance marketing efforts through strategic social media management and analytics.",
+   "capabilities": [
+    "CAP-045",
+    "CAP-046",
+    "CAP-047"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-381",
+   "name": "HarborWatch",
+   "vendor": "Harbor Labs",
+   "category": "DevOps",
+   "description": "HarborWatch is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Incident Response, Container Orchestration.",
+   "business_purpose": "Give devops teams ci/cd pipelines without the overhead.",
+   "business_value_narrative": "Streamline DevOps with continuous integration and infrastructure monitoring tools.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-382",
+   "name": "HarborInsight",
+   "vendor": "Harbor Labs",
+   "category": "Data & Analytics",
+   "description": "HarborInsight is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+   "business_value_narrative": "Enable effective data analysis with powerful visualization and ETL capabilities.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-383",
+   "name": "HarborSpace",
+   "vendor": "Harbor Labs",
+   "category": "Collaboration",
+   "description": "HarborSpace is a collaboration platform offering Messaging, Document Collaboration, File Sharing.",
+   "business_purpose": "Give collaboration teams messaging without the overhead.",
+   "business_value_narrative": "Enhance team communication and project collaboration through integrated file sharing.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-384",
+   "name": "HarborChain",
+   "vendor": "Harbor Labs",
+   "category": "Workflow Automation",
+   "description": "HarborChain is a workflow automation platform offering Integration Connectors, Event Triggers, Business Rules, API Integration.",
+   "business_purpose": "Give workflow automation teams integration connectors without the overhead.",
+   "business_value_narrative": "Automate workflows and facilitate integration with key business processes.",
+   "capabilities": [
+    "CAP-016",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-385",
+   "name": "HarborKey",
+   "vendor": "Harbor Labs",
+   "category": "Identity & Access Management",
+   "description": "HarborKey is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Give identity & access management teams single sign-on without the overhead.",
+   "business_value_narrative": "HarborKey securely manages user identities and access across multiple platforms to enhance organizational security and streamline processes.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-386",
+   "name": "HarborDocs",
+   "vendor": "Harbor Labs",
+   "category": "Content Management",
+   "description": "HarborDocs is a content management platform offering Video Meetings, Document Collaboration, File Sharing, Audit Logging, eDiscovery.",
+   "business_purpose": "Give content management teams video meetings without the overhead.",
+   "business_value_narrative": "HarborDocs offers tools for collaborative content management that enhance communication and streamline workflows within teams.",
+   "capabilities": [
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-010",
+    "CAP-014",
+    "CAP-027"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-387",
+   "name": "HarborSprint",
+   "vendor": "Harbor Labs",
+   "category": "Productivity",
+   "description": "HarborSprint is a productivity platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, AI Chat.",
+   "business_purpose": "Give productivity teams messaging without the overhead.",
+   "business_value_narrative": "HarborSprint integrates various productivity tools to facilitate seamless collaboration and improve team efficiency.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-020",
+    "CAP-021",
+    "CAP-022",
+    "CAP-024"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-388",
+   "name": "CinderDesk",
+   "vendor": "Cinder Labs",
+   "category": "CRM",
+   "description": "CinderDesk is a crm platform offering Sales Pipeline, Lead Scoring, Customer Support Ticketing.",
+   "business_purpose": "Give crm teams sales pipeline without the overhead.",
+   "business_value_narrative": "CinderDesk helps businesses manage customer relationships through tracking sales, supporting leads, and coordinating customer interactions.",
+   "capabilities": [
+    "CAP-029",
+    "CAP-030",
+    "CAP-031"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-389",
+   "name": "CinderCrew",
+   "vendor": "Cinder Labs",
+   "category": "HR",
+   "description": "CinderCrew is a hr platform offering Applicant Tracking, Payroll Processing, Time & Attendance, Performance Reviews.",
+   "business_purpose": "Give hr teams applicant tracking without the overhead.",
+   "business_value_narrative": "CinderCrew simplifies HR processes by efficiently managing recruitment, payroll, and employee performance evaluations.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-035",
+    "CAP-036",
+    "CAP-037"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-390",
+   "name": "CinderCount",
+   "vendor": "Cinder Labs",
+   "category": "Finance",
+   "description": "CinderCount is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Give finance teams invoicing without the overhead.",
+   "business_value_narrative": "CinderCount provides comprehensive financial management tools to help organizations streamline invoicing and budget planning.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-391",
+   "name": "CinderReach",
+   "vendor": "Cinder Labs",
+   "category": "Marketing",
+   "description": "CinderReach is a marketing platform offering Email Campaigns, Marketing Automation, A/B Testing.",
+   "business_purpose": "Give marketing teams email campaigns without the overhead.",
+   "business_value_narrative": "CinderReach drives marketing efficiency through automation and strategic email campaigns to optimize outreach efforts.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-044",
+    "CAP-047"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-392",
+   "name": "CinderWatch",
+   "vendor": "Cinder Labs",
+   "category": "DevOps",
+   "description": "CinderWatch is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management, Incident Response.",
+   "business_purpose": "Give devops teams ci/cd pipelines without the overhead.",
+   "business_value_narrative": "CinderWatch facilitates development operations with tools for automation and monitoring to ensure system reliability.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-051"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-393",
+   "name": "CinderInsight",
+   "vendor": "Cinder Labs",
+   "category": "Data & Analytics",
+   "description": "CinderInsight is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+   "business_value_narrative": "CinderInsight transforms raw data into actionable insights through visualization and structured data management.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-394",
+   "name": "CinderSpace",
+   "vendor": "Cinder Labs",
+   "category": "Collaboration",
+   "description": "CinderSpace is a collaboration platform offering Messaging, Document Collaboration, File Sharing.",
+   "business_purpose": "Give collaboration teams messaging without the overhead.",
+   "business_value_narrative": "CinderSpace enhances collaborative work through effective messaging and document-sharing capabilities.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-395",
+   "name": "CinderChain",
+   "vendor": "Cinder Labs",
+   "category": "Workflow Automation",
+   "description": "CinderChain is a workflow automation platform offering Workflow Automation, Integration Connectors, Business Rules, API Integration.",
+   "business_purpose": "Give workflow automation teams workflow automation without the overhead.",
+   "business_value_narrative": "CinderChain automates workflows and integrates systems to enhance operational efficiency across departments.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-016",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-396",
+   "name": "CinderKey",
+   "vendor": "Cinder Labs",
+   "category": "Identity & Access Management",
+   "description": "CinderKey is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Give identity & access management teams single sign-on without the overhead.",
+   "business_value_narrative": "CinderKey ensures secure access management with advanced identity verification solutions to protect sensitive information.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-397",
+   "name": "CinderDocs",
+   "vendor": "Cinder Labs",
+   "category": "Content Management",
+   "description": "CinderDocs is a content management platform offering Video Meetings, Document Collaboration, File Sharing, Audit Logging, Information Governance.",
+   "business_purpose": "Give content management teams video meetings without the overhead.",
+   "business_value_narrative": "CinderDocs combines media and documentation tools to promote effective collaboration and secure data retention.",
+   "capabilities": [
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-010",
+    "CAP-012",
+    "CAP-013"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-398",
+   "name": "CinderSprint",
+   "vendor": "Cinder Labs",
+   "category": "Productivity",
+   "description": "CinderSprint is a productivity platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, Content Generation.",
+   "business_purpose": "Give productivity teams messaging without the overhead.",
+   "business_value_narrative": "CinderSprint accelerates team productivity with integrated messaging and collaboration features tailored for modern work environments.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-021",
+    "CAP-022",
+    "CAP-023",
+    "CAP-024"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-399",
+   "name": "AtlasDesk",
+   "vendor": "Atlas Labs",
+   "category": "CRM",
+   "description": "AtlasDesk is a crm platform offering Contact Management, Customer Support Ticketing, Live Chat.",
+   "business_purpose": "Give crm teams contact management without the overhead.",
+   "business_value_narrative": "AtlasDesk organizes customer information management while facilitating real-time support for enhanced service experiences.",
+   "capabilities": [
+    "CAP-028",
+    "CAP-031",
+    "CAP-032"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-400",
+   "name": "AtlasCrew",
+   "vendor": "Atlas Labs",
+   "category": "HR",
+   "description": "AtlasCrew is a hr platform offering Applicant Tracking, Onboarding Workflows, Payroll Processing, Performance Reviews.",
+   "business_purpose": "Give hr teams applicant tracking without the overhead.",
+   "business_value_narrative": "AtlasCrew optimizes HR operations through streamlined applicant tracking and onboarding processes for new hires.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-034",
+    "CAP-035",
+    "CAP-037"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-401",
+   "name": "AtlasCount",
+   "vendor": "Atlas Labs",
+   "category": "Finance",
+   "description": "AtlasCount is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Give finance teams invoicing without the overhead.",
+   "business_value_narrative": "AtlasCount simplifies financial oversight with integrated tools for invoicing and budget management.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-402",
+   "name": "AtlasReach",
+   "vendor": "Atlas Labs",
+   "category": "Marketing",
+   "description": "AtlasReach is a marketing platform offering Marketing Automation, Social Media Management, SEO Analytics.",
+   "business_purpose": "Give marketing teams marketing automation without the overhead.",
+   "business_value_narrative": "AtlasReach enhances marketing impact through automation and insights from social media management and SEO analytics.",
+   "capabilities": [
+    "CAP-044",
+    "CAP-045",
+    "CAP-046"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-403",
+   "name": "AtlasWatch",
+   "vendor": "Atlas Labs",
+   "category": "DevOps",
+   "description": "AtlasWatch is a devops platform offering CI/CD Pipelines, Log Management, Incident Response, Container Orchestration.",
+   "business_purpose": "Give devops teams ci/cd pipelines without the overhead.",
+   "business_value_narrative": "AtlasWatch optimizes DevOps practices by integrating continuous delivery and monitoring for software reliability.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-050",
+    "CAP-051",
+    "CAP-052"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-404",
+   "name": "AtlasInsight",
+   "vendor": "Atlas Labs",
+   "category": "Data & Analytics",
+   "description": "AtlasInsight is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+   "business_value_narrative": "AtlasInsight empowers organizations with data visualization tools to turn complex data into clear, actionable insights.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-405",
+   "name": "AtlasSpace",
+   "vendor": "Atlas Labs",
+   "category": "Collaboration",
+   "description": "AtlasSpace is a collaboration platform offering Messaging, Document Collaboration, File Sharing.",
+   "business_purpose": "Give collaboration teams messaging without the overhead.",
+   "business_value_narrative": "AtlasSpace fosters collaboration through effective communication and shared document capabilities.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-406",
+   "name": "AtlasChain",
+   "vendor": "Atlas Labs",
+   "category": "Workflow Automation",
+   "description": "AtlasChain is a workflow automation platform offering Workflow Automation, Integration Connectors, Event Triggers, Business Rules.",
+   "business_purpose": "Give workflow automation teams workflow automation without the overhead.",
+   "business_value_narrative": "AtlasChain streamlines business processes with automations and integrations that enhance workflow efficiency.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-016",
+    "CAP-017",
+    "CAP-018"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-407",
+   "name": "AtlasKey",
+   "vendor": "Atlas Labs",
+   "category": "Identity & Access Management",
+   "description": "AtlasKey is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Give identity & access management teams single sign-on without the overhead.",
+   "business_value_narrative": "AtlasKey provides robust access management capabilities to ensure secure user identification and authorization.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-408",
+   "name": "AtlasDocs",
+   "vendor": "Atlas Labs",
+   "category": "Content Management",
+   "description": "AtlasDocs is a content management platform offering Video Meetings, Document Collaboration, File Sharing, Data Retention, eDiscovery.",
+   "business_purpose": "Give content management teams video meetings without the overhead.",
+   "business_value_narrative": "AtlasDocs integrates secure document management with collaboration tools to enhance team productivity.",
+   "capabilities": [
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-013",
+    "CAP-014",
+    "CAP-027"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-409",
+   "name": "AtlasSprint",
+   "vendor": "Atlas Labs",
+   "category": "Productivity",
+   "description": "AtlasSprint is a productivity platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, AI Chat.",
+   "business_purpose": "Give productivity teams messaging without the overhead.",
+   "business_value_narrative": "AtlasSprint enhances team efficiency with a suite of productivity features for managing communication and collaboration.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-020",
+    "CAP-021",
+    "CAP-023",
+    "CAP-024"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-410",
+   "name": "FableDesk",
+   "vendor": "Fable Labs",
+   "category": "CRM",
+   "description": "FableDesk is a crm platform offering Contact Management, Sales Pipeline, Lead Scoring.",
+   "business_purpose": "Give crm teams contact management without the overhead.",
+   "business_value_narrative": "FableDesk streamlines contact management and enhances sales efficiency through effective lead scoring and pipeline tracking.",
+   "capabilities": [
+    "CAP-028",
+    "CAP-029",
+    "CAP-030"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-411",
+   "name": "FableCrew",
+   "vendor": "Fable Labs",
+   "category": "HR",
+   "description": "FableCrew is a hr platform offering Onboarding Workflows, Payroll Processing, Time & Attendance, Performance Reviews.",
+   "business_purpose": "Give hr teams onboarding workflows without the overhead.",
+   "business_value_narrative": "FableCrew simplifies HR processes with comprehensive onboarding and performance review systems integrated with payroll and attendance management.",
+   "capabilities": [
+    "CAP-034",
+    "CAP-035",
+    "CAP-036",
+    "CAP-037"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-412",
+   "name": "FableCount",
+   "vendor": "Fable Labs",
+   "category": "Finance",
+   "description": "FableCount is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Give finance teams invoicing without the overhead.",
+   "business_value_narrative": "FableCount offers a centralized solution for invoicing and expense management while facilitating effective budgeting and forecasting.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-413",
+   "name": "FableReach",
+   "vendor": "Fable Labs",
+   "category": "Marketing",
+   "description": "FableReach is a marketing platform offering Email Campaigns, SEO Analytics, A/B Testing.",
+   "business_purpose": "Give marketing teams email campaigns without the overhead.",
+   "business_value_narrative": "FableReach enhances marketing effectiveness by enabling targeted email campaigns and insightful SEO analytics paired with A/B testing.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-046",
+    "CAP-047"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-414",
+   "name": "FableWatch",
+   "vendor": "Fable Labs",
+   "category": "DevOps",
+   "description": "FableWatch is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management, Container Orchestration.",
+   "business_purpose": "Give devops teams ci/cd pipelines without the overhead.",
+   "business_value_narrative": "FableWatch empowers development teams with efficient CI/CD pipelines and robust infrastructure monitoring for improved operational stability.",
+   "capabilities": [
+    "CAP-048",
+    "CAP-049",
+    "CAP-050",
+    "CAP-052"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-415",
+   "name": "FableInsight",
+   "vendor": "Fable Labs",
+   "category": "Data & Analytics",
+   "description": "FableInsight is a data & analytics platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
+   "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+   "business_value_narrative": "FableInsight transforms data into actionable insights through advanced visualization and streamlined ETL pipelines for effective data warehousing.",
+   "capabilities": [
+    "CAP-053",
+    "CAP-054",
+    "CAP-055"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-416",
+   "name": "FableSpace",
+   "vendor": "Fable Labs",
+   "category": "Collaboration",
+   "description": "FableSpace is a collaboration platform offering Messaging, Document Collaboration, File Sharing.",
+   "business_purpose": "Give collaboration teams messaging without the overhead.",
+   "business_value_narrative": "FableSpace enhances team productivity with seamless messaging, document collaboration, and secure file sharing features.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-007",
+    "CAP-009"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-417",
+   "name": "FableChain",
+   "vendor": "Fable Labs",
+   "category": "Workflow Automation",
+   "description": "FableChain is a workflow automation platform offering Workflow Automation, Event Triggers, Business Rules, API Integration.",
+   "business_purpose": "Give workflow automation teams workflow automation without the overhead.",
+   "business_value_narrative": "FableChain optimizes business operations with effective workflow automation, empowering integration and triggering events based on established rules.",
+   "capabilities": [
+    "CAP-015",
+    "CAP-017",
+    "CAP-018",
+    "CAP-019"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-418",
+   "name": "FableKey",
+   "vendor": "Fable Labs",
+   "category": "Identity & Access Management",
+   "description": "FableKey is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+   "business_purpose": "Give identity & access management teams single sign-on without the overhead.",
+   "business_value_narrative": "FableKey strengthens organizational security with efficient identity management, offering single sign-on and conditional access controls.",
+   "capabilities": [
+    "CAP-001",
+    "CAP-002",
+    "CAP-003",
+    "CAP-004",
+    "CAP-008"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-419",
+   "name": "FableDocs",
+   "vendor": "Fable Labs",
+   "category": "Content Management",
+   "description": "FableDocs is a content management platform offering Video Meetings, Document Collaboration, File Sharing, Audit Logging, Information Governance.",
+   "business_purpose": "Give content management teams video meetings without the overhead.",
+   "business_value_narrative": "FableDocs facilitates collaboration through reliable document management tools alongside secure video meetings and audit logging features.",
+   "capabilities": [
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-010",
+    "CAP-012",
+    "CAP-027"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-420",
+   "name": "FableSprint",
+   "vendor": "Fable Labs",
+   "category": "Productivity",
+   "description": "FableSprint is a productivity platform offering Messaging, Video Meetings, Document Collaboration, File Sharing, AI Chat.",
+   "business_purpose": "Give productivity teams messaging without the overhead.",
+   "business_value_narrative": "FableSprint boosts team productivity with integrated messaging, video meetings, and document collaboration tools for efficient file sharing.",
+   "capabilities": [
+    "CAP-005",
+    "CAP-006",
+    "CAP-007",
+    "CAP-009",
+    "CAP-020",
+    "CAP-021",
+    "CAP-022",
+    "CAP-023"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-421",
+   "name": "DriftDesk",
+   "vendor": "Drift Labs",
+   "category": "CRM",
+   "description": "DriftDesk is a crm platform offering Lead Scoring, Customer Support Ticketing, Live Chat.",
+   "business_purpose": "Give crm teams lead scoring without the overhead.",
+   "business_value_narrative": "DriftDesk enhances CRM functionality with lead scoring and efficient customer support through live chat and ticketing systems.",
+   "capabilities": [
+    "CAP-030",
+    "CAP-031",
+    "CAP-032"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-422",
+   "name": "DriftCrew",
+   "vendor": "Drift Labs",
+   "category": "HR",
+   "description": "DriftCrew is a hr platform offering Applicant Tracking, Onboarding Workflows, Time & Attendance, Performance Reviews.",
+   "business_purpose": "Give hr teams applicant tracking without the overhead.",
+   "business_value_narrative": "DriftCrew offers a complete HR solution including applicant tracking, onboarding, and performance reviews integrated with attendance management.",
+   "capabilities": [
+    "CAP-033",
+    "CAP-034",
+    "CAP-036",
+    "CAP-037"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-423",
+   "name": "DriftCount",
+   "vendor": "Drift Labs",
+   "category": "Finance",
+   "description": "DriftCount is a finance platform offering Invoicing, Expense Management, General Ledger, Budgeting & Forecasting, Payment Processing.",
+   "business_purpose": "Give finance teams invoicing without the overhead.",
+   "business_value_narrative": "DriftCount simplifies financial management by integrating invoicing and expense tracking with effective budgeting and forecasting tools.",
+   "capabilities": [
+    "CAP-038",
+    "CAP-039",
+    "CAP-040",
+    "CAP-041",
+    "CAP-042"
+   ],
+   "fictional": true
+  },
+  {
+   "product_id": "PROD-424",
+   "name": "DriftReach",
+   "vendor": "Drift Labs",
+   "category": "Marketing",
+   "description": "DriftReach is a marketing platform offering Email Campaigns, Marketing Automation, Social Media Management.",
+   "business_purpose": "Give marketing teams email campaigns without the overhead.",
+   "business_value_narrative": "DriftReach streamlines marketing efforts using email campaigns and automation, complemented by robust social media management capabilities.",
+   "capabilities": [
+    "CAP-043",
+    "CAP-044",
+    "CAP-045"
+   ],
+   "fictional": true
+  }
+ ]
+}

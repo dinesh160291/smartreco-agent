@@ -697,7 +697,7 @@ The following are the platform's initial published policy values. They are confi
 | Policy ID | Policy | v1 Value |
 |---|---|---|
 | POL-TRIG-001 | Event accumulation | Run workflow after 5 unprocessed high/medium-signal events |
-| POL-TRIG-002 | Debounce / cooldown | Debounce 60s; cooldown 10min (STAGE_TRANSITION bypasses cooldown) |
+| POL-TRIG-002 | Debounce / cooldown | v1.1: Debounce 30s; cooldown 3min (STAGE_TRANSITION bypasses cooldown). v1 was 60s / 10min — retuned for demo pacing (Decision #038); historical runs recorded policy_version 1.0 |
 | POL-TRIG-003 | AI budgets | Tier 1: 10 calls/user/day; Tier 2: 20 calls/user/day |
 | POL-TRIG-004 | Material change | New/removed Requirement, priority band change, stage change, or top-candidate change |
 | POL-TRIG-005 | Run concurrency | At most one in-flight workflow run per user; a trigger arriving during a run is recorded as SKIP (already-running) and its events remain accumulated for the next evaluation |

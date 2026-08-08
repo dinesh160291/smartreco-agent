@@ -73,13 +73,13 @@ The specification is technology-agnostic; the reference deployment constrains im
 
 Implementation-time obligations, tracked here so they are not lost:
 
-- [ ] Public repository with all source code
-- [ ] README: what was built, architecture summary, setup/run instructions, feature list (D1–D4 status)
-- [ ] `requirements.txt` (or equivalent) declaring the web framework and the AI client library
-- [ ] `.gitignore` includes `.env`; no secrets ever committed
-- [ ] Repository secrets configured per the deployment environment's instructions (gateway key, deployment token)
-- [ ] CI workflow file installed at the path the deployment environment specifies; checks green
-- [ ] Optional: demo video and deployed URL
+- [x] Public repository with all source code
+- [x] README: what was built, architecture summary, setup/run instructions, feature list (D1–D4 status)
+- [x] `requirements.txt` (or equivalent) declaring the web framework and the AI client library
+- [x] `.gitignore` includes `.env`; no secrets ever committed
+- [ ] Repository secrets configured per the deployment environment's instructions (gateway key, deployment token) — *names pinned in `.github/workflows/ci.yml` (`AI_GATEWAY_API_KEY`, `AI_GATEWAY_BASE_URL`); added via the repository settings UI*
+- [x] CI workflow file installed at the path the deployment environment specifies; checks green
+- [ ] Optional: demo video and deployed URL — *demo-script.md committed; deploy optional*
 
 ---
 
