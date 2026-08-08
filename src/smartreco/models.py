@@ -197,6 +197,18 @@ class HypothesisEvidence(Base):
     relation: Mapped[str] = mapped_column(Text, default="SUPPORTING")  # SUPPORTING | CONTRADICTING
 
 
+class AIUsage(Base):
+    """Per-user per-day AI call counters (POL-TRIG-003 budgets). Mutable by
+    design — a counter, not a Runtime Object (data-model §ai_usage)."""
+
+    __tablename__ = "ai_usage"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    day: Mapped[str] = mapped_column(Text, primary_key=True)  # YYYY-MM-DD (UTC)
+    tier: Mapped[str] = mapped_column(Text, primary_key=True)  # tier1 | tier2
+    calls: Mapped[int] = mapped_column(Integer, default=0)
+
+
 class BehavioralTrait(Base):
     """Mutable long-term profile — written only by Learning and Decay engines."""
 

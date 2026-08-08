@@ -51,8 +51,9 @@ def user(seeded):
     return row
 
 
-def test_story1_security_evaluator(seeded, chroma, backend, policies, user):
+def test_story1_security_evaluator(seeded, chroma, backend, policies, user, fake_gateway):
     db = seeded
+    gw = fake_gateway
     s1, s2 = "story1-s1", "story1-s2"
     day1 = datetime(2026, 8, 1)
     day2 = datetime(2026, 8, 2)
@@ -65,7 +66,7 @@ def test_story1_security_evaluator(seeded, chroma, backend, policies, user):
         ("e04", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
         ("e05", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "provisioning"}),
     ])
-    r1 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION",
+    r1 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION", gateway=gw,
                       now=day1.replace(hour=9, minute=2))
     assert r1.status == "COMPLETED"
 
@@ -78,7 +79,7 @@ def test_story1_security_evaluator(seeded, chroma, backend, policies, user):
         ("e15", "SEARCH", "HIGH", {"query": "okta scim provisioning"}),
         ("e16", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "admin"}),
     ])
-    r2 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION",
+    r2 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION", gateway=gw,
                       now=day1.replace(hour=9, minute=17))
     assert r2.status == "COMPLETED"
 
@@ -92,7 +93,7 @@ def test_story1_security_evaluator(seeded, chroma, backend, policies, user):
         ("e23", "SEARCH", "HIGH", {"query": "single sign on audit logging"}),
         ("e24", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
     ])
-    r3 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION",
+    r3 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION", gateway=gw,
                       now=day1.replace(hour=9, minute=32))
     assert r3.status == "COMPLETED"
 
@@ -105,7 +106,7 @@ def test_story1_security_evaluator(seeded, chroma, backend, policies, user):
         ("e34", "SEARCH", "HIGH", {"query": "single sign-on scim provisioning okta"}),
         ("e35", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
     ])
-    r4 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION",
+    r4 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION", gateway=gw,
                       now=day2.replace(hour=10, minute=2))
     assert r4.status == "COMPLETED"
 
@@ -116,7 +117,7 @@ def test_story1_security_evaluator(seeded, chroma, backend, policies, user):
         ("e43", "SEARCH", "HIGH", {"query": "okta sso audit logging"}),
         ("e44", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "admin"}),
     ])
-    r5 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION",
+    r5 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION", gateway=gw,
                       now=day2.replace(hour=10, minute=17))
     assert r5.status == "COMPLETED"
 

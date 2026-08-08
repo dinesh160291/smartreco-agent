@@ -43,7 +43,7 @@ Conventions: events named per Core 22; policies per Core 10 (Policy Catalog v1);
 
 **Expected pipeline:** BP-005 (0.8), BP-006 (0.5), BP-003 (0.5) → REQ-001 0.83 Critical, REQ-005 0.75 High, REQ-003 0.41 held.
 
-**Expected outcome:** **Google Workspace rank 1 (92%)**, Notion 2 (41%), Zoom 3 (33%). Narrative connects collaboration consolidation + AI curiosity. Workflow-automation products (ServiceNow, Zapier) absent.
+**Expected outcome:** **Google Workspace 92%**, Notion 41%, Zoom 33% (exact, per Scenario 2), ranked in that relative order. Broad-suite products whose profiles fully cover both requirements (Microsoft 365 at 100%) may legitimately rank above Google Workspace over the full catalog — the Scenario 2 derivation evaluated only the three products above, and the deterministic ranker must not be bent to exclude a product that honestly covers more (Decision #037). Narrative connects collaboration consolidation + AI curiosity. Workflow-automation products (ServiceNow, Zapier) absent from the top 3.
 
 **Failure looks like:** REQ-003 published from secondary/supporting signals alone · automation products recommended.
 

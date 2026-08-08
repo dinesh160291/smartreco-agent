@@ -1200,3 +1200,25 @@ This preserves the policy's anti-gaming intent — viewing the same pricing page
 ## Consequences
 
 Chapter 10's POL-CONF-002 row and config/policies.yaml carry the identity definition. The Confidence Engine's unit tests pin both behaviors: identical-composition repeats halve; changed-composition evidence contributes fully. Policy Catalog stays at version 1.0 — this resolves an ambiguity rather than changing a published value.
+
+# Decision #037
+
+## Title
+
+Story 2 outcome binds exact scenario coverages and relative order, not absolute ranks
+
+## Status
+
+Accepted
+
+## Decision
+
+Story 2 asserted Google Workspace at absolute rank 1 (92%). Over the canonical ten-product fixture, Microsoft 365's capability profile fully covers both derived requirements (REQ-001 7/7, REQ-005 5/5 → 100% weighted coverage), so the deterministic ranker places it above Google Workspace whenever it is a candidate — and with top_K = 8 over ten products it always is. The Scenario 2 derivation evaluated only Google Workspace, Notion, and Zoom, and never claimed Microsoft 365 was absent. Story 2's outcome is amended to bind: the three scenario products' exact coverages (92 / 41 / 33), their relative order, and the absence of workflow-automation products from the top three.
+
+## Rationale
+
+The alternatives were worse: trimming Microsoft 365's capability profile to force the old assertion would violate the fixture-integrity rule (never adjust seed data to make an exact assertion pass), and suppressing a full-coverage candidate in the ranker would corrupt the deterministic matching contract. The derivation math — the part the platform actually proves — is preserved exactly.
+
+## Consequences
+
+user-journey-stories.md Story 2 amended. The acceptance test asserts exact coverages, relative order, and automation-product absence. Scenario 2 in Domain 09 is unchanged.

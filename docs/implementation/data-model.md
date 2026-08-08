@@ -210,6 +210,10 @@ aar_id PK · rpkg_id FK · surface (`ONSITE` \| `DIGEST`) · prompt_version · m
 
 id PK · user_id · channel · aar_id FK · status (`SENT/FAILED/SKIPPED`) · reason · digest_window TEXT · created_at. Unique (user_id, digest_window) — idempotent delivery by constraint (Core 24).
 
+### ai_usage (mutable counter — budgets)
+
+user_id FK · day TEXT (UTC date) · tier (`tier1` \| `tier2`) · calls INTEGER. PK (user_id, day, tier). The per-user daily AI-call counters consumed by the budget gate (POL-TRIG-003). Incremented by the gateway-calling code on every Tier-classified call (including failed/malformed calls — they spent budget). A counter, not a Runtime Object: deliberately mutable, like `behavioral_traits`. Token-level usage per call is recorded on workflow-run node spans; this table exists only so the trigger evaluator's budget gate is a cheap deterministic read.
+
 ### workflow_runs (observability; powers the Reasoning Panel)
 
 run_id PK · user_id · journey_id · trigger_type · gates JSON (debounce/cooldown/budget outcomes) · nodes JSON `[{node, class, duration_ms, cache_hit, object_refs}]` · policy_version · status · started_at · finished_at. Every run — including fast-path-only runs — writes one row. The decision *not* to run is logged by the trigger evaluator here as well (status `SKIPPED`).

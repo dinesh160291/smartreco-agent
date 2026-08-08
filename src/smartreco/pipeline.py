@@ -23,11 +23,61 @@ from smartreco.engines.matching import evaluate_readiness, rank_products
 from smartreco.engines.patterns import EventView, evaluate_patterns
 from smartreco.engines.requirements import derive_requirements
 from smartreco.engines.stages import determine_stage
+from smartreco.advisor import (
+    MalformedResponse,
+    assemble_aar_sections,
+    generate_sections,
+)
+from smartreco.domain.software_buying import CAPABILITIES
 from smartreco.engines.triggers import TriggerContext, evaluate_trigger
+from smartreco.gateway import GatewayUnavailable
 from smartreco.policies import PolicyCatalog
-from smartreco.retrieval import EmbeddingBackend, retrieve_candidates
+from smartreco.retrieval import (
+    EmbeddingBackend,
+    compose_query_document,
+    retrieve_with_refinement,
+)
 
-STUB_PROMPT_VERSION = "stub-1"
+_CAP_NAME = {cap_id: name for cap_id, name, _domain, _narrative in CAPABILITIES}
+
+
+def _today(now: datetime) -> str:
+    return now.strftime("%Y-%m-%d")
+
+
+def _usage_calls(db: OrmSession, user_id: int, day: str, tier: str) -> int:
+    row = db.get(models.AIUsage, (user_id, day, tier))
+    return row.calls if row else 0
+
+
+def record_ai_call(db: OrmSession, user_id: int, tier: str, now: datetime) -> None:
+    """Every Tier-classified gateway call increments the counter — including
+    failed and malformed calls; they spent budget (data-model §ai_usage)."""
+    key = (user_id, _today(now), tier)
+    row = db.get(models.AIUsage, key)
+    if row is None:
+        db.add(models.AIUsage(user_id=user_id, day=key[1], tier=tier, calls=1))
+    else:
+        row.calls += 1
+
+
+def _behavior_summary(events: list[models.Event]) -> str:
+    """Deterministic plain-language summary of observed behavior for prompts —
+    display vocabulary only, sourced from journey events."""
+    searches, topics, product_names = [], [], []
+    for e in events:
+        md = e.event_metadata or {}
+        if e.event_type == "SEARCH" and md.get("query"):
+            searches.append(str(md["query"]))
+        elif md.get("topic"):
+            topics.append(str(md["topic"]))
+    parts = []
+    if searches:
+        parts.append("searched for: " + "; ".join(dict.fromkeys(searches)))
+    if topics:
+        parts.append("read documentation and pages about: "
+                     + ", ".join(dict.fromkeys(topics)))
+    return ". ".join(parts) or "browsed the catalog"
 
 
 def _now(now: datetime | None) -> datetime:
@@ -187,16 +237,92 @@ def _strength_ge(strength: str, minimum: str) -> bool:
     return EVIDENCE_STRENGTH.index(strength) >= EVIDENCE_STRENGTH.index(minimum)
 
 
-def _query_document(requirements: list[dict]) -> str:
-    from smartreco.retrieval import _CAP_BY_ID
+def _concept_name(bc_id: str) -> str:
+    from smartreco.domain.software_buying import BEHAVIORAL_CONCEPTS
 
-    lines = []
-    for entry in requirements:
-        lines.append(REQUIREMENTS.get(entry["req_id"], entry["req_id"]))
-        for cap_id in REQ_TO_CAP.get(entry["req_id"], {}):
-            name, _domain, narrative = _CAP_BY_ID[cap_id]
-            lines.append(f"{name}. {narrative}")
-    return "\n".join(lines)
+    return BEHAVIORAL_CONCEPTS.get(bc_id, bc_id)
+
+
+def _tier1_node(db, gateway, policies, user_id, rpkg, requirements, journey_events,
+                stage, constraints, tier1_allowed, nodes, now) -> None:
+    """Nodes 12a/12b: clarify (NOT_READY) / generate (READY) — Tier 1.
+    Cache-first (POL-CACHE-001); budget gate serves the last stored AAR;
+    malformed twice / gateway failure → package stands without a fresh AAR."""
+    from smartreco.advisor import PROMPT_VERSION_CLARIFY, PROMPT_VERSION_GENERATE
+
+    readiness = rpkg.readiness
+    surface = "ONSITE"
+    prompt_version = (PROMPT_VERSION_GENERATE if readiness == "READY"
+                      else PROMPT_VERSION_CLARIFY)
+    node_name = "generate" if readiness == "READY" else "clarify"
+
+    existing = db.execute(
+        select(models.AdvisoryResponse).where(
+            models.AdvisoryResponse.rpkg_id == rpkg.rpkg_id,
+            models.AdvisoryResponse.prompt_version == prompt_version,
+            models.AdvisoryResponse.surface == surface)
+    ).scalars().first()
+    if existing is not None:
+        nodes.append({"node": node_name, "class": "tier1", "cache_hit": True})
+        return
+    if gateway is None:
+        nodes.append({"node": node_name, "class": "tier1",
+                      "skipped": "gateway unavailable"})
+        return
+    if not tier1_allowed:
+        nodes.append({"node": node_name, "class": "tier1",
+                      "skipped": "budget-gated; serving last stored AAR"})
+        return
+
+    products = []
+    for entry in rpkg.entries[:3]:
+        product = db.get(models.Product, entry["product_id"])
+        covered = sorted({
+            _CAP_NAME.get(cap_id, cap_id)
+            for per_req in entry["per_requirement"].values()
+            for cap_id in per_req["supported_capability_ids"]})
+        products.append({
+            "name": product.name, "vendor": product.vendor,
+            "coverage": entry["overall_coverage"],
+            "covered": covered,
+            "missing": [_CAP_NAME.get(c, c) for c in entry["missing_capability_ids"]],
+            "narrative": product.business_value_narrative or product.description,
+        })
+    facts = {
+        "products": products,
+        "requirements": [
+            {"name": REQUIREMENTS.get(r["req_id"], r["req_id"]),
+             "priority": r["priority"].title(), "confidence": r["confidence"]}
+            for r in requirements],
+        "stage": stage,
+        "behavior_summary": _behavior_summary(journey_events),
+        "alternatives": [
+            db.get(models.Product, e["product_id"]).name for e in rpkg.entries[3:]],
+        "constraints": constraints,
+    }
+
+    try:
+        payload, version, calls = generate_sections(gateway, facts, readiness)
+    except MalformedResponse as exc:
+        for _ in range(2):  # both attempts spent budget
+            record_ai_call(db, user_id, "tier1", now)
+        nodes.append({"node": node_name, "class": "tier1",
+                      "failure": f"malformed twice: {exc}"})
+        return
+    except GatewayUnavailable as exc:
+        record_ai_call(db, user_id, "tier1", now)
+        nodes.append({"node": node_name, "class": "tier1", "failure": str(exc)})
+        return
+
+    for _ in range(calls):
+        record_ai_call(db, user_id, "tier1", now)
+    repos.insert_advisory_response(db, models.AdvisoryResponse(
+        aar_id=f"AAR-{uuid.uuid4().hex[:10]}", rpkg_id=rpkg.rpkg_id,
+        surface=surface, prompt_version=version, model_id=gateway.model,
+        sections=assemble_aar_sections(payload, facts, readiness),
+        created_at=now))
+    nodes.append({"node": node_name, "class": "tier1", "cache_hit": False,
+                  "prompt_version": version, "model_id": gateway.model})
 
 
 def run_workflow(
@@ -207,8 +333,10 @@ def run_workflow(
     user_id: int,
     trigger_type: str,
     now: datetime | None = None,
+    gateway=None,
 ) -> models.WorkflowRun:
-    """One orchestration workflow execution (Core 21 shape, plain functions)."""
+    """One orchestration workflow execution (Core 21 shape, plain functions).
+    gateway=None runs fully deterministic (Tier 1/2 degrade per Core 21/23)."""
     now = _now(now)
     run_id = f"WR-{uuid.uuid4().hex[:12]}"
     nodes: list[dict] = []
@@ -238,8 +366,8 @@ def run_workflow(
         newest_event_age_seconds=newest_age,
         seconds_since_last_run=(now - last_run_ts).total_seconds() if last_run_ts else None,
         run_in_flight=bool(in_flight),
-        tier1_calls_today=0,  # AI calls arrive in Phase 2; budgets recorded then
-        tier2_calls_today=0,
+        tier1_calls_today=_usage_calls(db, user_id, _today(now), "tier1"),
+        tier2_calls_today=_usage_calls(db, user_id, _today(now), "tier2"),
     )
     decision = evaluate_trigger(trigger_type, ctx, policies)
     gates = {"trigger": trigger_type, "decision": decision.reason,
@@ -345,72 +473,118 @@ def run_workflow(
     nodes.append({"node": "requirements", "class": "deterministic",
                   "published": [r["req_id"] for r in requirements]})
 
-    # --- Retrieval (candidate set) + Matching + Readiness + stubbed AAR ---
-    rpkg = None
+    # --- decide_retrieve → retrieve/evaluate/refine (Tier 2) → match → readiness ---
+    high_signal = sum(1 for e in journey_events if e.signal_class == "HIGH")
+    readiness = evaluate_readiness(requirements, high_signal, policies)
+    constraints = {}
+    if not any(e.event_type == "PRICING_VIEWED" for e in journey_events):
+        constraints["budget"] = "Unknown"  # POL-REC-004
+
+    cs = None
+    published_entries: list[dict] = []
     if requirements:
-        query_document = _query_document(requirements)
-        candidates = retrieve_candidates(db, chroma_client, backend, query_document, policies)
-        cs = models.CandidateSet(
-            cs_id=f"CS-{uuid.uuid4().hex[:10]}", journey_id=journey_id,
-            rp_id=latest_rp.rp_id, query_document=query_document,
-            params={"top_k": policies.param("POL-RETR-001", "top_k")},
-            candidates=candidates, refinement_history=[], created_at=now)
-        repos.insert_candidate_set(db, cs)
-        nodes.append({"node": "retrieval", "class": "tier2-deterministic",
-                      "candidates": len(candidates)})
+        ttl = policies.param("POL-RETR-003", "ttl_seconds")
+        cached_cs = db.execute(
+            select(models.CandidateSet)
+            .where(models.CandidateSet.journey_id == journey_id,
+                   models.CandidateSet.rp_id == latest_rp.rp_id)
+            .order_by(models.CandidateSet.created_at.desc())
+        ).scalars().first()
+        cache_valid = (cached_cs is not None
+                       and (now - cached_cs.created_at).total_seconds() <= ttl)
+
+        if cache_valid:
+            cs = cached_cs
+            nodes.append({"node": "retrieve", "class": "tier2",
+                          "cache_hit": True, "candidates": len(cs.candidates)})
+        else:
+            concept_names = sorted(
+                f"{_concept_name(c)}" for c in active)
+            recent_terms = list(dict.fromkeys(
+                str((e.event_metadata or {}).get("query"))
+                for e in journey_events
+                if e.event_type == "SEARCH" and (e.event_metadata or {}).get("query")))
+            query_document = compose_query_document(
+                requirements, concept_names, stage, recent_terms, REQUIREMENTS)
+            tier2_budget = policies.param("POL-TRIG-003", "tier2_calls_per_user_per_day")
+
+            def _tier2_call():
+                record_ai_call(db, user_id, "tier2", now)
+
+            try:
+                if backend is gateway:  # gateway embeddings spend Tier 2 budget
+                    _tier2_call()
+                candidates, history, final_query = retrieve_with_refinement(
+                    db, chroma_client, backend, gateway, query_document, policies,
+                    tier2_llm_allowed=(
+                        decision.tier2_allowed
+                        and _usage_calls(db, user_id, _today(now), "tier2") < tier2_budget),
+                    record_tier2_call=_tier2_call)
+                cs = models.CandidateSet(
+                    cs_id=f"CS-{uuid.uuid4().hex[:10]}", journey_id=journey_id,
+                    rp_id=latest_rp.rp_id, query_document=final_query,
+                    params={"top_k": policies.param("POL-RETR-001", "top_k"),
+                            "query_template": "qd-v1"},
+                    candidates=candidates, refinement_history=history, created_at=now)
+                repos.insert_candidate_set(db, cs)
+                db.flush()
+                nodes.append({"node": "retrieve", "class": "tier2", "cache_hit": False,
+                              "candidates": len(candidates),
+                              "refinements": len([h for h in history
+                                                  if h.get("action") == "refine"])})
+            except GatewayUnavailable as exc:
+                # Tier 2 failure ladder: best available cached set, else
+                # full-catalog matching with a null Candidate Set ref (Core 21)
+                cs = cached_cs
+                nodes.append({"node": "retrieve", "class": "tier2", "cache_hit": cs is not None,
+                              "failure": str(exc)})
+
+        if cs is not None:
+            candidate_ids = [c["product_id"] for c in cs.candidates]
+        else:
+            candidate_ids = db.execute(
+                select(models.Product.product_id).where(
+                    models.Product.sync_status == "SYNCED",
+                    models.Product.deleted_at.is_(None))
+            ).scalars().all()
+            nodes.append({"node": "match_fallback", "class": "deterministic",
+                          "mode": "full-catalog"})
 
         product_caps: dict[str, set[str]] = {}
-        for c in candidates:
+        for product_id in candidate_ids:
             caps = db.execute(
                 select(models.ProductCapability.capability_id).where(
-                    models.ProductCapability.product_id == c["product_id"])
+                    models.ProductCapability.product_id == product_id)
             ).scalars().all()
-            product_caps[c["product_id"]] = set(caps)
-        entries = rank_products(requirements, [c["product_id"] for c in candidates],
-                                product_caps, REQ_TO_CAP, policies)
+            product_caps[product_id] = set(caps)
+        entries = rank_products(requirements, list(candidate_ids), product_caps,
+                                REQ_TO_CAP, policies)
         top = policies.param("POL-REC-003", "top_entries")
         alternatives = policies.param("POL-REC-003", "max_alternatives")
         published_entries = entries[: top + alternatives]
 
-        high_signal = sum(1 for e in journey_events if e.signal_class == "HIGH")
-        readiness = evaluate_readiness(requirements, high_signal, policies)
+    latest_pkg = db.execute(
+        select(models.RecommendationPackage)
+        .where(models.RecommendationPackage.journey_id == journey_id)
+        .order_by(models.RecommendationPackage.created_at.desc())
+    ).scalars().first()
+    if (latest_pkg is None or latest_pkg.entries != published_entries
+            or latest_pkg.readiness != readiness):
+        rpkg = models.RecommendationPackage(
+            rpkg_id=f"RPKG-{uuid.uuid4().hex[:10]}", journey_id=journey_id,
+            rp_id=latest_rp.rp_id if latest_rp else None,
+            cs_id=cs.cs_id if cs is not None else None,
+            entries=published_entries, readiness=readiness, constraints=constraints,
+            policy_version=policies.version, created_at=now)
+        repos.insert_recommendation_package(db, rpkg)
+        db.flush()  # AAR row references the package; enforce insert order
+    else:
+        rpkg = latest_pkg
+    nodes.append({"node": "match", "class": "deterministic", "readiness": readiness})
 
-        constraints = {}
-        if not any(e.event_type == "PRICING_VIEWED" for e in journey_events):
-            constraints["budget"] = "Unknown"  # POL-REC-004
-
-        latest_pkg = db.execute(
-            select(models.RecommendationPackage)
-            .where(models.RecommendationPackage.journey_id == journey_id)
-            .order_by(models.RecommendationPackage.created_at.desc())
-        ).scalars().first()
-        if (latest_pkg is None or latest_pkg.entries != published_entries
-                or latest_pkg.readiness != readiness):
-            rpkg = models.RecommendationPackage(
-                rpkg_id=f"RPKG-{uuid.uuid4().hex[:10]}", journey_id=journey_id,
-                rp_id=latest_rp.rp_id, cs_id=cs.cs_id, entries=published_entries,
-                readiness=readiness, constraints=constraints,
-                policy_version=policies.version, created_at=now)
-            repos.insert_recommendation_package(db, rpkg)
-            db.flush()  # AAR row references the package; enforce insert order
-        else:
-            rpkg = latest_pkg
-        nodes.append({"node": "matching", "class": "deterministic",
-                      "readiness": readiness})
-
-        aar_exists = db.execute(
-            select(models.AdvisoryResponse).where(
-                models.AdvisoryResponse.rpkg_id == rpkg.rpkg_id,
-                models.AdvisoryResponse.prompt_version == STUB_PROMPT_VERSION,
-                models.AdvisoryResponse.surface == "ONSITE")
-        ).scalars().first()
-        if aar_exists is None and readiness == "READY":
-            repos.insert_advisory_response(db, models.AdvisoryResponse(
-                aar_id=f"AAR-{uuid.uuid4().hex[:10]}", rpkg_id=rpkg.rpkg_id,
-                surface="ONSITE", prompt_version=STUB_PROMPT_VERSION, model_id="stub",
-                sections={"summary": "stubbed advisory response (Phase 2 replaces)"},
-                created_at=now))
-        nodes.append({"node": "aar", "class": "tier1-stub"})
+    # --- readiness_gate → clarify / generate (Tier 1) ---
+    _tier1_node(db, gateway, policies, user_id, rpkg, requirements, journey_events,
+                stage, constraints, decision.tier1_allowed, nodes, now)
 
     # --- Finish: stamp processed, record run ---
     repos.stamp_processed(db, [e.event_id for e in unprocessed], now)

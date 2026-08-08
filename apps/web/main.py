@@ -21,6 +21,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from smartreco import models
 from smartreco.db import Base, make_engine, make_session_factory
 from smartreco.enums import EVENT_TYPES
+from smartreco.gateway import AIGateway, GatewayUnavailable
 from smartreco.pipeline import run_workflow
 from smartreco.policies import load_policies
 from smartreco.repos import insert_events_idempotent
@@ -50,6 +51,10 @@ def _init_state():
     _state["chroma"] = chromadb.PersistentClient(
         path=os.environ.get("CHROMA_PATH", "./data/chroma"))
     _state["backend"] = make_embedding_backend(policies)
+    try:
+        _state["gateway"] = AIGateway(policies)
+    except GatewayUnavailable:
+        _state["gateway"] = None  # deterministic service continues (Core 21/23)
     with _state["session_factory"]() as db:
         seed_capabilities(db)
         reconcile_pending(db, _state["chroma"], _state["backend"])
@@ -136,7 +141,7 @@ def _evaluate_triggers_async(user_id: int):
     state = _init_state()
     with state["session_factory"]() as db:
         run_workflow(db, state["chroma"], state["backend"], state["policies"],
-                     user_id, "EVENT_ACCUMULATION")
+                     user_id, "EVENT_ACCUMULATION", gateway=state.get("gateway"))
 
 
 @app.post("/events/batch", status_code=202)

@@ -4,13 +4,14 @@ Pure deterministic function over the journey's event history: identical events
 always produce identical Evidence drafts. The caller persists drafts whose
 dedup key (pattern_id, supporting event-id set) is new (core 19 dedup rule).
 
-Phase 1 implements BP-001 and BP-002 (the plan's minimum for the vertical
-slice); the registry structure extends to the remaining patterns in Phase 4.
+Implemented: BP-001/002 (Phase 1), BP-003/005/006/012 (Phase 2 — needed by
+Stories 2 and 4); BP-004/007/008/009/010/011 land in Phase 4.
 
 Event metadata conventions (Core 13 leaves shapes to the implementation):
   SECURITY_VIEWED: {page, topic?} · DOCUMENTATION_VIEWED: {topic}
   PRICING_VIEWED: {product_id?, tier} · DWELL: {topic?, seconds}
   SEARCH: {query} · PRODUCT_VIEWED: {product_id, category?}
+  CATEGORY_VIEWED: {category}
 """
 
 from dataclasses import dataclass, field
@@ -21,6 +22,10 @@ BP001_DOC_TOPICS = {"security", "sso", "mfa"}
 BP002_DOC_TOPICS = {"admin", "provisioning", "federation"}
 BP002_SECURITY_TOPICS = {"compliance", "audit"}
 BP002_ENTERPRISE_TIER = "enterprise"
+BP003_SEARCH_TERMS = {"ai", "copilot", "assistant"}
+BP005_DOC_TOPICS = {"messaging", "meetings", "co-editing"}
+BP006_DOC_TOPICS = {"productivity", "templates", "tasks"}
+BP006_SEARCH_TERMS = {"productivity", "templates", "tasks"}
 
 
 @dataclass(frozen=True)
@@ -51,13 +56,18 @@ def evaluate_patterns(events: list[EventView], policies: PolicyCatalog) -> list[
         sessions.setdefault(event.session_id, []).append(event)
 
     for session_events in sessions.values():
-        draft = _evaluate_bp001(session_events)
-        if draft:
-            drafts.append(draft)
-        draft = _evaluate_bp002(session_events, events)
-        if draft:
-            drafts.append(draft)
+        for evaluator in (_evaluate_bp001,
+                          lambda se: _evaluate_bp002(se, events),
+                          _evaluate_bp003, _evaluate_bp005, _evaluate_bp006,
+                          _evaluate_bp012):
+            draft = evaluator(session_events)
+            if draft:
+                drafts.append(draft)
     return drafts
+
+
+def _tokens(query: str) -> set[str]:
+    return set(query.lower().split())
 
 
 def _evaluate_bp001(session_events: list[EventView]) -> EvidenceDraft | None:
@@ -91,6 +101,107 @@ def _evaluate_bp001(session_events: list[EventView]) -> EvidenceDraft | None:
             f"{len(security_docs)} security-topic doc view(s), dwell {dwell_seconds}s -> {strength}"
         ),
     )
+
+
+def _evaluate_bp003(session_events: list[EventView]) -> EvidenceDraft | None:
+    """BP-003 AI Evaluation: ≥2 among DOCUMENTATION_VIEWED topic=ai,
+    PRODUCT_VIEWED in an AI-focused category, SEARCH with AI terms.
+    Strong at ≥4 qualifying (or supporting dwell ≥60s on AI pages)."""
+    qualifying = []
+    for e in session_events:
+        if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") == "ai":
+            qualifying.append(e)
+        elif e.event_type == "PRODUCT_VIEWED" and "ai" in str(e.metadata.get("category", "")).lower().split():
+            qualifying.append(e)
+        elif e.event_type == "SEARCH" and _tokens(e.metadata.get("query", "")) & BP003_SEARCH_TERMS:
+            qualifying.append(e)
+    if len(qualifying) < 2:
+        return None
+    dwell_seconds = sum(e.metadata.get("seconds", 0) for e in session_events
+                        if e.event_type == "DWELL" and e.metadata.get("topic") == "ai")
+    strength = "STRONG" if len(qualifying) >= 4 or dwell_seconds >= 60 else "MEDIUM"
+    return EvidenceDraft(
+        pattern_id="BP-003", strength=strength, concept_ids=["BC-003"],
+        supporting_event_ids=[e.event_id for e in qualifying],
+        explanation=f"BP-003 activated: {len(qualifying)} AI signal(s) -> {strength}")
+
+
+def _evaluate_bp005(session_events: list[EventView]) -> EvidenceDraft | None:
+    """BP-005 Collaboration Evaluation: ≥2 among PRODUCT_VIEWED in a
+    collaboration category, DOCUMENTATION_VIEWED topic messaging/meetings/
+    co-editing, CATEGORY_VIEWED collaboration. Strong at ≥4. Co-supports
+    BC-006 when productivity topics co-occur in the session."""
+    qualifying = []
+    for e in session_events:
+        if e.event_type == "PRODUCT_VIEWED" and "collaboration" in str(e.metadata.get("category", "")).lower():
+            qualifying.append(e)
+        elif e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in BP005_DOC_TOPICS:
+            qualifying.append(e)
+        elif e.event_type == "CATEGORY_VIEWED" and "collaboration" in str(e.metadata.get("category", "")).lower():
+            qualifying.append(e)
+    if len(qualifying) < 2:
+        return None
+    productivity_co_occurs = any(
+        (e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in BP006_DOC_TOPICS)
+        or (e.event_type == "SEARCH" and _tokens(e.metadata.get("query", "")) & BP006_SEARCH_TERMS)
+        for e in session_events)
+    concepts = ["BC-005", "BC-006"] if productivity_co_occurs else ["BC-005"]
+    strength = "STRONG" if len(qualifying) >= 4 else "MEDIUM"
+    return EvidenceDraft(
+        pattern_id="BP-005", strength=strength, concept_ids=concepts,
+        supporting_event_ids=[e.event_id for e in qualifying],
+        explanation=f"BP-005 activated: {len(qualifying)} collaboration signal(s) -> {strength}")
+
+
+def _evaluate_bp006(session_events: list[EventView]) -> EvidenceDraft | None:
+    """BP-006 Productivity Evaluation: ≥2 among DOCUMENTATION_VIEWED topic
+    productivity/templates/tasks, SEARCH with productivity terms,
+    PRODUCT_VIEWED in productivity categories. Weak; Medium at ≥3.
+    No Strong level defined (Domain 02)."""
+    qualifying = []
+    for e in session_events:
+        if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in BP006_DOC_TOPICS:
+            qualifying.append(e)
+        elif e.event_type == "SEARCH" and _tokens(e.metadata.get("query", "")) & BP006_SEARCH_TERMS:
+            qualifying.append(e)
+        elif e.event_type == "PRODUCT_VIEWED" and "productivity" in str(e.metadata.get("category", "")).lower():
+            qualifying.append(e)
+    if len(qualifying) < 2:
+        return None
+    strength = "MEDIUM" if len(qualifying) >= 3 else "WEAK"
+    return EvidenceDraft(
+        pattern_id="BP-006", strength=strength, concept_ids=["BC-006"],
+        supporting_event_ids=[e.event_id for e in qualifying],
+        explanation=f"BP-006 activated: {len(qualifying)} productivity signal(s) -> {strength}")
+
+
+def _evaluate_bp012(session_events: list[EventView]) -> EvidenceDraft | None:
+    """BP-012 Product Discovery: ≥3 among CATEGORY_VIEWED/SEARCH/PRODUCT_VIEWED
+    spanning ≥2 distinct products or categories, no single product > 2 views.
+    Weak; Medium at ≥5. No Strong level defined (Domain 02)."""
+    qualifying = [e for e in session_events
+                  if e.event_type in ("CATEGORY_VIEWED", "SEARCH", "PRODUCT_VIEWED")]
+    if len(qualifying) < 3:
+        return None
+    entities: set[str] = set()
+    product_views: dict[str, int] = {}
+    for e in qualifying:
+        if e.event_type == "PRODUCT_VIEWED" and e.metadata.get("product_id"):
+            pid = str(e.metadata["product_id"])
+            entities.add(pid)
+            product_views[pid] = product_views.get(pid, 0) + 1
+        elif e.event_type == "CATEGORY_VIEWED" and e.metadata.get("category"):
+            entities.add(str(e.metadata["category"]))
+    if len(entities) < 2:
+        return None
+    if any(count > 2 for count in product_views.values()):
+        return None  # concentration on one product — BP-010 territory
+    strength = "MEDIUM" if len(qualifying) >= 5 else "WEAK"
+    return EvidenceDraft(
+        pattern_id="BP-012", strength=strength, concept_ids=["BC-011"],
+        supporting_event_ids=[e.event_id for e in qualifying],
+        explanation=f"BP-012 activated: {len(qualifying)} discovery event(s) across "
+                    f"{len(entities)} entities -> {strength}")
 
 
 def _bp002_qualifying(events: list[EventView]) -> list[EventView]:
