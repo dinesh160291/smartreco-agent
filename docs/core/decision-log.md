@@ -1157,3 +1157,46 @@ Deployments may be bound to a specific gateway provider by their environment's r
 ## Consequences
 
 Chapters 15 and 20 define the gateway; Chapter 23's budgets and Chapter 11's AI-call observability attach to it.
+# Decision #035
+
+## Title
+
+REQ-004 capability set fixed at four capabilities; CAP-001 Supporting association removed
+
+## Status
+
+Accepted
+
+## Decision
+
+The Business Requirement → Capability Mapping (Domain 07) listed CAP-001 Single Sign-On as a Supporting association of REQ-004 Regulatory Compliance, while every derivation in the Reference Behavioral Journey Scenarios (Domain 09) — and the platform's binding acceptance numbers (Okta 81% / Microsoft 365 70% / Google Workspace 58% in Scenario 1; the Scenario 4 coverage set) — computes REQ-004 coverage over exactly four capabilities (CAP-010, CAP-012, CAP-013, CAP-014). The two documents contradicted each other. The scenario derivations are the acceptance contract, so Domain 07 was amended: REQ-004 carries no Supporting association.
+
+## Rationale
+
+Scenario numbers are exact, executable acceptance criteria ("an implementation that seeds these profiles and replays these behaviors must reproduce these exact numbers" — Domain 09). A five-capability REQ-004 would change Okta's Scenario 1 overall coverage from 81% to 85% and break Scenario 4. Identity's reinforcement of compliance is already expressed at the BC → REQ layer (BC-004 → REQ-002 Secondary); duplicating it at the capability layer double-counted the relationship.
+
+## Consequences
+
+Domain 07 REQ-004 Supporting Association is now empty. The REQ→CAP fixture and coverage engine derive from the four-capability set. No scenario numbers change.
+
+# Decision #036
+
+## Title
+
+POL-CONF-002 identity of "repeated identical Evidence" defined as (pattern, strength, event-type composition)
+
+## Status
+
+Accepted
+
+## Decision
+
+POL-CONF-002 ("Repeated identical Evidence contributes at 50% of prior contribution") did not define "identical". The Behavioral Reasoning Engine already deduplicates identical pattern activations over the same supporting events, so identity-by-event-set would make the policy unreachable; identity-by-pattern-alone would cap single-pattern hypothesis confidence near 0.4 (a geometric series of one class contribution), making the Domain 09 scenario confidences (0.80 / 0.70 / 0.50) underivable — no v1 concept is supported by more than one pattern, so the diversity increment cannot close the gap. "Identical" is now defined as: same pattern, same strength, and same supporting event-type composition (the multiset of event types backing the Evidence). Evidence of the same pattern with a different strength or a different event-type composition contributes at full class value.
+
+## Rationale
+
+This preserves the policy's anti-gaming intent — viewing the same pricing page twenty times produces evidence of identical composition and diminishes — while diverse research (security pages, then security + documentation, then documentation + search) accumulates at full value, which is exactly the diversity philosophy of the Confidence Engine chapter ("confidence grows through evidence quality"). It is deterministic, replayable, and unit-testable, and it makes the stated scenario hypothesis confidences reachable from honest clickstreams.
+
+## Consequences
+
+Chapter 10's POL-CONF-002 row and config/policies.yaml carry the identity definition. The Confidence Engine's unit tests pin both behaviors: identical-composition repeats halve; changed-composition evidence contributes fully. Policy Catalog stays at version 1.0 — this resolves an ambiguity rather than changing a published value.

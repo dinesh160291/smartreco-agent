@@ -827,7 +827,7 @@ CAP-014   eDiscovery
 ### Supporting Association
 
 ```text
-CAP-001   Single Sign-On
+None
 ```
 
 ---
@@ -836,7 +836,7 @@ CAP-001   Single Sign-On
 
 Compliance initiatives require governance, traceability, and information management.
 
-Identity capabilities reinforce compliance by ensuring controlled access to regulated resources.
+Identity-related reinforcement of compliance is carried by the BC → REQ layer (BC-004 → REQ-002 Secondary), not by adding identity capabilities to this requirement's capability set (Decision #035).
 
 ---
 

@@ -40,9 +40,13 @@ policies:
   POL-CONF-002:
     name: Diminishing returns
     category: confidence
-    rule: "Repeated identical Evidence contributes at 50% of prior contribution"
+    rule: >-
+      Repeated identical Evidence contributes at 50% of prior contribution. Identical = same
+      pattern, same strength, same supporting event-type composition; a different strength or
+      composition contributes at full class value (Decision #036).
     params:
       repeat_factor: 0.5
+      identity: [pattern_id, strength, event_type_composition]
 
   POL-CONF-003:
     name: Contradiction penalty

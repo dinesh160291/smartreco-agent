@@ -1,0 +1,96 @@
+"""Signature tests: Behavioral Reasoning Engine pattern evaluation (BP-001, BP-002).
+
+Pins the Domain 02 activation conditions, strength ladders, session windows,
+BP-002's multi-session Strong rule, and evidence dedup (identical activation
+over the same supporting events never duplicates — core 19)."""
+
+import pytest
+
+from smartreco.engines.patterns import EventView, evaluate_patterns
+from smartreco.policies import load_policies
+
+
+@pytest.fixture(scope="module")
+def policies():
+    return load_policies()
+
+
+def E(i, etype, session="s1", **metadata):
+    return EventView(event_id=f"e{i}", event_type=etype, session_id=session, metadata=metadata)
+
+
+def by_pattern(drafts, pattern):
+    return [d for d in drafts if d.pattern_id == pattern]
+
+
+def test_bp001_no_activation_below_threshold(policies):
+    events = [E(1, "SECURITY_VIEWED", page="overview")]
+    assert by_pattern(evaluate_patterns(events, policies), "BP-001") == []
+
+
+def test_bp001_activates_on_two_distinct_security_pages(policies):
+    events = [E(1, "SECURITY_VIEWED", page="overview"), E(2, "SECURITY_VIEWED", page="certs")]
+    drafts = by_pattern(evaluate_patterns(events, policies), "BP-001")
+    assert len(drafts) == 1
+    assert drafts[0].strength == "MEDIUM"
+    assert drafts[0].concept_ids == ["BC-001"]
+    assert set(drafts[0].supporting_event_ids) == {"e1", "e2"}
+
+
+def test_bp001_same_page_twice_does_not_activate(policies):
+    events = [E(1, "SECURITY_VIEWED", page="overview"), E(2, "SECURITY_VIEWED", page="overview")]
+    assert by_pattern(evaluate_patterns(events, policies), "BP-001") == []
+
+
+def test_bp001_activates_on_security_plus_sso_doc(policies):
+    events = [E(1, "SECURITY_VIEWED", page="overview"),
+              E(2, "DOCUMENTATION_VIEWED", topic="sso")]
+    drafts = by_pattern(evaluate_patterns(events, policies), "BP-001")
+    assert len(drafts) == 1 and drafts[0].strength == "MEDIUM"
+
+
+def test_bp001_dwell_upgrades_to_strong(policies):
+    events = [E(1, "SECURITY_VIEWED", page="overview"),
+              E(2, "DOCUMENTATION_VIEWED", topic="sso")]
+    events += [E(10 + n, "DWELL", topic="security", seconds=10) for n in range(6)]  # 60s
+    drafts = by_pattern(evaluate_patterns(events, policies), "BP-001")
+    assert len(drafts) == 1 and drafts[0].strength == "STRONG"
+
+
+def test_bp001_window_is_session_scoped(policies):
+    events = [E(1, "SECURITY_VIEWED", session="s1", page="overview"),
+              E(2, "DOCUMENTATION_VIEWED", session="s2", topic="sso")]
+    assert by_pattern(evaluate_patterns(events, policies), "BP-001") == []
+
+
+def test_bp002_activates_on_enterprise_pricing_plus_admin_docs(policies):
+    events = [E(1, "PRICING_VIEWED", tier="enterprise"),
+              E(2, "DOCUMENTATION_VIEWED", topic="admin")]
+    drafts = by_pattern(evaluate_patterns(events, policies), "BP-002")
+    assert len(drafts) == 1 and drafts[0].strength == "MEDIUM"
+    assert drafts[0].concept_ids == ["BC-002"]
+
+
+def test_bp002_individual_tier_pricing_does_not_qualify(policies):
+    events = [E(1, "PRICING_VIEWED", tier="individual"),
+              E(2, "PRICING_VIEWED", tier="free")]
+    assert by_pattern(evaluate_patterns(events, policies), "BP-002") == []
+
+
+def test_bp002_strong_needs_three_qualifying_across_two_sessions(policies):
+    events = [E(1, "DOCUMENTATION_VIEWED", session="s1", topic="provisioning"),
+              E(2, "PRICING_VIEWED", session="s2", tier="enterprise"),
+              E(3, "DOCUMENTATION_VIEWED", session="s2", topic="admin")]
+    drafts = by_pattern(evaluate_patterns(events, policies), "BP-002")
+    # Session s2 activates; journey-wide 3 qualifying across 2 sessions → STRONG
+    assert len(drafts) == 1 and drafts[0].strength == "STRONG"
+    assert set(drafts[0].supporting_event_ids) == {"e1", "e2", "e3"}
+
+
+def test_evidence_is_deterministic_and_dedupable(policies):
+    events = [E(1, "SECURITY_VIEWED", page="a"), E(2, "SECURITY_VIEWED", page="b")]
+    first = evaluate_patterns(events, policies)
+    second = evaluate_patterns(events, policies)
+    keys1 = {(d.pattern_id, tuple(sorted(d.supporting_event_ids))) for d in first}
+    keys2 = {(d.pattern_id, tuple(sorted(d.supporting_event_ids))) for d in second}
+    assert keys1 == keys2  # identical inputs → identical evidence (dedup key stable)
