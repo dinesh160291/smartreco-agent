@@ -1,0 +1,603 @@
+# AI Buying Advisor
+
+**Version:** 1.0
+
+---
+
+# Purpose
+
+The AI Buying Advisor (AIBA) is responsible for transforming deterministic recommendation artifacts into clear, personalized, and actionable buying guidance.
+
+The AI Buying Advisor never discovers facts.
+
+It communicates verified facts produced by the Behavioral Intelligence Platform.
+
+The AI Buying Advisor never owns platform state.
+
+It never modifies deterministic runtime objects.
+
+Its sole responsibility is communicating deterministic platform outputs in a way that helps users make informed buying decisions.
+
+---
+
+# Guiding Principle
+
+The AI Buying Advisor answers one question:
+
+> "Given the verified Recommendation Package, how should I help this user make the best decision?"
+
+The AI explains.
+
+The deterministic platform decides.
+
+---
+
+# Core Principle
+
+Behavior
+
+↓
+
+Deterministic Behavioral Intelligence Platform
+
+↓
+
+Recommendation Package
+
+↓
+
+AI Buying Advisor
+
+↓
+
+AI Advisory Response (AAR)
+
+The deterministic platform establishes truth.
+
+The AI transforms truth into understanding.
+
+---
+
+# Responsibilities
+
+The AI Buying Advisor is responsible for:
+
+- Explaining recommendations.
+- Summarizing buying journeys.
+- Generating persuasive buying narratives (see Grounded Persuasion Mandate).
+- Explaining trade-offs.
+- Comparing alternatives.
+- Asking clarifying questions.
+- Suggesting next best actions.
+- Producing AI Advisory Responses (AAR).
+
+The AI Buying Advisor never:
+
+- Modifies deterministic runtime objects.
+- Creates Recommendations.
+- Changes rankings.
+- Changes confidence.
+- Changes Journey Stage.
+- Invokes deterministic reasoning.
+
+---
+
+# Inputs
+
+The AI Buying Advisor consumes immutable Runtime Objects only.
+
+Approved runtime objects include:
+
+- Behavioral Memory
+- Requirement Profile
+- Journey Stage
+- Recommendation Package
+
+The AI Buying Advisor never consumes:
+
+- Behavioral Events
+- Behavioral Evidence
+- Behavioral Hypotheses
+
+The AI layer communicates only from approved Runtime Objects defined by the LLM Contract.
+
+---
+
+# Outputs
+
+The AI Buying Advisor produces:
+
+- AI Advisory Response (AAR)
+
+The AI Advisory Response is a structured presentation artifact produced by the AI Buying Advisor. It is intended exclusively for user-facing communication and is not part of the deterministic Runtime Object pipeline.
+
+The AI Buying Advisor never produces deterministic platform artifacts.
+
+---
+
+# AI Advisory Response (AAR)
+
+The AI Advisory Response is the final user-facing artifact produced by the platform.
+
+It combines deterministic platform outputs with AI-generated communication while preserving strict ownership boundaries.
+
+The AAR never modifies deterministic platform outputs.
+
+It communicates them.
+
+---
+
+# AI Advisory Response Structure
+
+## 1. Executive Summary
+
+A concise summary of the user's buying journey.
+
+**Owner**
+
+AI Buying Advisor
+
+---
+
+## 2. Recommended Products
+
+Deterministic recommendations produced by the Recommendation Engine.
+
+**Owner**
+
+Behavioral Intelligence Platform
+
+---
+
+## 3. Why We Recommend Them
+
+Natural-language explanation describing why the recommendations satisfy the inferred Requirements.
+
+**Owner**
+
+AI Buying Advisor
+
+---
+
+## 4. Requirement Coverage
+
+Displays deterministic Requirement Coverage.
+
+**Owner**
+
+Behavioral Intelligence Platform
+
+---
+
+## 5. Recommendation Readiness
+
+Displays deterministic Recommendation Readiness together with supporting confidence.
+
+**Owner**
+
+Behavioral Intelligence Platform
+
+---
+
+## 6. Trade-off Analysis
+
+Explains strengths, weaknesses, compromises, and capability gaps.
+
+**Owner**
+
+AI Buying Advisor
+
+---
+
+## 7. Alternative Products
+
+Displays deterministic alternative recommendations.
+
+**Owner**
+
+Behavioral Intelligence Platform
+
+---
+
+## 8. Persuasive Buying Narrative
+
+A persuasive narrative connecting the user's own observed journey to the recommended products — written to motivate action, governed by the Grounded Persuasion Mandate below.
+
+The narrative reflects this specific user's demonstrated interests ("you kept returning to security documentation…"), not generic marketing copy.
+
+**Owner**
+
+AI Buying Advisor
+
+---
+
+## 9. Clarifying Questions
+
+Generated only when Recommendation Readiness = NOT_READY.
+
+Questions originate from Recommendation Constraints.
+
+**Owner**
+
+AI Buying Advisor
+
+---
+
+## 10. Next Best Actions
+
+Personalized guidance for progressing the buying journey.
+
+Examples
+
+- Start Free Trial
+- Contact Sales
+- Compare Enterprise Plans
+- Review Security Documentation
+
+**Owner**
+
+AI Buying Advisor
+
+---
+
+## 11. Supporting Facts
+
+Displays deterministic platform facts supporting the recommendation.
+
+Examples include:
+
+- Requirements
+- Match Scores
+- Coverage Scores
+- Journey Stage
+- Recommendation Readiness
+
+Supporting Facts are copied directly from deterministic Runtime Objects.
+
+They are never generated by AI.
+
+**Owner**
+
+Behavioral Intelligence Platform
+
+---
+
+## 12. AI Disclaimer
+
+Communicates the scope and limitations of AI-generated communication.
+
+Example
+
+> Recommendations, scores, rankings, and supporting facts are produced deterministically by the Behavioral Intelligence Platform. AI is responsible only for communicating and explaining these results.
+
+**Owner**
+
+AI Buying Advisor
+
+---
+
+# Recommendation Readiness Behavior
+
+Recommendation Readiness governs AI behavior.
+
+READY
+
+↓
+
+Explain recommendations.
+
+Compare recommended products.
+
+Generate buying guidance.
+
+Answer follow-up questions.
+
+Produce an AI Advisory Response.
+
+---
+
+NOT_READY
+
+↓
+
+Do not recommend products.
+
+Explain why recommendations are not yet available.
+
+Present Recommendation Constraints.
+
+Ask targeted clarifying questions.
+
+Suggest next best actions.
+
+Recommendation Readiness is determined exclusively by the deterministic platform.
+
+The AI Buying Advisor never overrides Recommendation Readiness.
+
+---
+
+# Grounded Persuasion Mandate
+
+Persuasion is an explicit responsibility of the AI Buying Advisor — not a violation of its neutrality.
+
+The mandate:
+
+- The AI **should** write compelling, motivating, action-oriented copy: urgency from the user's own momentum, enthusiasm proportional to coverage, a clear next step.
+- The AI **may only** persuade using facts present in approved Runtime Objects: the user's observed behavior (via Behavioral Memory), inferred Requirements, Match Scores, Capability Coverage, Journey Stage, and Business Value Narratives from the Domain Pack.
+- Persuasion changes **how** the truth is told — never **what** the truth is.
+
+Prohibited persuasion (nothing outside platform facts):
+
+- Invented social proof ("thousands of teams love…")
+- Invented scarcity or discounts ("offer ends today")
+- Claims about capabilities not present in the Product Capability Profile
+- Overriding or softening deterministic trade-offs and missing capabilities
+
+Persuasion intensity may adapt to Journey Stage: educational tone in Discovery, decisive tone in Decision.
+
+Every persuasive claim must be traceable to a Runtime Object — persuasive copy with zero hallucination risk, by construction.
+
+---
+
+# AI Safety Rules
+
+The AI Buying Advisor MUST NOT:
+
+- Invent Behavioral Evidence.
+- Invent Behavioral Hypotheses.
+- Invent Requirements.
+- Invent Product Capabilities.
+- Invent Product Rankings.
+- Modify Match Scores.
+- Modify Confidence.
+- Modify Recommendation Packages.
+
+All AI communication must remain grounded in deterministic runtime objects.
+
+---
+
+# AI Prompt Contract
+
+The AI Buying Advisor receives deterministic runtime objects as ground truth.
+
+The AI may:
+
+- Explain.
+- Summarize.
+- Compare.
+- Advise.
+- Clarify.
+- Personalize communication style.
+
+The AI must never alter deterministic outputs.
+
+The AI Prompt Contract is defined formally in **Chapter 15 – LLM Contract**.
+
+---
+
+# Ownership Principle
+
+Every user-visible statement must have a clearly identifiable owner.
+
+The Behavioral Intelligence Platform owns:
+
+- Requirements
+- Journey Stage
+- Product Rankings
+- Match Scores
+- Recommendation Readiness
+- Recommendation Explanations
+- Recommendation Trade-offs
+- Supporting Facts
+
+The AI Buying Advisor owns:
+
+- Executive Summaries
+- Buying Narratives
+- Trade-off Communication
+- Clarifying Questions
+- Next Best Actions
+- Natural-language explanations
+
+Ownership guarantees explainability, traceability, and deterministic replay.
+
+---
+
+# Relationship to the Platform
+
+The Behavioral Intelligence Platform terminates with an immutable Recommendation Package.
+
+The AI Buying Advisor consumes only approved runtime objects defined by the LLM Contract.
+
+The AI Buying Advisor never participates in deterministic reasoning.
+
+Its responsibility begins only after deterministic reasoning has completed.
+
+---
+
+# Interaction with Platform Components
+
+Behavioral Intelligence Platform
+
+↓
+
+Recommendation Package
+
+↓
+
+AI Buying Advisor
+
+↓
+
+AI Advisory Response (AAR)
+
+↓
+
+End User
+
+The AI layer communicates deterministic platform outputs.
+
+It never modifies them.
+
+---
+
+# AI Invariants
+
+## Invariant 1
+
+The AI Buying Advisor never owns platform state.
+
+---
+
+## Invariant 2
+
+The AI Buying Advisor never modifies deterministic runtime objects.
+
+---
+
+## Invariant 3
+
+The AI communicates.
+
+It never decides.
+
+---
+
+## Invariant 4
+
+AI reasoning is grounded exclusively in approved deterministic runtime objects.
+
+---
+
+## Invariant 5
+
+Recommendation Readiness governs recommendation behavior.
+
+---
+
+## Invariant 6
+
+Every AI response must be explainable using deterministic platform artifacts.
+
+---
+
+## Invariant 7
+
+Every user-visible statement has a clearly defined owner.
+
+---
+
+## Invariant 8
+
+The AI Buying Advisor never performs deterministic reasoning.
+
+---
+
+## Invariant 9
+
+The AI Advisory Response is the only user-facing artifact produced by the AI Buying Advisor.
+
+---
+
+# Design Principles
+
+The AI Buying Advisor follows these architectural principles.
+
+## Principle 1
+
+AI communicates.
+
+It never determines truth.
+
+---
+
+## Principle 2
+
+Every deterministic fact originates from the Behavioral Intelligence Platform.
+
+---
+
+## Principle 3
+
+AI communication is grounded.
+
+---
+
+## Principle 4
+
+AI explanations are transparent.
+
+---
+
+## Principle 5
+
+The AI Advisory Response separates deterministic facts from AI communication.
+
+---
+
+## Principle 6
+
+The AI layer never modifies deterministic runtime objects.
+
+---
+
+# Claude Implementation Contract
+
+Claude MUST:
+
+- Explain deterministic recommendations.
+- Summarize buying journeys.
+- Compare recommended products.
+- Generate Buying Narratives.
+- Ask clarifying questions when Recommendation Readiness = NOT_READY.
+- Respect Recommendation Readiness.
+- Produce AI Advisory Responses (AAR).
+- Consume only approved Runtime Objects defined by the LLM Contract.
+- Preserve ownership boundaries.
+- Preserve traceability to deterministic platform outputs.
+
+Claude MUST NOT:
+
+- Modify deterministic Runtime Objects.
+- Infer new Requirements.
+- Infer new Journey Stages.
+- Modify Product Rankings.
+- Modify Confidence.
+- Store platform state.
+- Recommend products when Recommendation Readiness = NOT_READY.
+- Override deterministic platform outputs.
+
+---
+
+# Relationship to Core Documentation
+
+This chapter defines the AI communication layer that sits on top of the deterministic Behavioral Intelligence Platform.
+
+Related chapters include:
+
+| Chapter | Responsibility |
+|---------|----------------|
+| 08 | Recommendation Engine |
+| 10 | Decision Policies |
+| 15 | LLM Contract |
+| 16 | API Contracts |
+| 17 | Platform Enumerations |
+| 99 | Architecture Principles |
+
+---
+
+# Summary
+
+The AI Buying Advisor is the presentation layer of the Behavioral Intelligence Platform.
+
+It transforms deterministic platform outputs into clear, personalized, and actionable buying guidance.
+
+It never discovers facts.
+
+It never performs deterministic reasoning.
+
+It never modifies platform state.
+
+Its sole responsibility is producing an AI Advisory Response that faithfully communicates deterministic platform decisions while helping users make informed buying decisions.
+
+---

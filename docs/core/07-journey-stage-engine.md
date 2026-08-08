@@ -1,0 +1,584 @@
+# Journey Stage Engine
+
+**Version:** 1.0
+
+---
+
+# Purpose
+
+The Journey Stage Engine (JSE) is responsible for determining the user's current decision-making stage within an active Journey using deterministic behavioral reasoning.
+
+Journey Stage represents the platform's current understanding of where the user is within their decision journey.
+
+The Journey Stage Engine classifies journey progression.
+
+It never predicts future behavior.
+
+It never recommends products.
+
+It never invokes AI.
+
+It never makes business decisions.
+
+Its sole responsibility is maintaining the current Journey Stage.
+
+---
+
+# Guiding Principle
+
+The Journey Stage Engine answers one question:
+
+> "What decision-making stage has the user demonstrated through their behavior?"
+
+Journey Stages are earned through accumulated behavioral milestones.
+
+They are never inferred from individual Behavioral Events.
+
+---
+
+# Core Principle
+
+Behavior
+
+↓
+
+Behavioral Evidence
+
+↓
+
+Behavioral Hypotheses
+
+↓
+
+Requirement Profile
+
+↓
+
+Journey Stage Engine
+
+↓
+
+Journey Stage
+
+↓
+
+Recommendation Engine
+
+↓
+
+Recommendation Package
+
+↓
+
+AI Buying Advisor
+
+Journey Stage is determined only after deterministic behavioral reasoning has completed.
+
+---
+
+# Responsibilities
+
+The Journey Stage Engine is responsible for:
+
+- Determining the current Journey Stage.
+- Managing Journey Stage transitions.
+- Computing Stage Confidence.
+- Producing deterministic Stage Explanations.
+- Supporting replayability.
+
+The Journey Stage Engine never:
+
+- Modifies Behavioral Memory.
+- Creates Behavioral Hypotheses.
+- Creates Requirements.
+- Selects products.
+- Invokes AI.
+
+---
+
+# Inputs
+
+The Journey Stage Engine consumes:
+
+- Requirement Profile
+- Requirement Confidence
+- Requirement Priority
+- Behavioral Memory
+
+The Journey Stage Engine never consumes Behavioral Events directly.
+
+Behavioral Events are transformed into Behavioral Evidence before reaching downstream engines.
+
+---
+
+# Outputs
+
+The Journey Stage Engine produces a new Journey Stage Runtime Object containing:
+
+- Current Journey Stage
+- Stage Confidence
+- Stage Explanation
+
+No other Runtime Object is produced or modified.
+
+---
+
+# Journey Stage
+
+Journey Stage is a persistent runtime object representing the user's current decision-making stage within the active Journey.
+
+Example
+
+JS-001
+
+Current Stage
+
+Commercial Evaluation
+
+Confidence
+
+0.87
+
+Journey Stage represents business progress rather than website navigation.
+
+---
+
+# Stage Philosophy
+
+Journey Stages represent business progress.
+
+They never represent pages visited.
+
+Journey Stages are determined through behavioral milestones.
+
+Behavioral milestones are defined by the active Domain Pack.
+
+The Journey Stage Engine remains completely domain-agnostic.
+
+---
+
+# Domain Ownership
+
+Journey Stage definitions belong exclusively to the active Domain Pack.
+
+Example
+
+Software Buying Domain (canonical 8-stage journey)
+
+- Awareness
+- Discovery
+- Research
+- Comparison
+- Technical Validation
+- Commercial Evaluation
+- Decision
+- Adoption
+
+The Journey Stage Engine operates on whatever Journey Stage definitions the active Domain Pack provides.
+
+The engine never hardcodes stage names.
+
+---
+
+# Stage Progression
+
+Journey Stage progression is governed by deterministic transition rules defined by the active Domain Pack.
+
+Progression is normally forward.
+
+Backward transitions are permitted when supported by sufficient deterministic Behavioral Evidence.
+
+Example
+
+Decision
+
+↓
+
+Commercial Evaluation
+
+Users may revisit earlier stages before making a final decision.
+
+Journey progression reflects real buying behavior rather than enforcing a linear workflow.
+
+---
+
+# Stage Confidence
+
+Every Journey Stage maintains deterministic Stage Confidence.
+
+Stage Confidence evolves incrementally.
+
+Stage Confidence is supported by:
+
+- Requirement Confidence
+- Requirement Priority
+- Behavioral Consistency
+- Behavioral Milestones
+
+AI never influences Stage Confidence.
+
+Stage Confidence answers:
+
+> "How certain are we that the user is currently in this Journey Stage?"
+
+---
+
+# Stage Explanation
+
+Every Journey Stage maintains a deterministic Stage Explanation.
+
+A Stage Explanation documents why the current Journey Stage exists.
+
+Every Stage Explanation contains:
+
+- Current Journey Stage
+- Supporting Requirements
+- Supporting Behavioral Hypotheses
+- Supporting Behavioral Evidence
+- Stage Confidence
+- Journey Lifecycle
+- Last Updated Timestamp
+- Deterministic Explanation
+
+Examples include:
+
+- User repeatedly evaluated enterprise security capabilities.
+- Multiple high-priority requirements support Commercial Evaluation.
+- Journey regressed from Decision due to renewed pricing research.
+- Confidence strengthened through consistent behavioral milestones.
+
+Stage Explanations are deterministic runtime objects.
+
+They are never generated by AI.
+
+The AI Buying Advisor may reference Stage Explanations but never modifies them.
+
+---
+
+# Runtime Object Governance
+
+Journey Stage conforms to the Runtime Object Model (Chapter 18).
+
+Ownership, lifecycle, shared metadata, versioning, immutability, lineage, replayability, and observability are defined by the Runtime Object Model and are not repeated in this chapter.
+
+This chapter defines only the deterministic process responsible for producing new versions of the Journey Stage Runtime Object.
+
+---
+
+# Relationship to Decision Policies
+
+The Journey Stage Engine executes deterministic Journey Stage inference.
+
+Business rules governing Journey Stage progression are defined externally by Decision Policies and the active Domain Pack.
+
+Examples include:
+
+- Minimum confidence required for stage advancement.
+- Allowed stage transitions.
+- Stage regression criteria.
+- Minimum behavioral milestones required for progression.
+
+The Journey Stage Engine consumes these policies.
+
+It never defines them.
+
+This separation allows journey logic to evolve independently of engine implementation.
+
+---
+
+# Relationship to the Platform
+
+The Journey Stage Engine is one component of the deterministic behavioral reasoning pipeline.
+
+Its responsibility is determining the user's current Journey Stage.
+
+The Journey Stage Engine:
+
+- Consumes Requirement Profiles.
+- Produces Journey Stage.
+- Produces Stage Confidence.
+- Produces Stage Explanations.
+- Orchestrates downstream recommendation behavior.
+
+The Journey Stage Engine never:
+
+- Creates Requirements.
+- Creates Behavioral Hypotheses.
+- Selects products.
+- Invokes AI.
+
+---
+
+# Interaction with Downstream Engines
+
+Requirement Profile
+
+↓
+
+Journey Stage Engine
+
+↓
+
+Journey Stage
+
+↓
+
+Recommendation Engine
+
+↓
+
+Recommendation Package
+
+↓
+
+AI Buying Advisor
+
+Journey Stage serves as the orchestration signal between behavioral reasoning and recommendation generation.
+
+It informs downstream systems how recommendations should be presented.
+
+It never determines which products should be recommended.
+
+---
+
+# Journey Stage Invariants
+
+## Invariant 1
+
+Every active Journey has exactly one current Journey Stage.
+
+---
+
+## Invariant 2
+
+Journey Stage is derived from the Requirement Profile.
+
+---
+
+## Invariant 3
+
+Journey Stage never consumes Behavioral Events directly.
+
+---
+
+## Invariant 4
+
+Journey Stage maintains deterministic Stage Confidence.
+
+---
+
+## Invariant 5
+
+Every Journey Stage maintains a deterministic Stage Explanation.
+
+---
+
+## Invariant 6
+
+Allowed Journey Stage transitions are defined by the active Domain Pack.
+
+---
+
+## Invariant 7
+
+Journey Stage progression is deterministic.
+
+---
+
+## Invariant 8
+
+Journey Stage supports downstream orchestration.
+
+It never selects products.
+
+---
+
+## Invariant 9
+
+The Journey Stage Engine never invokes AI.
+
+---
+
+# Design Principles
+
+The Journey Stage Engine follows these architectural principles.
+
+## Principle 1
+
+Journey Stages represent business progress.
+
+---
+
+## Principle 2
+
+Journey Stages are deterministic.
+
+---
+
+## Principle 3
+
+Journey Stages are explainable.
+
+---
+
+## Principle 4
+
+Journey Stage progression is evidence-driven.
+
+---
+
+## Principle 5
+
+Journey Stage orchestrates downstream behavior.
+
+It never determines recommendations.
+
+---
+
+## Principle 6
+
+Business policy remains external through Decision Policies and Domain Packs.
+
+---
+
+# Relationship to the Recommendation Engine
+
+The Recommendation Engine consumes Journey Stage together with the Requirement Profile.
+
+Journey Stage determines recommendation strategy.
+
+Examples
+
+Awareness
+
+- Category education
+- Problem framing content
+
+---
+
+Discovery
+
+- Educational content
+- Clarifying questions
+- Product education
+
+---
+
+Research
+
+- Feature guides
+- Documentation
+- Customer stories
+
+---
+
+Comparison
+
+- Product comparisons
+- Alternative suggestions
+
+---
+
+Technical Validation
+
+- Documentation
+- Integration guidance
+- Security comparisons
+
+---
+
+Commercial Evaluation
+
+- Pricing comparisons
+- ROI calculators
+- Plan comparisons
+
+---
+
+Decision
+
+- Trial guidance
+- Migration planning
+- Sales engagement
+
+---
+
+Adoption
+
+- Onboarding guidance
+- Team rollout support
+
+The Recommendation Engine determines which products satisfy the Requirement Profile.
+
+Journey Stage determines how those recommendations are orchestrated.
+
+---
+
+# Claude Implementation Contract
+
+Claude MUST:
+
+- Determine Journey Stage deterministically.
+- Produce Journey Stage Runtime Objects that conform to the Runtime Object Model.
+- Respect stage transition rules.
+- Produce Stage Confidence.
+- Produce deterministic Stage Explanations.
+- Respect Runtime Object ownership.
+- Respect Runtime Object immutability.
+- Respect Runtime Object versioning.
+- Preserve Runtime Object lineage.
+- Preserve replayability.
+- Preserve observability.
+- Respect Decision Policies.
+- Respect Domain Pack stage definitions.
+
+Claude MUST NOT:
+
+- Determine Journey Stage directly from Behavioral Events.
+- Skip the Requirement Engine.
+- Override Decision Policies.
+- Override Domain Pack definitions.
+- Select products.
+- Invoke AI.
+- Modify published Runtime Objects.
+
+---
+
+# Relationship to Core Documentation
+
+This chapter defines how deterministic behavioral understanding is translated into Journey progression.
+
+Related chapters include:
+
+| Chapter | Responsibility |
+|---------|----------------|
+| 02 | Behavioral Memory |
+| 05 | Confidence Engine |
+| 06 | Requirement Engine |
+| 08 | Recommendation Engine |
+| 10 | Decision Policies |
+| 12 | Journey Resolution Engine |
+| 13 | Event Schema |
+| 15 | LLM Contract |
+| 17 | Platform Enumerations |
+| 99 | Architecture Principles |
+
+---
+
+# Summary
+
+The Journey Stage Engine determines where the user currently is within an active Journey.
+
+It translates deterministic Requirements into business progression.
+
+It orchestrates downstream recommendation behavior.
+
+It never predicts future behavior.
+
+It never selects products.
+
+It never invokes AI.
+
+Its sole responsibility is maintaining an accurate, deterministic Journey Stage that coordinates the remainder of the platform.
+
+---

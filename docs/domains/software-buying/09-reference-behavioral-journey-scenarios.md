@@ -1,0 +1,1962 @@
+# Reference Behavioral Journey Scenarios
+
+**Version:** 1.0
+
+---
+
+# Purpose
+
+The Reference Behavioral Journey Scenarios document demonstrates how the Software Buying Domain produces deterministic, traceable, and explainable recommendations from observed customer behavior.
+
+This chapter introduces no new domain concepts.
+
+It validates the concepts, relationships, and Runtime Objects defined throughout the Software Buying Domain Pack using canonical reference scenarios.
+
+Reference Behavioral Journey Scenarios are implementation references.
+
+They are not Runtime Objects.
+
+They are not reference knowledge.
+
+They do not define recommendation logic.
+
+They do not introduce new Behavioral Concepts.
+
+They do not introduce new Business Requirements.
+
+They do not introduce new Capabilities.
+
+They do not introduce new Product Capability Profiles.
+
+Instead, they demonstrate how existing domain knowledge is traversed during runtime to produce deterministic Recommendation Packages.
+
+---
+
+# Guiding Principle
+
+The Software Buying Domain is designed to produce deterministic recommendations.
+
+Given the same:
+
+- Observed Behavior
+- Behavioral Evidence
+- Behavioral Hypotheses
+- Behavioral Memory
+- Domain Pack
+- Product Capability Profiles
+
+the platform must always produce the same:
+
+- Requirement Profile
+- Capability Coverage Analysis
+- Recommendation Package
+
+Reference Behavioral Journey Scenarios demonstrate that deterministic behavior.
+
+They do not define new architecture.
+
+They validate the existing architecture.
+
+---
+
+# Validation Framework
+
+Every Reference Behavioral Journey follows the same deterministic execution path.
+
+No scenario introduces new domain knowledge.
+
+No scenario bypasses the defined architecture.
+
+Every recommendation must be traceable from observed customer behavior through to the final Recommendation Package.
+
+Every Runtime Object references existing canonical objects.
+
+Every recommendation follows the architectural principle:
+
+Reference, don't duplicate.
+
+---
+
+# Master Validation Flow
+
+Every Reference Behavioral Journey follows the same validation flow.
+
+```text
+Observed Behavior
+
+↓
+
+Behavioral Evidence
+
+↓
+
+Behavioral Hypotheses
+
+↓
+
+Behavioral Concepts
+
+↓
+
+Behavioral Concept → Business Requirement Mapping
+
+↓
+
+Requirement Profile
+
+↓
+
+Business Requirement → Capability Mapping
+
+↓
+
+Required Capabilities
+
+↓
+
+Product Capability Profiles Evaluated
+
+↓
+
+Capability Coverage Analysis
+
+↓
+
+Recommendation Package
+
+↓
+
+AI Buying Advisor
+```
+
+This validation flow is identical for every Reference Behavioral Journey.
+
+Only the inputs change.
+
+The architecture remains constant.
+
+---
+
+# Why This Validation Exists
+
+The Software Buying Domain defines:
+
+- Behavioral Concepts
+- Business Requirements
+- Capabilities
+- Product Capability Profiles
+- Canonical mappings
+- Runtime contracts
+
+This chapter demonstrates how those components work together during runtime.
+
+It validates the integrity of the complete Software Buying Domain.
+
+It provides implementation guidance without introducing new architectural concepts.
+
+It serves as:
+
+- Implementation reference
+- Testing reference
+- AI prompt reference
+- Documentation reference
+
+---
+
+# Scope
+
+This document defines:
+
+- Canonical validation scenarios
+- End-to-end behavioral journeys
+- Runtime traceability
+- Deterministic recommendation validation
+- Recommendation traceability
+- AI explanation validation
+
+This document does not define:
+
+- New Behavioral Concepts
+- New Business Requirements
+- New Capabilities
+- New Product Capability Profiles
+- Recommendation algorithms
+- Decision Policies
+- Runtime engine implementation
+- AI prompting strategies
+- New Runtime Objects
+
+---
+
+# Validation Template
+
+Every Reference Behavioral Journey follows the same validation structure.
+
+The validation structure is identical for every scenario.
+
+Only the customer inputs change.
+
+The architecture remains unchanged.
+
+Every Reference Behavioral Journey contains the following sections.
+
+---
+
+## 1. Customer Context
+
+Provides a concise description of the customer's business situation.
+
+Customer Context establishes the starting point for the validation scenario.
+
+It provides business background only.
+
+It does not contain Behavioral Evidence.
+
+Example:
+
+```text
+Organization Size
+
+Enterprise
+
+Industry
+
+Financial Services
+
+Current Environment
+
+Multiple identity providers
+
+Business Goal
+
+Standardize identity management across the organization
+```
+
+---
+
+## 2. Observed Behavior
+
+Records observable customer actions.
+
+Observed Behavior contains objective observations.
+
+It never contains interpretations.
+
+Example:
+
+```text
+Customer compares identity platforms.
+
+Customer requests Single Sign-On capabilities.
+
+Customer asks about Multi-Factor Authentication.
+
+Customer evaluates centralized user provisioning.
+```
+
+---
+
+## 3. Behavioral Evidence
+
+Behavioral Evidence captures the observable signals extracted from customer behavior.
+
+Behavioral Evidence is a Runtime Object.
+
+It references Behavioral Evidence defined earlier in the Software Buying Domain.
+
+Example:
+
+```text
+BE-001
+
+Customer compares multiple identity platforms.
+
+BE-004
+
+Customer requests enterprise authentication capabilities.
+```
+
+---
+
+## 4. Behavioral Hypotheses
+
+Behavioral Hypotheses represent deterministic interpretations of the observed Behavioral Evidence.
+
+Behavioral Hypotheses are Runtime Objects.
+
+They activate one or more Behavioral Concepts.
+
+Example:
+
+```text
+Hypothesis
+
+Customer is evaluating enterprise identity management capabilities.
+```
+
+---
+
+## 5. Activated Behavioral Concepts
+
+Behavioral Concepts are activated through Behavioral Hypotheses.
+
+Behavioral Concepts reference the Behavioral Ontology.
+
+Example:
+
+```text
+BC-001
+
+Security Evaluation
+
+BC-002
+
+Enterprise Evaluation
+```
+
+Behavioral Concept IDs resolve against the Behavioral Concept Registry (01 — Behavioral Ontology).
+
+Behavioral Concepts remain canonical reference knowledge.
+
+The validation scenario records only which concepts were activated.
+
+---
+
+## 6. Requirement Profile
+
+The Behavioral Intelligence Platform traverses the Behavioral Concept → Business Requirement Mapping.
+
+The resulting Requirement Profile becomes the deterministic runtime representation of customer needs.
+
+Example:
+
+```text
+RP-20260807-000041
+
+REQ-002
+
+Identity Management
+
+REQ-004
+
+Regulatory Compliance
+```
+
+Requirement Profiles are Runtime Objects.
+
+They reference Business Requirements.
+
+They never redefine Business Requirements.
+
+---
+
+## 7. Required Capabilities
+
+The Recommendation Engine traverses the Business Requirement → Capability Mapping.
+
+The resulting Capabilities represent the deterministic capability requirements for the customer's Requirement Profile.
+
+Example:
+
+```text
+CAP-001
+
+Single Sign-On
+
+CAP-002
+
+Multi-Factor Authentication
+
+CAP-010
+
+Audit Logging
+```
+
+Required Capabilities reference the Capability Catalog.
+
+They never redefine Capabilities.
+
+---
+
+## 8. Product Capability Profiles Evaluated
+
+The Recommendation Engine evaluates Product Capability Profiles against the required Capabilities.
+
+Every evaluated Product Capability Profile references canonical Capability IDs.
+
+Example:
+
+```text
+PROD-001
+
+Microsoft 365
+
+PROD-003
+
+Okta
+
+PROD-004
+
+Google Workspace
+```
+
+Product IDs resolve against the Product Roster (05 — Product Capability Profiles).
+
+Product Capability Profiles remain reference knowledge.
+
+The validation scenario records only which products were evaluated.
+
+---
+
+## 9. Capability Coverage Analysis
+
+Capability Coverage Analysis records the deterministic evaluation produced by the Recommendation Engine.
+
+Coverage Analysis records:
+
+- Coverage Percentage
+- Satisfied Business Requirements
+- Partially Satisfied Business Requirements
+- Unsupported Business Requirements
+- Satisfied Capabilities
+- Missing Capabilities
+
+Capability Coverage Analysis records deterministic outcomes.
+
+It never performs deterministic reasoning.
+
+---
+
+## 10. Recommendation Package
+
+The Recommendation Engine produces a Recommendation Package.
+
+The Recommendation Package references the Requirement Profile.
+
+It contains one or more Recommendation Entries.
+
+Each Recommendation Entry records the evaluation of a recommended Product Capability Profile.
+
+Recommendation Packages remain Runtime Objects.
+
+They never redefine reference knowledge.
+
+---
+
+## 11. AI Buying Advisor
+
+The AI Buying Advisor consumes the Recommendation Package.
+
+It generates natural language explanations using the structured facts contained within the Recommendation Package.
+
+The AI Buying Advisor never performs deterministic reasoning.
+
+It never modifies the Recommendation Package.
+
+---
+
+## 12. Traceability Summary
+
+Every validation scenario concludes with a complete traceability summary.
+
+The traceability summary demonstrates that every recommendation can be traced back to observed customer behavior.
+
+Example:
+
+```text
+Observed Behavior
+
+↓
+
+Behavioral Evidence
+
+↓
+
+Behavioral Concepts
+
+↓
+
+Business Requirements
+
+↓
+
+Required Capabilities
+
+↓
+
+Product Capability Profiles
+
+↓
+
+Capability Coverage Analysis
+
+↓
+
+Recommendation Package
+```
+
+This traceability chain must remain complete for every validation scenario.
+
+It provides deterministic evidence supporting every recommendation.
+
+---
+
+# How Scenario Numbers Are Computed
+
+Every number in these scenarios is derivable — nothing is illustrative.
+
+- **Requirement confidence** derives from activated Behavioral Hypotheses via the BC → REQ mappings (06) under POL-REQ-003: noisy-OR of (association weight × hypothesis confidence), weights Primary 1.0 / Secondary 0.6 / Supporting 0.3. Requirements publish at ≥ 0.5 (POL-REQ-001); priorities follow POL-REQ-002 bands. Each scenario shows this derivation explicitly.
+- **Required Capabilities per Requirement** come from 07 — Business Requirement to Capability Mapping (all associations: Primary + Secondary + Supporting).
+- **Per-Requirement Coverage** = supported required capabilities ÷ total required capabilities × 100 (Coverage Calculation Model, 05 — Product Capability Profiles), using each product's Supported Capability IDs.
+- **Overall Coverage** = priority-weighted average of per-Requirement coverage, using POL-REC-002 weights (Critical ×3, High ×2, Medium ×1, Low ×0.5).
+- **Ranking** follows Overall Coverage; ties break per POL-REC-002.
+
+These scenarios therefore double as executable acceptance tests: an implementation that seeds these profiles and replays these behaviors must reproduce these exact numbers.
+
+---
+
+# Validation Scenario 1 — Security & Identity
+
+## Customer Context
+
+```text
+Organization Size
+
+Enterprise
+
+Industry
+
+Financial Services
+
+Current Environment
+
+Multiple identity providers
+
+Business Goal
+
+Standardize enterprise identity management while improving authentication security and centralized access governance.
+```
+
+---
+
+## Observed Behavior
+
+```text
+Customer compares multiple identity platforms.
+
+Customer requests Single Sign-On capabilities.
+
+Customer requests Multi-Factor Authentication.
+
+Customer evaluates centralized identity lifecycle management.
+
+Customer asks about enterprise audit capabilities.
+```
+
+---
+
+## Behavioral Evidence
+
+```text
+BE-001
+
+Customer compares multiple identity platforms.
+
+Produced by BP-001 Security Evaluation
+
+BE-004
+
+Customer requests enterprise authentication capabilities.
+
+Produced by BP-002 Enterprise Evaluation
+
+BE-009
+
+Customer evaluates identity governance features.
+
+Produced by BP-002 Enterprise Evaluation
+```
+
+---
+
+## Behavioral Hypotheses
+
+```text
+The customer is prioritizing enterprise identity management.
+
+The customer is reducing authentication risk.
+
+The customer is seeking centralized identity governance.
+```
+
+---
+
+## Activated Behavioral Concepts
+
+```text
+BC-001
+
+Security Evaluation — hypothesis confidence 0.80
+
+BC-002
+
+Enterprise Evaluation — hypothesis confidence 0.70
+```
+
+Journey Stage: Technical Validation
+
+---
+
+## Requirement Derivation (POL-REQ-003)
+
+```text
+REQ-002:  BC-001 Primary (1.0×0.80) + BC-002 Primary (1.0×0.70)
+          = 1 − (0.20)(0.30) = 0.94  → publish, Critical (≥0.8, stage ≥ Technical Validation)
+
+REQ-004:  BC-001 Supporting (0.3×0.80=0.24) + BC-002 Secondary (0.6×0.70=0.42)
+          = 1 − (0.76)(0.58) = 0.56  → publish, Medium
+
+REQ-001:  BC-001 Secondary (0.6×0.80=0.48)
+          = 0.48  → below 0.5, not published
+```
+
+---
+
+## Requirement Profile
+
+```text
+RP-20260807-000001
+
+REQ-002
+
+Identity Management — Priority: Critical
+
+REQ-004
+
+Regulatory Compliance — Priority: Medium
+```
+
+---
+
+## Required Capabilities
+
+```text
+From REQ-002 (07 — mapping):
+
+CAP-001   Single Sign-On
+CAP-002   Multi-Factor Authentication
+CAP-003   SCIM Provisioning
+CAP-004   Conditional Access
+CAP-010   Audit Logging
+
+From REQ-004 (07 — mapping):
+
+CAP-010   Audit Logging
+CAP-012   Information Governance
+CAP-013   Data Retention
+CAP-014   eDiscovery
+```
+
+---
+
+## Product Capability Profiles Evaluated
+
+```text
+PROD-003   Okta
+
+PROD-001   Microsoft 365
+
+PROD-004   Google Workspace
+```
+
+---
+
+## Capability Coverage Analysis
+
+```text
+PROD-003  (Okta)
+
+REQ-002 coverage: 5/5 = 100%
+REQ-004 coverage: 1/4 = 25%   (has CAP-010)
+
+Overall (3×1.00 + 1×0.25) ÷ 4 = 81%
+
+Satisfied Requirements
+
+REQ-002
+
+Partially Satisfied Requirements
+
+REQ-004
+
+Missing Capabilities
+
+CAP-012, CAP-013, CAP-014
+```
+
+```text
+PROD-001  (Microsoft 365)
+
+REQ-002 coverage: 3/5 = 60%   (missing CAP-003, CAP-004)
+REQ-004 coverage: 4/4 = 100%
+
+Overall (3×0.60 + 1×1.00) ÷ 4 = 70%
+
+Satisfied Requirements
+
+REQ-004
+
+Partially Satisfied Requirements
+
+REQ-002
+
+Missing Capabilities
+
+CAP-003, CAP-004
+```
+
+```text
+PROD-004  (Google Workspace)
+
+REQ-002 coverage: 3/5 = 60%   (missing CAP-003, CAP-004)
+REQ-004 coverage: 2/4 = 50%   (missing CAP-012, CAP-014)
+
+Overall (3×0.60 + 1×0.50) ÷ 4 = 58%
+
+Partially Satisfied Requirements
+
+REQ-002
+
+REQ-004
+
+Missing Capabilities
+
+CAP-003, CAP-004, CAP-012, CAP-014
+```
+
+---
+
+## Recommendation Package
+
+```text
+REC-20260807-000001
+
+Requirement Profile
+
+RP-20260807-000001
+
+Recommendation Entries
+
+Rank 1
+
+PROD-003
+
+Rank 2
+
+PROD-001
+
+Rank 3
+
+PROD-004
+```
+
+---
+
+## AI Buying Advisor
+
+The AI Buying Advisor consumes the Recommendation Package.
+
+Using the structured facts contained within the Recommendation Package, it generates a natural language explanation describing why PROD-003 best satisfies the customer's Business Requirements.
+
+The AI Buying Advisor does not modify the Recommendation Package.
+
+It explains the deterministic recommendation outcome.
+
+---
+
+## Traceability Summary
+
+```text
+Observed Behavior
+
+↓
+
+Behavioral Evidence (BP-001, BP-002)
+
+↓
+
+BC-001
+
+BC-002
+
+↓
+
+REQ-002 (Critical)
+
+REQ-004 (Medium)
+
+↓
+
+CAP-001  CAP-002  CAP-003  CAP-004  CAP-010
+
+CAP-012  CAP-013  CAP-014
+
+↓
+
+PROD-003
+
+↓
+
+REC-20260807-000001
+```
+
+This scenario demonstrates deterministic recommendation generation for enterprise identity management.
+
+---
+
+# Validation Scenario 2 — Collaboration & Productivity
+
+## Customer Context
+
+```text
+Organization Size
+
+Global Enterprise
+
+Industry
+
+Professional Services
+
+Current Environment
+
+Multiple collaboration platforms
+
+Business Goal
+
+Consolidate collaboration capabilities while improving employee productivity.
+```
+
+---
+
+## Observed Behavior
+
+```text
+Customer evaluates collaboration platforms.
+
+Customer requests document collaboration.
+
+Customer requests integrated communication capabilities.
+
+Customer asks about AI-assisted productivity.
+```
+
+---
+
+## Behavioral Evidence
+
+```text
+BE-002
+
+Customer evaluates collaboration capabilities.
+
+Produced by BP-005 Collaboration Evaluation
+(co-supports BC-006 Productivity Evaluation)
+
+BE-006
+
+Customer requests AI productivity features.
+
+Produced by BP-003 AI Evaluation
+```
+
+---
+
+## Behavioral Hypotheses
+
+```text
+The customer is modernizing enterprise collaboration.
+
+The customer is improving workforce productivity.
+
+The customer is seeking integrated collaboration capabilities.
+```
+
+---
+
+## Activated Behavioral Concepts
+
+```text
+BC-005
+
+Collaboration Evaluation — hypothesis confidence 0.80
+
+BC-006
+
+Productivity Evaluation — hypothesis confidence 0.50
+
+BC-003
+
+AI Evaluation — hypothesis confidence 0.50
+```
+
+Journey Stage: Technical Validation
+
+---
+
+## Requirement Derivation (POL-REQ-003)
+
+```text
+REQ-001:  BC-005 Primary (1.0×0.80) + BC-003 Supporting (0.3×0.50=0.15)
+          = 1 − (0.20)(0.85) = 0.83  → publish, Critical
+
+REQ-005:  BC-006 Primary (1.0×0.50) + BC-003 Primary (1.0×0.50)
+          = 1 − (0.50)(0.50) = 0.75  → publish, High
+
+REQ-003:  BC-006 Supporting (0.3×0.50=0.15) + BC-003 Secondary (0.6×0.50=0.30)
+          = 1 − (0.85)(0.70) = 0.41  → below 0.5, not published
+
+REQ-002:  BC-005 Supporting (0.3×0.80=0.24)
+          = 0.24  → not published
+```
+
+---
+
+## Requirement Profile
+
+```text
+RP-20260807-000002
+
+REQ-001
+
+Secure Collaboration — Priority: Critical
+
+REQ-005
+
+AI Assistance — Priority: High
+```
+
+---
+
+## Required Capabilities
+
+```text
+From REQ-001 (07 — mapping):
+
+CAP-001   Single Sign-On
+CAP-002   Multi-Factor Authentication
+CAP-007   Document Collaboration
+CAP-005   Messaging
+CAP-006   Video Meetings
+CAP-010   Audit Logging
+CAP-011   Encryption
+
+From REQ-005 (07 — mapping):
+
+CAP-020   AI Chat
+CAP-021   Content Generation
+CAP-022   Intelligent Search
+CAP-023   Document Summarization
+CAP-015   Workflow Automation
+```
+
+---
+
+## Product Capability Profiles Evaluated
+
+```text
+PROD-004   Google Workspace
+
+PROD-009   Notion
+
+PROD-005   Zoom Workplace
+```
+
+---
+
+## Capability Coverage Analysis
+
+```text
+PROD-004  (Google Workspace)
+
+REQ-001 coverage: 7/7 = 100%
+REQ-005 coverage: 4/5 = 80%   (missing CAP-015)
+
+Overall (3×1.00 + 2×0.80) ÷ 5 = 92%
+
+Satisfied Requirements
+
+REQ-001
+
+Partially Satisfied Requirements
+
+REQ-005
+
+Missing Capabilities
+
+CAP-015
+```
+
+```text
+PROD-009  (Notion)
+
+REQ-001 coverage: 1/7 = 14%   (has CAP-007 only)
+REQ-005 coverage: 4/5 = 80%   (missing CAP-015)
+
+Overall (3×0.14 + 2×0.80) ÷ 5 = 41%
+
+Partially Satisfied Requirements
+
+REQ-001
+
+REQ-005
+
+Missing Capabilities
+
+CAP-001, CAP-002, CAP-005, CAP-006, CAP-010, CAP-011, CAP-015
+```
+
+```text
+PROD-005  (Zoom Workplace)
+
+REQ-001 coverage: 2/7 = 29%   (has CAP-005, CAP-006)
+REQ-005 coverage: 2/5 = 40%   (has CAP-020, CAP-023)
+
+Overall (3×0.29 + 2×0.40) ÷ 5 = 33%
+
+Partially Satisfied Requirements
+
+REQ-001
+
+REQ-005
+
+Missing Capabilities
+
+CAP-001, CAP-002, CAP-007, CAP-010, CAP-011, CAP-015, CAP-021, CAP-022
+```
+
+---
+
+## Recommendation Package
+
+```text
+REC-20260807-000002
+
+Requirement Profile
+
+RP-20260807-000002
+
+Recommendation Entries
+
+Rank 1
+
+PROD-004
+
+Rank 2
+
+PROD-009
+
+Rank 3
+
+PROD-005
+```
+
+---
+
+## AI Buying Advisor
+
+The AI Buying Advisor generates a natural language explanation using the structured facts contained within the Recommendation Package.
+
+The explanation reflects the deterministic recommendation outcome.
+
+---
+
+## Traceability Summary
+
+```text
+Observed Behavior
+
+↓
+
+Behavioral Evidence (BP-005, BP-003)
+
+↓
+
+BC-005
+
+BC-006
+
+BC-003
+
+↓
+
+REQ-001 (Critical)
+
+REQ-005 (High)
+
+↓
+
+CAP-001  CAP-002  CAP-005  CAP-006  CAP-007  CAP-010  CAP-011
+
+CAP-015  CAP-020  CAP-021  CAP-022  CAP-023
+
+↓
+
+PROD-004
+
+↓
+
+REC-20260807-000002
+```
+
+This scenario demonstrates deterministic recommendation generation for enterprise collaboration and AI-assisted productivity.
+
+---
+
+# Validation Scenario 3 — Process Automation
+
+## Customer Context
+
+```text
+Organization Size
+
+Large Enterprise
+
+Industry
+
+Manufacturing
+
+Current Environment
+
+Multiple disconnected business systems
+
+Business Goal
+
+Automate business processes while improving integration across enterprise applications.
+```
+
+---
+
+## Observed Behavior
+
+```text
+Customer evaluates workflow automation platforms.
+
+Customer requests low-code automation capabilities.
+
+Customer asks about enterprise integrations.
+
+Customer evaluates event-driven automation.
+
+Customer requests API integration capabilities.
+```
+
+---
+
+## Behavioral Evidence
+
+```text
+BE-003
+
+Customer evaluates workflow automation.
+
+Produced by BP-007 Automation Evaluation
+
+BE-007
+
+Customer requests enterprise integrations.
+
+Produced by BP-008 Integration Evaluation
+
+BE-010
+
+Customer evaluates business process automation.
+
+Produced by BP-007 Automation Evaluation
+```
+
+---
+
+## Behavioral Hypotheses
+
+```text
+The customer is modernizing operational processes.
+
+The customer is reducing manual work.
+
+The customer is seeking enterprise-wide automation.
+```
+
+---
+
+## Activated Behavioral Concepts
+
+```text
+BC-007
+
+Automation Evaluation — hypothesis confidence 0.80
+
+BC-008
+
+Integration Evaluation — hypothesis confidence 0.70
+```
+
+Journey Stage: Technical Validation
+
+---
+
+## Requirement Derivation (POL-REQ-003)
+
+```text
+REQ-003:  BC-007 Primary (1.0×0.80) + BC-008 Primary (1.0×0.70)
+          = 1 − (0.20)(0.30) = 0.94  → publish, Critical
+
+REQ-005:  BC-007 Secondary (0.6×0.80=0.48)
+          = 0.48  → below 0.5, not published
+
+REQ-002:  BC-008 Secondary (0.6×0.70=0.42)
+          = 0.42  → not published
+```
+
+---
+
+## Requirement Profile
+
+```text
+RP-20260807-000003
+
+REQ-003
+
+Workflow Automation — Priority: Critical
+```
+
+---
+
+## Required Capabilities
+
+```text
+From REQ-003 (07 — mapping):
+
+CAP-015   Workflow Automation
+
+CAP-016   Integration Connectors
+
+CAP-017   Event Triggers
+
+CAP-018   Business Rules
+
+CAP-019   API Integration
+```
+
+---
+
+## Product Capability Profiles Evaluated
+
+```text
+PROD-007   ServiceNow
+
+PROD-008   Zapier
+
+PROD-001   Microsoft 365
+```
+
+---
+
+## Capability Coverage Analysis
+
+```text
+PROD-007  (ServiceNow)
+
+REQ-003 coverage: 5/5 = 100%
+
+Overall (3×1.00) ÷ 3 = 100%
+
+Satisfied Requirements
+
+REQ-003
+
+Missing Capabilities
+
+None
+```
+
+```text
+PROD-008  (Zapier)
+
+REQ-003 coverage: 4/5 = 80%   (missing CAP-018)
+
+Overall (3×0.80) ÷ 3 = 80%
+
+Partially Satisfied Requirements
+
+REQ-003
+
+Missing Capabilities
+
+CAP-018
+```
+
+```text
+PROD-001  (Microsoft 365)
+
+REQ-003 coverage: 3/5 = 60%   (missing CAP-018, CAP-019)
+
+Overall (3×0.60) ÷ 3 = 60%
+
+Partially Satisfied Requirements
+
+REQ-003
+
+Missing Capabilities
+
+CAP-018, CAP-019
+```
+
+---
+
+## Recommendation Package
+
+```text
+REC-20260807-000003
+
+Requirement Profile
+
+RP-20260807-000003
+
+Recommendation Entries
+
+Rank 1
+
+PROD-007
+
+Rank 2
+
+PROD-008
+
+Rank 3
+
+PROD-001
+```
+
+---
+
+## AI Buying Advisor
+
+The AI Buying Advisor generates a natural language explanation using the structured facts contained within the Recommendation Package.
+
+The explanation reflects the deterministic recommendation outcome.
+
+---
+
+## Traceability Summary
+
+```text
+Observed Behavior
+
+↓
+
+Behavioral Evidence (BP-007, BP-008)
+
+↓
+
+BC-007
+
+BC-008
+
+↓
+
+REQ-003 (Critical)
+
+↓
+
+CAP-015  CAP-016  CAP-017  CAP-018  CAP-019
+
+↓
+
+PROD-007
+
+↓
+
+REC-20260807-000003
+```
+
+This scenario demonstrates deterministic recommendation generation for workflow automation and enterprise integration.
+
+---
+
+# Validation Scenario 4 — Governance & Compliance
+
+## Customer Context
+
+```text
+Organization Size
+
+Global Enterprise
+
+Industry
+
+Healthcare
+
+Current Environment
+
+Distributed information governance
+
+Business Goal
+
+Strengthen governance, auditing, and regulatory compliance across enterprise information systems.
+```
+
+---
+
+## Observed Behavior
+
+```text
+Customer evaluates compliance capabilities.
+
+Customer requests audit reporting.
+
+Customer evaluates information governance.
+
+Customer requests data retention capabilities.
+
+Customer evaluates eDiscovery functionality.
+```
+
+---
+
+## Behavioral Evidence
+
+```text
+BE-005
+
+Customer evaluates governance capabilities.
+
+Produced by BP-004 Compliance Evaluation
+
+BE-008
+
+Customer requests regulatory compliance support.
+
+Produced by BP-004 Compliance Evaluation
+
+BE-011
+
+Customer evaluates enterprise auditing.
+
+Produced by BP-004 Compliance Evaluation
+```
+
+---
+
+## Behavioral Hypotheses
+
+```text
+The customer is strengthening enterprise governance.
+
+The customer is improving regulatory compliance.
+
+The customer is increasing audit readiness.
+```
+
+---
+
+## Activated Behavioral Concepts
+
+```text
+BC-004
+
+Compliance Evaluation — hypothesis confidence 0.80
+```
+
+Journey Stage: Technical Validation
+
+---
+
+## Requirement Derivation (POL-REQ-003)
+
+```text
+REQ-004:  BC-004 Primary (1.0×0.80)
+          = 0.80  → publish, Critical (≥0.8, stage ≥ Technical Validation)
+
+REQ-002:  BC-004 Secondary (0.6×0.80=0.48)
+          = 0.48  → below 0.5, not published
+
+REQ-001:  BC-004 Supporting (0.3×0.80=0.24)
+          = 0.24  → not published
+```
+
+---
+
+## Requirement Profile
+
+```text
+RP-20260807-000004
+
+REQ-004
+
+Regulatory Compliance — Priority: Critical
+```
+
+---
+
+## Required Capabilities
+
+```text
+From REQ-004 (07 — mapping):
+
+CAP-010   Audit Logging
+
+CAP-012   Information Governance
+
+CAP-013   Data Retention
+
+CAP-014   eDiscovery
+```
+
+---
+
+## Product Capability Profiles Evaluated
+
+```text
+PROD-001   Microsoft 365
+
+PROD-010   Box
+
+PROD-004   Google Workspace
+```
+
+---
+
+## Capability Coverage Analysis
+
+```text
+PROD-001  (Microsoft 365)
+
+REQ-004 coverage: 4/4 = 100%
+
+Overall (3×1.00) ÷ 3 = 100%
+
+Satisfied Requirements
+
+REQ-004
+
+Missing Capabilities
+
+None
+```
+
+```text
+PROD-010  (Box)
+
+REQ-004 coverage: 3/4 = 75%   (missing CAP-014)
+
+Overall (3×0.75) ÷ 3 = 75%
+
+Partially Satisfied Requirements
+
+REQ-004
+
+Missing Capabilities
+
+CAP-014
+```
+
+```text
+PROD-004  (Google Workspace)
+
+REQ-004 coverage: 2/4 = 50%   (missing CAP-012, CAP-014)
+
+Overall (3×0.50) ÷ 3 = 50%
+
+Partially Satisfied Requirements
+
+REQ-004
+
+Missing Capabilities
+
+CAP-012, CAP-014
+```
+
+---
+
+## Recommendation Package
+
+```text
+REC-20260807-000004
+
+Requirement Profile
+
+RP-20260807-000004
+
+Recommendation Entries
+
+Rank 1
+
+PROD-001
+
+Rank 2
+
+PROD-010
+
+Rank 3
+
+PROD-004
+```
+
+---
+
+## AI Buying Advisor
+
+The AI Buying Advisor generates a natural language explanation using the structured facts contained within the Recommendation Package.
+
+The explanation reflects the deterministic recommendation outcome.
+
+---
+
+## Traceability Summary
+
+```text
+Observed Behavior
+
+↓
+
+Behavioral Evidence (BP-004)
+
+↓
+
+BC-004
+
+↓
+
+REQ-004 (Critical)
+
+↓
+
+CAP-010  CAP-012  CAP-013  CAP-014
+
+↓
+
+PROD-001
+
+↓
+
+REC-20260807-000004
+```
+
+This scenario demonstrates deterministic recommendation generation for governance, auditing, and regulatory compliance.
+
+---
+
+# Validation Principles
+
+Every implementation of the Software Buying Domain should produce deterministic, traceable, and explainable recommendation outcomes.
+
+The following principles define the expected behavior of every valid implementation.
+
+---
+
+## Principle 1
+
+Every recommendation must be deterministic.
+
+Given the same:
+
+- Observed Behavior
+- Behavioral Evidence
+- Behavioral Hypotheses
+- Behavioral Memory
+- Domain Pack version
+- Product Capability Profiles
+- Recommendation Engine version
+
+the implementation must produce the same:
+
+- Requirement Profile
+- Capability Coverage Analysis
+- Recommendation Package
+
+---
+
+## Principle 2
+
+Every recommendation must be completely traceable.
+
+Every Recommendation Package must be traceable back to:
+
+Observed Behavior
+
+↓
+
+Behavioral Evidence
+
+↓
+
+Behavioral Hypotheses
+
+↓
+
+Behavioral Concepts
+
+↓
+
+Business Requirements
+
+↓
+
+Capabilities
+
+↓
+
+Product Capability Profiles
+
+↓
+
+Capability Coverage Analysis
+
+↓
+
+Recommendation Package
+
+No recommendation should exist without a complete traceability chain.
+
+---
+
+## Principle 3
+
+Every recommendation must remain explainable.
+
+The Recommendation Package contains structured facts.
+
+The AI Buying Advisor generates natural language explanations using those structured facts.
+
+Natural language explanations must remain consistent with the Recommendation Package.
+
+The AI Buying Advisor never performs deterministic reasoning.
+
+---
+
+## Principle 4
+
+Reference Knowledge remains immutable during execution.
+
+Behavioral Concepts
+
+Business Requirements
+
+Capabilities
+
+Product Capability Profiles
+
+Behavioral Concept Mappings
+
+Business Requirement Mappings
+
+must never be modified during runtime.
+
+---
+
+## Principle 5
+
+Runtime Objects never redefine Reference Knowledge.
+
+Runtime Objects reference canonical identifiers.
+
+They never duplicate or redefine:
+
+- Behavioral Concepts
+- Business Requirements
+- Capabilities
+- Product Capability Profiles
+
+This follows the architectural principle:
+
+Reference, don't duplicate.
+
+---
+
+## Principle 6
+
+Recommendation Packages communicate recommendation outcomes.
+
+They never perform:
+
+- recommendation logic
+- capability matching
+- ranking algorithms
+- decision policies
+
+Those responsibilities belong exclusively to the Recommendation Engine.
+
+---
+
+## Principle 7
+
+Behavioral Intelligence Platform and Recommendation Engine have independent responsibilities.
+
+Behavioral Intelligence Platform produces:
+
+- Behavioral Evidence
+- Behavioral Hypotheses
+- Behavioral Memory
+- Requirement Profile
+
+Recommendation Engine produces:
+
+- Capability Coverage Analysis
+- Recommendation Package
+
+Neither engine assumes responsibilities belonging to the other.
+
+---
+
+## Principle 8
+
+Every Runtime Object has one canonical responsibility.
+
+Behavioral Evidence captures observations.
+
+Behavioral Hypotheses capture interpretations.
+
+Behavioral Memory captures behavioral context.
+
+Requirement Profiles capture customer requirements.
+
+Recommendation Packages capture recommendation outcomes.
+
+Runtime Objects never overlap responsibilities.
+
+---
+
+## Principle 9
+
+The Software Buying Domain remains the single source of truth for domain knowledge.
+
+Every implementation references the Domain Pack.
+
+Implementations never redefine:
+
+- Business Requirements
+- Capabilities
+- Product Capability Profiles
+- Canonical mappings
+
+The Domain Pack remains the authoritative knowledge source.
+
+---
+
+## Principle 10
+
+Reference Behavioral Journey Scenarios validate the architecture.
+
+They introduce no new:
+
+- Behavioral Concepts
+- Business Requirements
+- Capabilities
+- Product Capability Profiles
+- Runtime Objects
+
+They exist solely to validate that the Software Buying Domain behaves consistently during runtime.
+
+---
+
+# Claude Implementation Contract
+
+Claude MUST:
+
+- Treat every Reference Behavioral Journey as a validation scenario.
+- Preserve deterministic execution paths.
+- Preserve complete traceability.
+- Reference canonical identifiers.
+- Preserve the distinction between Reference Knowledge and Runtime Objects.
+- Explain recommendations using Recommendation Packages.
+- Never invent missing domain knowledge.
+- Never bypass the canonical mappings.
+
+Claude MUST NOT:
+
+- Introduce new domain concepts.
+- Modify canonical Business Requirements.
+- Modify canonical Capabilities.
+- Modify Product Capability Profiles.
+- Modify Runtime Objects.
+- Replace deterministic reasoning with AI-generated assumptions.
+- Skip validation steps.
+- Produce recommendations that cannot be traced back to observed behavior.
+
+---
+
+# Summary
+
+The Reference Behavioral Journey Scenarios document validates the complete Software Buying Domain using deterministic, end-to-end behavioral journeys.
+
+This chapter introduces no new domain concepts.
+
+Instead, it demonstrates how the existing architecture behaves during runtime by traversing:
+
+Observed Behavior
+
+↓
+
+Behavioral Evidence
+
+↓
+
+Behavioral Hypotheses
+
+↓
+
+Behavioral Concepts
+
+↓
+
+Behavioral Concept → Business Requirement Mapping
+
+↓
+
+Requirement Profile
+
+↓
+
+Business Requirement → Capability Mapping
+
+↓
+
+Required Capabilities
+
+↓
+
+Product Capability Profiles
+
+↓
+
+Capability Coverage Analysis
+
+↓
+
+Recommendation Package
+
+↓
+
+AI Buying Advisor
+
+Each Reference Behavioral Journey validates:
+
+- Deterministic reasoning
+- Complete traceability
+- Reference reuse
+- Runtime consistency
+- Explainable recommendations
+- Separation of responsibilities
+
+Together, the Behavioral Ontology, Business Requirement Catalog, Capability Catalog, Product Capability Profiles, Mapping Documents, Runtime Objects, and Reference Behavioral Journey Scenarios form the complete Software Buying Domain Pack.
+
+The Software Buying Domain Pack now provides:
+
+- Canonical Reference Knowledge
+- Canonical Relationships
+- Canonical Runtime Contracts
+- Canonical Validation
+
+This completes the Software Buying Domain Pack and establishes an implementation-ready foundation for the Behavioral Intelligence Platform, Recommendation Engine, and AI Buying Advisor.
+
+---
