@@ -72,9 +72,13 @@ def test_bp002_activates_on_enterprise_pricing_plus_admin_docs(policies):
 
 
 def test_bp002_individual_tier_pricing_does_not_qualify(policies):
+    # Individual/free tiers never SUPPORT Enterprise Evaluation — they produce
+    # contradicting evidence instead (Phase 4; pinned in test_patterns_bre_phase4)
     events = [E(1, "PRICING_VIEWED", tier="individual"),
               E(2, "PRICING_VIEWED", tier="free")]
-    assert by_pattern(evaluate_patterns(events, policies), "BP-002") == []
+    supporting = [d for d in evaluate_patterns(events, policies)
+                  if d.pattern_id == "BP-002" and not d.contradicts]
+    assert supporting == []
 
 
 def test_bp002_strong_needs_three_qualifying_across_two_sessions(policies):

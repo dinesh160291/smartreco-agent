@@ -174,6 +174,29 @@ STAGE_MILESTONES: list[dict] = [
     {"stage": "Adoption", "kind": "adoption_milestone"},   # BP-011 + onboarding/migration activity
 ]
 
+# ---- Event stage character (POL-STAGE-002 support) ----
+# The HIGHEST journey stage an event type is characteristic of, derived from the
+# patterns' "Possible Journey Stages" (doc 02). An event counts as
+# "characteristic of an earlier stage" only when this stage sits below the
+# journey's current stage — research-depth events never regress an evaluation
+# stage they themselves qualify.
+
+EVENT_STAGE_CHARACTER: dict[str, str] = {
+    "SEARCH": "Discovery",
+    "CATEGORY_VIEWED": "Discovery",
+    "PRODUCT_VIEWED": "Discovery",
+    "RECOMMENDATION_CLICKED": "Discovery",
+    "DOCUMENTATION_VIEWED": "Technical Validation",
+    "SECURITY_VIEWED": "Technical Validation",
+    "PRICING_VIEWED": "Commercial Evaluation",
+    "COMPARISON_STARTED": "Commercial Evaluation",
+    "TRIAL_STARTED": "Adoption",
+    "DEMO_REQUESTED": "Adoption",
+    "ADD_TO_CART": "Adoption",
+    "CHECKOUT_STARTED": "Adoption",
+    "PURCHASE_COMPLETED": "Adoption",
+}
+
 # ---- Behavioral Patterns BP-001…BP-012 (doc 02, declarative) ----
 # Activation is evaluated by the BRE over the pattern's window (session-scoped
 # unless journey_scope). Thresholds are Domain Pack v1 defaults (doc 02).

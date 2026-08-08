@@ -170,7 +170,8 @@ class Evidence(Base):
     pattern_id: Mapped[str] = mapped_column(Text)  # BP-xxx
     strength: Mapped[str] = mapped_column(Text)  # Weak/Medium/Strong/Very Strong
     supporting_event_ids: Mapped[list] = mapped_column(JSON, default=list)
-    concept_ids: Mapped[list] = mapped_column(JSON, default=list)  # BC-xxx
+    concept_ids: Mapped[list] = mapped_column(JSON, default=list)  # BC-xxx supported
+    contradicts_concept_ids: Mapped[list] = mapped_column(JSON, default=list)  # BC-xxx contradicted
     explanation: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
 

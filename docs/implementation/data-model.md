@@ -159,6 +159,7 @@ journey_id · from_state · to_state · reason · policy_version · ts. Makes li
 | strength | TEXT | Weak/Medium/Strong/Very Strong |
 | supporting_event_ids | JSON | lineage to events |
 | concept_ids | JSON | `BC-xxx` supported |
+| contradicts_concept_ids | JSON | `BC-xxx` contradicted (patterns' Contradicting rules; drives POL-CONF-003 via the `CONTRADICTING` relation on `hypothesis_evidence`) |
 | explanation | TEXT | deterministic |
 | created_at | TIMESTAMP | |
 

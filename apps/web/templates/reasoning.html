@@ -12,6 +12,14 @@
 </form>
 
 {% if journey %}
+{% if all_journeys and all_journeys | length > 1 %}
+<p class="sub">Journeys:
+  {% for j in all_journeys %}
+  <span class="mono">{{ j.journey_id }}</span>
+  <span class="pill {{ 'pill-good' if j.lifecycle == 'CLOSED' and j.outcome == 'PURCHASED' else 'pill-acc' if j.lifecycle == 'ACTIVE' else 'pill-held' }}">{{ j.lifecycle }}{% if j.outcome %} · {{ j.outcome }}{% endif %}</span>
+  {% endfor %}
+</p>
+{% endif %}
 <div class="cols-2">
   <div class="card">
     <h2 style="margin-top:0;">Journey <span class="mono">{{ journey.journey_id }}</span></h2>
@@ -57,6 +65,22 @@
       <p class="sub">Requirement profile is empty.</p>
       {% endfor %}
     </div>
+
+    {% if traits %}
+    <div class="card" style="margin-top:14px;">
+      <h2 style="margin-top:0;">Long-term traits <span class="v" style="color:var(--muted);">(priors — never drive current ranking)</span></h2>
+      {% for t in traits %}
+      <div class="cov-row" style="grid-template-columns: 1fr 200px;">
+        <div>{{ t.trait_name }}
+          <span class="v" style="color:var(--muted);">· reinforced ×{{ t.reinforcement_count }}</span></div>
+        <div class="cov-meter">
+          <div class="meter" style="flex:1;"><span style="width:{{ (t.strength * 100) | round }}%"></span></div>
+          <span class="figure">{{ "%.2f" | format(t.strength) }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
 
     <div class="card" style="margin-top:14px;">
       <h2 style="margin-top:0;">Trigger log</h2>

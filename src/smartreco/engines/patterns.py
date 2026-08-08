@@ -43,10 +43,11 @@ class EvidenceDraft:
     concept_ids: list[str]
     supporting_event_ids: list[str]
     explanation: str
+    contradicts: tuple[str, ...] = ()  # BC-xxx contradicted (patterns' Contradicting rules)
 
     @property
     def dedup_key(self) -> tuple:
-        return (self.pattern_id, tuple(sorted(self.supporting_event_ids)))
+        return (self.pattern_id, tuple(sorted(self.supporting_event_ids)), self.contradicts)
 
 
 def evaluate_patterns(events: list[EventView], policies: PolicyCatalog) -> list[EvidenceDraft]:
@@ -58,11 +59,20 @@ def evaluate_patterns(events: list[EventView], policies: PolicyCatalog) -> list[
     for session_events in sessions.values():
         for evaluator in (_evaluate_bp001,
                           lambda se: _evaluate_bp002(se, events),
-                          _evaluate_bp003, _evaluate_bp005, _evaluate_bp006,
-                          _evaluate_bp012):
-            draft = evaluator(session_events)
-            if draft:
-                drafts.append(draft)
+                          lambda se: _evaluate_bp002_contradiction(se),
+                          _evaluate_bp003,
+                          lambda se: _evaluate_bp004(se, events),
+                          _evaluate_bp005, _evaluate_bp006,
+                          lambda se: _evaluate_bp007(se, events),
+                          _evaluate_bp008,
+                          lambda se: _evaluate_bp009(se, events),
+                          _evaluate_bp011, _evaluate_bp012):
+            result = evaluator(session_events)
+            if isinstance(result, EvidenceDraft):
+                drafts.append(result)
+            elif result:
+                drafts.extend(result)
+    drafts.extend(_evaluate_bp010(events))  # journey-scoped, product-scoped
     return drafts
 
 
@@ -202,6 +212,197 @@ def _evaluate_bp012(session_events: list[EventView]) -> EvidenceDraft | None:
         supporting_event_ids=[e.event_id for e in qualifying],
         explanation=f"BP-012 activated: {len(qualifying)} discovery event(s) across "
                     f"{len(entities)} entities -> {strength}")
+
+
+BP004_DOC_TOPICS = {"compliance", "audit", "retention", "ediscovery"}
+BP007_DOC_TOPICS = {"workflows", "automation", "triggers"}
+BP007_SEARCH_TERMS = {"automate", "automation", "workflow", "workflows"}
+BP008_DOC_TOPICS = {"integrations", "api", "connectors"}
+BP011_TRIGGERS = {"TRIAL_STARTED", "DEMO_REQUESTED", "ADD_TO_CART",
+                  "CHECKOUT_STARTED", "PURCHASE_COMPLETED"}
+BP011_VERY_STRONG = {"CHECKOUT_STARTED", "PURCHASE_COMPLETED"}
+
+
+def _evaluate_bp002_contradiction(session_events: list[EventView]) -> EvidenceDraft | None:
+    """BP-002 Contradicting: repeated PRICING_VIEWED on individual/free tiers
+    (Domain 02) — contradicts BC-002 Enterprise Evaluation."""
+    low_tier = [e for e in session_events
+                if e.event_type == "PRICING_VIEWED"
+                and e.metadata.get("tier") in ("individual", "free", "personal")]
+    if len(low_tier) < 2:
+        return None
+    return EvidenceDraft(
+        pattern_id="BP-002", strength="MEDIUM", concept_ids=[],
+        supporting_event_ids=[e.event_id for e in low_tier],
+        contradicts=("BC-002",),
+        explanation=f"BP-002 contradicting: {len(low_tier)} individual/free-tier pricing view(s)")
+
+
+def _evaluate_bp004(session_events: list[EventView], journey_events: list[EventView]) -> EvidenceDraft | None:
+    """BP-004 Compliance Evaluation: ≥2 among DOC topic compliance/audit/
+    retention/ediscovery, SECURITY_VIEWED topic certifications. Strong with
+    qualifying events across ≥2 sessions."""
+    def quals(events):
+        return [e for e in events
+                if (e.event_type == "DOCUMENTATION_VIEWED"
+                    and e.metadata.get("topic") in BP004_DOC_TOPICS)
+                or (e.event_type == "SECURITY_VIEWED"
+                    and e.metadata.get("topic") == "certifications")]
+
+    session_qualifying = quals(session_events)
+    if len(session_qualifying) < 2:
+        return None
+    journey_qualifying = quals(journey_events)
+    multi_session = len({e.session_id for e in journey_qualifying}) >= 2
+    supporting = journey_qualifying if multi_session else session_qualifying
+    strength = "STRONG" if multi_session else "MEDIUM"
+    return EvidenceDraft(
+        pattern_id="BP-004", strength=strength, concept_ids=["BC-004"],
+        supporting_event_ids=[e.event_id for e in supporting],
+        explanation=f"BP-004 activated: {len(session_qualifying)} compliance signal(s) -> {strength}")
+
+
+def _evaluate_bp007(session_events: list[EventView], journey_events: list[EventView]) -> EvidenceDraft | None:
+    """BP-007 Automation Evaluation: ≥2 among DOC workflows/automation/triggers,
+    PV in an automation category, SEARCH with automation terms. Strong at ≥4
+    qualifying or multi-session recurrence."""
+    def quals(events):
+        out = []
+        for e in events:
+            if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in BP007_DOC_TOPICS:
+                out.append(e)
+            elif e.event_type == "PRODUCT_VIEWED" and "automation" in str(e.metadata.get("category", "")).lower():
+                out.append(e)
+            elif e.event_type == "SEARCH" and _tokens(e.metadata.get("query", "")) & BP007_SEARCH_TERMS:
+                out.append(e)
+        return out
+
+    session_qualifying = quals(session_events)
+    if len(session_qualifying) < 2:
+        return None
+    journey_qualifying = quals(journey_events)
+    multi_session = len({e.session_id for e in journey_qualifying}) >= 2
+    strong = len(session_qualifying) >= 4 or multi_session
+    supporting = journey_qualifying if multi_session else session_qualifying
+    strength = "STRONG" if strong else "MEDIUM"
+    return EvidenceDraft(
+        pattern_id="BP-007", strength=strength, concept_ids=["BC-007"],
+        supporting_event_ids=[e.event_id for e in supporting],
+        explanation=f"BP-007 activated: {len(session_qualifying)} automation signal(s) -> {strength}")
+
+
+def _evaluate_bp008(session_events: list[EventView]) -> EvidenceDraft | None:
+    """BP-008 Integration Evaluation: ≥2 DOC topic integrations/api/connectors.
+    Strong when API reference and connector pages both appear. Co-supports
+    BC-009 Technical Evaluation."""
+    qualifying = [e for e in session_events
+                  if e.event_type == "DOCUMENTATION_VIEWED"
+                  and e.metadata.get("topic") in BP008_DOC_TOPICS]
+    if len(qualifying) < 2:
+        return None
+    topics = {e.metadata.get("topic") for e in qualifying}
+    strength = "STRONG" if {"api", "connectors"} <= topics else "MEDIUM"
+    return EvidenceDraft(
+        pattern_id="BP-008", strength=strength, concept_ids=["BC-008", "BC-009"],
+        supporting_event_ids=[e.event_id for e in qualifying],
+        explanation=f"BP-008 activated: topics {sorted(t for t in topics if t)} -> {strength}")
+
+
+def _evaluate_bp009(session_events: list[EventView], journey_events: list[EventView]) -> EvidenceDraft | None:
+    """BP-009 Commercial Evaluation: ≥2 PRICING_VIEWED, or 1 PRICING + 1
+    COMPARISON_STARTED, within a session. Strong with pricing views across
+    ≥2 sessions. Repeated same-tier focus co-supports BC-014."""
+    pricing = [e for e in session_events if e.event_type == "PRICING_VIEWED"]
+    comparisons = [e for e in session_events if e.event_type == "COMPARISON_STARTED"]
+    if not (len(pricing) >= 2 or (len(pricing) >= 1 and len(comparisons) >= 1)):
+        return None
+    journey_pricing = [e for e in journey_events if e.event_type == "PRICING_VIEWED"]
+    multi_session = len({e.session_id for e in journey_pricing}) >= 2
+    strength = "STRONG" if multi_session else "MEDIUM"
+    supporting = (journey_pricing if multi_session else pricing) + comparisons[:1]
+    tiers = [e.metadata.get("tier") for e in journey_pricing if e.metadata.get("tier")]
+    same_tier_repeat = len(tiers) >= 2 and len(set(tiers)) == 1
+    concepts = ["BC-010", "BC-014"] if same_tier_repeat else ["BC-010"]
+    return EvidenceDraft(
+        pattern_id="BP-009", strength=strength, concept_ids=concepts,
+        supporting_event_ids=[e.event_id for e in supporting],
+        explanation=f"BP-009 activated: {len(pricing)} pricing view(s) -> {strength}")
+
+
+def _evaluate_bp010(journey_events: list[EventView]) -> list[EvidenceDraft]:
+    """BP-010 Product Affinity (journey-scoped, product-scoped): ≥3 same-product
+    views across ≥2 sessions, or ≥2 views + 1 same-product pricing. Strong at
+    ≥5 qualifying. Contradicting: COMPARISON_STARTED introducing new
+    alternatives after affinity formed."""
+    drafts: list[EvidenceDraft] = []
+    by_product: dict[str, list[tuple[int, EventView]]] = {}
+    for index, e in enumerate(journey_events):
+        pid = e.metadata.get("product_id")
+        if not pid:
+            continue
+        if e.event_type in ("PRODUCT_VIEWED", "PRICING_VIEWED"):
+            by_product.setdefault(str(pid), []).append((index, e))
+
+    for product_id, indexed in by_product.items():
+        views = [(i, e) for i, e in indexed if e.event_type == "PRODUCT_VIEWED"]
+        pricing = [(i, e) for i, e in indexed if e.event_type == "PRICING_VIEWED"]
+        view_sessions = {e.session_id for _, e in views}
+        multi_session_views = len(views) >= 3 and len(view_sessions) >= 2
+        views_plus_pricing = len(views) >= 2 and len(pricing) >= 1
+        if not (multi_session_views or views_plus_pricing):
+            continue
+        qualifying = views + pricing
+        strength = "STRONG" if len(qualifying) >= 5 else "MEDIUM"
+        drafts.append(EvidenceDraft(
+            pattern_id="BP-010", strength=strength, concept_ids=["BC-012"],
+            supporting_event_ids=[e.event_id for _, e in qualifying],
+            explanation=f"BP-010 activated for a product: {len(qualifying)} signal(s) -> {strength}"))
+
+        # Contradicting: comparison introducing a new alternative after affinity
+        affinity_index = sorted(i for i, _ in qualifying)[
+            min(2, len(qualifying) - 1)]
+        contradicting = [
+            e for i, e in enumerate(journey_events)
+            if i > affinity_index and e.event_type == "COMPARISON_STARTED"
+            and any(str(e.metadata.get(k)) not in (product_id, "None")
+                    for k in ("product_a", "product_b"))]
+        if contradicting:
+            drafts.append(EvidenceDraft(
+                pattern_id="BP-010", strength="MEDIUM", concept_ids=[],
+                supporting_event_ids=[e.event_id for e in contradicting],
+                contradicts=("BC-012",),
+                explanation="BP-010 contradicting: comparison introduced new alternatives after affinity formed"))
+    return drafts
+
+
+def _evaluate_bp011(session_events: list[EventView]) -> list[EvidenceDraft]:
+    """BP-011 Adoption Readiness (product-scoped): any single trigger event.
+    Strong for trial/demo/cart; Very Strong for checkout/purchase. Co-supports
+    BC-016 Decision Confidence."""
+    triggers = [e for e in session_events if e.event_type in BP011_TRIGGERS]
+    if not triggers:
+        return []
+    onboarding = [e for e in session_events
+                  if e.event_type == "DOCUMENTATION_VIEWED"
+                  and e.metadata.get("topic") in ("onboarding", "migration")]
+    by_product: dict[str, list[EventView]] = {}
+    for e in triggers:
+        by_product.setdefault(str(e.metadata.get("product_id") or "journey"), []).append(e)
+    # A product-less trigger (e.g. CHECKOUT_STARTED) belongs to the same adoption
+    # act as the session's sole product-scoped trigger group — never its own draft.
+    if "journey" in by_product and len(by_product) == 2:
+        orphan = by_product.pop("journey")
+        next(iter(by_product.values())).extend(orphan)
+    drafts = []
+    for _product_id, events in by_product.items():
+        very_strong = any(e.event_type in BP011_VERY_STRONG for e in events)
+        drafts.append(EvidenceDraft(
+            pattern_id="BP-011",
+            strength="VERY_STRONG" if very_strong else "STRONG",
+            concept_ids=["BC-015", "BC-016"],
+            supporting_event_ids=[e.event_id for e in events + onboarding],
+            explanation=f"BP-011 activated: {[e.event_type for e in events]}"))
+    return drafts
 
 
 def _bp002_qualifying(events: list[EventView]) -> list[EventView]:

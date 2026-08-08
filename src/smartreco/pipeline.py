@@ -28,10 +28,12 @@ from smartreco.advisor import (
 from smartreco.domain.software_buying import BC_TO_REQ, CAPABILITIES, REQ_TO_CAP, REQUIREMENTS
 from smartreco.engines.confidence import EvidenceInput, compute_confidence
 from smartreco.engines.journey_resolution import resolve
+from smartreco.engines.learning import derive_traits, reinforced_strength
+from smartreco.engines.lifecycle import evaluate_closure, should_go_dormant
 from smartreco.engines.matching import evaluate_readiness, rank_products
 from smartreco.engines.patterns import EventView, evaluate_patterns
 from smartreco.engines.requirements import derive_requirements
-from smartreco.engines.stages import determine_stage
+from smartreco.engines.stages import apply_regression, determine_stage
 from smartreco.engines.triggers import TriggerContext, evaluate_trigger
 from smartreco.gateway import GatewayUnavailable
 from smartreco.models import utcnow
@@ -122,6 +124,86 @@ def _strength_ge(strength: str, minimum: str) -> bool:
     return EVIDENCE_STRENGTH.index(strength) >= EVIDENCE_STRENGTH.index(minimum)
 
 
+# ---- journey lifecycle: dormancy / closure sweep + learning ----
+
+def apply_closure_learning(db: OrmSession, journey: models.Journey,
+                           policies: PolicyCatalog, now: datetime) -> list[str]:
+    """POL-LEARN-001: only CLOSED journeys feed the Learning Engine. Traits are
+    concept-derived from the journey's final active hypotheses."""
+    final = {
+        h.concept_id: h.confidence
+        for h in repos.current_hypotheses(db, journey.journey_id).values()
+        if h.status != "RETIRED"
+    }
+    created = []
+    for trait in derive_traits(final, policies):
+        row = db.get(models.BehavioralTrait, (journey.user_id, trait["trait_name"]))
+        if row is None:
+            db.add(models.BehavioralTrait(
+                user_id=journey.user_id, trait_name=trait["trait_name"],
+                strength=reinforced_strength(None, trait["final_confidence"], policies),
+                reinforcement_count=1, last_reinforced=now,
+                decay_explanation=""))
+        else:
+            row.strength = reinforced_strength(row.strength, trait["final_confidence"], policies)
+            row.reinforcement_count += 1
+            row.last_reinforced = now
+        created.append(trait["trait_name"])
+    return created
+
+
+def close_journey(db: OrmSession, journey: models.Journey, outcome: str, reason: str,
+                  policies: PolicyCatalog, now: datetime) -> None:
+    repos.insert_journey_transition(db, models.JourneyTransition(
+        journey_id=journey.journey_id, from_state=journey.lifecycle, to_state="CLOSED",
+        reason=reason, policy_version=policies.version, ts=now))
+    journey.lifecycle = "CLOSED"
+    journey.outcome = outcome
+    journey.closed_at = now
+    apply_closure_learning(db, journey, policies, now)
+
+
+def lifecycle_sweep(db: OrmSession, policies: PolicyCatalog, user_id: int,
+                    now: datetime) -> None:
+    """Dormancy + closure evaluation for a user's open journeys (POL-JRES-002/003).
+    Time alone never closes; every transition is policy-authorized and logged."""
+    journeys = db.execute(
+        select(models.Journey).where(models.Journey.user_id == user_id,
+                                     models.Journey.lifecycle.in_(("NEW", "ACTIVE", "DORMANT")))
+    ).scalars().all()
+    for journey in journeys:
+        events = repos.journey_events(db, journey.journey_id)
+        last_activity = max((e.ts for e in events), default=journey.created_at)
+        trial_ts = max((e.ts for e in events if e.event_type == "TRIAL_STARTED"),
+                       default=None)
+        has_purchase = any(e.event_type == "PURCHASE_COMPLETED" for e in events)
+
+        if journey.lifecycle == "ACTIVE" and should_go_dormant(last_activity, now, policies):
+            repos.insert_journey_transition(db, models.JourneyTransition(
+                journey_id=journey.journey_id, from_state="ACTIVE", to_state="DORMANT",
+                reason="inactive beyond POL-JRES-002 dormancy window",
+                policy_version=policies.version, ts=now))
+            journey.lifecycle = "DORMANT"
+
+        dormant_since = None
+        if journey.lifecycle == "DORMANT":
+            dormant_transition = db.execute(
+                select(models.JourneyTransition)
+                .where(models.JourneyTransition.journey_id == journey.journey_id,
+                       models.JourneyTransition.to_state == "DORMANT")
+                .order_by(models.JourneyTransition.ts.desc())
+            ).scalars().first()
+            dormant_since = dormant_transition.ts if dormant_transition else last_activity
+
+        outcome, reason = evaluate_closure(
+            lifecycle=journey.lifecycle, has_purchase=has_purchase,
+            last_trial_ts=trial_ts, last_activity_ts=last_activity,
+            dormant_since=dormant_since, now=now, policies=policies)
+        if outcome is not None:
+            close_journey(db, journey, outcome, reason, policies, now)
+    db.commit()
+
+
 # ---- journey resolution (node 1 engine work) ----
 
 def resolve_sessions(db: OrmSession, policies: PolicyCatalog, user_id: int,
@@ -129,6 +211,7 @@ def resolve_sessions(db: OrmSession, policies: PolicyCatalog, user_id: int,
     """Assign journey ownership to sessions with unassigned events (core 12).
     Ownership is determined exactly once per session."""
     now = _now(now)
+    lifecycle_sweep(db, policies, user_id, now)  # dormancy/closure before candidacy
     unassigned_sessions = db.execute(
         select(models.Event.session_id).where(
             models.Event.user_id == user_id, models.Event.journey_id.is_(None)
@@ -195,18 +278,20 @@ def _update_hypotheses(db: OrmSession, policies: PolicyCatalog, journey_id: str,
 
     evidence = repos.journey_evidence(db, journey_id)
     events_by_id = {e.event_id: e for e in repos.journey_events(db, journey_id)}
-    by_concept: dict[str, list[models.Evidence]] = {}
+    by_concept: dict[str, list[tuple[models.Evidence, str]]] = {}
     for ev in evidence:
         for concept in ev.concept_ids:
-            by_concept.setdefault(concept, []).append(ev)
+            by_concept.setdefault(concept, []).append((ev, "SUPPORTING"))
+        for concept in (ev.contradicts_concept_ids or []):
+            by_concept.setdefault(concept, []).append((ev, "CONTRADICTING"))
 
     current = repos.current_hypotheses(db, journey_id)
     active: dict[str, float] = {}
 
     for concept, concept_evidence in by_concept.items():
-        strengths = [ev.strength for ev in concept_evidence]
-        promoted = len(concept_evidence) >= min_evidence or any(
-            _strength_ge(s, single_min_strength) for s in strengths)
+        supporting_only = [ev for ev, rel in concept_evidence if rel == "SUPPORTING"]
+        promoted = len(supporting_only) >= min_evidence or any(
+            _strength_ge(ev.strength, single_min_strength) for ev in supporting_only)
         hypothesis_id = f"H-{journey_id}-{concept}"
         existing = current.get(hypothesis_id)
         if not promoted and existing is None:
@@ -221,8 +306,9 @@ def _update_hypotheses(db: OrmSession, policies: PolicyCatalog, journey_id: str,
                 event_type_composition=tuple(sorted(
                     events_by_id[eid].event_type for eid in ev.supporting_event_ids
                     if eid in events_by_id)),
+                relation=relation,
             )
-            for ev in concept_evidence
+            for ev, relation in concept_evidence
         ]
         result = compute_confidence(seq, policies)
 
@@ -242,10 +328,10 @@ def _update_hypotheses(db: OrmSession, policies: PolicyCatalog, journey_id: str,
                 concept_id=concept, status=status, confidence=result.confidence,
                 confidence_explanation=result.explanation, created_at=now)
             repos.insert_hypothesis_version(db, row)
-            for ev in concept_evidence:
+            for ev, relation in concept_evidence:
                 db.merge(models.HypothesisEvidence(
                     hypothesis_id=hypothesis_id, evidence_id=ev.evidence_id,
-                    relation="SUPPORTING"))
+                    relation=relation))
         if status != "RETIRED":
             active[concept] = result.confidence
     return active
@@ -292,7 +378,8 @@ def stage_reason(ctx: WorkflowContext, state: dict) -> bool:
              for e in state["journey_events"]]
     drafts = evaluate_patterns(views, ctx.policies)
     existing_keys = {
-        (ev.pattern_id, tuple(sorted(ev.supporting_event_ids)))
+        (ev.pattern_id, tuple(sorted(ev.supporting_event_ids)),
+         tuple(ev.contradicts_concept_ids or ()))
         for ev in repos.journey_evidence(ctx.db, journey_id)
     }
     new_count = 0
@@ -306,7 +393,9 @@ def stage_reason(ctx: WorkflowContext, state: dict) -> bool:
             journey_id=journey_id, pattern_id=draft.pattern_id,
             strength=draft.strength,
             supporting_event_ids=sorted(draft.supporting_event_ids),
-            concept_ids=draft.concept_ids, explanation=draft.explanation,
+            concept_ids=draft.concept_ids,
+            contradicts_concept_ids=list(draft.contradicts),
+            explanation=draft.explanation,
             created_at=ctx.now))
     ctx.db.commit()
     ctx.nodes.append({"node": "reason", "class": "deterministic",
@@ -365,6 +454,13 @@ def stage_resolve_stage(ctx: WorkflowContext, state: dict) -> bool:
     event_types = [e.event_type for e in state["journey_events"]]
     stage, stage_conf, stage_explanation = determine_stage(
         evidence_dicts, state["active"], event_types, ctx.policies)
+    recent_high = [e.event_type for e in state["journey_events"]
+                   if e.signal_class == "HIGH"]
+    regressed = apply_regression(stage, recent_high, ctx.policies)
+    if regressed is not None:
+        stage_explanation = (f"{regressed}: regressed from {stage} — last high-signal "
+                             f"events characteristic of an earlier stage (POL-STAGE-002)")
+        stage, stage_conf = regressed, 0.0
     latest_stage = ctx.db.execute(
         select(models.JourneyStage).where(models.JourneyStage.journey_id == journey_id)
         .order_by(models.JourneyStage.version.desc())
@@ -685,7 +781,13 @@ def run_workflow(
         db.commit()
         return run
 
-    # --- Node 13: persist_deliver — stamp processed, record run ---
+    # --- Node 13: persist_deliver — closure, stamp processed, record run ---
+    if any(e.event_type == "PURCHASE_COMPLETED" for e in unprocessed):
+        journey = db.get(models.Journey, state["journey_id"])
+        if journey is not None and journey.lifecycle != "CLOSED":
+            close_journey(db, journey, "PURCHASED",
+                          "PURCHASE_COMPLETED -> immediate closure (POL-JRES-003)",
+                          policies, now)
     repos.stamp_processed(db, [e.event_id for e in unprocessed], now)
     run = models.WorkflowRun(
         run_id=run_id, user_id=user_id, journey_id=state["journey_id"],

@@ -51,9 +51,9 @@ def user(seeded):
     return row
 
 
-def test_story1_security_evaluator(seeded, chroma, backend, policies, user, fake_gateway):
-    db = seeded
-    gw = fake_gateway
+def replay_story1(db, chroma, backend, policies, user, gw):
+    """Replays the Story 1 clickstream (5 batches, 2 sessions, 5 runs).
+    Returns the list of completed runs. Reused by Story 9 (the Buyer)."""
     s1, s2 = "story1-s1", "story1-s2"
     day1 = datetime(2026, 8, 1)
     day2 = datetime(2026, 8, 2)
@@ -119,7 +119,13 @@ def test_story1_security_evaluator(seeded, chroma, backend, policies, user, fake
     ])
     r5 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION", gateway=gw,
                       now=day2.replace(hour=10, minute=17))
-    assert r5.status == "COMPLETED"
+    return [r1, r2, r3, r4, r5]
+
+
+def test_story1_security_evaluator(seeded, chroma, backend, policies, user, fake_gateway):
+    db = seeded
+    runs = replay_story1(db, chroma, backend, policies, user, fake_gateway)
+    assert all(r.status == "COMPLETED" for r in runs)
 
     # --- Both sessions resolved into ONE journey ---
     journeys = db.execute(select(models.Journey).where(

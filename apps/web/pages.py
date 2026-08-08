@@ -630,6 +630,14 @@ def reasoning(request: Request, user_id: int | None = None, sd=Depends(_db)):
         select(models.WorkflowRun).where(models.WorkflowRun.user_id == selected.id)
         .order_by(models.WorkflowRun.started_at.desc()).limit(20)).scalars().all()]
 
+    traits = db.execute(
+        select(models.BehavioralTrait).where(models.BehavioralTrait.user_id == selected.id)
+        .order_by(models.BehavioralTrait.strength.desc())).scalars().all()
+    all_journeys = db.execute(
+        select(models.Journey).where(models.Journey.user_id == selected.id)
+        .order_by(models.Journey.created_at)).scalars().all()
+
     ctx.update({"journey": journey, "stages": stages, "hypotheses": hypotheses,
-                "requirements": requirements, "trigger_log": trigger_log})
+                "requirements": requirements, "trigger_log": trigger_log,
+                "traits": traits, "all_journeys": all_journeys})
     return templates.TemplateResponse(request, "reasoning.html", ctx)

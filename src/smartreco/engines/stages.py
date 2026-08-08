@@ -5,8 +5,8 @@ Current stage = highest stage whose milestone is satisfied with stage confidence
 hypotheses supported by the milestone-satisfying evidence. Pure function.
 """
 
-from smartreco.domain.software_buying import STAGE_MILESTONES
-from smartreco.enums import EVIDENCE_STRENGTH
+from smartreco.domain.software_buying import EVENT_STAGE_CHARACTER, STAGE_MILESTONES
+from smartreco.enums import EVIDENCE_STRENGTH, JOURNEY_STAGES
 from smartreco.policies import PolicyCatalog
 
 
@@ -81,3 +81,23 @@ def determine_stage(
             return milestone["stage"], confidence, explanation
 
     return "Awareness", 0.0, "Awareness: no milestone satisfied"
+
+
+def apply_regression(current_stage: str, recent_high_signal_types: list[str],
+                     policies: PolicyCatalog) -> str | None:
+    """POL-STAGE-002: regress when the last N consecutive high-signal events are
+    all characteristic of stages strictly earlier than the current stage.
+    Returns the regressed stage (the highest stage those events characterize),
+    or None when no regression applies."""
+    needed = policies.param("POL-STAGE-002", "consecutive_earlier_stage_events")
+    if len(recent_high_signal_types) < needed:
+        return None
+    window = recent_high_signal_types[-needed:]
+    current_index = JOURNEY_STAGES.index(current_stage)
+    characters = []
+    for event_type in window:
+        stage = EVENT_STAGE_CHARACTER.get(event_type)
+        if stage is None or JOURNEY_STAGES.index(stage) >= current_index:
+            return None
+        characters.append(JOURNEY_STAGES.index(stage))
+    return JOURNEY_STAGES[max(characters)]
