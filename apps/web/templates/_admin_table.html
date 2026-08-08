@@ -1,0 +1,16 @@
+<div class="admin-row admin-head">
+  <span>ID</span><span>Product</span><span>Sync</span><span>Capabilities</span><span></span>
+</div>
+{% for p in products %}
+<div class="admin-row">
+  <span class="mono">{{ p.product_id }}</span>
+  <span>{{ p.name }} <span class="v" style="color:var(--muted);">· {{ p.vendor }}</span></span>
+  <span>
+    {% if p.sync_status == "SYNCED" %}<span class="pill pill-good">SYNCED</span>
+    {% elif p.sync_status == "PENDING" %}<span class="pill pill-warn">PENDING</span>
+    {% else %}<span class="pill pill-crit">FAILED</span>{% endif %}
+  </span>
+  <span class="caps">{{ p.cap_ids | join(", ") }}</span>
+  <span><a class="btn-ghost" href="/admin/product/{{ p.product_id }}">Edit</a></span>
+</div>
+{% endfor %}

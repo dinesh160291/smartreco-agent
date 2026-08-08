@@ -1,0 +1,200 @@
+/* SmartReco custom layer — token-for-token per docs/implementation/ui-design-spec.md.
+   Overrides Pico where they conflict. Components reference tokens only. */
+
+/* ---- 1. Design tokens ---- */
+:root {
+  --ground: #fbfcfd;
+  --card: #ffffff;
+  --ink: #1b2832;
+  --muted: #5c6b7a;
+  --line: #dfe6ec;
+  --accent: #0b6e99;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3f0f7;
+  --good: #2e7d32;
+  --good-soft: #e6f2e7;
+  --warn: #9a5b00;
+  --warn-soft: #fdf1de;
+  --crit: #b3261e;
+  --crit-soft: #fbe9e7;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #11171d; --card: #181f27; --ink: #e8edf2; --muted: #93a1ae;
+    --line: #2a3540; --accent: #4aa3c7; --accent-ink: #0c1319;
+    --accent-soft: #15303e; --good: #7fc783; --good-soft: #1c2e1d;
+    --warn: #e0a94f; --warn-soft: #332815; --crit: #e58f88; --crit-soft: #3a1f1c;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #11171d; --card: #181f27; --ink: #e8edf2; --muted: #93a1ae;
+  --line: #2a3540; --accent: #4aa3c7; --accent-ink: #0c1319;
+  --accent-soft: #15303e; --good: #7fc783; --good-soft: #1c2e1d;
+  --warn: #e0a94f; --warn-soft: #332815; --crit: #e58f88; --crit-soft: #3a1f1c;
+}
+
+/* ---- 2. Typography & base ---- */
+html { background: var(--ground); }
+body {
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px; line-height: 1.55; color: var(--ink);
+  background: var(--ground); margin: 0;
+}
+.mono, code, .caps, .figure { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; }
+h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.2px; margin: 0 0 6px; }
+h2 { font-size: 17px; font-weight: 700; margin: 26px 0 10px; }
+.sub { font-size: 14.5px; color: var(--muted); margin: 0 0 18px; }
+.measure { max-width: 68ch; }
+.measure-wide { max-width: 75ch; }
+
+/* ---- 3. Layout ---- */
+.container { max-width: 1060px; padding: 0 20px; margin: 0 auto; }
+main.container { padding: 28px 0 64px; }
+.appbar {
+  height: 56px; position: sticky; top: 0; z-index: 20;
+  background: var(--card); border-bottom: 1px solid var(--line);
+}
+.appbar .container { display: flex; align-items: center; gap: 18px; height: 56px; }
+.brand { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 700; letter-spacing: .2px; color: var(--ink); text-decoration: none; }
+.brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.nav { display: flex; gap: 2px; flex: 1; }
+.nav a {
+  font-size: 14.5px; color: var(--muted); padding: 6px 12px; border-radius: 6px; text-decoration: none;
+}
+.nav a:hover { color: var(--ink); }
+.nav a.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.bar-right { display: flex; align-items: center; gap: 8px; }
+.buffer-pill {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 12.5px;
+  background: var(--ground); border: 1px solid var(--line); border-radius: 20px; padding: 5px 12px;
+  color: var(--muted);
+}
+.buffer-pill b { color: var(--accent); font-weight: 600; }
+.iconbtn {
+  background: transparent; border: 1px solid var(--line); border-radius: 20px;
+  padding: 5px 12px; font-size: 14px; color: var(--ink); cursor: pointer;
+}
+
+/* ---- 4.2 Buttons ---- */
+.btn { display: inline-block; font-size: 14.5px; font-weight: 600; padding: 8px 16px;
+  border-radius: 8px; border: none; background: var(--accent); color: var(--accent-ink);
+  cursor: pointer; text-decoration: none; }
+.btn-ghost { display: inline-block; font-size: 14px; font-weight: 400; padding: 7px 14px;
+  border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--ink);
+  cursor: pointer; text-decoration: none; }
+:is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+
+/* ---- Cards & grids ---- */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+.card:hover { transition: border-color 150ms; }
+.grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.phrow { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.pcol { display: flex; flex-direction: column; gap: 6px; }
+.pcard .n { font-size: 15.5px; font-weight: 650; }
+.pcard .v { font-size: 12.5px; color: var(--muted); }
+.pcard .body { font-size: 13.5px; }
+.caps { font-size: 11.5px; color: var(--accent); }
+
+/* ---- 4.3 Monogram thumbnails ---- */
+.thumb { display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; flex: none; }
+.thumb-sm { width: 34px; height: 34px; border-radius: 8px; font-size: 14px; }
+.thumb-md { width: 44px; height: 44px; border-radius: 9px; font-size: 17px; }
+.thumb-base { width: 52px; height: 52px; border-radius: 10px; font-size: 19px; }
+.thumb-lg { width: 64px; height: 64px; border-radius: 12px; font-size: 24px; }
+
+/* ---- 4.4 Status pills ---- */
+.pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 2.5px 10px; border-radius: 20px; }
+.pill-good { background: var(--good-soft); color: var(--good); }
+.pill-warn { background: var(--warn-soft); color: var(--warn); }
+.pill-crit { background: var(--crit-soft); color: var(--crit); }
+.pill-acc { background: var(--accent-soft); color: var(--accent); }
+.pill-held { background: var(--line); color: var(--muted); }
+.row-held { opacity: .55; }
+
+/* ---- 4.5 Meters ---- */
+.meter { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.meter > span { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+.figure { font-size: 14px; font-weight: 600; min-width: 38px; text-align: right; }
+.cov-row { display: grid; grid-template-columns: 34px 1fr 200px; gap: 14px; align-items: center; padding: 8px 0; }
+.cov-meter { display: flex; align-items: center; gap: 10px; }
+@media (max-width: 760px) { .cov-row { grid-template-columns: 34px 1fr; } .cov-meter { grid-column: 2; } }
+
+/* ---- 4.6 Tabs ---- */
+.tabs { display: flex; border-bottom: 2px solid var(--line); }
+.tabs button { font-size: 14.5px; color: var(--muted); background: none; border: none;
+  padding: 9px 16px; cursor: pointer; margin-bottom: -2px; border-bottom: 2px solid transparent; }
+.tabs button.active { color: var(--accent); font-weight: 600; border-bottom-color: var(--accent); }
+.tabpane { padding: 20px 0; max-width: 68ch; font-size: 14.5px; display: none; }
+.tabpane.active { display: block; }
+
+/* ---- 4.7 Forms ---- */
+label.field { display: block; font-size: 12.5px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--muted); margin-bottom: 12px; }
+label.field > span { display: block; margin-bottom: 5px; }
+input, select, textarea {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: 14.5px; color: var(--ink);
+  background: var(--ground); border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px;
+}
+.field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ---- 4.8 Category chips ---- */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 18px; }
+.chip { font-size: 13px; background: var(--card); border: 1px solid var(--line); color: var(--muted);
+  padding: 5px 13px; border-radius: 20px; text-decoration: none; }
+.chip.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+/* ---- 4.9 Stage chips ---- */
+.stages { display: flex; flex-wrap: wrap; gap: 6px; }
+.stage { font-size: 11.5px; padding: 3px 9px; border-radius: 14px;
+  background: var(--ground); border: 1px solid var(--line); color: var(--muted); }
+.stage.done { border-color: var(--accent); color: var(--accent); }
+.stage.current { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+
+/* ---- 4.10 Admin table ---- */
+.admin-scroll { overflow-x: auto; }
+.admin-table { min-width: 640px; }
+.admin-row { display: grid; grid-template-columns: 90px 1fr 130px 1fr 110px; gap: 12px;
+  padding: 10px 4px; border-bottom: 1px solid var(--line); align-items: center; font-size: 14px; }
+.admin-head { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 400; }
+
+/* ---- 4.11 Trigger log ---- */
+.trigger-log { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 12.5px;
+  line-height: 2.1; white-space: nowrap; overflow-x: auto; }
+.trigger-log .ts { color: var(--muted); }
+.trigger-log .run { color: var(--good); }
+.trigger-log .skip { color: var(--warn); }
+
+/* ---- 4.12 Toast ---- */
+.toast { position: fixed; right: 18px; bottom: 18px; background: var(--ink); color: var(--ground);
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 12.5px;
+  padding: 9px 15px; border-radius: 8px; opacity: 0; transform: translateY(8px);
+  transition: opacity 200ms, transform 200ms; max-width: 85vw; pointer-events: none; }
+.toast.show { opacity: .94; transform: translateY(0); }
+
+/* ---- 4.13 Notices ---- */
+.demo-notice { font-size: 12.5px; color: var(--warn); background: var(--warn-soft);
+  border-radius: 8px; padding: 8px 12px; }
+.learning-arc { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 12.5px;
+  line-height: 2; background: var(--ground); border: 1px solid var(--line); border-radius: 8px;
+  padding: 12px 16px; max-width: 480px; text-align: left; }
+.learning-arc .chain { color: var(--good); }
+.learning-arc .close { color: var(--muted); }
+
+/* ---- AAR card ---- */
+.aar { border-left: 3px solid var(--accent); }
+.aar .disclaimer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line);
+  margin-top: 16px; padding-top: 10px; max-width: 75ch; }
+
+/* ---- Two-column layouts ---- */
+.cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.cols-checkout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .cols-2, .cols-checkout { grid-template-columns: 1fr; } }
+
+/* ---- Motion / a11y ---- */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+.breadcrumb { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+.breadcrumb a { color: var(--muted); }

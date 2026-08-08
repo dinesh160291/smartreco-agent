@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Explore · SmartReco{% endblock %}
+{% block content %}
+<h1>Explore software</h1>
+<p class="sub">Search the catalog, or browse by category.</p>
+
+<form method="get" action="/" style="display:flex; gap:10px;">
+  <input type="search" name="q" value="{{ q or '' }}" placeholder="Search products…" aria-label="Search">
+  <button class="btn" type="submit">Search</button>
+</form>
+
+<div class="chips">
+  <a class="chip {{ 'active' if not category else '' }}" href="/">All</a>
+  {% for c in categories %}
+  <a class="chip {{ 'active' if category == c else '' }}" href="/?category={{ c | urlencode }}">{{ c }}</a>
+  {% endfor %}
+</div>
+
+<div class="grid-cards">
+  {% for p in products %}
+  <a class="card pcard" href="/product/{{ p.product_id }}" style="text-decoration:none; color:inherit;">
+    <div class="phrow">
+      <div class="thumb thumb-md" style="background:{{ p.hue }}">{{ p.initials }}</div>
+      <div class="pcol">
+        <span class="n">{{ p.name }}</span>
+        <span class="v">{{ p.vendor }} · {{ p.category }}</span>
+      </div>
+    </div>
+    <div class="body">{{ p.description | truncate(120) }}</div>
+    <div class="caps" style="margin-top:8px;">{{ p.cap_count }} capabilities</div>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

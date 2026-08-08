@@ -71,6 +71,7 @@ Runtime-object tables expose **insert-only** repository helpers; no UPDATE path 
 | role | TEXT | `user` \| `admin` (checked at API layer) |
 | digest_opt_in | BOOLEAN default false | |
 | digest_channel | TEXT nullable | `EMAIL` \| `TELEGRAM` |
+| telegram_chat_id | TEXT nullable | chat reference captured when the user connects the bot (stack-decisions §Digest delivery) |
 | created_at | TIMESTAMP | |
 
 ### capabilities (seeded taxonomy — read-only at runtime)

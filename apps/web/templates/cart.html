@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Cart · SmartReco{% endblock %}
+{% block content %}
+<h1>Cart &amp; checkout</h1>
+<p class="sub">Review your selection and complete the demonstration checkout.</p>
+
+<div class="cols-checkout">
+  <div class="card">
+    <h2 style="margin-top:0;">Your cart</h2>
+    {% if items %}
+      {% for item in items %}
+      <div class="phrow" style="border-bottom:1px solid var(--line); padding-bottom:10px;">
+        <div class="thumb thumb-sm" style="background:{{ item.hue }}">{{ item.initials }}</div>
+        <div class="pcol" style="flex:1;">
+          <span class="n">{{ item.name }}</span>
+          <span class="v">{{ item.vendor }}{% if item.price_note %} · {{ item.price_note }}{% endif %}</span>
+        </div>
+        <form method="post" action="/cart/remove/{{ item.product_id }}">
+          <button class="btn-ghost" type="submit">Remove</button>
+        </form>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="measure">Your cart is empty. <a href="/">Explore the catalog</a>.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Checkout</h2>
+    <p class="demo-notice">Demo checkout — card details are format-checked only, never stored, and always succeed.</p>
+    <form method="post" action="/checkout" style="margin-top:12px;">
+      <label class="field"><span>Name on card</span>
+        <input name="card_name" required></label>
+      <label class="field"><span>Card number</span>
+        <input name="card_number" required pattern="[0-9 ]{12,23}" placeholder="4242 4242 4242 4242"></label>
+      <div class="field-pair">
+        <label class="field"><span>Expiry</span>
+          <input name="card_expiry" required pattern="[0-9]{2}/[0-9]{2}" placeholder="12/28"></label>
+        <label class="field"><span>CVC</span>
+          <input name="card_cvc" required pattern="[0-9]{3,4}" placeholder="123"></label>
+      </div>
+      <button class="btn" type="submit" style="width:100%;" {% if not items %}disabled{% endif %}
+              data-track="CHECKOUT_STARTED" data-track-meta='{}'>Place order</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

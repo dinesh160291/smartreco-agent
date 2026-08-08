@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Order confirmed · SmartReco{% endblock %}
+{% block content %}
+<div style="max-width:560px; margin:40px auto; text-align:center;">
+  <div class="card">
+    <div style="font-size:40px;">✅</div>
+    <h1>Order confirmed</h1>
+    <p class="sub">Order {{ order_id }} · {{ product_names | join(", ") }}</p>
+    <div class="learning-arc" style="margin:16px auto;">
+      <div class="chain">purchase recorded → journey closing → outcome: purchased</div>
+      <div class="chain">what you valued here becomes a prior for your next journey</div>
+      <div class="close">SmartReco learns from completed journeys — nothing else.</div>
+    </div>
+    <a class="btn" href="/">Back to Explore</a>
+  </div>
+</div>
+{% endblock %}

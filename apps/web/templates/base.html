@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SmartReco{% endblock %}</title>
+  <link rel="stylesheet" href="/static/pico.min.css">
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js"></script>
+</head>
+<body>
+<header class="appbar">
+  <div class="container">
+    <a class="brand" href="/"><span class="dot"></span>SmartReco</a>
+    <nav class="nav">
+      <a href="/" class="{{ 'active' if active_nav == 'explore' else '' }}">Explore</a>
+      <a href="/for-you" class="{{ 'active' if active_nav == 'foryou' else '' }}">For you</a>
+      {% if user %}
+      <a href="/account" class="{{ 'active' if active_nav == 'account' else '' }}">Account</a>
+      {% endif %}
+      {% if user and user.role == 'admin' %}
+      <a href="/admin" class="{{ 'active' if active_nav == 'admin' else '' }}">Admin</a>
+      <a href="/reasoning" class="{{ 'active' if active_nav == 'reasoning' else '' }}">Reasoning</a>
+      {% endif %}
+    </nav>
+    <div class="bar-right">
+      <span class="buffer-pill">buffer <b id="buffer-count">0</b></span>
+      <a class="iconbtn" href="/cart" aria-label="Cart">🛒 {{ cart_count or 0 }}</a>
+      <button class="iconbtn" onclick="srToggleTheme()" aria-label="Toggle theme">🌓</button>
+      {% if user %}
+      <a class="iconbtn" href="/logout" aria-label="Log out">Log out</a>
+      {% else %}
+      <a class="iconbtn" href="/login">Log in</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+<main class="container">
+{% block content %}{% endblock %}
+</main>
+<div id="toast" class="toast" role="status"></div>
+{% if page_events %}
+<script type="application/json" id="sr-page-events">{{ page_events | tojson }}</script>
+{% endif %}
+<script src="/static/htmx.min.js"></script>
+<script src="/static/track.js"
+        data-batch-size="{{ tracking.batch_size }}"
+        data-flush-interval="{{ tracking.flush_interval_seconds }}"
+        data-heartbeat="{{ tracking.heartbeat_seconds }}"
+        data-session-timeout="{{ tracking.inactivity_minutes }}"
+        data-max-retries="{{ tracking.max_flush_retries }}"
+        {% if dwell_topic %}data-dwell-topic="{{ dwell_topic }}"{% endif %}></script>
+</body>
+</html>

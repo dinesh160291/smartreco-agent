@@ -1,0 +1,67 @@
+{% if feed %}
+<p class="sub" style="margin-bottom:10px;">
+  Updated {{ feed.updated }} · trigger: {{ feed.trigger }}
+  {% if feed.readiness == "READY" %}<span class="pill pill-acc">READY</span>
+  {% else %}<span class="pill pill-held">NOT READY</span>{% endif %}
+</p>
+
+<div class="card aar">
+  {% if feed.readiness == "READY" %}
+    <p class="measure"><strong>{{ feed.sections.executive_summary }}</strong></p>
+    <p class="measure">{{ feed.sections.persuasive_narrative }}</p>
+
+    {% for entry in feed.entries %}
+    <div class="cov-row">
+      <div class="figure">#{{ entry.rank }}</div>
+      <div>
+        <div class="phrow" style="margin-bottom:4px;">
+          <div class="thumb thumb-sm" style="background:{{ entry.hue }}">{{ entry.initials }}</div>
+          <div class="pcol">
+            <span class="n"><a href="/product/{{ entry.product_id }}">{{ entry.name }}</a></span>
+            <span class="v">{{ entry.vendor }}</span>
+          </div>
+        </div>
+        <details>
+          <summary style="font-size:13px; color:var(--muted); cursor:pointer;">Why this?</summary>
+          <ul style="font-size:13.5px; margin:6px 0;">
+            {% for line in entry.why_covered %}<li style="color:var(--good);">✓ {{ line }}</li>{% endfor %}
+            {% for line in entry.why_missing %}<li style="color:var(--crit);">✗ {{ line }}</li>{% endfor %}
+          </ul>
+        </details>
+      </div>
+      <div class="cov-meter">
+        <div class="meter" style="flex:1;"><span style="width:{{ entry.coverage }}%"></span></div>
+        <span class="figure">{{ entry.coverage }}%</span>
+      </div>
+    </div>
+    {% endfor %}
+
+    {% if feed.sections.trade_offs %}
+    <h2>Trade-offs</h2>
+    <p class="measure">{{ feed.sections.trade_offs }}</p>
+    {% endif %}
+    {% if feed.sections.next_best_actions %}
+    <h2>Next steps</h2>
+    <ul class="measure">
+      {% for action in feed.sections.next_best_actions %}<li>{{ action }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  {% else %}
+    <p class="measure"><strong>{{ feed.sections.executive_summary
+        or "We need a little more signal before recommending." }}</strong></p>
+    {% if feed.sections.clarifying_questions %}
+    <ul class="measure">
+      {% for q in feed.sections.clarifying_questions %}<li>{{ q }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    <p class="sub">Keep exploring — recommendations unlock as your research adds up.</p>
+  {% endif %}
+  <div class="disclaimer">Rankings, match scores, and coverage are computed deterministically
+    by the platform. AI wrote the words — not the numbers.</div>
+</div>
+{% else %}
+<div class="card">
+  <p class="measure">No recommendations yet — browse the catalog and your research will shape
+    what appears here.</p>
+</div>
+{% endif %}

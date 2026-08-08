@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Admin · SmartReco{% endblock %}
+{% block content %}
+<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px;">
+  <div>
+    <h1>Catalog administration</h1>
+    <p class="sub">Products, capability profiles, and vector-index sync status.</p>
+  </div>
+  <a class="btn" href="/admin/new">+ Add product</a>
+</div>
+
+<div class="card admin-scroll">
+  <div class="admin-table" id="admin-table"
+       hx-get="/admin/table" hx-trigger="every 10s" hx-swap="innerHTML">
+    {% include "_admin_table.html" %}
+  </div>
+</div>
+<p class="sub" style="margin-top:10px;">PENDING and FAILED products are retried automatically by
+  the reconciliation sweep; FAILED rows stay visible until repaired.</p>
+{% endblock %}

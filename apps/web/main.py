@@ -33,6 +33,13 @@ load_dotenv()
 app = FastAPI(title="SmartReco")
 app.add_middleware(SessionMiddleware, secret_key=os.environ.get("SECRET_KEY", "dev-only"))
 
+from pathlib import Path
+
+from fastapi.staticfiles import StaticFiles
+
+app.mount("/static", StaticFiles(directory=str(Path(__file__).parent / "static")),
+          name="static")
+
 _state: dict = {}
 
 
@@ -57,6 +64,10 @@ def _init_state():
         _state["gateway"] = None  # deterministic service continues (Core 21/23)
     with _state["session_factory"]() as db:
         seed_capabilities(db)
+        if db.query(models.Product).count() == 0:
+            from smartreco.seeding import seed_canonical_products
+
+            seed_canonical_products(db, _state["chroma"], _state["backend"])
         reconcile_pending(db, _state["chroma"], _state["backend"])
     return _state
 
@@ -196,3 +207,8 @@ def ingest_events(batch: EventBatch, background: BackgroundTasks,
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+from apps.web import pages  # noqa: E402  (router needs the helpers above)
+
+app.include_router(pages.router)

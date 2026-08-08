@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Compare · SmartReco{% endblock %}
+{% block content %}
+<h1>Compare products</h1>
+<form method="get" action="/compare" class="sub" style="display:flex; gap:10px;">
+  <select name="a" style="width:auto;">
+    {% for p in all_products %}<option value="{{ p.product_id }}" {% if a and p.product_id == a.product_id %}selected{% endif %}>{{ p.name }}</option>{% endfor %}
+  </select>
+  <span style="align-self:center;">vs</span>
+  <select name="b" style="width:auto;">
+    {% for p in all_products %}<option value="{{ p.product_id }}" {% if b and p.product_id == b.product_id %}selected{% endif %}>{{ p.name }}</option>{% endfor %}
+  </select>
+  <button class="btn" type="submit">Compare</button>
+</form>
+
+{% if a and b %}
+<div class="cols-2" style="margin-top:18px;">
+  {% for side in [a, b] %}
+  <div class="card">
+    <div class="phrow">
+      <div class="thumb thumb-md" style="background:{{ side.hue }}">{{ side.initials }}</div>
+      <div class="pcol"><span class="n">{{ side.name }}</span><span class="v">{{ side.vendor }}</span></div>
+    </div>
+    <ul style="font-size:13.5px;">
+      {% for cap in comparison_caps %}
+      <li style="color:{{ 'var(--good)' if cap in side.capability_names else 'var(--crit)' }};">
+        {{ '✓' if cap in side.capability_names else '✗' }} {{ cap }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

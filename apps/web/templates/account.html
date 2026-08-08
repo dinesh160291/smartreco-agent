@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Account · SmartReco{% endblock %}
+{% block content %}
+<h1>Account</h1>
+<p class="sub">{{ user.email }}</p>
+
+<div class="card" style="max-width:480px;">
+  <h2 style="margin-top:0;">Daily digest</h2>
+  {% if saved %}<p class="pill pill-good">Preferences saved</p>{% endif %}
+  <form method="post" action="/account">
+    <label class="field" style="text-transform:none; letter-spacing:0;">
+      <input type="checkbox" name="digest_opt_in" style="width:auto;" {% if user.digest_opt_in %}checked{% endif %}>
+      Send me a daily digest of my recommendations
+    </label>
+    <label class="field"><span>Channel</span>
+      <select name="digest_channel">
+        <option value="TELEGRAM" {% if user.digest_channel == "TELEGRAM" %}selected{% endif %}>Telegram</option>
+        <option value="EMAIL" {% if user.digest_channel == "EMAIL" %}selected{% endif %}>Email</option>
+      </select></label>
+    <label class="field"><span>Telegram chat ID</span>
+      <input name="telegram_chat_id" value="{{ chat_id or '' }}"
+             placeholder="Connect via the bot, then paste your chat ID"></label>
+    <button class="btn" type="submit">Save preferences</button>
+  </form>
+  <p class="sub" style="margin-top:12px;">Digests arrive once a day at most, and only when your
+    journey gained meaningful new signal.</p>
+</div>
+{% endblock %}

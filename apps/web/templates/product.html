@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ p.name }} · SmartReco{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="/">Explore</a> / {{ p.category }}</div>
+
+<div class="phrow" style="align-items:flex-start;">
+  <div class="thumb thumb-lg" style="background:{{ p.hue }}">{{ p.initials }}</div>
+  <div class="pcol" style="flex:1;">
+    <h1 style="margin:0;">{{ p.name }}</h1>
+    <p class="sub" style="margin:0;">{{ p.vendor }} · {{ p.category }}{% if p.price_note %} · {{ p.price_note }}{% endif %}</p>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <a class="btn-ghost" href="/compare?a={{ p.product_id }}"
+       data-track="COMPARISON_STARTED" data-track-meta='{"product_a": "{{ p.product_id }}"}'>Compare</a>
+    <button class="btn-ghost" data-track="TRIAL_STARTED"
+            data-track-meta='{"product_id": "{{ p.product_id }}"}'
+            onclick="srToast('Trial request recorded')">Free trial</button>
+    <form method="post" action="/cart/add/{{ p.product_id }}" style="display:inline;">
+      <button class="btn" type="submit" data-track="ADD_TO_CART"
+              data-track-meta='{"product_id": "{{ p.product_id }}"}'>Add to cart</button>
+    </form>
+  </div>
+</div>
+
+<div class="tabs" style="margin-top:22px;">
+  <button class="active" data-tab="overview" data-dwell-topic="">Overview</button>
+  <button data-tab="pricing" data-dwell-topic=""
+          data-track="PRICING_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}", "tier": "enterprise"}'>Pricing</button>
+  <button data-tab="security" data-dwell-topic="security"
+          data-track="SECURITY_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}", "page": "{{ p.product_id }}-security"}'>Security &amp; Compliance</button>
+  <button data-tab="docs" data-dwell-topic=""
+          data-track="DOCUMENTATION_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}", "topic": "api"}'>Docs &amp; API</button>
+  <button data-tab="integrations" data-dwell-topic=""
+          data-track="DOCUMENTATION_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}", "topic": "integrations"}'>Integrations</button>
+</div>
+
+<div class="tabpane active" data-pane="overview">
+  <p>{{ p.description }}</p>
+  <p>{{ p.business_purpose }}</p>
+  <h2>Capabilities</h2>
+  <ul>
+    {% for cap in p.capabilities %}<li>{{ cap }}</li>{% endfor %}
+  </ul>
+</div>
+<div class="tabpane" data-pane="pricing">
+  <p>{{ p.name }} offers individual, team, and enterprise plans.{% if p.price_note %} {{ p.price_note }}.{% endif %}</p>
+  <p>Enterprise pricing includes centralized administration and volume licensing.</p>
+</div>
+<div class="tabpane" data-pane="security">
+  <p>Security &amp; compliance posture for {{ p.name }}: authentication controls, data protection,
+     and auditability relevant to enterprise evaluation.</p>
+  <ul>
+    {% for cap in p.security_caps %}<li>{{ cap }}</li>{% endfor %}
+  </ul>
+</div>
+<div class="tabpane" data-pane="docs">
+  <p>Developer and administrator documentation: setup guides, API reference, provisioning and
+     identity federation instructions.</p>
+</div>
+<div class="tabpane" data-pane="integrations">
+  <p>Prebuilt connectors and API-level integration options for connecting {{ p.name }} with the
+     rest of your stack.</p>
+</div>
+{% endblock %}

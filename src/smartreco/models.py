@@ -40,6 +40,7 @@ class User(Base):
     role: Mapped[str] = mapped_column(Text, default="user")  # user | admin
     digest_opt_in: Mapped[bool] = mapped_column(Boolean, default=False)
     digest_channel: Mapped[str | None] = mapped_column(Text, nullable=True)  # EMAIL | TELEGRAM
+    telegram_chat_id: Mapped[str | None] = mapped_column(Text, nullable=True)  # chat reference (stack-decisions §Digest)
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
 
 

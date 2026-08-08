@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit" if p else "New" }} product · SmartReco{% endblock %}
+{% block content %}
+<h1>{{ "Edit " ~ p.name if p else "New product" }}</h1>
+<p class="sub">Saving triggers the dual-write: relational record first, then embedding + vector upsert.</p>
+
+<div class="card" style="max-width:640px;">
+  <form method="post" action="{{ '/admin/product/' ~ p.product_id if p else '/admin/new' }}">
+    <label class="field"><span>Name</span>
+      <input name="name" required value="{{ p.name if p else '' }}"></label>
+    <label class="field"><span>Vendor</span>
+      <input name="vendor" required value="{{ p.vendor if p else '' }}"></label>
+    <label class="field"><span>Category</span>
+      <input name="category" value="{{ p.category if p else '' }}"></label>
+    <label class="field"><span>Description</span>
+      <textarea name="description" rows="3">{{ p.description if p else '' }}</textarea></label>
+    <label class="field"><span>Business purpose</span>
+      <textarea name="business_purpose" rows="2">{{ p.business_purpose if p else '' }}</textarea></label>
+    <label class="field"><span>Price note</span>
+      <input name="price_note" value="{{ p.price_note if p and p.price_note else '' }}"></label>
+    <label class="field"><span>Capabilities</span>
+      <select name="capabilities" multiple size="12">
+        {% for cap in all_capabilities %}
+        <option value="{{ cap.capability_id }}" {% if p and cap.capability_id in p.cap_ids %}selected{% endif %}>
+          {{ cap.capability_id }} — {{ cap.name }}</option>
+        {% endfor %}
+      </select></label>
+    <button class="btn" type="submit">Save product</button>
+  </form>
+</div>
+{% endblock %}
