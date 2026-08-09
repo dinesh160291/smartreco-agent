@@ -112,6 +112,22 @@ The stack assumes a **persistent process with a persistent disk**. That assumpti
 
 **Recommended deployment:** a long-running host with a mounted volume (Railway / Fly.io / Render-with-disk). Local execution remains the primary demonstration environment.
 
+## Moving a Seeded Data Directory Between Machines
+
+The default path needs no data transfer: deploy the code, let the host seed itself on first request, and the catalog is rebuilt from `seed/` through the normal dual-write contract. Transfer is only an optimization — it avoids re-spending embedding calls on the ~250-product catalog.
+
+If the data directory is transferred, **do not copy `smartreco.db` or `chroma/chroma.sqlite3` as files.** Both run in WAL mode, so recent writes live in a `-wal` sidecar that a naive copy either misses or invalidates (a copied `-shm` can cause the WAL to be reset rather than replayed). The failure is silent: the copy is a valid SQLite file that opens with no rows, so the destination looks like a fresh install rather than a corrupt one.
+
+Use one of these instead, with no writer running:
+
+- SQLite's online backup API — `sqlite3.connect(src).backup(sqlite3.connect(dst))` — which is WAL-aware and produces a consistent snapshot; or
+- `VACUUM INTO 'destination.db'`; or
+- `PRAGMA wal_checkpoint(TRUNCATE)` on the source first, then copy the `.db` alone (never the `-wal`/`-shm`).
+
+The vector store needs both halves: snapshot `chroma/chroma.sqlite3` by the same method **and** copy the HNSW segment directory beside it. If the two disagree, discard the index — it is re-derivable from the relational store by design (Core 20), and a full re-index is the sanctioned repair.
+
+`scripts/validate_retrieval.py` verifies the result on the destination: it fails loudly when the index and the relational store disagree.
+
 ---
 
 # Model Configuration
