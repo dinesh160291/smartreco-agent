@@ -687,10 +687,12 @@ The following are the platform's initial published policy values. They are confi
 | Policy ID | Policy | v1 Value |
 |---|---|---|
 | POL-RETR-001 | Retrieval parameters | top_K = 8 candidates |
-| POL-RETR-002 | Refinement loop | max_refinements = 2; skip evaluation when top similarity ≥ 0.85 |
+| POL-RETR-002 | Refinement loop | max_refinements = 2; skip evaluation when top similarity ≥ 0.85 (similarity as defined in Chapter 20 — `1 − distance`, i.e. `2 × cosine − 1` in the reference deployment; see note below) |
 | POL-RETR-003 | Candidate cache TTL | 1 hour |
 | POL-RETR-004 | Dual-write reconciliation | Sweep retries PENDING/FAILED with exponential backoff, max 5 automatic attempts; then sticky FAILED, admin manual retry resets the counter |
 | POL-GATE-001 | Gateway call bounds | Per-call timeout 30s; max 2 automatic retries with exponential backoff; then node failure → orchestration fallbacks (Chapter 21) |
+
+**Note on POL-RETR-002's skip threshold.** The 0.85 threshold is expressed in the Chapter 20 similarity quantity, so it corresponds to cosine ≥ 0.925. Measured against the reference deployment's embedding backend, a Behavioral Query Document scores 0.29–0.34 (cosine ≈ 0.65) against its best real candidate, so the skip branch does not fire in practice and **Tier 2 evaluation runs on every retrieval**. This is the conservative direction — evaluation is a quality gate, not an optimization — and it costs one Tier 2 call per retrieval against the POL-TRIG-003 budget. The threshold is retained as the documented escape hatch for backends whose query/document vectors sit closer together; retuning it is a policy-version change, not a code change.
 
 ## Trigger, Budget & Caching Policies
 

@@ -144,6 +144,14 @@ Retrieval produces a **Candidate Set** — a Runtime Object:
 
 Candidate Sets are immutable, versioned, and replayable given the same index state. They are consumed exclusively by the Recommendation Engine.
 
+## Similarity Score — Definition
+
+The **similarity score** is defined as `1 − distance`, where `distance` is the vector index's native distance for the configured index space. It is an ordering and observability quantity only; it never enters a Match Score (see "Boundaries" below).
+
+For the reference deployment the index space is squared L2 over unit-normalized embedding vectors, which makes the recorded score `2 × cosine − 1`. It therefore ranges over [−1, 1], equals 0 at cosine 0.5, and **may be negative** for weakly related candidates — a negative score is normal, not a fault. Because the transform is monotonic in cosine, candidate ordering is identical under either metric.
+
+Any policy threshold compared against a similarity score is expressed in this same quantity, not in cosine (see POL-RETR-002, Chapter 10). Deployments that configure a different index space change what the score means; the definition above — `1 − distance` — is what remains invariant.
+
 ---
 
 # Retrieval Evaluation and Refinement (Tier 2)

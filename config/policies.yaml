@@ -173,7 +173,10 @@ policies:
   POL-RETR-002:
     name: Refinement loop
     category: retrieval
-    rule: "max_refinements = 2; skip evaluation when top similarity >= 0.85"
+    rule: >-
+      max_refinements = 2; skip evaluation when top similarity >= 0.85. Similarity is 1 - distance
+      (Chapter 20) = 2*cosine - 1 in the reference deployment, so the gate means cosine >= 0.925 and
+      does not fire in practice — Tier 2 evaluation runs on every retrieval (Decision #039).
     params:
       max_refinements: 2
       skip_evaluation_min_similarity: 0.85

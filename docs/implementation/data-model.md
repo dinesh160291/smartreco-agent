@@ -200,6 +200,8 @@ journey_id · version (PK pair) · stage · confidence REAL · explanation · cr
 
 cs_id PK · journey_id · rp_id FK · query_document TEXT · params JSON (top_k, embed_model, index_version) · candidates JSON `[{product_id, similarity, record_version}]` · refinement_history JSON · created_at.
 
+`similarity` is `1 − distance` per Chapter 20's definition — in the reference deployment `2 × cosine − 1`, so values are in [−1, 1] and negative entries are expected for weak candidates. Ordering is unaffected.
+
 ### recommendation_packages
 
 rpkg_id PK · journey_id · rp_id FK · cs_id FK nullable · entries JSON `[{product_id, rank, overall_coverage, per_requirement JSON, missing_capability_ids}]` · readiness (`READY/NOT_READY`) · constraints JSON · policy_version · created_at.

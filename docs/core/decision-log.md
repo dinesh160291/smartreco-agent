@@ -1244,3 +1244,27 @@ The v1 values were correct efficiency defaults but made the live demonstration a
 ## Consequences
 
 config/policies.yaml carries catalog_version 1.1; the Chapter 10 table records both values; engines are untouched (they read the loader). Tests pin the new values; acceptance-story fixtures already space runs beyond both cooldown values.
+
+# Decision #039
+
+## Title
+
+Candidate Set similarity score — definition pinned; POL-RETR-002's skip gate documented as inert
+
+## Status
+
+Accepted
+
+## Decision
+
+The Candidate Set similarity score is defined as `1 − distance` for the vector index's configured space (Chapter 20, "Similarity Score — Definition"). In the reference deployment the space is squared L2 over unit-normalized vectors, so the recorded score equals `2 × cosine − 1`, ranges over [−1, 1], and may be negative. POL-RETR-002's 0.85 skip threshold is expressed in this quantity and is documented as not firing in practice: Tier 2 evaluation runs on every retrieval. No code, policy value, or index changes; catalog_version remains 1.1.
+
+## Rationale
+
+The specification named a "similarity score" and set a threshold against it without ever defining the metric. Validation against the 250-product demo index measured the gap: a Behavioral Query Document scores 0.29–0.34 against its best real candidate (cosine ≈ 0.65), while the 0.85 gate requires cosine ≥ 0.925. The gate was therefore unreachable, and the recorded number was uninterpretable to anyone reading a Candidate Set — negative entries look like a fault.
+
+Defining the quantity rather than changing it was chosen deliberately. Always evaluating is the conservative direction: evaluation is a quality gate, and skipping it is an optimization the platform does not need at demonstration scale (one Tier 2 call per retrieval against a 20/user/day budget). Converting the score to true cosine is a monotonic transform that changes no ranking, so it would have bought interpretability at the cost of a behavior change to a spec-mandated seam, and would still not have made the gate fire. Retuning the threshold to a value fitted from observed data was rejected as deriving a policy number from measurement rather than from the specification.
+
+## Consequences
+
+Chapter 20 gains a "Similarity Score — Definition" section; the Chapter 10 POL-RETR-002 row cites it and a note records the inert gate and its Tier 2 cost; `config/policies.yaml` mirrors the amended rule text (rule prose only — every parameter value is unchanged, so no new catalog version); `data-model.md` candidate_sets notes the range. Engines, tests, and the index are untouched; 139 tests remain green. Retuning the threshold for a backend with closer query/document vectors remains available as a policy-version change.
