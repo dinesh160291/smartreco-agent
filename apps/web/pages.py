@@ -193,6 +193,22 @@ def explore(request: Request, q: str | None = None, category: str | None = None,
 
 # ---- Product detail ----
 
+# Documentation topics describe what each pane actually documents for THIS
+# product, so the BRE reads an identity product's docs as identity docs. A
+# hardcoded topic makes BP-001/BP-002 unreachable from the browser (Domain Pack
+# doc 02 keys on these topic names); ordered, first capability match wins.
+_DOC_TOPICS = (("CAP-001", "sso"), ("CAP-002", "mfa"))
+_INTEGRATION_TOPICS = (("CAP-003", "provisioning"), ("CAP-008", "federation"))
+
+
+def _doc_topic(cap_ids, table, default: str) -> str:
+    held = set(cap_ids)
+    for cap_id, topic in table:
+        if cap_id in held:
+            return topic
+    return default
+
+
 @router.get("/product/{product_id}", response_class=HTMLResponse)
 def product_page(request: Request, product_id: str, sd=Depends(_db)):
     state, db = sd
@@ -208,6 +224,8 @@ def product_page(request: Request, product_id: str, sd=Depends(_db)):
     view = _product_view(p, len(cap_ids))
     view["capabilities"] = sorted(cap_names)
     view["security_caps"] = sorted(security_caps)
+    view["doc_topic"] = _doc_topic(cap_ids, _DOC_TOPICS, "api")
+    view["integrations_topic"] = _doc_topic(cap_ids, _INTEGRATION_TOPICS, "integrations")
 
     events = [{"type": "PRODUCT_VIEWED",
                "metadata": {"product_id": product_id, "category": (p.category or "").lower()}}]
