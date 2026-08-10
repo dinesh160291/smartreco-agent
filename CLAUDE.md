@@ -8,7 +8,7 @@ All paths below are **relative to the repository root**. Never write absolute lo
 
 | Path | Authority |
 |---|---|
-| `knowledge/architecture/` | Platform laws + domain governance — highest authority |
+| `knowledge/architecture/` | Platform laws + domain governance — highest authority. `domain-pack-contract.md` is the binding platform↔domain interface: the 13 artifacts a Domain Pack must supply, what it may not contain, and what the platform guarantees unchanged in return. Read it before moving anything between core and a pack |
 | `docs/core/` | Core chapters 00–24 + 99 (constitution), plus `glossary.md` and `decision-log.md` (#001–#034). Chapter 10 holds Policy Catalog v1 — every threshold |
 | `docs/domains/software-buying/` | Domain Pack: ontology (BC registry), patterns (BP-001…012), requirement/capability catalogs, mappings, product roster, validation scenarios (09 = derivation math) |
 | `docs/implementation/stack-decisions.md` | Locked stack, models, delivery channel, deployment compatibility |
