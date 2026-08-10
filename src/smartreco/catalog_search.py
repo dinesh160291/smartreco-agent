@@ -20,7 +20,15 @@ could not be found by searching for single sign-on.
 
 import re
 
-from smartreco.domain.software_buying import SEARCH_ALIASES
+from smartreco.domain.software_buying import CAPABILITIES, SEARCH_ALIASES
+
+# Capability name → taxonomy domain, and how many capabilities each domain has.
+# Ranking needs the domain of whatever the query matched, so it can ask how
+# completely a product covers *that* area rather than how large it is overall.
+_DOMAIN_OF = {name: domain for _cid, name, domain, _n in CAPABILITIES}
+_DOMAIN_SIZE: dict[str, int] = {}
+for _cid, _name, _domain, _n in CAPABILITIES:
+    _DOMAIN_SIZE[_domain] = _DOMAIN_SIZE.get(_domain, 0) + 1
 
 # Field weights: where a token matched decides rank. Values are ordinal, not
 # tuned — only their order carries meaning.
@@ -98,18 +106,43 @@ def score_entry(entry: dict, query_tokens: list[str]) -> int | None:
     return total
 
 
+def domain_completeness(entry: dict, query_tokens: list[str]) -> float:
+    """How completely the product covers the taxonomy domain the query hit.
+
+    A capability query matches every product holding that capability at the
+    same weight — twenty identity products score identically for "single sign
+    on" — so a tiebreak decides the order, and which one is chosen decides
+    whether specialists or suites surface.
+
+    The choice is really about what to divide by, and each option has a bias:
+    dividing by nothing ranks on raw capability count and puts the broadest
+    suite on top; dividing by the *product's* own count rewards being thin, so
+    three-capability distractors win. Dividing by the *searched domain's* size
+    does neither — a product cannot inflate it by being large or by being
+    small, only by genuinely covering the area asked about.
+
+    This is not popularity or editorial prominence: it is computed from the
+    capability taxonomy. The platform refuses popularity-based ranking on its
+    recommendation surface, and the search box must not reinstate it.
+    """
+    capabilities = entry.get("capabilities") or ()
+    matched_domains = {
+        _DOMAIN_OF[cap] for cap in capabilities
+        if cap in _DOMAIN_OF and any(_matches(token, set(_tokens(cap)))
+                                     for token in query_tokens)
+    }
+    if not matched_domains:
+        return 0.0
+    held = sum(1 for cap in capabilities if _DOMAIN_OF.get(cap) in matched_domains)
+    available = sum(_DOMAIN_SIZE[domain] for domain in matched_domains)
+    return held / available if available else 0.0
+
+
 def search_catalog(entries: list[dict], query: str) -> list[dict]:
     """Filter and rank `entries` by `query`. An empty query filters nothing.
 
-    Order: field-weight score, then capability count, then name.
-
-    The count tiebreak matters because a capability query matches every
-    product holding that capability at exactly the same weight — twenty
-    identity products score identically for "single sign on" — and without it
-    the order collapses to alphabetical. "More capable product first" is a
-    measurable property of the catalog, not popularity or editorial
-    prominence: the platform refuses popularity-based ranking on its
-    recommendation surface, and a search box must not quietly reinstate it.
+    Order: field-weight score → domain completeness → capability count → name.
+    Total and replayable: the same query always returns the same order.
     """
     query_tokens = expand_query(query)
     if not query_tokens:
@@ -119,6 +152,7 @@ def search_catalog(entries: list[dict], query: str) -> list[dict]:
     for entry in entries:
         score = score_entry(entry, query_tokens)
         if score is not None:
-            scored.append((score, len(entry.get("capabilities") or ()), entry))
-    scored.sort(key=lambda t: (-t[0], -t[1], t[2].get("name", "")))
-    return [entry for _score, _count, entry in scored]
+            scored.append((score, domain_completeness(entry, query_tokens),
+                           len(entry.get("capabilities") or ()), entry))
+    scored.sort(key=lambda t: (-t[0], -t[1], -t[2], t[3].get("name", "")))
+    return [entry for _score, _complete, _count, entry in scored]

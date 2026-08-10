@@ -9,13 +9,13 @@
     <h1 style="margin:0;">{{ p.name }}</h1>
     <p class="sub" style="margin:0;">{{ p.vendor }} · {{ p.category }}{% if p.price_note %} · {{ p.price_note }}{% endif %}</p>
   </div>
-  <div style="display:flex; gap:8px;">
+  <div class="actions">
     <a class="btn-ghost" href="/compare?a={{ p.product_id }}"
        data-track="COMPARISON_STARTED" data-track-meta='{"product_a": "{{ p.product_id }}"}'>Compare</a>
     <button class="btn-ghost" data-track="TRIAL_STARTED"
             data-track-meta='{"product_id": "{{ p.product_id }}"}'
             onclick="srToast('Trial request recorded')">Free trial</button>
-    <form method="post" action="/cart/add/{{ p.product_id }}" style="display:inline;">
+    <form method="post" action="/cart/add/{{ p.product_id }}">
       <button class="btn" type="submit" data-track="ADD_TO_CART"
               data-track-meta='{"product_id": "{{ p.product_id }}"}'>Add to cart</button>
     </form>

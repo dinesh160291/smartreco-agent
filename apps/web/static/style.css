@@ -54,7 +54,9 @@ main.container { padding: 28px 0 64px; }
   height: 56px; position: sticky; top: 0; z-index: 20;
   background: var(--card); border-bottom: 1px solid var(--line);
 }
-.appbar .container { display: flex; align-items: center; gap: 18px; height: 56px; }
+/* min-height, not height: if the nav wraps on a narrow viewport the bar grows
+   instead of its contents spilling past the bottom border. */
+.appbar .container { display: flex; align-items: center; gap: 18px; min-height: 56px; }
 .brand { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 700; letter-spacing: .2px; color: var(--ink); text-decoration: none; }
 .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
 /* justify-content is an explicit override: Pico sets nav{justify-content:space-between},
@@ -75,24 +77,44 @@ main.container { padding: 28px 0 64px; }
 .searchbar { display: flex; gap: 10px; margin: 0 0 14px; }
 .searchbar input[type="search"] { flex: 1; width: auto; margin: 0; }
 .searchbar button { flex: 0 0 auto; width: auto; margin: 0; }
+/* Pills sit on one optical line, vertically centred in the 56px bar. They are
+   inline-flex with margin:0 so a <span>, an <a> and a <button> all resolve to
+   the same box — otherwise each element type picks up different base margins
+   and line-box behaviour and the row drifts off the bar's centre. */
+.buffer-pill, .iconbtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  margin: 0; line-height: 1; white-space: nowrap;
+  border: 1px solid var(--line); border-radius: 20px; padding: 5px 12px;
+}
 .buffer-pill {
   font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 12.5px;
-  background: var(--ground); border: 1px solid var(--line); border-radius: 20px; padding: 5px 12px;
-  color: var(--muted);
+  background: var(--ground); color: var(--muted);
 }
 .buffer-pill b { color: var(--accent); font-weight: 600; }
 .iconbtn {
-  background: transparent; border: 1px solid var(--line); border-radius: 20px;
-  padding: 5px 12px; font-size: 14px; color: var(--ink); cursor: pointer;
+  background: transparent; font-size: 14px; color: var(--ink);
+  cursor: pointer; text-decoration: none;
 }
 
-/* ---- 4.2 Buttons ---- */
-.btn { display: inline-block; font-size: 14.5px; font-weight: 600; padding: 8px 16px;
-  border-radius: 8px; border: none; background: var(--accent); color: var(--accent-ink);
-  cursor: pointer; text-decoration: none; }
-.btn-ghost { display: inline-block; font-size: 14px; font-weight: 400; padding: 7px 14px;
-  border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--ink);
-  cursor: pointer; text-decoration: none; }
+/* ---- 4.2 Buttons ----
+   inline-flex + margin:0 are explicit overrides, not decoration. The CSS base
+   puts margin-bottom on [type=submit] only, so "Add to cart" carried one and
+   the ghost buttons beside it did not; in a stretch flex row that made the
+   ghosts taller while their label stayed at the top of the box. Centring the
+   content and zeroing the margin makes an <a> and a <button> render
+   identically, which the action row depends on. */
+.btn, .btn-ghost {
+  display: inline-flex; align-items: center; justify-content: center;
+  margin: 0; text-align: center; text-decoration: none; cursor: pointer;
+  border-radius: 8px; white-space: nowrap;
+}
+.btn { font-size: 14.5px; font-weight: 600; padding: 8px 16px;
+  border: none; background: var(--accent); color: var(--accent-ink); }
+.btn-ghost { font-size: 14px; font-weight: 400; padding: 7px 14px;
+  border: 1px solid var(--line); background: transparent; color: var(--ink); }
+/* Action rows size buttons to their content rather than to the tallest sibling. */
+.actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.actions form { display: inline-flex; margin: 0; }
 :is(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--accent); outline-offset: 2px;
 }
@@ -117,7 +139,12 @@ main.container { padding: 28px 0 64px; }
   display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
   -webkit-box-orient: vertical; overflow: hidden;
 }
-.caps { font-size: 11.5px; color: var(--accent); }
+/* Cards stretch to the tallest in their grid row and the capability count is
+   pushed to the bottom, so the counts line up across the page instead of
+   floating at whatever height each description happens to end at. */
+.grid-cards .pcard { display: flex; flex-direction: column; height: 100%; }
+.grid-cards .pcard .caps { margin-top: auto; padding-top: 10px; }
+.caps { font-size: 11.5px; color: var(--accent); font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; }
 
 /* ---- 4.3 Monogram thumbnails ---- */
 .thumb { display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; flex: none; }

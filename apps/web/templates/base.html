@@ -24,7 +24,12 @@
       {% endif %}
     </nav>
     <div class="bar-right">
-      <span class="buffer-pill">buffer <b id="buffer-count">0</b></span>
+      <!-- The denominator is what makes the number legible: a bare "buffer 0"
+           reads as a dead counter, where "0/10" reads as a queue that flushes
+           at 10 (POL-TRACK-001). Batch size comes from the policy loader, so
+           the pill cannot drift from the value the client actually uses. -->
+      <span class="buffer-pill" title="Events queued in your browser, sent as one batch">
+        buffer <b id="buffer-count">0</b>/{{ tracking.batch_size }}</span>
       <a class="iconbtn" href="/cart" aria-label="Cart">🛒 {{ cart_count or 0 }}</a>
       <button class="iconbtn" onclick="srToggleTheme()" aria-label="Toggle theme">🌓</button>
       {% if user %}

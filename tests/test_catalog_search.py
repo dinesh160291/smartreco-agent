@@ -110,6 +110,33 @@ def test_results_are_deterministic():
         assert names(search_catalog(CATALOG, "identity")) == first
 
 
+def test_a_specialist_outranks_a_suite_that_merely_includes_the_capability():
+    """ui-design-spec §4.7a: ranking normalizes by the searched domain, so a
+    product that covers that domain deeply beats a broad suite holding one
+    capability from it. Ranking on raw capability count put the largest suite
+    on top of every search; ranking on the product's own share of matched
+    capabilities put three-capability distractors there instead."""
+    suite = {
+        "product_id": "PROD-001", "name": "Everything Suite", "vendor": "BigCo",
+        "category": "Productivity", "description": "Does everything.",
+        "business_purpose": "Everything.",
+        # one identity capability, plus a lot of unrelated breadth
+        "capabilities": ["Single Sign-On", "Messaging", "Video Meetings",
+                         "File Sharing", "Workflow Automation", "AI Chat",
+                         "Content Generation", "Invoicing", "Payroll Processing"],
+    }
+    specialist = {
+        "product_id": "PROD-003", "name": "Zeta Identity", "vendor": "Zeta",
+        "category": "Identity & Access Management", "description": "Identity.",
+        "business_purpose": "Identity.",
+        "capabilities": ["Single Sign-On", "Multi-Factor Authentication",
+                         "SCIM Provisioning", "Conditional Access",
+                         "Identity Federation"],
+    }
+    ranked = names(search_catalog([suite, specialist], "single sign-on"))
+    assert ranked == ["Zeta Identity", "Everything Suite"], ranked
+
+
 def test_short_tokens_do_not_prefix_match_a_name():
     """The 'on' in 'single sign-on' must not match OneLogin's name.
 

@@ -101,7 +101,7 @@ Reading measure: long-form text blocks capped at `max-width: 68ch` (disclaimer 7
 - **Main:** `padding: 28px 0 64px`.
 - **Cards:** `padding: 18px 20px`, radius **10px**, 1px `--line` border, no shadows (flat system — elevation via borders and surface contrast only).
 - **Card grids:** `repeat(auto-fill, minmax(230px, 1fr))`, gap **14px**.
-- **Product card:** header row (`.phrow`) gap 12px, **margin-bottom 12px** before body text; internal column gap 6px.
+- **Product card:** header row (`.phrow`) gap 12px, **margin-bottom 12px** before body text; internal column gap 6px. Cards are column flex at `height: 100%` so they fill their grid row, and the capability count is pushed to the bottom (`margin-top: auto`) so the counts line up across the page instead of floating wherever each description happens to end. The `vendor · category` line clamps to 1 line and the description to 3, keeping header heights equal; clamping is done in CSS rather than by truncating server-side, which cuts mid-word.
 - **Radii:** cards 10 · buttons/inputs/fields 8 · pills & chips 20 (full) · thumbs 8 (sm) / 9 (md) / 10 (base) / 12 (lg) · toast 8.
 - **Meters:** height 8px, radius 4, track `--line`, fill `--accent`.
 - **Two-column layouts** (Reasoning, checkout): `grid-template-columns` 1fr 1fr (Reasoning) / 1.2fr 1fr (checkout), gap 14px; collapse to single column ≤ 760px.
@@ -113,9 +113,15 @@ Reading measure: long-form text blocks capped at `max-width: 68ch` (disclaimer 7
 ## 4.1 App bar
 Brand = 10px accent dot + wordmark. Nav buttons: 14.5px, `--muted`, padding 6×12, radius 6; hover → `--ink`; active → `--accent-soft` bg, `--accent` text, weight 600. Right cluster: event-buffer pill (mono 12.5, `--ground` bg, `--line` border, radius 20, count in `--accent`), cart icon-button with count, theme toggle 🌓 (both: 1px `--line` border, radius 20, padding 5×12).
 
+The buffer pill shows **`count/batch_size`** (e.g. `buffer 3/10`), the denominator read from POL-TRACK-001 so the pill cannot drift from the batch size the client actually uses. A bare count reads as a dead counter; the denominator makes it legible as a queue that flushes at N, which is the architectural point it exists to show (Law 9 — tracking is batched, never one call per event).
+
+Every item in the right cluster is `inline-flex` with `margin: 0` and `line-height: 1`, and the bar uses `min-height: 56px` rather than a fixed height. Both are explicit overrides of the CSS base: element types otherwise pick up different default margins and line-box behaviour, so a `<span>`, an `<a>` and a `<button>` sitting side by side drift off the bar's vertical centre, and a nav that wraps on a narrow viewport spills past the bottom border instead of growing the bar.
+
 ## 4.2 Buttons
 - **Primary:** `--accent` bg, `--accent-ink` text, 14.5/600, padding 8×16, radius 8, no border.
 - **Ghost:** transparent bg, 1px `--line` border, `--ink` text, 14/400, padding 7×14, radius 8.
+- **Both:** `inline-flex` with centred content and `margin: 0`. Required, not cosmetic — the CSS base applies `margin-bottom` to `[type=submit]` only, so a primary submit button carries one while the ghost buttons beside it do not; in a stretch flex row the ghosts then grow taller while their labels stay pinned to the top of the box. Centring the content also makes an `<a class="btn-ghost">` and a `<button class="btn-ghost">` render identically, which any action row mixing the two depends on.
+- **Action rows** (`.actions`): flex, gap 8, `align-items: center` so buttons size to their own content instead of the tallest sibling; nested `<form>` elements are `inline-flex` with `margin: 0`.
 - **Focus (all interactive):** `outline: 2px solid var(--accent); outline-offset: 2px` via `:focus-visible`.
 
 ## 4.3 Monogram thumbnails
@@ -143,7 +149,11 @@ Inputs: 1px `--line` border, radius 8, padding 9–10×12–14, `--card`/`--grou
 
 **Matching.** Case- and punctuation-insensitive: every run of non-alphanumeric characters normalizes to a single space, so "Single Sign-On", "single sign on" and "single  sign--on" are one query. Query tokens are ANDed — every token must match somewhere — and a token matches as a **prefix** of any word in a field, so "provision" finds "SCIM Provisioning". Tokens shorter than 3 characters must match a whole word instead; without that floor the "on" in "sign-on" prefix-matches names like "OneLogin" at full name weight and dominates the ranking.
 
-**Ranking.** Field weight first, then capability count, then name. The count tiebreak exists because a capability query matches every product holding that capability at identical weight, and without it the order collapses to alphabetical. It is a measurable property of the catalog, **not popularity or editorial prominence** — the platform refuses popularity-based ranking on its recommendation surface (§6), and the search box must not reinstate it.
+**Ranking.** Field weight → **domain completeness** → capability count → name.
+
+A capability query matches every product holding that capability at identical weight, so the tiebreak decides the order — and which tiebreak is chosen decides whether specialists or suites surface. The choice is a normalization one, and each option carries a bias: dividing by nothing ranks on raw capability count and puts the broadest suite on top of every search; dividing by the *product's* own capability count rewards being thin, so three-capability distractors win. Dividing by the **searched domain's** size does neither — a product cannot inflate the measure by being large or by being small, only by genuinely covering the area asked about. Domain completeness is therefore `capabilities held in the matched domain ÷ capabilities that domain contains`, taken from the capability taxonomy.
+
+This is computed from declared capabilities and is **not popularity or editorial prominence** — the platform refuses popularity-based ranking on its recommendation surface (§6), and the search box must not reinstate it. A consequence worth stating: a well-known vendor whose product is broad will rank below a narrower product that covers the searched domain more completely, and a product holding the searched capability incidentally (an identity product that also logs, under a query for audit logging) ranks below genuine compliance products. Both are intended.
 
 **Acronyms.** A domain alias map (`SEARCH_ALIASES` in the Domain Pack) expands buyer shorthand — sso, mfa, saml, iam, rbac, dlp. Expansion is retrieval-side only: the `SEARCH` event records what the shopper actually typed, never the expansion, so the reasoning engines never learn vocabulary the user did not use.
 
