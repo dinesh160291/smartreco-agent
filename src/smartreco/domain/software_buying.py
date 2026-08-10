@@ -166,11 +166,13 @@ CAPABILITIES: list[tuple[str, str, str, str]] = [
      "Gives analytics one fast, governed home for enterprise data."),
 ]
 
-# ---- Catalog search aliases (ui-design-spec §Catalog Search) ----
-# Buyer shorthand for capability and category vocabulary. Domain knowledge, so
-# it lives with the Domain Pack rather than in the search code. Expansion is a
-# retrieval convenience only — the SEARCH event always records what the shopper
-# actually typed, never the expansion.
+# ---- Buyer shorthand (doc 10 § Buyer Shorthand) ----
+# Transcription of the Domain Pack's alias table — amend the doc and this map
+# together. Entries exist only where the shorthand shares no usable prefix with
+# the capability name; "scim" and "ediscovery" need none. Expansion is a
+# retrieval convenience only: the SEARCH event always records what the shopper
+# actually typed, so the BRE never sees vocabulary the user did not use.
+# Consuming surface and ranking: ui-design-spec §4.7a.
 
 SEARCH_ALIASES: dict[str, str] = {
     "sso": "single sign on",

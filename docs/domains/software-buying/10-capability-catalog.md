@@ -415,3 +415,26 @@ The catalog extends append-only from 27 to 55 capabilities so wide-catalog produ
 | CAP-055 | Data Warehousing | Data & Analytics |
 
 Business value narratives for the v1.1 capabilities live with the canonical transcription in the reference implementation's Domain Pack module.
+
+---
+
+# Buyer Shorthand (search aliases)
+
+Software buyers routinely name a capability by an acronym that shares no letters with its catalog name — a shopper types `sso`, not `Single Sign-On`. Because the mapping is knowledge about *how this domain talks*, it belongs to the Domain Pack rather than to whatever surface happens to consume it, and it is transcribed in the reference implementation as `SEARCH_ALIASES`.
+
+| Shorthand | Expands to | Reaches |
+|---|---|---|
+| `sso` | single sign on | CAP-001 |
+| `mfa`, `2fa` | multi factor authentication | CAP-002 |
+| `saml`, `oidc` | identity federation | CAP-008 |
+| `iam` | identity access management | Identity & Access domain, category name |
+| `rbac` | conditional access | CAP-004 |
+| `dlp` | data loss prevention | CAP-026 |
+| `siem` | audit logging | CAP-010 |
+| `cicd` | ci cd pipelines | CAP-048 |
+
+**Scope.** Aliases exist only where the shorthand shares no usable prefix with the capability name. `scim`, `api` and `ediscovery` need no entry — they already prefix their capability names — and category shorthand such as `crm` or `hr` matches the category directly. Adding an alias is a Domain Pack change: this table and the transcription move together.
+
+**Expansion is read-only.** An alias widens what a query *retrieves*; it never rewrites what the platform *records*. The `SEARCH` event stores the shopper's literal text, so the Behavioral Reasoning Engine never receives vocabulary the user did not type — pattern matching on search terms (BP-003, BP-006, BP-007) stays grounded in observed behaviour rather than in an expansion the platform invented.
+
+Consuming surface and ranking behaviour: `ui-design-spec.md` §4.7a.
