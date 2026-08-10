@@ -207,6 +207,57 @@ def lifecycle_sweep(db: OrmSession, policies: PolicyCatalog, user_id: int,
 
 # ---- journey resolution (node 1 engine work) ----
 
+def _session_has_settled(db: OrmSession, policies: PolicyCatalog, user_id: int,
+                         session_id: str, session_events: list[models.Event],
+                         now: datetime) -> bool:
+    """Has this session said enough for its ownership to be decided? (core 12)
+
+    Ownership is decided exactly once per session, so deciding early is
+    deciding wrong permanently: a two-event session scores near-nothing on
+    topic and behavioural similarity and forks a journey that the same session,
+    a few clicks later, would plainly have continued.
+
+    Settled when any of these holds — the last two exist so deferral is
+    bounded, because leaving events unowned forever is no better than filing
+    them wrongly:
+
+      * it has at least POL-JRES-001 min_session_events events;
+      * a newer session exists, proving this one is over;
+      * its last event predates the POL-TRACK-003 inactivity window, so the
+        session has timed out and no further events are coming.
+    """
+    if not session_events:
+        return False
+
+    # Nothing to fork from: with no candidate journey the decision is CREATE at
+    # two events and at two hundred, so waiting only starves a cold start of
+    # the journey it needs (Story 3 — one significant event must still be
+    # answered). The guard protects a comparison, and there is none to protect.
+    has_candidate = db.execute(
+        select(models.Journey.journey_id).where(
+            models.Journey.user_id == user_id,
+            models.Journey.lifecycle.notin_(("CLOSED", "ARCHIVED")))
+    ).scalars().first()
+    if has_candidate is None:
+        return True
+
+    if len(session_events) >= policies.param("POL-JRES-001", "min_session_events"):
+        return True
+
+    last_ts = max(event.ts for event in session_events)
+    idle_minutes = policies.param("POL-TRACK-003", "inactivity_minutes")
+    if (now - last_ts).total_seconds() >= idle_minutes * 60:
+        return True
+
+    newer = db.execute(
+        select(models.Event.event_id).where(
+            models.Event.user_id == user_id,
+            models.Event.session_id != session_id,
+            models.Event.ts > last_ts)
+    ).scalars().first()
+    return newer is not None
+
+
 def resolve_sessions(db: OrmSession, policies: PolicyCatalog, user_id: int,
                      now: datetime | None = None) -> None:
     """Assign journey ownership to sessions with unassigned events (core 12).
@@ -228,6 +279,10 @@ def resolve_sessions(db: OrmSession, policies: PolicyCatalog, user_id: int,
         session_events = db.execute(
             select(models.Event).where(models.Event.session_id == session_id)
         ).scalars().all()
+
+        if not _session_has_settled(db, policies, user_id, session_id,
+                                    session_events, now):
+            continue  # too little to judge on; revisit on a later run
 
         candidates = []
         for journey in db.execute(

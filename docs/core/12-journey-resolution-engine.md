@@ -208,6 +208,24 @@ resolution_score = w_topic × topic_similarity
 
 ---
 
+# Session Settlement — when ownership may be decided
+
+Journey ownership is decided **exactly once per session**, so the moment of the decision is as load-bearing as the scoring. A session that has produced two events has almost no entity overlap and almost no behavioural shape; it scores low against every candidate and forks a new journey. The same session a few events later may be an obvious continuation — and by then the decision is already final.
+
+The signals are not at fault; they are being asked too early. A session must therefore **settle** before its ownership is resolved. A session has settled when any of the following holds:
+
+1. It has at least `min_session_events` events (POL-JRES-001) — enough entities and event types to score meaningfully.
+2. A newer session exists for the same user, which proves this one is finished.
+3. Its most recent event predates the session-inactivity window (POL-TRACK-003), so the session has timed out and no further events are coming.
+
+Conditions 2 and 3 make deferral **bounded**. Leaving events permanently unowned is not an improvement on filing them wrongly: unowned events feed no journey, so they reason about nothing.
+
+**Cold start is exempt.** When the user has no candidate journey, there is no comparison to get wrong — resolution returns *create* whether the session has two events or two hundred, so waiting only denies a first-time visitor the journey the platform needs to answer them at all.
+
+Deferral costs a run: unsettled sessions are simply skipped and reconsidered on the next resolution pass. Their events stay unassigned in the meantime, which is the normal pre-resolution state, not an error.
+
+---
+
 # Journey Resolution Result (JRR)
 
 Every Journey Resolution produces a Journey Resolution Result.

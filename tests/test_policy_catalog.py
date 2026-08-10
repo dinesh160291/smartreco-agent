@@ -31,7 +31,7 @@ def catalog():
 
 def test_catalog_version_is_recorded(catalog):
     # v1.1: POL-TRIG-002 retuned for demo pacing (Decision #038)
-    assert catalog.version == "1.1"
+    assert catalog.version == "1.2"
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
     assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 180
 
@@ -79,6 +79,9 @@ def test_journey_resolution_weights_match_pol_jres_001(catalog):
     assert weights == {"topic": 0.4, "behavioral": 0.3, "time_decay": 0.3}
     assert catalog.param("POL-JRES-001", "reuse_active_min_score") == 0.6
     assert catalog.param("POL-JRES-001", "reactivate_dormant_min_score") == 0.7
+    # Session settlement (Decision #041): ownership is decided once per session,
+    # so it must not be decided while the session is too small to judge.
+    assert catalog.param("POL-JRES-001", "min_session_events") == 5
 
 
 def test_unknown_policy_or_param_fails_loud(catalog):

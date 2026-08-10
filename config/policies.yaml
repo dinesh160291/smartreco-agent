@@ -3,7 +3,7 @@
 # Engines consume it only through the policy loader; every workflow run records policy_version.
 # Every value change produces a new catalog version.
 
-catalog_version: "1.1"
+catalog_version: "1.2"
 
 policies:
 
@@ -334,6 +334,11 @@ policies:
         behavioral: 0.3
         time_decay: 0.3
       time_decay_half_life_days: 7
+      # Session settlement (Decision #041): ownership is decided once per
+      # session, so it must not be decided while the session is too small to
+      # judge. A two-event session scored 0.438 against its own journey and
+      # forked; the same session at nine events scored 0.653 — a continuation.
+      min_session_events: 5
 
   POL-JRES-002:
     name: Journey dormancy

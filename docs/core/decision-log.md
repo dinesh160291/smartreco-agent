@@ -1304,3 +1304,37 @@ The `DOMAIN_PACK` indirection was added rather than leaving direct imports, beca
 165 pre-existing tests unchanged and green (177 total including the boundary suite); live retrieval validation and catalog search verified unchanged against the demo database. `.env.example` gains `DOMAIN_PACK`. `knowledge/architecture/domain-pack-contract.md` moves from "known deviations" to "conformance". A second Domain Pack is now a directory plus a config value.
 
 One defect was found and fixed in the boundary test itself while landing this: its identifier pattern matched `REQ-003` inside `POL-REQ-003`, flagging policy lookups as domain leakage. Acting on that false positive rewrote live `policies.param` calls and broke 25 tests before revert; the pattern now excludes the `POL-` prefix and the reason is recorded in the test.
+
+# Decision #041
+
+## Title
+
+Session settlement — journey ownership is deferred until a session can be judged
+
+## Status
+
+Accepted
+
+## Decision
+
+A session's journey ownership is resolved only once the session has **settled**: it has at least `min_session_events` events (new POL-JRES-001 parameter, value 5), or a newer session proves it finished, or its last event predates the POL-TRACK-003 inactivity window. Sessions that have not settled are skipped and reconsidered on the next resolution pass.
+
+Cold start is exempt: when the user has no candidate journey, resolution returns *create* regardless of session size, so deferring would only deny a first-time visitor a journey.
+
+Policy Catalog published as v1.2. Chapter 12 gains a "Session Settlement" section.
+
+## Rationale
+
+Found in a live trace, not in review. A shopper browsed analytics products, paused three minutes, and resumed in the same category. Resolution ran while the resumed session was two events old, scored **0.438** against the existing journey, and forked. Seven events later the same session scored **0.653** — comfortably a continuation. Because Chapter 12 decides ownership exactly once per session, the premature call was permanent.
+
+The cost was not bookkeeping. The stranded session carried a second `integrations`/`api` documentation view — the second piece of evidence for a concept that already had one, which is exactly what POL-BEH-001 requires to promote a hypothesis. Split across two journeys, neither half reached the bar, no requirement was derived, and the shopper saw no recommendations at all. Replaying the same event stream against the fix produces one journey instead of two.
+
+The scoring was never wrong. Chapter 12 specified *how* to decide and left *when* unspecified, so the platform decided at the first workflow run after a session began, on whatever fragment existed at that instant. This closes that gap rather than touching the signals or their thresholds.
+
+The bounded-deferral conditions are deliberate: an unbounded "wait for more events" rule would strand the events of anyone who views two pages and leaves, which reasons about nothing and is no better than misfiling them.
+
+## Consequences
+
+`config/policies.yaml` carries catalog_version 1.2 and the new parameter; Chapter 12 documents settlement; the policy signature test pins the value. Four new signature tests in `tests/test_session_settlement.py` cover the regression, the continuation, the timed-out session and the superseded session; 184 tests green.
+
+Story 3 (cold-start browser) failed on the first implementation, which deferred every small session including a first visitor's. That failure produced the cold-start exemption — the acceptance suite catching an over-general rule is the mechanism working, and the exemption is principled rather than a carve-out: with no candidate journey there is no fork decision to protect.
