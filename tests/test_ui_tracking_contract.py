@@ -187,6 +187,22 @@ def test_compare_picker_is_alphabetical_case_insensitively(client):
         f"picker is not case-insensitively alphabetical: {names[:8]}")
 
 
+def test_compare_links_back_to_each_product(client):
+    """Both compared products link to their own page.
+
+    This is signal integrity, not only convenience. Without the link the way
+    back to a product is Explore + typing its name, which emits a SEARCH event
+    the shopper never meant — and search tokens feed BP-003/BP-006/BP-007 and
+    the query document's recent-activity line. A navigation workaround was
+    manufacturing behavioural evidence. Clicking through emits PRODUCT_VIEWED,
+    which is what actually happened.
+    """
+    html = client.get("/compare?a=PROD-003&b=PROD-001").text
+    for product_id in ("PROD-003", "PROD-001"):
+        assert f'href="/product/{product_id}"' in html, (
+            f"compare page offers no way back to {product_id}")
+
+
 def test_explore_reports_how_many_products_matched(client):
     """ui-design-spec §4.7a: the count tells a shopper whether a search
     narrowed anything, and distinguishes 'no matches' from a broken page."""

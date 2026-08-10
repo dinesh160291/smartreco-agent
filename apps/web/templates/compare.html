@@ -17,10 +17,10 @@
 <div class="cols-2" style="margin-top:18px;">
   {% for side in [a, b] %}
   <div class="card">
-    <div class="phrow">
+    <a class="phrow phrow-link" href="/product/{{ side.product_id }}">
       <div class="thumb thumb-md" style="background:{{ side.hue }}">{{ side.initials }}</div>
       <div class="pcol"><span class="n">{{ side.name }}</span><span class="v">{{ side.vendor }}</span></div>
-    </div>
+    </a>
     <ul style="font-size:13.5px;">
       {% for cap in comparison_caps %}
       <li style="color:{{ 'var(--good)' if cap in side.capability_names else 'var(--crit)' }};">

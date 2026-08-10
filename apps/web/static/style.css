@@ -131,6 +131,11 @@ main.container { padding: 28px 0 64px; }
 .card:hover { transition: border-color 150ms; }
 .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
 .phrow { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+/* Header row as a link back to the product (compare page). Inherits colour so
+   it reads as the card's title, not as body-copy link text; only the name
+   takes the accent on hover, which is where the affordance belongs. */
+.phrow-link { color: inherit; text-decoration: none; }
+.phrow-link:hover .n { color: var(--accent); text-decoration: underline; }
 .pcol { display: flex; flex-direction: column; gap: 6px; }
 .pcard .n { font-size: 15.5px; font-weight: 650; }
 /* Clamp instead of truncating in the template: a server-side cut lands
