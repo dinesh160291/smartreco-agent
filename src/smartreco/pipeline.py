@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session as OrmSession
 
 from smartreco import models, repos
@@ -823,19 +824,55 @@ def run_workflow(
         db.commit()
         return run
 
+    # Claim the slot before doing any work, and commit so a concurrent
+    # evaluation on another connection can see it. POL-TRIG-005's gate reads
+    # status RUNNING; until this existed nothing ever wrote that value, so the
+    # gate was unreachable and two background evaluations would both proceed —
+    # each resolving sessions, each creating a cold-start journey, and both
+    # inserting journey stage v1 until the unique constraint raised.
+    run = models.WorkflowRun(run_id=run_id, user_id=user_id, journey_id=None,
+                             trigger_type=trigger_type, gates=gates, nodes=[],
+                             policy_version=policies.version, status="RUNNING",
+                             started_at=now, finished_at=now)
+    repos.insert_workflow_run(db, run)
+    try:
+        db.commit()
+    except IntegrityError:
+        # Lost the race: another evaluation claimed the slot between our gate
+        # check and this insert. That is precisely POL-TRIG-005's case — record
+        # the SKIP and leave the events for the next evaluation. Caught
+        # narrowly: only the one-running-run index can raise here.
+        db.rollback()
+        gates["decision"] = "SKIP (already-running) per POL-TRIG-005"
+        skipped = models.WorkflowRun(
+            run_id=run_id, user_id=user_id, journey_id=None,
+            trigger_type=trigger_type, gates=gates, nodes=[],
+            policy_version=policies.version, status="SKIPPED",
+            started_at=now, finished_at=now)
+        repos.insert_workflow_run(db, skipped)
+        db.commit()
+        return skipped
+
     ctx = WorkflowContext(db=db, chroma=chroma_client, backend=backend,
                           gateway=gateway, policies=policies, user_id=user_id,
                           now=now, tier1_allowed=decision.tier1_allowed,
                           tier2_allowed=decision.tier2_allowed)
     state: dict = {}
-    (executor or _execute_plain)(ctx, state)
+    try:
+        (executor or _execute_plain)(ctx, state)
+    except Exception:
+        # Fail loud, but never fail *stuck*: a claim that outlives its run
+        # would skip every later trigger for this user forever.
+        db.rollback()
+        run = db.get(models.WorkflowRun, run_id)
+        run.status = "FAILED"
+        run.finished_at = now
+        db.commit()
+        raise
 
     if "journey_id" not in state:
-        run = models.WorkflowRun(run_id=run_id, user_id=user_id, journey_id=None,
-                                 trigger_type=trigger_type, gates=gates, nodes=[],
-                                 policy_version=policies.version, status="SKIPPED",
-                                 started_at=now, finished_at=now)
-        repos.insert_workflow_run(db, run)
+        run.status = "SKIPPED"
+        run.finished_at = now
         db.commit()
         return run
 
@@ -847,11 +884,9 @@ def run_workflow(
                           "PURCHASE_COMPLETED -> immediate closure (POL-JRES-003)",
                           policies, now)
     repos.stamp_processed(db, [e.event_id for e in unprocessed], now)
-    run = models.WorkflowRun(
-        run_id=run_id, user_id=user_id, journey_id=state["journey_id"],
-        trigger_type=trigger_type, gates=gates, nodes=ctx.nodes,
-        policy_version=policies.version, status="COMPLETED",
-        started_at=now, finished_at=now)
-    repos.insert_workflow_run(db, run)
+    run.journey_id = state["journey_id"]
+    run.nodes = ctx.nodes
+    run.status = "COMPLETED"
+    run.finished_at = now
     db.commit()
     return run

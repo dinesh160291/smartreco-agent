@@ -14,9 +14,11 @@ from sqlalchemy import (
     Boolean,
     Float,
     ForeignKey,
+    Index,
     Integer,
     Text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -308,9 +310,19 @@ class DeliveryRecord(Base):
 
 class WorkflowRun(Base):
     """Observability; powers the Reasoning Panel. Every run — including the
-    decision NOT to run (status SKIPPED) — writes one row."""
+    decision NOT to run (status SKIPPED) — writes one row.
+
+    A run claims its slot by inserting with status RUNNING and releases it by
+    finishing. The partial unique index makes POL-TRIG-005 atomic rather than
+    advisory: two concurrent evaluations would otherwise both read "no run in
+    flight" before either wrote, and both proceed.
+    """
 
     __tablename__ = "workflow_runs"
+    __table_args__ = (
+        Index("uq_one_running_run_per_user", "user_id", unique=True,
+              sqlite_where=text("status = 'RUNNING'")),
+    )
 
     run_id: Mapped[str] = mapped_column(Text, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))

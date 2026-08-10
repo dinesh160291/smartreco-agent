@@ -1338,3 +1338,37 @@ The bounded-deferral conditions are deliberate: an unbounded "wait for more even
 `config/policies.yaml` carries catalog_version 1.2 and the new parameter; Chapter 12 documents settlement; the policy signature test pins the value. Four new signature tests in `tests/test_session_settlement.py` cover the regression, the continuation, the timed-out session and the superseded session; 184 tests green.
 
 Story 3 (cold-start browser) failed on the first implementation, which deferred every small session including a first visitor's. That failure produced the cold-start exemption — the acceptance suite catching an over-general rule is the mechanism working, and the exemption is principled rather than a carve-out: with no candidate journey there is no fork decision to protect.
+
+# Decision #042
+
+## Title
+
+Workflow run lifecycle — POL-TRIG-005 concurrency enforced instead of merely specified
+
+## Status
+
+Accepted
+
+## Decision
+
+A workflow run claims its slot by inserting a `workflow_runs` row with `status = RUNNING` before executing any node, and releases it by finishing — `COMPLETED`, `SKIPPED`, or `FAILED`. Failure marks the row `FAILED` and re-raises. A partial unique index `uq_one_running_run_per_user` on `(user_id) WHERE status = 'RUNNING'` makes the constraint atomic; a losing claim is recorded as a SKIP with the policy's own wording.
+
+## Rationale
+
+Found by browsing the live application, not in review. The status literal `RUNNING` appeared in exactly two places in the codebase: the `ENGINE_STATUS` enum, and the query that counted rows holding it. **Nothing ever wrote it.** `run_in_flight` was therefore permanently false and POL-TRIG-005's gate — specified since v1, implemented in the trigger evaluator — could never fire. A live database of 153 runs contained 30 COMPLETED, 123 SKIPPED, and zero RUNNING.
+
+The consequence was not theoretical. The tracking client flushes a batch per page and each batch schedules a background trigger evaluation; two rapid flushes raced. Both passed the dead gate, both resolved sessions and created a cold-start journey, and both inserted journey stage version 1:
+
+    IntegrityError: UNIQUE constraint failed: journey_stages.journey_id, journey_stages.version
+
+which surfaced as a 500 and left the user holding a duplicate empty journey. Because the pipeline targets the most recent journey, later runs then reasoned about the empty one.
+
+Committing the claim before execution closes the practical window, but a read-then-write remains a race in principle, so the index closes it in fact. Catching the resulting `IntegrityError` narrowly and recording a SKIP is not error-swallowing: losing that race *is* the policy's "a trigger arriving during a run", and the SKIP is the prescribed outcome.
+
+Releasing the claim on failure is equally load-bearing. Fail loud is the rule, but a run that fails while holding its claim fails *stuck* — every subsequent trigger for that user would be skipped forever. The exception still propagates so the orchestration's degradation paths see it.
+
+## Consequences
+
+`workflow_runs` gains the partial index (`data-model.md` amended); existing databases need it created once, which is idempotent. Six signature tests in `tests/test_run_concurrency.py` cover the announcement, the concurrent skip, release on success, release on crash with the exception still raised, single-journey cold start, and the index's atomicity. 189 tests green.
+
+Historical runs recorded no RUNNING state; the Reasoning Panel's trigger log gains a genuinely reachable third status.

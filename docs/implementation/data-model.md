@@ -222,6 +222,8 @@ user_id FK · day TEXT (UTC date) · tier (`tier1` \| `tier2`) · calls INTEGER.
 
 run_id PK · user_id · journey_id · trigger_type · gates JSON (debounce/cooldown/budget outcomes) · nodes JSON `[{node, class, duration_ms, cache_hit, object_refs}]` · policy_version · status · started_at · finished_at. Every run — including fast-path-only runs — writes one row. The decision *not* to run is logged by the trigger evaluator here as well (status `SKIPPED`).
 
+A run **claims its slot** by inserting with `status = RUNNING` before any work, and releases it by finishing (`COMPLETED` / `SKIPPED` / `FAILED`) — including on failure, or the claim would outlive the run and skip every later trigger for that user. Partial unique index `uq_one_running_run_per_user` on `(user_id) WHERE status = 'RUNNING'` makes POL-TRIG-005 atomic rather than advisory: without it two concurrent evaluations both read *no run in flight* before either writes, and both proceed. A losing claim is recorded as a SKIP, which is what the policy prescribes (Decision #042).
+
 ---
 
 # Catalog Seed Strategy
