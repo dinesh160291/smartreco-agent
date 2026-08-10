@@ -133,6 +133,20 @@ Underline style: 2px `--line` baseline; buttons 14.5, `--muted`, padding 9×16; 
 ## 4.7 Forms
 Inputs: 1px `--line` border, radius 8, padding 9–10×12–14, `--card`/`--ground` bg, inherit font. Labels per §2.1. Field stack gap 5px, 12px between fields; paired fields (expiry/CVC) in 2-col grid gap 12.
 
+## 4.7a Catalog Search (Explore)
+
+**Layout.** One row, gap 10, margin-bottom 14: the input takes the remaining width (`flex: 1`), the primary button keeps its natural §4.2 size. Both need explicit `width: auto` — the CSS base sets `width: 100%` on inputs and buttons, which otherwise splits the row in half. Placeholder: "Search products, capabilities, categories…".
+
+**Behaviour.** Deterministic and model-free: the same query always returns the same products in the same order, and the ordering is explainable without inspecting a model. This is *not* the Semantic Retrieval Engine — Chapter 20's vector index answers "what does this person's behaviour imply?", while the search box answers "what did this person ask for". Reusing the index here would be a new use of that seam and requires its own decision.
+
+**Fields searched**, in descending rank weight: product name · **capability names** · category · vendor · description and business purpose. Capability names are searched because they are what a product *does*; searching prose alone hides a product from a query naming a capability it holds.
+
+**Matching.** Case- and punctuation-insensitive: every run of non-alphanumeric characters normalizes to a single space, so "Single Sign-On", "single sign on" and "single  sign--on" are one query. Query tokens are ANDed — every token must match somewhere — and a token matches as a **prefix** of any word in a field, so "provision" finds "SCIM Provisioning". Tokens shorter than 3 characters must match a whole word instead; without that floor the "on" in "sign-on" prefix-matches names like "OneLogin" at full name weight and dominates the ranking.
+
+**Ranking.** Field weight first, then capability count, then name. The count tiebreak exists because a capability query matches every product holding that capability at identical weight, and without it the order collapses to alphabetical. It is a measurable property of the catalog, **not popularity or editorial prominence** — the platform refuses popularity-based ranking on its recommendation surface (§6), and the search box must not reinstate it.
+
+**Acronyms.** A domain alias map (`SEARCH_ALIASES` in the Domain Pack) expands buyer shorthand — sso, mfa, saml, iam, rbac, dlp. Expansion is retrieval-side only: the `SEARCH` event records what the shopper actually typed, never the expansion, so the reasoning engines never learn vocabulary the user did not use.
+
 ## 4.8 Category chips
 13px, `--card` bg, 1px `--line`, `--muted`, padding 5×13, radius 20; active → accent border/text + `--accent-soft` bg.
 

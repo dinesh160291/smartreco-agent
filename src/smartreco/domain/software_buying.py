@@ -166,6 +166,25 @@ CAPABILITIES: list[tuple[str, str, str, str]] = [
      "Gives analytics one fast, governed home for enterprise data."),
 ]
 
+# ---- Catalog search aliases (ui-design-spec §Catalog Search) ----
+# Buyer shorthand for capability and category vocabulary. Domain knowledge, so
+# it lives with the Domain Pack rather than in the search code. Expansion is a
+# retrieval convenience only — the SEARCH event always records what the shopper
+# actually typed, never the expansion.
+
+SEARCH_ALIASES: dict[str, str] = {
+    "sso": "single sign on",
+    "mfa": "multi factor authentication",
+    "2fa": "multi factor authentication",
+    "saml": "identity federation",
+    "oidc": "identity federation",
+    "iam": "identity access management",
+    "rbac": "conditional access",
+    "dlp": "data loss prevention",
+    "siem": "audit logging",
+    "cicd": "ci cd pipelines",
+}
+
 # ---- BC → REQ Mapping (doc 06 — association levels feed POL-REQ-003) ----
 # {bc_id: {req_id: association_level}}
 

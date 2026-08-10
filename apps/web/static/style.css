@@ -57,13 +57,22 @@ main.container { padding: 28px 0 64px; }
 .appbar .container { display: flex; align-items: center; gap: 18px; height: 56px; }
 .brand { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 700; letter-spacing: .2px; color: var(--ink); text-decoration: none; }
 .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
-.nav { display: flex; gap: 2px; flex: 1; }
+/* justify-content is an explicit override: Pico sets nav{justify-content:space-between},
+   which spread the links across the whole bar instead of grouping them by the brand. */
+.nav { display: flex; gap: 2px; margin-left: 8px; flex-wrap: wrap; justify-content: flex-start; }
 .nav a {
   font-size: 14.5px; color: var(--muted); padding: 6px 12px; border-radius: 6px; text-decoration: none;
 }
 .nav a:hover { color: var(--ink); }
 .nav a.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-.bar-right { display: flex; align-items: center; gap: 8px; }
+.bar-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+/* Search row (ui-design-spec §Catalog Search): input takes the slack, the
+   primary button stays its natural size. Both widths are explicit overrides —
+   Pico sets width:100% on inputs and buttons, which split the row in half. */
+.searchbar { display: flex; gap: 10px; margin: 0 0 14px; }
+.searchbar input[type="search"] { flex: 1; width: auto; margin: 0; }
+.searchbar button { flex: 0 0 auto; width: auto; margin: 0; }
 .buffer-pill {
   font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 12.5px;
   background: var(--ground); border: 1px solid var(--line); border-radius: 20px; padding: 5px 12px;
@@ -93,8 +102,19 @@ main.container { padding: 28px 0 64px; }
 .phrow { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
 .pcol { display: flex; flex-direction: column; gap: 6px; }
 .pcard .n { font-size: 15.5px; font-weight: 650; }
-.pcard .v { font-size: 12.5px; color: var(--muted); }
-.pcard .body { font-size: 13.5px; }
+/* Clamp instead of truncating in the template: a server-side cut lands
+   mid-word, and a vendor·category line that wraps to two rows makes card
+   headers sit at different heights across the grid. */
+.pcard .v {
+  font-size: 12.5px; color: var(--muted);
+  display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.pcard .body {
+  font-size: 13.5px;
+  display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
 .caps { font-size: 11.5px; color: var(--accent); }
 
 /* ---- 4.3 Monogram thumbnails ---- */

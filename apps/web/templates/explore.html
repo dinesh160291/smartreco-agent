@@ -4,8 +4,9 @@
 <h1>Explore software</h1>
 <p class="sub">Search the catalog, or browse by category.</p>
 
-<form method="get" action="/" style="display:flex; gap:10px;">
-  <input type="search" name="q" value="{{ q or '' }}" placeholder="Search products…" aria-label="Search">
+<form class="searchbar" method="get" action="/">
+  <input type="search" name="q" value="{{ q or '' }}"
+         placeholder="Search products, capabilities, categories…" aria-label="Search">
   <button class="btn" type="submit">Search</button>
 </form>
 
@@ -26,7 +27,7 @@
         <span class="v">{{ p.vendor }} · {{ p.category }}</span>
       </div>
     </div>
-    <div class="body">{{ p.description | truncate(120) }}</div>
+    <div class="body">{{ p.description }}</div>
     <div class="caps" style="margin-top:8px;">{{ p.cap_count }} capabilities</div>
   </a>
   {% endfor %}

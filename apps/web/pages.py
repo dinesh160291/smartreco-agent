@@ -17,6 +17,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 
 from smartreco import models
+from smartreco.catalog_search import search_catalog
 from smartreco.domain.software_buying import BC_TO_REQ, BEHAVIORAL_CONCEPTS, REQUIREMENTS
 from smartreco.enums import JOURNEY_STAGES
 from smartreco.models import utcnow
@@ -173,9 +174,18 @@ def explore(request: Request, q: str | None = None, category: str | None = None,
     products = db.execute(stmt).scalars().all()
     categories = sorted({p.category for p in products if p.category})
     if q:
-        needle = q.lower()
-        products = [p for p in products
-                    if needle in f"{p.name} {p.vendor} {p.description}".lower()]
+        # Capability names are part of the haystack: they are what a product
+        # *does*, and searching prose alone hid the canonical SSO product from
+        # a search for single sign-on (ui-design-spec §Catalog Search).
+        by_id = {p.product_id: p for p in products}
+        entries = [{
+            "product_id": p.product_id, "name": p.name, "vendor": p.vendor,
+            "category": p.category, "description": p.description,
+            "business_purpose": p.business_purpose,
+            "capabilities": [_CAP_BY_ID[c][0] for c in _caps_of(db, p.product_id)
+                             if c in _CAP_BY_ID],
+        } for p in products]
+        products = [by_id[e["product_id"]] for e in search_catalog(entries, q)]
     if category:
         products = [p for p in products if p.category == category]
 
