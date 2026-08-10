@@ -49,6 +49,42 @@ def test_distractor_constraint_holds(seed):
                 "constraint violated")
 
 
+def test_fictional_products_in_a_category_are_not_clones(seed):
+    """Distractors must differ from each other, not just from the canonical 10.
+    The generator drew from a small per-domain pool, so all 11 fictional
+    identity products came out with the identical capability set and every
+    recommendation list involving them was a flat tie — the ranking was
+    correct and useless. Identical profiles cannot be separated by any
+    scoring rule, so the fix has to live in the data."""
+    by_category: dict[str, list[tuple[str, tuple]]] = {}
+    for product in seed["products"]:
+        if not product["fictional"]:
+            continue
+        by_category.setdefault(product["category"], []).append(
+            (product["product_id"], tuple(sorted(product["capabilities"]))))
+
+    offenders = {}
+    for category, entries in by_category.items():
+        if len(entries) < 3:
+            continue  # too few to say anything about variety
+        distinct = {caps for _pid, caps in entries}
+        if len(distinct) < max(2, len(entries) // 2):
+            offenders[category] = f"{len(entries)} products, {len(distinct)} profile(s)"
+    assert not offenders, f"fictional products are clones: {offenders}"
+
+
+def test_scenario_requirement_coverage_varies_among_distractors(seed):
+    """Depth against REQ-002 must vary, not just the raw capability sets:
+    products can hold different capabilities and still tie on the requirement
+    that actually drives ranking."""
+    required = set(REQ_TO_CAP["REQ-002"])
+    depths = [len(set(p["capabilities"]) & required)
+              for p in seed["products"]
+              if p["fictional"] and p["category"] == "Identity & Access Management"]
+    assert len(set(depths)) >= 3, (
+        f"identity distractors all score alike against REQ-002: {sorted(depths)}")
+
+
 def test_narratives_are_clean(seed):
     for product in seed["products"]:
         narrative = product["business_value_narrative"]

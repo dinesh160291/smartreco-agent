@@ -161,11 +161,20 @@ FICTIONAL_SUFFIXES = {
     "Content Management": ["Docs", "Shelf", "Archive"],
     "Productivity": ["Focus", "Sprint", "Note"],
 }
+# Each category draws from its own domain plus one plausible adjacent domain.
+# The pairing is not decoration: several domains hold only 3-5 capabilities, and
+# a pool that small can only produce one or two valid profiles, so every
+# distractor in the category ends up identical. Real products look like this
+# anyway — Auth0 carries Security capabilities, JumpCloud carries DevOps ones.
 FICTIONAL_DOMAIN_FOR_CATEGORY = {
-    "CRM": ["CRM"], "HR": ["HR"], "Finance": ["Finance"], "Marketing": ["Marketing"],
-    "DevOps": ["DevOps"], "Data & Analytics": ["Data & Analytics"],
-    "Collaboration": ["Collaboration"], "Workflow Automation": ["Automation"],
-    "Identity & Access Management": ["Identity & Access"],
+    "CRM": ["CRM", "Automation"], "HR": ["HR", "Automation"],
+    "Finance": ["Finance", "Automation"],
+    "Marketing": ["Marketing", "Artificial Intelligence"],
+    "DevOps": ["DevOps", "Security"],
+    "Data & Analytics": ["Data & Analytics", "Artificial Intelligence"],
+    "Collaboration": ["Collaboration", "Artificial Intelligence"],
+    "Workflow Automation": ["Automation", "Artificial Intelligence"],
+    "Identity & Access Management": ["Identity & Access", "Security"],
     "Content Management": ["Compliance", "Collaboration"],
     "Productivity": ["Artificial Intelligence", "Collaboration"],
 }
@@ -190,6 +199,27 @@ def enforce_distractor_constraint(caps: list[str]) -> list[str]:
         if required <= out:
             out.discard(sorted(required)[0])
     return sorted(out)
+
+
+def distinct_profile(domains: list[str], index: int, taken: set[tuple]) -> list[str]:
+    """A capability profile no other product in this category already has.
+
+    Per-domain pools are small (often 5 capabilities), so `pick_capabilities`
+    alone collapsed whole categories onto one profile — every distractor
+    scored identically and recommendation lists came out as flat ties. Vary
+    the size and the starting offset until the profile is new; capability
+    sets that are identical cannot be separated by any ranking rule, so
+    variety has to be produced here, in the data.
+    """
+    pool = sorted({cap for domain in domains for cap in CAP_BY_DOMAIN.get(domain, [])})
+    for size in (3, 4, 5, 6):
+        for shift in range(len(pool)):
+            start = (index * 3 + shift) % max(1, len(pool))
+            caps = enforce_distractor_constraint(
+                sorted({pool[(start + k) % len(pool)] for k in range(size)}))
+            if len(caps) >= 3 and tuple(caps) not in taken:
+                return caps
+    return enforce_distractor_constraint(pick_capabilities(domains, index))
 
 
 def template_narrative(name: str, category: str, cap_names: list[str]) -> str:
@@ -257,6 +287,7 @@ def main() -> int:
 
     next_id = 300
     categories = list(FICTIONAL_SUFFIXES)
+    used_profiles: dict[str, set[tuple]] = {}
     count = 0
     for prefix_index, prefix in enumerate(FICTIONAL_PREFIXES):
         for category in categories:
@@ -266,8 +297,9 @@ def main() -> int:
             suffix = suffixes[(prefix_index + count) % len(suffixes)]
             name = f"{prefix}{suffix}"
             domains = FICTIONAL_DOMAIN_FOR_CATEGORY[category]
-            caps = enforce_distractor_constraint(
-                pick_capabilities(domains, prefix_index + count))
+            caps = distinct_profile(domains, prefix_index + count,
+                                    used_profiles.setdefault(category, set()))
+            used_profiles[category].add(tuple(caps))
             cap_names = [CAP_NAME[c] for c in caps]
             products.append({
                 "product_id": f"PROD-{next_id + count:03d}",
