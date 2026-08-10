@@ -193,12 +193,38 @@ def explore(request: Request, q: str | None = None, category: str | None = None,
 
 # ---- Product detail ----
 
-# Documentation topics describe what each pane actually documents for THIS
-# product, so the BRE reads an identity product's docs as identity docs. A
-# hardcoded topic makes BP-001/BP-002 unreachable from the browser (Domain Pack
-# doc 02 keys on these topic names); ordered, first capability match wins.
-_DOC_TOPICS = (("CAP-001", "sso"), ("CAP-002", "mfa"))
-_INTEGRATION_TOPICS = (("CAP-003", "provisioning"), ("CAP-008", "federation"))
+# Each tracked pane declares what it actually documents for THIS product, so
+# the BRE reads an identity product's docs as identity docs and a governance
+# product's compliance posture as compliance research. A hardcoded topic makes
+# whole patterns unreachable from the browser — Domain Pack doc 02 keys on
+# these exact topic names. Ordered; first capability the product holds wins.
+#
+# Every topic below must appear in some pattern's vocabulary (patterns.py);
+# test_ui_tracking_contract pins that, so a new topic cannot go unread.
+_DOC_TOPICS = (
+    ("CAP-001", "sso"), ("CAP-002", "mfa"),               # BP-001 Security
+    ("CAP-020", "ai"), ("CAP-021", "ai"), ("CAP-022", "ai"),
+    ("CAP-023", "ai"), ("CAP-024", "ai"),                 # BP-003 AI
+    ("CAP-005", "messaging"), ("CAP-006", "meetings"),
+    ("CAP-007", "co-editing"),                            # BP-005 Collaboration
+    ("CAP-015", "workflows"), ("CAP-017", "triggers"),    # BP-007 Automation
+    ("CAP-012", "compliance"), ("CAP-013", "retention"),
+    ("CAP-014", "ediscovery"), ("CAP-027", "compliance"),
+    ("CAP-010", "audit"),                                 # BP-004 Compliance
+)
+# The Security & Compliance pane is a certifications surface when the product
+# carries governance capabilities, an audit surface when it only logs, and a
+# general posture page otherwise (BP-004 keys on "certifications"; BP-002 on
+# "compliance"/"audit").
+_SECURITY_TOPICS = (
+    ("CAP-012", "certifications"), ("CAP-013", "certifications"),
+    ("CAP-014", "certifications"), ("CAP-027", "certifications"),
+    ("CAP-010", "audit"),
+)
+_INTEGRATION_TOPICS = (
+    ("CAP-003", "provisioning"), ("CAP-008", "federation"),   # BP-002 Enterprise
+    ("CAP-016", "connectors"),                                # BP-008 Integration
+)
 
 
 def _doc_topic(cap_ids, table, default: str) -> str:
@@ -226,6 +252,7 @@ def product_page(request: Request, product_id: str, sd=Depends(_db)):
     view["security_caps"] = sorted(security_caps)
     view["doc_topic"] = _doc_topic(cap_ids, _DOC_TOPICS, "api")
     view["integrations_topic"] = _doc_topic(cap_ids, _INTEGRATION_TOPICS, "integrations")
+    view["security_topic"] = _doc_topic(cap_ids, _SECURITY_TOPICS, "compliance")
 
     events = [{"type": "PRODUCT_VIEWED",
                "metadata": {"product_id": product_id, "category": (p.category or "").lower()}}]

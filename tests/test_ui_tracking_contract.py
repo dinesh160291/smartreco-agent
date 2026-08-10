@@ -21,7 +21,10 @@ from fastapi.testclient import TestClient
 
 import apps.web.main as web
 from smartreco import models
+from smartreco.domain.software_buying import CANONICAL_PRODUCTS
+from smartreco.engines import patterns
 from smartreco.engines.patterns import EventView, evaluate_patterns
+from smartreco.policies import load_policies
 from smartreco.seeding import seed_canonical_products, seed_capabilities
 
 TRACKED = re.compile(
@@ -101,3 +104,71 @@ def test_docs_topics_match_the_products_own_capabilities(client):
     assert topics & {"sso", "mfa"}, f"no identity doc topic emitted: {topics}"
     assert topics & {"provisioning", "federation", "admin"}, (
         f"no enterprise doc topic emitted: {topics}")
+
+
+# --- Whole-vocabulary invariants ---------------------------------------------
+
+# Every topic any pattern keys on (patterns.py). The inline literals are the
+# ones written directly into an evaluator rather than a module constant.
+RECOGNISED_TOPICS = (
+    patterns.BP001_DOC_TOPICS | patterns.BP002_DOC_TOPICS
+    | patterns.BP002_SECURITY_TOPICS | patterns.BP004_DOC_TOPICS
+    | patterns.BP005_DOC_TOPICS | patterns.BP006_DOC_TOPICS
+    | patterns.BP007_DOC_TOPICS | patterns.BP008_DOC_TOPICS
+    | {"ai", "security", "certifications", "onboarding", "migration"}
+)
+
+ROSTER = [p["product_id"] for p in CANONICAL_PRODUCTS]
+
+
+def test_no_ui_topic_is_dead_vocabulary(client):
+    """The invariant that would have caught the original bug: every topic the
+    product page can emit, for every product in the roster, must be a topic
+    some pattern actually reads. A topic nothing recognises is a silent hole —
+    the events are recorded, look healthy, and reason about nothing."""
+    emitted: dict[str, set[str]] = {}
+    for product_id in ROSTER:
+        tracked = _tracked_events(client.get(f"/product/{product_id}").text)
+        for event_type in ("DOCUMENTATION_VIEWED", "SECURITY_VIEWED"):
+            for meta in tracked.get(event_type, []):
+                if meta.get("topic"):
+                    emitted.setdefault(meta["topic"], set()).add(product_id)
+
+    dead = {topic: sorted(pids) for topic, pids in emitted.items()
+            if topic not in RECOGNISED_TOPICS}
+    assert not dead, f"topics no pattern reads: {dead}"
+    assert len(emitted) >= 6, f"vocabulary suspiciously narrow: {sorted(emitted)}"
+
+
+def test_compliance_posture_is_reachable_across_governance_products(client):
+    """BP-004 Compliance Evaluation needs 2 qualifying signals (Domain Pack
+    doc 02). Comparing the compliance posture of two governance products in one
+    session is exactly that behaviour, and must activate it."""
+    governance = ["PROD-001", "PROD-010"]  # both carry CAP-012/CAP-013
+    views = []
+    for i, product_id in enumerate(governance):
+        tracked = _tracked_events(client.get(f"/product/{product_id}").text)
+        views.append(EventView(event_id=f"s{i}", event_type="SECURITY_VIEWED",
+                               session_id="s1",
+                               metadata=tracked["SECURITY_VIEWED"][0]))
+
+    fired = {d.pattern_id for d in evaluate_patterns(views, load_policies())}
+    assert "BP-004" in fired, (
+        "Compliance Evaluation unreachable from the browser; security topics="
+        f"{[v.metadata.get('topic') for v in views]}")
+
+
+def test_identity_product_does_not_masquerade_as_compliance_research(client):
+    """The counterpart: Okta carries no governance capability, so reading its
+    pages is identity research, not compliance evaluation. Topics must not be
+    widened until every pattern fires for every product."""
+    tracked = _tracked_events(client.get("/product/PROD-003").text)
+    views = [EventView(event_id="s1", event_type="SECURITY_VIEWED", session_id="s1",
+                       metadata=tracked["SECURITY_VIEWED"][0])]
+    views += [EventView(event_id=f"d{i}", event_type="DOCUMENTATION_VIEWED",
+                        session_id="s1", metadata=meta)
+              for i, meta in enumerate(tracked["DOCUMENTATION_VIEWED"])]
+
+    fired = {d.pattern_id for d in evaluate_patterns(views, load_policies())}
+    assert "BP-004" not in fired, "identity browsing wrongly reads as compliance"
+    assert "BP-001" in fired
