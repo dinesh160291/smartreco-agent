@@ -1,4 +1,4 @@
-"""Acceptance: Stories 2-5 (docs/implementation/user-journey-stories.md).
+"""Acceptance: Stories 2-5 (docs/domains/software-buying/11-user-journey-stories.md).
 
 Story 2 — Collaboration Modernizer (happy path; Scenario 2 derivations,
 amended outcome per Decision #037).

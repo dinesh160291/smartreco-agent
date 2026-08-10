@@ -6,7 +6,9 @@
 
 > **Instruction to the implementing agent:** These stories are the expected behavior of the finished system, derived from the specification (core chapters, Policy Catalog v1, Domain Pack). Treat them as acceptance tests: Stories 1–8 must be automatable (seed → replay clickstream → assert); Stories 9–10 are semi-automated. **Every "Failure looks like" condition is a bug, not a design choice.** When implementation and story disagree, the spec + story win. Stories 1–2 reuse the derivations in Domain 09; the rest extend coverage to gates, noise, journey intelligence, commerce, and operations.
 
-Conventions: events named per Core 22; policies per Core 10 (Policy Catalog v1); UI surfaces per `ui-design-spec.md`. "Run" = one orchestration workflow execution (Core 21).
+Conventions: events named per Core 22; policies per Core 10 (Policy Catalog v1); UI surfaces per `docs/implementation/ui-design-spec.md`. "Run" = one orchestration workflow execution (Core 21).
+
+**Placement.** These stories live in the Domain Pack because they are written entirely in software-buying terms — identity platforms, capability coverage, named products and exact percentages. The platform they exercise is domain-agnostic; the expectations are not. A second domain would carry its own stories at this position, and `docs/implementation/` stays reusable across domains.
 
 ---
 

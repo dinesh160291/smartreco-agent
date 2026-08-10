@@ -1,6 +1,6 @@
 """Acceptance: Story 1 — The Security Evaluator (Gate G1).
 
-docs/implementation/user-journey-stories.md Story 1 + Domain 09 Scenario 1:
+docs/domains/software-buying/11-user-journey-stories.md Story 1 + Domain 09 Scenario 1:
 replay a two-session clickstream → BP-001/BP-002 evidence → BC-001 0.80,
 BC-002 0.70 → REQ-002 0.94 CRITICAL, REQ-004 0.56 MEDIUM, REQ-001 held at
 0.48 → stage Technical Validation → Okta 81 / Microsoft 365 70 / Google

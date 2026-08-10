@@ -14,7 +14,7 @@ All paths below are **relative to the repository root**. Never write absolute lo
 | `docs/implementation/stack-decisions.md` | Locked stack, models, delivery channel, deployment compatibility |
 | `docs/implementation/data-model.md` | Locked schema, catalog seed strategy (~250 products), design decisions D1–D3 |
 | `docs/implementation/ui-design-spec.md` | Locked visual system — templates must match it exactly (preview URL inside) |
-| `docs/implementation/user-journey-stories.md` | 12 E2E acceptance stories — binding; every "Failure looks like" is a bug |
+| `docs/domains/software-buying/11-user-journey-stories.md` | 12 E2E acceptance stories — binding; every "Failure looks like" is a bug |
 | `docs/requirements-compliance.md` | Requirement → chapter map; deployment checklist |
 | Problem-statement file (repo root, `problem_statement_*.md`) | Reference-only input, unmodified. **Local-only, gitignored — never committed** |
 
@@ -45,7 +45,7 @@ All paths below are **relative to the repository root**. Never write absolute lo
 
 ## Testing Contract
 
-- Acceptance: the 12 stories in `docs/implementation/user-journey-stories.md` + the four derivation scenarios in `docs/domains/software-buying/09-…`. Assertions are exact (e.g., Okta 81% / M365 70% / Google 58% in Scenario 1).
+- Acceptance: the 12 stories in `docs/domains/software-buying/11-user-journey-stories.md` + the four derivation scenarios in `docs/domains/software-buying/09-…`. Assertions are exact (e.g., Okta 81% / M365 70% / Google 58% in Scenario 1).
 - **Fixture separation:** automated tests seed only the canonical 10 products (PROD-001…010). The demo database seeds the full ~250-product catalog (`data-model.md` §Catalog Seed Strategy).
 - Time-based policies (trait decay, dormancy, closure, recency) are unit-tested with a simulated clock — never with real waits.
 - CI must stay green on every push (compile check + dependency manifest).
