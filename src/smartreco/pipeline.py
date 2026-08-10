@@ -70,7 +70,13 @@ def record_ai_call(db: OrmSession, user_id: int, tier: str, now: datetime) -> No
     key = (user_id, _today(now), tier)
     row = db.get(models.AIUsage, key)
     if row is None:
-        db.add(models.AIUsage(user_id=user_id, day=key[1], tier=tier, calls=1))
+        row = models.AIUsage(user_id=user_id, day=key[1], tier=tier, calls=1)
+        db.add(row)
+        # Flush so the row gets an identity: sessions run autoflush=False, and
+        # Session.get consults the identity map, so a pending insert is
+        # invisible. Without this the second Tier-2 call of a run added a
+        # duplicate key and the flush failed the whole run mid-way.
+        db.flush()
     else:
         row.calls += 1
 

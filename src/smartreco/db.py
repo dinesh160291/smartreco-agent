@@ -22,6 +22,11 @@ def _sqlite_pragmas(dbapi_connection, _connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA journal_mode=WAL")
     cursor.execute("PRAGMA foreign_keys=ON")
+    # Wait for a busy database instead of failing instantly. SQLite defaults
+    # busy_timeout to 0, and this app writes from request handlers and
+    # background trigger evaluations concurrently, so contention is normal —
+    # without this it surfaced as "database is locked" and killed a run.
+    cursor.execute("PRAGMA busy_timeout=5000")
     cursor.close()
 
 
