@@ -70,13 +70,18 @@ def record_ai_call(db: OrmSession, user_id: int, tier: str, now: datetime) -> No
     key = (user_id, _today(now), tier)
     row = db.get(models.AIUsage, key)
     if row is None:
-        row = models.AIUsage(user_id=user_id, day=key[1], tier=tier, calls=1)
-        db.add(row)
-        # Flush so the row gets an identity: sessions run autoflush=False, and
-        # Session.get consults the identity map, so a pending insert is
-        # invisible. Without this the second Tier-2 call of a run added a
-        # duplicate key and the flush failed the whole run mid-way.
-        db.flush()
+        # Sessions run autoflush=False and Session.get consults the identity
+        # map, so a row added earlier in this same run is invisible to it —
+        # the second Tier-2 call would add a duplicate key and the flush would
+        # fail the whole run. Look through the pending inserts instead of
+        # flushing: flushing here would take SQLite's write lock early and
+        # hold it across the gateway call that follows, which turns ordinary
+        # concurrency into "database is locked" for everyone else.
+        row = next((pending for pending in db.new
+                    if isinstance(pending, models.AIUsage)
+                    and (pending.user_id, pending.day, pending.tier) == key), None)
+    if row is None:
+        db.add(models.AIUsage(user_id=user_id, day=key[1], tier=tier, calls=1))
     else:
         row.calls += 1
 

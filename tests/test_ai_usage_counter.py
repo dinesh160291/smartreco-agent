@@ -92,3 +92,21 @@ def test_sqlite_waits_for_a_busy_database_instead_of_failing():
     assert timeout_ms and timeout_ms >= 5000, (
         f"busy_timeout is {timeout_ms}ms — a concurrent writer fails instead "
         f"of waiting")
+
+
+def test_recording_a_call_does_not_take_the_write_lock_early(seeded):
+    """The counter must stay pending until the caller commits.
+
+    Flushing here looked like the obvious fix for the duplicate key, and it
+    made contention worse: the flush takes SQLite's write lock, and the very
+    next thing a run does after recording a Tier-2 call is make a gateway
+    request. Holding a write lock across network latency turned ordinary
+    concurrency into "database is locked" for every other writer — which is
+    exactly how a second live run died.
+    """
+    db = seeded
+    user = _user(db, "nolock@example.com")
+    record_ai_call(db, user.id, "tier2", NOW)
+    assert any(isinstance(o, models.AIUsage) for o in db.new), (
+        "counter was flushed instead of left pending")
+    assert not db.in_nested_transaction()
