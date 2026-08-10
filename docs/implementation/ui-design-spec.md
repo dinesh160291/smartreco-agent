@@ -115,7 +115,7 @@ Brand = 10px accent dot + wordmark. Nav buttons: 14.5px, `--muted`, padding 6×1
 
 The buffer pill shows **`count/batch_size`** (e.g. `buffer 3/10`), the denominator read from POL-TRACK-001 so the pill cannot drift from the batch size the client actually uses. A bare count reads as a dead counter; the denominator makes it legible as a queue that flushes at N, which is the architectural point it exists to show (Law 9 — tracking is batched, never one call per event).
 
-Every item in the right cluster is `inline-flex` with `margin: 0` and `line-height: 1`, and the bar uses `min-height: 56px` rather than a fixed height. Both are explicit overrides of the CSS base: element types otherwise pick up different default margins and line-box behaviour, so a `<span>`, an `<a>` and a `<button>` sitting side by side drift off the bar's vertical centre, and a nav that wraps on a narrow viewport spills past the bottom border instead of growing the bar.
+The bar itself sets `padding: 0` — the CSS base gives `<header>` 20px of block padding, which against a 56px border-box height leaves a 16px content box and drops the nav and brand below the bottom border. Every item in the right cluster is `inline-flex` with `margin: 0` and `line-height: 1`, and the inner container uses `min-height: 56px` rather than a fixed height. Both are explicit overrides of the CSS base: element types otherwise pick up different default margins and line-box behaviour, so a `<span>`, an `<a>` and a `<button>` sitting side by side drift off the bar's vertical centre, and a nav that wraps on a narrow viewport spills past the bottom border instead of growing the bar.
 
 ## 4.2 Buttons
 - **Primary:** `--accent` bg, `--accent-ink` text, 14.5/600, padding 8×16, radius 8, no border.
@@ -186,7 +186,8 @@ Only: card border-color hover (150ms), toast (200ms), nav/tab state changes (ins
 
 | Screen | Audience | Key locked details |
 |---|---|---|
-| Explore | Shopper | Search row (input + primary button) → category chips → card grid §3; card = header-row pattern §4.3/§4.4 |
+| Explore | Shopper | H1 "Find the right software", subtitle "Browse the catalog — every view, search, and click quietly teaches SmartReco what you need." → search row (input + primary button) → category chips → result count §4.7a → card grid §3; card = header-row pattern §4.3/§4.4 |
+| Compare | Shopper | Picker row: two product selects + primary button, all natural width (the base stylesheet's `width: 100%` on selects and buttons must be overridden). Options are sorted **case-insensitively** by display name — a raw column sort is byte order, filing lowercase-initial names after `Z` |
 | Product detail | Shopper | Breadcrumb 13px `--muted` → lg thumb + title + vendor·category·price subtitle → actions right (Compare ghost · Free trial ghost · Add to cart primary) → 5 tabs: Overview / Pricing / Security & Compliance / Docs & API / Integrations |
 | For you | Shopper | Status line (refresh recency + trigger + READY pill) → AAR card with 3px accent left border: persuasive narrative → ranked coverage rows → expandable plain-language "why" → ownership disclaimer above 1px top border |
 | Cart & checkout | Shopper | 1.2fr/1fr grid: cart list (sm thumbs) · checkout card with demo notice + fake card form; confirmation = centered card, 40px ✅, order line, learning-arc block §4.13 |

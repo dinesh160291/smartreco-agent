@@ -14,6 +14,7 @@ Story 1 requires.
 """
 
 import json
+import pathlib
 import re
 
 import pytest
@@ -156,6 +157,34 @@ def test_compliance_posture_is_reachable_across_governance_products(client):
     assert "BP-004" in fired, (
         "Compliance Evaluation unreachable from the browser; security topics="
         f"{[v.metadata.get('topic') for v in views]}")
+
+
+def test_app_bar_neutralises_the_base_header_padding(client):
+    """ui-design-spec §4.1: the bar is a fixed 56px border-box, so the base
+    stylesheet's 20px block padding on <header> must be overridden — it leaves
+    a 16px content box and the nav renders below the bar's bottom border.
+
+    Asserted in CSS rather than by measuring a browser because the failure is
+    a missing declaration, and a stylesheet regression should fail in CI
+    rather than in someone's screenshot."""
+    css = (pathlib.Path(web.__file__).parent / "static" / "style.css").read_text(encoding="utf-8")
+    appbar = css[css.index(".appbar {"):css.index("}", css.index(".appbar {"))]
+    assert "padding: 0" in appbar, (
+        "the app bar must zero the base header padding, or its contents "
+        f"overflow the 56px bar:\n{appbar}")
+
+
+def test_compare_picker_is_alphabetical_case_insensitively(client):
+    """A 250-entry picker is a lookup. Raw column order is byte order, which
+    files 'dbt Cloud' and 'n8n' after 'Zoom Workplace' instead of among the
+    d's and n's — technically sorted, useless to a shopper."""
+    html = client.get("/compare").text
+    options = re.findall(r"<option value=\"PROD-\d+\"[^>]*>([^<]+)</option>", html)
+    assert options, "compare picker rendered no options"
+    half = len(options) // 2 or len(options)   # the page renders two identical selects
+    names = options[:half]
+    assert names == sorted(names, key=str.lower), (
+        f"picker is not case-insensitively alphabetical: {names[:8]}")
 
 
 def test_explore_reports_how_many_products_matched(client):

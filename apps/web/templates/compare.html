@@ -2,12 +2,12 @@
 {% block title %}Compare · SmartReco{% endblock %}
 {% block content %}
 <h1>Compare products</h1>
-<form method="get" action="/compare" class="sub" style="display:flex; gap:10px;">
-  <select name="a" style="width:auto;">
+<form method="get" action="/compare" class="comparebar">
+  <select name="a" aria-label="First product">
     {% for p in all_products %}<option value="{{ p.product_id }}" {% if a and p.product_id == a.product_id %}selected{% endif %}>{{ p.name }}</option>{% endfor %}
   </select>
-  <span style="align-self:center;">vs</span>
-  <select name="b" style="width:auto;">
+  <span class="muted">vs</span>
+  <select name="b" aria-label="Second product">
     {% for p in all_products %}<option value="{{ p.product_id }}" {% if b and p.product_id == b.product_id %}selected{% endif %}>{{ p.name }}</option>{% endfor %}
   </select>
   <button class="btn" type="submit">Compare</button>

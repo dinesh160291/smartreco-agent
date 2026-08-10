@@ -14,7 +14,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from smartreco import models
 from smartreco.catalog_search import search_catalog
@@ -279,8 +279,13 @@ def product_page(request: Request, product_id: str, sd=Depends(_db)):
 def compare(request: Request, a: str | None = None, b: str | None = None, sd=Depends(_db)):
     state, db = sd
     user = _optional_user(request, db)
+    # Alphabetical: the picker is a lookup, and catalog insertion order is
+    # meaningless to a shopper hunting a name in a 250-entry list. Case-folded
+    # because a raw sort is byte order — "dbt Cloud" and "n8n" would land after
+    # "Zoom Workplace" rather than among the d's and n's.
     products = db.execute(select(models.Product).where(
-        models.Product.deleted_at.is_(None))).scalars().all()
+        models.Product.deleted_at.is_(None))
+        .order_by(func.lower(models.Product.name))).scalars().all()
 
     def enrich(pid):
         p = db.get(models.Product, pid) if pid else None
