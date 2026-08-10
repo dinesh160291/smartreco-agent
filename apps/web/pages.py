@@ -173,6 +173,7 @@ def explore(request: Request, q: str | None = None, category: str | None = None,
     stmt = select(models.Product).where(models.Product.deleted_at.is_(None))
     products = db.execute(stmt).scalars().all()
     categories = sorted({p.category for p in products if p.category})
+    total = len(products)  # catalog size before search/category filtering
     if q:
         # Capability names are part of the haystack: they are what a product
         # *does*, and searching prose alone hid the canonical SSO product from
@@ -197,7 +198,8 @@ def explore(request: Request, q: str | None = None, category: str | None = None,
 
     views = [_product_view(p, len(_caps_of(db, p.product_id))) for p in products]
     ctx = _base_ctx(request, db, user, state, "explore", events)
-    ctx.update({"products": views, "categories": categories, "q": q, "category": category})
+    ctx.update({"products": views, "categories": categories, "q": q, "category": category,
+                "shown": len(views), "total": total})
     return templates.TemplateResponse(request, "explore.html", ctx)
 
 

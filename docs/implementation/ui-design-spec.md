@@ -147,6 +147,8 @@ Inputs: 1px `--line` border, radius 8, padding 9–10×12–14, `--card`/`--grou
 
 **Acronyms.** A domain alias map (`SEARCH_ALIASES` in the Domain Pack) expands buyer shorthand — sso, mfa, saml, iam, rbac, dlp. Expansion is retrieval-side only: the `SEARCH` event records what the shopper actually typed, never the expansion, so the reasoning engines never learn vocabulary the user did not use.
 
+**Result count.** A 13px `--muted` line sits between the chips and the grid, `role="status"` so screen readers hear it change. Unfiltered it reads "N products"; filtered, "M of N products" plus the query in curly quotes and/or the category. It tells a shopper whether a search narrowed anything, and separates a genuine zero-result search from a page that failed to load. Zero results additionally render an empty-state line suggesting a capability or a category chip — never a fallback list of unrelated products, which would contradict the platform's refusal to guess (§6).
+
 ## 4.8 Category chips
 13px, `--card` bg, 1px `--line`, `--muted`, padding 5×13, radius 20; active → accent border/text + `--accent-soft` bg.
 

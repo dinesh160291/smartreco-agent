@@ -17,6 +17,21 @@
   {% endfor %}
 </div>
 
+<p class="resultcount" role="status">
+  {% if shown == total %}
+    {{ total }} products
+  {% else %}
+    {{ shown }} of {{ total }} products
+    {%- if q %} matching “{{ q }}”{% endif -%}
+    {%- if category %} in {{ category }}{% endif -%}
+  {% endif %}
+</p>
+
+{% if not products %}
+<p class="empty">No products match that search. Try a capability — “single sign-on”,
+   “audit logging” — or a category chip above.</p>
+{% endif %}
+
 <div class="grid-cards">
   {% for p in products %}
   <a class="card pcard" href="/product/{{ p.product_id }}" style="text-decoration:none; color:inherit;">

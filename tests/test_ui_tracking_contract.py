@@ -158,6 +158,21 @@ def test_compliance_posture_is_reachable_across_governance_products(client):
         f"{[v.metadata.get('topic') for v in views]}")
 
 
+def test_explore_reports_how_many_products_matched(client):
+    """ui-design-spec §4.7a: the count tells a shopper whether a search
+    narrowed anything, and distinguishes 'no matches' from a broken page."""
+    unfiltered = client.get("/").text
+    assert "10 products" in unfiltered           # canonical fixture size
+
+    narrowed = client.get("/?q=single+sign-on").text
+    assert "of 10 products" in narrowed
+    assert "single sign-on" in narrowed
+
+    empty = client.get("/?q=nonexistent-capability-xyz").text
+    assert "0 of 10 products" in empty
+    assert "No products match" in empty
+
+
 def test_identity_product_does_not_masquerade_as_compliance_research(client):
     """The counterpart: Okta carries no governance capability, so reading its
     pages is identity research, not compliance evaluation. Topics must not be

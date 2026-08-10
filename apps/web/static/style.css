@@ -70,6 +70,8 @@ main.container { padding: 28px 0 64px; }
 /* Search row (ui-design-spec §Catalog Search): input takes the slack, the
    primary button stays its natural size. Both widths are explicit overrides —
    Pico sets width:100% on inputs and buttons, which split the row in half. */
+.resultcount { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+.empty { font-size: 14.5px; color: var(--muted); max-width: 68ch; margin: 0 0 18px; }
 .searchbar { display: flex; gap: 10px; margin: 0 0 14px; }
 .searchbar input[type="search"] { flex: 1; width: auto; margin: 0; }
 .searchbar button { flex: 0 0 auto; width: auto; margin: 0; }
