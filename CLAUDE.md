@@ -10,7 +10,7 @@ All paths below are **relative to the repository root**. Never write absolute lo
 |---|---|
 | `knowledge/architecture/` | Platform laws + domain governance — highest authority. `domain-pack-contract.md` is the binding platform↔domain interface: the 13 artifacts a Domain Pack must supply, what it may not contain, and what the platform guarantees unchanged in return. Read it before moving anything between core and a pack |
 | `docs/core/` | Core chapters 00–24 + 99 (constitution), plus `glossary.md` and `decision-log.md` (#001–#034). Chapter 10 holds Policy Catalog v1 — every threshold |
-| `docs/domains/software-buying/` | Domain Pack: ontology (BC registry), patterns (BP-001…012), requirement/capability catalogs, mappings, product roster, validation scenarios (09 = derivation math) |
+| `docs/domains/software-buying/` | Domain Pack: ontology (BC registry), patterns (BP-001…012), requirement/capability catalogs, mappings, product roster, validation scenarios (09 = derivation math), acceptance stories (11), catalog seed strategy (12), event registry (13). **All domain knowledge lives here** — `docs/core/` and `docs/implementation/` are domain-agnostic and reusable across packs (Decision #040) |
 | `docs/implementation/stack-decisions.md` | Locked stack, models, delivery channel, deployment compatibility |
 | `docs/implementation/data-model.md` | Locked schema, catalog seed strategy (~250 products), design decisions D1–D3 |
 | `docs/implementation/ui-design-spec.md` | Locked visual system — templates must match it exactly (preview URL inside) |
@@ -45,6 +45,7 @@ All paths below are **relative to the repository root**. Never write absolute lo
 
 ## Testing Contract
 
+- **Platform/domain boundary:** no platform module or reusable doc may hardcode a `BP/BC/CAP/REQ/PROD` identifier — import from `smartreco.domain.active` instead. `tests/test_domain_boundary.py` enforces it and is a ratchet; see `knowledge/architecture/domain-pack-contract.md`.
 - Acceptance: the 12 stories in `docs/domains/software-buying/11-user-journey-stories.md` + the four derivation scenarios in `docs/domains/software-buying/09-…`. Assertions are exact (e.g., Okta 81% / M365 70% / Google 58% in Scenario 1).
 - **Fixture separation:** automated tests seed only the canonical 10 products (PROD-001…010). The demo database seeds the full ~250-product catalog (`data-model.md` §Catalog Seed Strategy).
 - Time-based policies (trait decay, dormancy, closure, recency) are unit-tested with a simulated clock — never with real waits.

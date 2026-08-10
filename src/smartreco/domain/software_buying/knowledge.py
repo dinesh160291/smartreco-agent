@@ -251,8 +251,13 @@ STAGE_MILESTONES: list[dict] = [
      "patterns": list(EVALUATION_PATTERNS), "min_strength": "MEDIUM"},
     {"stage": "Commercial Evaluation", "kind": "pattern_evidence_min_strength",
      "patterns": ["BP-009"], "min_strength": "MEDIUM"},
-    {"stage": "Decision", "kind": "decision_milestone"},   # BP-010 Strong or BP-011 exists
-    {"stage": "Adoption", "kind": "adoption_milestone"},   # BP-011 + onboarding/migration activity
+    # Which patterns satisfy these two is domain knowledge, so the ids are
+    # named here rather than inside the engine's dispatcher: the kind says how
+    # to evaluate, the lists say what to evaluate against.
+    {"stage": "Decision", "kind": "decision_milestone",
+     "strong_patterns": ["BP-010"], "any_patterns": ["BP-011"]},
+    {"stage": "Adoption", "kind": "adoption_milestone",
+     "patterns": ["BP-011"], "event_types": ["DOCUMENTATION_VIEWED"]},
 ]
 
 # ---- Event stage character (POL-STAGE-002 support) ----

@@ -26,22 +26,11 @@ Lose an event before you lose a frame.
 
 # Tracked Interactions
 
-The active Domain Pack defines the approved Event Types. **For the Software Buying Domain, the table below is the canonical EventType registry** (the Domain Enumeration referenced by Chapter 17): these values are closed — an event with a type outside this table fails structural validation. New types are added only through a Domain Pack version.
+The active Domain Pack defines the approved Event Types and their signal classes — **Domain Pack artifact 7** (`knowledge/architecture/domain-pack-contract.md`). The registry is *closed*: an event whose type is not in the active pack's table fails structural validation, and new types arrive only through a Domain Pack version.
 
-| Interaction | Event Type | Signal class |
-|---|---|---|
-| Page / product detail view | PRODUCT_VIEWED | High |
-| Search submitted | SEARCH | High |
-| Category browsed | CATEGORY_VIEWED | Medium |
-| Pricing page viewed | PRICING_VIEWED | High |
-| Documentation / security page viewed | DOCUMENTATION_VIEWED / SECURITY_VIEWED | High |
-| Product comparison | COMPARISON_STARTED | High |
-| Time on page (heartbeat) | DWELL | Low |
-| Click on recommendation | RECOMMENDATION_CLICKED | High |
-| Trial / demo actions | TRIAL_STARTED / DEMO_REQUESTED | High |
-| Product added to cart | ADD_TO_CART | High |
-| Checkout begun | CHECKOUT_STARTED | High |
-| Purchase completed | PURCHASE_COMPLETED | High |
+This chapter owns the ingestion mechanism — batching, idempotency, signal handling, the tracking contract below. It does not own the vocabulary. Which interactions a domain tracks is a statement about that domain: a travel pack has no PRICING_VIEWED and a software pack has no DATE_RANGE_SELECTED.
+
+**Reference registry:** `docs/domains/software-buying/13-event-registry.md`.
 
 Signal class is domain knowledge consumed by Execution Triggers (Chapter 23). Raw scroll and hover activity is not tracked as discrete events; dwell is sampled via heartbeat.
 

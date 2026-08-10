@@ -1,7 +1,7 @@
 """Seeding — capability taxonomy + canonical product fixture.
 
 Fixture separation (CLAUDE.md testing contract): automated tests seed ONLY the
-canonical 10 products (PROD-001…010) from the Domain Pack roster. The demo
+canonical product roster supplied by the active Domain Pack. The demo
 database additionally seeds the ~250-product catalog in Phase 6.
 """
 
@@ -21,7 +21,7 @@ def seed_capabilities(db: OrmSession) -> None:
 
 
 def seed_canonical_products(db: OrmSession, chroma_client, backend: EmbeddingBackend) -> None:
-    """Seeds PROD-001…010 through the standard dual-write path."""
+    """Seeds the pack's canonical roster through the standard dual-write path."""
     for entry in CANONICAL_PRODUCTS:
         product = db.get(models.Product, entry["product_id"]) or models.Product(
             product_id=entry["product_id"])

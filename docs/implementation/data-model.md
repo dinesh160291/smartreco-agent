@@ -78,7 +78,7 @@ Runtime-object tables expose **insert-only** repository helpers; no UPDATE path 
 
 | Column | Type | Notes |
 |---|---|---|
-| capability_id | TEXT PK | `CAP-001` … per Domain 10 — Capability Catalog |
+| capability_id | TEXT PK | identifier from the active Domain Pack's Capability Catalog |
 | name | TEXT | |
 | domain | TEXT | Capability Domain |
 | business_value_narrative | TEXT | consumed by AAR generation |
@@ -226,14 +226,11 @@ run_id PK · user_id · journey_id · trigger_type · gates JSON (debounce/coold
 
 # Catalog Seed Strategy
 
-**Scale (locked):** ~250 products total — **125 real** (well-known SaaS across CRM, HR, finance, DevOps, analytics, support, marketing, security, collaboration…) and **125 fictional but plausible**, anchored by the 10 canonical products (PROD-001…010) from the Domain Pack roster. Authored by an LLM-assisted **seed script** at build time into `seed/products.json`, reviewed once, never generated at runtime.
+The catalog's *scale, composition and seeding rules* are Domain Pack artifact 9, not schema: how many products a demo needs, which are real and which invented, and which capability sets keep the canonical winners deterministic are all statements about a domain. A travel pack seeds itineraries, not SaaS vendors.
 
-Rules:
+**Authority:** `docs/domains/software-buying/12-catalog-seed-strategy.md`.
 
-1. **Taxonomy grows first:** the Capability Catalog extends to ~55 capabilities (Domain Pack v1.1, append-only IDs, new domains: CRM, HR, Finance, Marketing, DevOps, Data & Analytics) so wide-catalog products express themselves honestly. The five REQ→CAP mappings are unchanged — out-of-domain products are the realistic noise retrieval and matching must cut through.
-2. **Fixture separation:** acceptance tests (Domain 09 numbers, Stories 1–2) seed **only the canonical 10**. The demo database seeds all ~250.
-3. **Distractor constraint:** products (real or fictional) in the four scenario domains get deliberately partial capability sets so canonical winners remain deterministic in the live demo.
-4. **Editorial disclaimer:** seed data ships with the note that capability profiles are illustrative editorial interpretations for demonstration, not vendor claims.
+What stays platform: products are seeded through the standard dual-write path (relational → embed → vector upsert → SYNCED), never generated at runtime, and the vector index is always re-derivable from the relational store.
 
 ---
 

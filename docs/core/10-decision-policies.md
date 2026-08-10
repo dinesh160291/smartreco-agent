@@ -258,7 +258,7 @@ Journey Stage definitions belong to the active Domain Pack.
 
 Decision Policies define the qualification criteria.
 
-Examples include (Software Buying Domain, canonical 8-stage journey):
+Examples include (**illustrative — Software Buying Domain Pack, its own 8-stage journey**; identifiers below belong to that pack, not to the platform):
 
 - Awareness
 - Discovery
@@ -717,7 +717,7 @@ The following are the platform's initial published policy values. They are confi
 
 | Policy ID | Policy | v1 Value |
 |---|---|---|
-| POL-LEARN-001 | Trait reinforcement | Traits are **concept-derived**: one trait per Behavioral Concept whose final hypothesis confidence ≥ 0.6 at journey closure (trait name = concept name, e.g., BC-001 → "Security Focus"). On CLOSED journey: reinforce existing matching traits +0.1 (weighted by final hypothesis confidence); create new trait at strength 0.3 |
+| POL-LEARN-001 | Trait reinforcement | Traits are **concept-derived**: one trait per Behavioral Concept whose final hypothesis confidence ≥ 0.6 at journey closure (trait name = concept name, as the active Domain Pack defines it). On CLOSED journey: reinforce existing matching traits +0.1 (weighted by final hypothesis confidence); create new trait at strength 0.3 |
 | POL-DECAY-001 | Trait decay | −0.05 per 14 inactive days; resistance ×(1 − 0.05 × min(Reinforcement Count, 10)) |
 | POL-JRES-001 | Journey resolution | Reuse ACTIVE journey when resolution score ≥ 0.6 (weights: topic 0.4, behavioral 0.3, time-decay 0.3); reactivate DORMANT ≥ 0.7; else create new. Signal functions defined in Chapter 12 — Signal Computation (topic = Jaccard over entity sets; behavioral = cosine over event-type histograms; time-decay half-life 7 days) |
 | POL-JRES-002 | Journey dormancy | ACTIVE → DORMANT after 7 days of inactivity (evaluated with other signals, never time alone at closure) |

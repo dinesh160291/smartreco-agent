@@ -20,7 +20,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from smartreco import models
 from smartreco.db import Base, make_engine, make_session_factory
-from smartreco.enums import EVENT_TYPES
+from smartreco.domain import active as domain
 from smartreco.gateway import AIGateway, GatewayUnavailable
 from smartreco.pipeline import run_workflow
 from smartreco.policies import load_policies
@@ -210,7 +210,7 @@ def ingest_events(batch: EventBatch, background: BackgroundTasks,
     now = utcnow()
     touched_sessions: dict[str, models.Session] = {}
     for envelope in batch.events:
-        if envelope.event_type not in EVENT_TYPES:  # closed registry (Core 22)
+        if envelope.event_type not in domain.EVENT_TYPES:  # closed registry (Core 22)
             rejected.append({"event_id": envelope.event_id, "reason": "unknown event_type"})
             continue
         ts = envelope.ts
@@ -222,7 +222,7 @@ def ingest_events(batch: EventBatch, background: BackgroundTasks,
             "session_id": envelope.session_id,
             "journey_id": None,  # assigned by Journey Resolution, never by the client
             "event_type": envelope.event_type,
-            "signal_class": EVENT_TYPES[envelope.event_type],
+            "signal_class": domain.EVENT_TYPES[envelope.event_type],
             "event_metadata": envelope.metadata,
             "ts": ts,
             "received_at": now,

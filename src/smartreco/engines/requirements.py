@@ -7,7 +7,7 @@ POL-REQ-002: priority bands (Critical additionally requires stage ≥ Technical
 Validation). Pure function; retired hypotheses are simply absent from the input.
 """
 
-from smartreco.enums import stage_index
+from smartreco.domain import active as domain
 from smartreco.policies import PolicyCatalog
 
 
@@ -28,7 +28,7 @@ def derive_requirements(
     high_min = policies.param("POL-REQ-002", "high_min_confidence")
     medium_min = policies.param("POL-REQ-002", "medium_min_confidence")
 
-    stage_allows_critical = stage_index(current_stage) >= _critical_stage_index(critical_stage)
+    stage_allows_critical = domain.stage_index(current_stage) >= _critical_stage_index(critical_stage)
 
     # Collect weighted contributions per requirement
     contributions: dict[str, list[tuple[str, str, float, float]]] = {}
@@ -68,10 +68,9 @@ def derive_requirements(
 
 
 def _critical_stage_index(policy_stage: str) -> int:
-    from smartreco.enums import JOURNEY_STAGES
 
     normalized = _normalize_stage(policy_stage)
-    for i, stage in enumerate(JOURNEY_STAGES):
+    for i, stage in enumerate(domain.JOURNEY_STAGES):
         if _normalize_stage(stage) == normalized:
             return i
     raise ValueError(f"Unknown stage in POL-REQ-002: {policy_stage!r}")

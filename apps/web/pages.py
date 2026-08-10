@@ -19,7 +19,7 @@ from sqlalchemy import select
 from smartreco import models
 from smartreco.catalog_search import search_catalog
 from smartreco.domain.software_buying import BC_TO_REQ, BEHAVIORAL_CONCEPTS, REQUIREMENTS
-from smartreco.enums import JOURNEY_STAGES
+from smartreco.domain import active as domain
 from smartreco.models import utcnow
 from smartreco.repos import insert_events_idempotent
 from smartreco.retrieval import _CAP_BY_ID, save_product
@@ -638,10 +638,10 @@ def reasoning(request: Request, user_id: int | None = None, sd=Depends(_db)):
         select(models.JourneyStage).where(models.JourneyStage.journey_id == journey.journey_id)
         .order_by(models.JourneyStage.version.desc())).scalars().first()
     current_stage = stage_row.stage if stage_row else "Awareness"
-    current_index = JOURNEY_STAGES.index(current_stage)
+    current_index = domain.JOURNEY_STAGES.index(current_stage)
     stages = [{"name": s, "state": ("current" if i == current_index
                                     else "done" if i < current_index else "")}
-              for i, s in enumerate(JOURNEY_STAGES)]
+              for i, s in enumerate(domain.JOURNEY_STAGES)]
 
     latest: dict[str, models.Hypothesis] = {}
     for h in db.execute(select(models.Hypothesis).where(

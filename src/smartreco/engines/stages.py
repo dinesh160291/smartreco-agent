@@ -5,8 +5,8 @@ Current stage = highest stage whose milestone is satisfied with stage confidence
 hypotheses supported by the milestone-satisfying evidence. Pure function.
 """
 
-from smartreco.domain.software_buying import EVENT_STAGE_CHARACTER, STAGE_MILESTONES
-from smartreco.enums import EVIDENCE_STRENGTH, JOURNEY_STAGES
+from smartreco.domain import active as domain
+from smartreco.enums import EVIDENCE_STRENGTH
 from smartreco.policies import PolicyCatalog
 
 
@@ -36,15 +36,17 @@ def _milestone_evidence(milestone: dict, evidence: list[dict], event_types: list
                 and _strength_at_least(e["strength"], milestone["min_strength"])]
         return hits or None
     if kind == "decision_milestone":
+        # Satisfied by a strong signal from one set, or the mere presence of
+        # evidence from another. Which patterns fill those sets is the pack's.
         hits = [e for e in evidence
-                if (e["pattern_id"] == "BP-010" and _strength_at_least(e["strength"], "STRONG"))
-                or e["pattern_id"] == "BP-011"]
+                if (e["pattern_id"] in milestone["strong_patterns"]
+                    and _strength_at_least(e["strength"], "STRONG"))
+                or e["pattern_id"] in milestone["any_patterns"]]
         return hits or None
     if kind == "adoption_milestone":
-        # BP-011 evidence + onboarding/migration activity (Phase 4 refines the
-        # affinity-product condition; Domain 00 §4.1)
-        hits = [e for e in evidence if e["pattern_id"] == "BP-011"]
-        if hits and any(t == "DOCUMENTATION_VIEWED" for t in event_types):
+        # Pattern evidence *and* corroborating activity of a named event type.
+        hits = [e for e in evidence if e["pattern_id"] in milestone["patterns"]]
+        if hits and any(t in milestone["event_types"] for t in event_types):
             return hits
         return None
     raise ValueError(f"Unknown milestone kind {kind!r}")
@@ -59,7 +61,7 @@ def determine_stage(
     """Returns (stage, stage_confidence, explanation)."""
     min_confidence = policies.param("POL-STAGE-001", "min_stage_confidence")
 
-    for milestone in reversed(STAGE_MILESTONES):  # highest stage first
+    for milestone in reversed(domain.STAGE_MILESTONES):  # highest stage first
         hits = _milestone_evidence(milestone, evidence, event_types)
         if hits is None:
             continue
@@ -93,11 +95,11 @@ def apply_regression(current_stage: str, recent_high_signal_types: list[str],
     if len(recent_high_signal_types) < needed:
         return None
     window = recent_high_signal_types[-needed:]
-    current_index = JOURNEY_STAGES.index(current_stage)
+    current_index = domain.JOURNEY_STAGES.index(current_stage)
     characters = []
     for event_type in window:
-        stage = EVENT_STAGE_CHARACTER.get(event_type)
-        if stage is None or JOURNEY_STAGES.index(stage) >= current_index:
+        stage = domain.EVENT_STAGE_CHARACTER.get(event_type)
+        if stage is None or domain.JOURNEY_STAGES.index(stage) >= current_index:
             return None
-        characters.append(JOURNEY_STAGES.index(stage))
-    return JOURNEY_STAGES[max(characters)]
+        characters.append(domain.JOURNEY_STAGES.index(stage))
+    return domain.JOURNEY_STAGES[max(characters)]

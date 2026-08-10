@@ -22,7 +22,7 @@ from fastapi.testclient import TestClient
 import apps.web.main as web
 from smartreco import models
 from smartreco.domain.software_buying import CANONICAL_PRODUCTS
-from smartreco.engines import patterns
+from smartreco.domain.software_buying import patterns
 from smartreco.engines.patterns import EventView, evaluate_patterns
 from smartreco.policies import load_policies
 from smartreco.seeding import seed_canonical_products, seed_capabilities

@@ -78,7 +78,7 @@ Pages: login/register · home (categories + search) · search results · tabbed 
 
 Visual details: product identity via **generated monogram tiles** (square, initials on a deterministic per-vendor hue — no logo assets, works for admin-created products); **light/dark theme** with an in-app toggle (CSS custom-property tokens, `data-theme` attribute, defaults to OS preference); product cards use a **header-row layout** (tile + name/vendor line, description full-width below with clear separation).
 
-**Vocabulary rule:** canonical platform IDs (CAP-xxx, REQ-xxx, PROD-xxx, BC/BP codes) never appear on shopper-facing surfaces — users see display names only ("Single Sign-On", never "CAP-001"). IDs appear exclusively on admin screens and the Reasoning Panel, which are deliberately internal-facing.
+**Vocabulary rule:** canonical Domain Pack IDs (capability, requirement, product, concept and pattern codes) never appear on shopper-facing surfaces — users see the display name a pack supplies, never its identifier. IDs appear exclusively on admin screens and the Reasoning Panel, which are deliberately internal-facing. The rule is platform-wide; the vocabulary it protects belongs to whichever pack is active.
 
 ## Digest delivery channel — Telegram primary, Email optional
 

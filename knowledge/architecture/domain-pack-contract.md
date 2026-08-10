@@ -85,6 +85,10 @@ If a change appears to require editing an engine, that is the signal that either
 
 ---
 
-# Known Deviations
+# Conformance
 
-The reference implementation does not yet fully satisfy this contract. The boundary test records the exact set, each entry naming what must move and where. The deviations are behavioural no-ops — the software-buying pack works — but they would block a second domain, which is precisely why they are tracked rather than tolerated silently.
+The reference implementation satisfies this contract. `tests/test_domain_boundary.py` enforces it: no platform module or reusable document may hardcode a Domain Pack identifier, the pack must supply every contracted artifact, and the import seam must still exist.
+
+One permanent exception is recorded there — `docs/core/decision-log.md` names domain identifiers in historical entries. Rewriting past decisions to satisfy a later rule would falsify the record, so those stay.
+
+The test is a ratchet: an entry that stops leaking must be removed, so the exception list can only shrink.

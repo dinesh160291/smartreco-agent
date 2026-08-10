@@ -1268,3 +1268,39 @@ Defining the quantity rather than changing it was chosen deliberately. Always ev
 ## Consequences
 
 Chapter 20 gains a "Similarity Score — Definition" section; the Chapter 10 POL-RETR-002 row cites it and a note records the inert gate and its Tier 2 cost; `config/policies.yaml` mirrors the amended rule text (rule prose only — every parameter value is unchanged, so no new catalog version); `data-model.md` candidate_sets notes the range. Engines, tests, and the index are untouched; 139 tests remain green. Retuning the threshold for a backend with closer query/document vectors remains available as a policy-version change.
+
+# Decision #040
+
+## Title
+
+Platform/domain boundary made structural — domain knowledge relocated out of the engines, core chapters and implementation docs
+
+## Status
+
+Accepted
+
+## Decision
+
+Domain knowledge is removed from every platform surface and consolidated in the Domain Pack, reached through a single indirection.
+
+**Code.** The Software Buying pack becomes a package (`domain/software_buying/`) split by contract artifact: `knowledge.py` (declarative reference knowledge), `enums.py` (event registry, journey stages — artifacts 7 and 8, moved out of `smartreco.enums`), `patterns.py` (BP-001…012 activation rules, moved out of `engines/patterns.py`). `engines/evidence.py` holds `EventView` and `EvidenceDraft` so the pack and the engine share shapes without importing each other. `engines/patterns.py` keeps only the mechanism — session windowing, evaluator dispatch, ordering. Stage milestones name their own pattern ids in the pack's `STAGE_MILESTONES` rather than inside the engine's dispatcher.
+
+**Selection.** `smartreco.domain.active` resolves the configured pack from `DOMAIN_PACK` (default `software_buying`). Platform modules import `active`, never a pack by name.
+
+**Docs.** Acceptance stories → `docs/domains/software-buying/11-user-journey-stories.md`. Catalog seed strategy → `12-catalog-seed-strategy.md`. EventType registry → `13-event-registry.md`. Core 22 and `data-model.md` keep their mechanisms and point at the pack. Illustrative identifiers in Core 10 and `stack-decisions.md` are reworded to neutral language.
+
+**Enforcement.** `tests/test_domain_boundary.py` fails if any platform module or reusable document hardcodes a `BP/BC/CAP/REQ/PROD` identifier, if the pack stops supplying a contracted artifact, or if the import seam disappears. The one permanent exception is this decision log, whose historical entries legitimately name domain content.
+
+## Rationale
+
+The reuse claim — engines identical across domains, only the pack changes — was asserted in the architecture and contradicted by the code. `engines/patterns.py` held 442 lines of software-buying logic; `enums.py` held an event registry Core 22 explicitly said belonged to the active pack; the stage engine named BP-010 and BP-011 directly. A second domain could not have been added without editing engines, which is the failure the separation exists to prevent.
+
+Nothing here changes behaviour. The evaluator bodies moved verbatim; the milestone change replaces two inline literals with the same two ids read from the pack. This was deliberate: mixing relocation with redesign would have made a refactor bug indistinguishable from an intended change, and the acceptance suite is the only thing proving the move was faithful.
+
+The `DOMAIN_PACK` indirection was added rather than leaving direct imports, because a seam that every platform module bypasses is not a seam. Without it, swapping domains means editing each importer — the cost the boundary was meant to remove.
+
+## Consequences
+
+165 pre-existing tests unchanged and green (177 total including the boundary suite); live retrieval validation and catalog search verified unchanged against the demo database. `.env.example` gains `DOMAIN_PACK`. `knowledge/architecture/domain-pack-contract.md` moves from "known deviations" to "conformance". A second Domain Pack is now a directory plus a config value.
+
+One defect was found and fixed in the boundary test itself while landing this: its identifier pattern matched `REQ-003` inside `POL-REQ-003`, flagging policy lookups as domain leakage. Acting on that false positive rewrote live `policies.param` calls and broke 25 tests before revert; the pattern now excludes the `POL-` prefix and the reason is recorded in the test.
