@@ -1487,3 +1487,43 @@ The Docs pane no longer needs a dwell topic, so `doc_dwell_topic` resolves to em
 Two signature tests in `tests/test_patterns_bre.py` pin both directions: reading time alone does not reach Strong, and four qualifying events still do. Sabotage-verified by reinstating the removed clause. 295 tests green.
 
 This is the second defect this session found by reading the Domain Pack against the code rather than trusting the code (the first was the pricing tab asserting enterprise intent, Decision #044). Both had the same shape: the implementation was treated as the description of behaviour, and it was wrong.
+
+---
+
+# Decision #046
+
+## Title
+
+The Stage Engine reads event metadata — Adoption means onboarding *this* product
+
+## Status
+
+Accepted
+
+## Decision
+
+`determine_stage` takes journey events as `{event_type, metadata}` rather than a list of bare type names. The Adoption milestone now requires the corroborating documentation to be on an onboarding or migration topic **and** to concern a product the journey is actually adopting. Product Affinity co-supports Decision Confidence at Strong, as doc 02 specifies.
+
+## Rationale
+
+Found by auditing all twelve patterns against Domain Pack doc 02 after Decision #045 — the exercise that decision's rationale recommended. Activation and strength rules were eleven-of-twelve correct. The gaps were elsewhere.
+
+**Adoption was reachable on the wrong evidence.** Doc 00 §4.1 defines the milestone as *"BP-011 Evidence exists and the journey's affinity product has onboarding/migration activity"*. The engine checked that BP-011 evidence existed and that the journey contained **any** `DOCUMENTATION_VIEWED` at all — no topic, no product. A shopper who started a trial and had once opened any product's docs tab reached the highest stage in the model.
+
+That is not cosmetic. Stage gates the Critical priority band (POL-REQ-002 requires stage ≥ Technical Validation), and Critical carries triple weight in coverage ranking (POL-REC-002). An inflated stage can inflate a requirement's priority and reorder the recommendations a shopper sees.
+
+The cause was visible in the seam: the engine received `event_types` as a list of strings, so it *could not* ask what a view was about. The weak check was the strongest expressible against that input. Widening the parameter is the fix; the milestone conditions then state themselves. The pattern that produces the adoption evidence already collects onboarding/migration views into its supporting events, so the vocabulary existed — only the milestone ignored it.
+
+Product scoping falls back to topic alone when no product is identifiable. Some adoption triggers name no product — a checkout covers the whole cart — and demanding a match there would make Adoption unreachable for anyone who buys rather than trials.
+
+**Product Affinity's co-support was simply missing.** Doc 02: *"BC-012 Product Affinity; sustained affinity co-supports BC-016 Decision Confidence."* Sustained is read as the pattern's own Strong bar — five qualifying events on one product. Adoption Readiness already co-supports that concept, so this was the only route to it for a shopper who converges without yet trialling or buying.
+
+## Consequences
+
+`determine_stage`'s signature changes; the single production caller in `pipeline` now passes metadata, and the stage tests were migrated mechanically. Behaviour was verified unchanged by that refactor before any milestone logic moved.
+
+No acceptance story shifted stage: all twelve stories and the four derivation scenarios pass untouched, which is the evidence that this tightening corrects an over-eager path rather than breaking a working one. Journeys in existing databases may compute a *lower* Adoption stage on their next run, which is the point.
+
+`STAGE_MILESTONES` gains `topics` and `product_event_types`; the latter is imported from the pattern that defines the triggers so the two cannot drift. Four signature tests in `test_stage_engine.py` and one in `test_patterns_bre_phase4.py`, all sabotage-verified. 301 tests green.
+
+Three defects this session came from the same habit — describing behaviour by reading the implementation instead of the pack (Decisions #044, #045, and this one). The audit that found these two was itself the corrective, and it is worth repeating whenever the pack changes.

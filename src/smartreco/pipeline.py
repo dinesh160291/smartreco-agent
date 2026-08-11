@@ -519,9 +519,10 @@ def stage_resolve_stage(ctx: WorkflowContext, state: dict) -> bool:
          "strength": ev.strength, "concept_ids": ev.concept_ids}
         for ev in repos.journey_evidence(ctx.db, journey_id)
     ]
-    event_types = [e.event_type for e in state["journey_events"]]
+    stage_events = [{"event_type": e.event_type, "metadata": e.event_metadata or {}}
+                    for e in state["journey_events"]]
     stage, stage_conf, stage_explanation = determine_stage(
-        evidence_dicts, state["active"], event_types, ctx.policies)
+        evidence_dicts, state["active"], stage_events, ctx.policies)
     recent_high = [e.event_type for e in state["journey_events"]
                    if e.signal_class == "HIGH"]
     regressed = apply_regression(stage, recent_high, ctx.policies)

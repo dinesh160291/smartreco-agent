@@ -14,12 +14,19 @@ def _strength_at_least(strength: str, minimum: str) -> bool:
     return EVIDENCE_STRENGTH.index(strength) >= EVIDENCE_STRENGTH.index(minimum)
 
 
-def _milestone_evidence(milestone: dict, evidence: list[dict], event_types: list[str]) -> list[dict] | None:
+def _milestone_evidence(milestone: dict, evidence: list[dict],
+                        events: list[dict]) -> list[dict] | None:
     """Return the evidence satisfying the milestone, or None if unsatisfied.
-    An empty list means satisfied without evidence (event-based milestones)."""
+    An empty list means satisfied without evidence (event-based milestones).
+
+    `events` carries metadata, not just type names: a milestone may need to ask
+    *what* an event was about — which topic, which product — and a list of bare
+    type strings cannot answer that (Decision #046).
+    """
     kind = milestone["kind"]
+    event_types = [e["event_type"] for e in events]
     if kind == "events_no_evidence":
-        return [] if event_types else None
+        return [] if events else None
     if kind == "pattern_evidence":
         hits = [e for e in evidence if e["pattern_id"] in milestone["patterns"]]
         return hits or None
@@ -44,9 +51,27 @@ def _milestone_evidence(milestone: dict, evidence: list[dict], event_types: list
                 or e["pattern_id"] in milestone["any_patterns"]]
         return hits or None
     if kind == "adoption_milestone":
-        # Pattern evidence *and* corroborating activity of a named event type.
+        # Pattern evidence *and* corroborating activity on the right topic, for
+        # the product actually being adopted. Both qualifiers matter: without
+        # the topic, any documentation view promotes the journey; without the
+        # product, someone else's rollout does.
         hits = [e for e in evidence if e["pattern_id"] in milestone["patterns"]]
-        if hits and any(t in milestone["event_types"] for t in event_types):
+        if not hits:
+            return None
+        adopted = {e["metadata"].get("product_id") for e in events
+                   if e["event_type"] in milestone["product_event_types"]}
+        adopted.discard(None)
+        topics = set(milestone["topics"])
+        for event in events:
+            if event["event_type"] not in milestone["event_types"]:
+                continue
+            if event["metadata"].get("topic") not in topics:
+                continue
+            # Scope to the adopted product only when the journey names one: a
+            # checkout covers the whole cart and carries no product_id, and
+            # demanding a match there would make Adoption unreachable.
+            if adopted and event["metadata"].get("product_id") not in adopted:
+                continue
             return hits
         return None
     raise ValueError(f"Unknown milestone kind {kind!r}")
@@ -55,14 +80,14 @@ def _milestone_evidence(milestone: dict, evidence: list[dict], event_types: list
 def determine_stage(
     evidence: list[dict],  # [{evidence_id, pattern_id, strength, concept_ids}]
     hypotheses_by_concept: dict[str, float],  # active hypotheses only
-    event_types: list[str],
+    events: list[dict],  # [{event_type, metadata}] — journey-scoped
     policies: PolicyCatalog,
 ) -> tuple[str, float, str]:
     """Returns (stage, stage_confidence, explanation)."""
     min_confidence = policies.param("POL-STAGE-001", "min_stage_confidence")
 
     for milestone in reversed(domain.STAGE_MILESTONES):  # highest stage first
-        hits = _milestone_evidence(milestone, evidence, event_types)
+        hits = _milestone_evidence(milestone, evidence, events)
         if hits is None:
             continue
         if not hits:

@@ -155,3 +155,26 @@ def test_bp011_cart_is_strong_checkout_is_very_strong(policies):
     purchase = cart + [E(2, "PURCHASE_COMPLETED", product_id="PROD-003")]
     drafts = by_pattern(evaluate_patterns(purchase, policies), "BP-011")
     assert drafts[0].strength == "VERY_STRONG"
+
+
+def test_sustained_affinity_co_supports_decision_confidence(policies):
+    """Doc 02: 'BC-012 Product Affinity; sustained affinity co-supports BC-016
+    Decision Confidence.' The co-support was never implemented (Decision #046).
+
+    Sustained is the pattern's own Strong bar — five qualifying events on one
+    product. Below it the shopper is still looking; at it they have converged,
+    which is what Decision Confidence describes. Adoption Readiness already
+    co-supports the same concept, so this pattern was the only route to it for
+    a shopper who converges without yet trialling or buying.
+    """
+    events = [E(1, "PRODUCT_VIEWED", session="s1", product_id="PROD-003"),
+              E(2, "PRODUCT_VIEWED", session="s1", product_id="PROD-003"),
+              E(3, "PRODUCT_VIEWED", session="s2", product_id="PROD-003"),
+              E(4, "PRODUCT_VIEWED", session="s2", product_id="PROD-003"),
+              E(5, "PRICING_VIEWED", session="s2", product_id="PROD-003",
+                tier="enterprise")]
+    drafts = by_pattern(evaluate_patterns(events, policies), "BP-010")
+    assert len(drafts) == 1 and drafts[0].strength == "STRONG"
+    assert drafts[0].concept_ids == ["BC-012", "BC-016"], (
+        f"sustained affinity did not co-support Decision Confidence: "
+        f"{drafts[0].concept_ids}")

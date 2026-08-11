@@ -11,6 +11,8 @@ Runtime Objects (doc 09, Principles 4-5). Pattern activation thresholds are
 Domain Pack v1 values (doc 02: "the numbers are their v1 defaults").
 """
 
+from smartreco.domain.software_buying.patterns import BP011_TRIGGERS
+
 DOMAIN_PACK_VERSION = "1.0"
 
 # ---- Behavioral Concept Registry (doc 01) ----
@@ -256,8 +258,15 @@ STAGE_MILESTONES: list[dict] = [
     # to evaluate, the lists say what to evaluate against.
     {"stage": "Decision", "kind": "decision_milestone",
      "strong_patterns": ["BP-010"], "any_patterns": ["BP-011"]},
+    # Doc 00 §4.1: BP-011 evidence *and the journey's affinity product has
+    # onboarding/migration activity*. Both qualifiers are load-bearing — the
+    # topic, and the product it belongs to. `product_event_types` names the
+    # triggers that identify which product is being adopted, imported from the
+    # pattern that defines them so the two cannot drift apart.
     {"stage": "Adoption", "kind": "adoption_milestone",
-     "patterns": ["BP-011"], "event_types": ["DOCUMENTATION_VIEWED"]},
+     "patterns": ["BP-011"], "event_types": ["DOCUMENTATION_VIEWED"],
+     "topics": ["onboarding", "migration"],
+     "product_event_types": sorted(BP011_TRIGGERS)},
 ]
 
 # ---- Event stage character (POL-STAGE-002 support) ----

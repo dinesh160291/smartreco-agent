@@ -331,8 +331,12 @@ def _evaluate_bp010(journey_events: list[EventView]) -> list[EvidenceDraft]:
             continue
         qualifying = views + pricing
         strength = "STRONG" if len(qualifying) >= 5 else "MEDIUM"
+        # "Sustained affinity co-supports BC-016 Decision Confidence" (doc 02).
+        # Sustained is this pattern's own Strong bar: below it the shopper is
+        # still looking, at it they have converged.
+        concepts = ["BC-012", "BC-016"] if strength == "STRONG" else ["BC-012"]
         drafts.append(EvidenceDraft(
-            pattern_id="BP-010", strength=strength, concept_ids=["BC-012"],
+            pattern_id="BP-010", strength=strength, concept_ids=concepts,
             supporting_event_ids=[e.event_id for _, e in qualifying],
             explanation=f"BP-010 activated for a product: {len(qualifying)} signal(s) -> {strength}"))
 
