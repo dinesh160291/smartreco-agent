@@ -381,3 +381,29 @@ def test_reading_a_pane_accrues_dwell_against_that_panes_topic(client):
             f"the {pane} pane sets dwell topic {dwell.get(pane)!r}, which no "
             f"pattern reads — either add the dwell clause to the Domain Pack "
             f"or leave the stopwatch off")
+
+
+def test_no_pane_runs_a_stopwatch_no_dwell_clause_reads(client):
+    """The rule stated as an invariant rather than two examples.
+
+    The Docs pane carries whatever topic the product's own capabilities imply,
+    so it is `ai` on Slack and `sso` on Okta. Only `ai` is read by a dwell
+    clause — so the same pane is useful on one product and pure noise on
+    another, which is why this is checked across the roster rather than on a
+    single page. `DWELL_TOPICS` comes from the Domain Pack: if a pack adds a
+    dwell clause, the surfaces follow without an edit here.
+    """
+    from smartreco.domain import active as domain
+
+    for product_id in ROSTER:
+        html = client.get(f"/product/{product_id}").text
+        for pane, topic in re.findall(
+                r'data-tab="(\w+)" data-dwell-topic="([^"]*)"', html):
+            assert topic == "" or topic in domain.DWELL_TOPICS, (
+                f"{product_id} {pane} pane runs a dwell heartbeat on "
+                f"{topic!r}, which no dwell clause reads")
+
+    # …and the useful half still happens: an AI product's docs pane counts.
+    slack = client.get("/product/PROD-002").text
+    assert 'data-tab="docs" data-dwell-topic="ai"' in slack, (
+        "switching off unread topics also switched off the one that works")

@@ -34,7 +34,9 @@
      topic (certifications/audit/compliance) belongs on the click event only. #}
   <button data-tab="security" data-dwell-topic="security"
           data-track="SECURITY_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}", "page": "{{ p.product_id }}-security", "topic": "{{ p.security_topic }}"}'>Security &amp; Compliance</button>
-  <button data-tab="docs" data-dwell-topic="{{ p.doc_topic }}"
+  {# Dwell topic only when a dwell clause reads it (blank on e.g. "sso"); the
+     click below always carries the pane's real topic. #}
+  <button data-tab="docs" data-dwell-topic="{{ p.doc_dwell_topic }}"
           data-track="DOCUMENTATION_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}", "topic": "{{ p.doc_topic }}"}'>Docs &amp; API</button>
   {# Likewise no dwell topic: BP-008 reaches Strong on breadth (an API page and
      a connector page together), not on time, so reading length means nothing

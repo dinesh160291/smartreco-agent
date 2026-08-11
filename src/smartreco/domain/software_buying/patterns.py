@@ -24,6 +24,16 @@ BP002_DOC_TOPICS = {"admin", "provisioning", "federation"}
 BP002_SECURITY_TOPICS = {"compliance", "audit"}
 BP002_ENTERPRISE_TIER = "enterprise"
 BP003_SEARCH_TERMS = {"ai", "copilot", "assistant"}
+
+# Topics whose *reading time* counts as evidence. Only two patterns have a
+# dwell clause, because dwell is only a fair proxy for effort where reading is
+# the research itself — security posture and AI data handling are studied,
+# while integration and automation fitness are checked. Named here rather than
+# left as literals in the evaluators so a surface can ask which topics are
+# worth running a heartbeat for, instead of hardcoding the answer.
+BP001_DWELL_TOPIC = "security"
+BP003_DWELL_TOPIC = "ai"
+DWELL_TOPICS = frozenset({BP001_DWELL_TOPIC, BP003_DWELL_TOPIC})
 BP005_DOC_TOPICS = {"messaging", "meetings", "co-editing"}
 BP006_DOC_TOPICS = {"productivity", "templates", "tasks"}
 BP006_SEARCH_TERMS = {"productivity", "templates", "tasks"}
@@ -49,7 +59,8 @@ def _evaluate_bp001(session_events: list[EventView]) -> EvidenceDraft | None:
 
     qualifying = security_views + security_docs
     dwell_events = [e for e in session_events
-                    if e.event_type == "DWELL" and e.metadata.get("topic") == "security"]
+                    if e.event_type == "DWELL"
+                    and e.metadata.get("topic") == BP001_DWELL_TOPIC]
     dwell_seconds = sum(e.metadata.get("seconds", 0) for e in dwell_events)
 
     strength = "STRONG" if len(qualifying) >= 4 or dwell_seconds >= 60 else "MEDIUM"
@@ -81,7 +92,8 @@ def _evaluate_bp003(session_events: list[EventView]) -> EvidenceDraft | None:
     if len(qualifying) < 2:
         return None
     dwell_seconds = sum(e.metadata.get("seconds", 0) for e in session_events
-                        if e.event_type == "DWELL" and e.metadata.get("topic") == "ai")
+                        if e.event_type == "DWELL"
+                        and e.metadata.get("topic") == BP003_DWELL_TOPIC)
     strength = "STRONG" if len(qualifying) >= 4 or dwell_seconds >= 60 else "MEDIUM"
     return EvidenceDraft(
         pattern_id="BP-003", strength=strength, concept_ids=["BC-003"],

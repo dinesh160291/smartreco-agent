@@ -282,6 +282,12 @@ def product_page(request: Request, product_id: str, sd=Depends(_db)):
     view["doc_topic"] = _doc_topic(cap_ids, _DOC_TOPICS, "api")
     view["integrations_topic"] = _doc_topic(cap_ids, _INTEGRATION_TOPICS, "integrations")
     view["security_topic"] = _doc_topic(cap_ids, _SECURITY_TOPICS, "compliance")
+    # Run the dwell heartbeat only for a topic some pattern's dwell clause
+    # reads. Okta's docs pane is "sso", which no clause reads, so a stopwatch
+    # there would write LOW-signal rows nobody consumes — the same waste that
+    # took Pricing and Integrations off the clock.
+    view["doc_dwell_topic"] = (view["doc_topic"]
+                               if view["doc_topic"] in domain.DWELL_TOPICS else "")
 
     events = [{"type": "PRODUCT_VIEWED",
                "metadata": {"product_id": product_id, "category": (p.category or "").lower()}}]
