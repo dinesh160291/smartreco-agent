@@ -52,6 +52,42 @@ def test_cooldown_blocks_but_stage_transition_bypasses(policies):
     assert evaluate_trigger("EVENT_ACCUMULATION", cooled, policies).run is True
 
 
+def test_session_end_needs_unprocessed_activity(policies):
+    """Core 23: SESSION_END fires when a session closes *with unprocessed
+    high/medium activity*. A quiet session that left nothing behind is not an
+    occasion to reason."""
+    idle = 31 * 60.0  # past POL-TRACK-003's 30-minute window
+    nothing_left = ctx(unprocessed_high_medium_events=0, newest_event_age_seconds=idle)
+    decision = evaluate_trigger("SESSION_END", nothing_left, policies)
+    assert decision.run is False and "unprocessed" in decision.reason
+
+
+def test_session_end_waits_for_the_session_to_close(policies):
+    """The shopper is still clicking: the session has not closed, so its
+    boundary has not arrived (POL-TRACK-003)."""
+    still_active = ctx(unprocessed_high_medium_events=4, newest_event_age_seconds=600.0)
+    decision = evaluate_trigger("SESSION_END", still_active, policies)
+    assert decision.run is False and "session" in decision.reason
+
+
+def test_session_end_runs_below_the_accumulation_threshold(policies):
+    """The defect this trigger exists to fix: a shopper who stops clicking with
+    fewer than POL-TRIG-001's five events pending — a purchase, say — must still
+    be reasoned about. EVENT_ACCUMULATION cannot do it; SESSION_END must."""
+    stranded = ctx(unprocessed_high_medium_events=4, newest_event_age_seconds=31 * 60.0)
+    assert evaluate_trigger("EVENT_ACCUMULATION", stranded, policies).run is False
+    assert evaluate_trigger("SESSION_END", stranded, policies).run is True
+
+
+def test_session_end_still_respects_cooldown(policies):
+    """Only STAGE_TRANSITION bypasses cooldown (Core 23) — SESSION_END is not
+    an exception to POL-TRIG-002."""
+    recent = ctx(unprocessed_high_medium_events=4, newest_event_age_seconds=31 * 60.0,
+                 seconds_since_last_run=60.0)
+    decision = evaluate_trigger("SESSION_END", recent, policies)
+    assert decision.run is False and "cooldown" in decision.reason
+
+
 def test_concurrency_skip_pol_trig_005(policies):
     busy = ctx(unprocessed_high_medium_events=5, run_in_flight=True)
     decision = evaluate_trigger("EVENT_ACCUMULATION", busy, policies)

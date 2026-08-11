@@ -36,6 +36,21 @@ All trigger conditions are Decision Policy values. The trigger evaluator is dete
 | SCHEDULED | Proactive delivery schedule fires (Chapter 24) | Daily digest window |
 | ADMIN_CATALOG_CHANGE | Product mutations invalidate cached recommendations referencing them | Invalidation sweep |
 
+## A declared trigger must have something that raises it
+
+A trigger nothing emits is not implemented, however complete the evaluator looks: its gates are unreachable, and the behaviour the table promises never happens. This is the trigger-layer form of the reachability rule the Domain Pack's event registry states for event types.
+
+**How each is raised in the reference implementation:**
+
+| Trigger | Raised by |
+|---|---|
+| EVENT_ACCUMULATION | the ingestion endpoint, as a background task per accepted batch |
+| SESSION_END | a background sweep every `POL-TRACK-003.end_sweep_interval_minutes`, over shoppers whose newest unprocessed high/medium event predates that policy's inactivity window (Decision #047) |
+| SCHEDULED | the daily digest window (Chapter 24) |
+| SIGNIFICANT_EVENT · STAGE_TRANSITION · REQUIREMENT_SHIFT · ADMIN_CATALOG_CHANGE | **not raised in v1** — declared and evaluable, with no caller |
+
+SESSION_END exists because EVENT_ACCUMULATION cannot reach a shopper who has stopped. Its threshold is met by events that arrive, so a visit ending below the threshold — the ordinary case, and the certain case after a purchase — leaves work no later event will ever collect. Session closure is the boundary at which that work must be picked up, and inactivity is how closure is observed: a client-sent "session over" signal is missing in exactly the cases that matter (closed tab, closed laptop, crashed browser).
+
 ---
 
 # Debounce and Cooldown

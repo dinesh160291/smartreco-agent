@@ -14,7 +14,7 @@ workflow_runs row (docs/core/23).
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
@@ -902,3 +902,42 @@ def run_workflow(
     run.finished_at = now
     db.commit()
     return run
+
+
+def session_end_sweep(db: OrmSession, chroma_client, backend: EmbeddingBackend,
+                      policies: PolicyCatalog, now: datetime | None = None,
+                      gateway=None, executor=None) -> list[models.WorkflowRun]:
+    """Raise SESSION_END for every shopper whose session closed with unprocessed
+    activity (Core 23 Trigger Types).
+
+    Event ingestion can only ever raise EVENT_ACCUMULATION, and that trigger
+    needs POL-TRIG-001's five pending events. A shopper who stops below the
+    threshold — the common case at the end of a visit, and the certain case
+    after a purchase, which is the last thing anyone does — leaves work that
+    nothing will ever pick up, because the only thing that wakes the evaluator
+    is another event from the shopper who has left.
+
+    The boundary is inactivity: POL-TRACK-003's window, already the session
+    boundary for the tracking client and for journey resolution. Candidates are
+    pre-filtered here rather than left to the evaluator so a sweep every few
+    minutes does not write a SKIPPED row per idle user per tick; the evaluator
+    still re-checks both halves of the condition and remains the authority.
+
+    Self-limiting: a completed run stamps the events processed, so the next
+    sweep finds nothing for that shopper.
+    """
+    now = _now(now)
+    cutoff = now - timedelta(
+        minutes=policies.param("POL-TRACK-003", "inactivity_minutes"))
+    departed = db.execute(
+        select(models.Event.user_id)
+        .where(models.Event.processed_at.is_(None),
+               models.Event.signal_class.in_(("HIGH", "MEDIUM")))
+        .group_by(models.Event.user_id)
+        .having(func.max(models.Event.received_at) < cutoff)
+    ).scalars().all()
+    return [
+        run_workflow(db, chroma_client, backend, policies, user_id, "SESSION_END",
+                     now=now, gateway=gateway, executor=executor)
+        for user_id in departed
+    ]

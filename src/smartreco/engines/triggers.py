@@ -45,6 +45,19 @@ def evaluate_trigger(trigger_type: str, ctx: TriggerContext, policies: PolicyCat
     elif trigger_type == "SIGNIFICANT_EVENT":
         if ctx.unprocessed_high_medium_events < 1:
             return TriggerDecision(False, "no unprocessed significant event")
+    elif trigger_type == "SESSION_END":
+        # "A session closes with unprocessed high/medium-signal activity"
+        # (Core 23). Both halves are conditions: something must be left over,
+        # and the session must actually be over. Closure is inactivity —
+        # POL-TRACK-003's window, the same one the tracking client and journey
+        # resolution already treat as the session boundary.
+        if ctx.unprocessed_high_medium_events < 1:
+            return TriggerDecision(False, "no unprocessed activity at session close")
+        session_timeout = policies.param("POL-TRACK-003", "inactivity_minutes") * 60
+        if ctx.newest_event_age_seconds < session_timeout:
+            return TriggerDecision(False,
+                f"session still open: newest event {ctx.newest_event_age_seconds}s old < "
+                f"{session_timeout}s (POL-TRACK-003)")
 
     # 2. Debounce — wait for the burst to finish (SIGNIFICANT_EVENT)
     if trigger_type == "SIGNIFICANT_EVENT" and ctx.newest_event_age_seconds < debounce_seconds:

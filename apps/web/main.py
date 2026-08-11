@@ -72,11 +72,13 @@ def _init_state():
         reconcile_pending(db, _state["chroma"], _state["backend"])
         _bootstrap_admin(db)
 
-    # Real background scheduler — the digest's only initiation path (Core 24).
+    # Real background scheduler — the digest's only initiation path (Core 24),
+    # and the SESSION_END sweep's (Core 23; Decision #047).
     from apscheduler.schedulers.background import BackgroundScheduler
 
     from smartreco.delivery import run_digest_cycle
     from smartreco.models import utcnow as _utcnow
+    from smartreco.pipeline import session_end_sweep
 
     hour, minute = map(int, str(policies.param(
         "POL-DELIV-002", "daily_time_local")).split(":"))
@@ -88,9 +90,26 @@ def _init_state():
             sent = sum(1 for r in records if r.status == "SENT")
             print(f"[digest] window fired: {len(records)} evaluated, {sent} sent")
 
+    def _session_end_job():
+        """Event ingestion only ever raises EVENT_ACCUMULATION, so a shopper who
+        stops clicking below its threshold is never reasoned about again. This
+        is the only path that reaches them."""
+        from smartreco.orchestration import adk_executor
+
+        with _state["session_factory"]() as job_db:
+            runs = session_end_sweep(job_db, _state["chroma"], _state["backend"],
+                                     policies, _utcnow(), gateway=_state.get("gateway"),
+                                     executor=adk_executor)
+            if runs:
+                completed = sum(1 for r in runs if r.status == "COMPLETED")
+                print(f"[session-end] {len(runs)} closed session(s), {completed} reasoned")
+
     scheduler = BackgroundScheduler()
     scheduler.add_job(_digest_job, "cron", hour=hour, minute=minute,
                       id="daily-digest")
+    scheduler.add_job(_session_end_job, "interval",
+                      minutes=policies.param("POL-TRACK-003", "end_sweep_interval_minutes"),
+                      id="session-end-sweep")
     scheduler.start()
     _state["scheduler"] = scheduler
     return _state

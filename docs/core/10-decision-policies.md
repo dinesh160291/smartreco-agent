@@ -711,7 +711,7 @@ The following are the platform's initial published policy values. They are confi
 |---|---|---|
 | POL-TRACK-001 | Client batching | batch_size = 10 events; flush_interval = 15s; failed flushes retry max 3 times with exponential backoff, then drop (low-signal first); server rejects batches > 50 events |
 | POL-TRACK-002 | Dwell heartbeat | 10s cadence, visible pages only |
-| POL-TRACK-003 | Session timeout | 30 minutes of inactivity |
+| POL-TRACK-003 | Session timeout | 30 minutes of inactivity. The same window is the SESSION_END boundary (Chapter 23): a session past it with unprocessed high/medium events raises the trigger. **end_sweep_interval_minutes = 5** — how often the platform looks for those boundaries (Decision #047) |
 
 ## Learning, Decay & Journey Policies
 

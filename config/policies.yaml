@@ -290,9 +290,13 @@ policies:
   POL-TRACK-003:
     name: Session timeout
     category: tracking
-    rule: "30 minutes of inactivity"
+    rule: >-
+      30 minutes of inactivity. A closed session with unprocessed high/medium activity raises
+      SESSION_END (Core 23); the platform looks for those boundaries every 5 minutes
+      (Decision #047).
     params:
       inactivity_minutes: 30
+      end_sweep_interval_minutes: 5
 
   # ---- Learning, Decay & Journey Policies ----
 

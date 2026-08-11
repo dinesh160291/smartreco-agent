@@ -1527,3 +1527,45 @@ No acceptance story shifted stage: all twelve stories and the four derivation sc
 `STAGE_MILESTONES` gains `topics` and `product_event_types`; the latter is imported from the pattern that defines the triggers so the two cannot drift. Four signature tests in `test_stage_engine.py` and one in `test_patterns_bre_phase4.py`, all sabotage-verified. 301 tests green.
 
 Three defects this session came from the same habit — describing behaviour by reading the implementation instead of the pack (Decisions #044, #045, and this one). The audit that found these two was itself the corrective, and it is worth repeating whenever the pack changes.
+
+---
+
+# Decision #047
+
+## Title
+
+Raise SESSION_END — reasoning must not depend on the shopper still clicking
+
+## Status
+
+Accepted
+
+## Decision
+
+The platform raises the `SESSION_END` trigger that Chapter 23 has always listed. A background sweep, running every `POL-TRACK-003.end_sweep_interval_minutes` (5), finds shoppers whose newest unprocessed high/medium event is older than that policy's inactivity window and runs the workflow for each with trigger type `SESSION_END`. The trigger evaluator gains the matching condition: unprocessed activity must exist **and** the session must be closed. `SESSION_END` does not bypass cooldown — only `STAGE_TRANSITION` does.
+
+## Rationale
+
+Chapter 23 names seven trigger types. Two were ever raised: `EVENT_ACCUMULATION`, from event ingestion, and `SCHEDULED`, from the digest. The other five existed in the enum and in the evaluator's gate sequence, reachable by nothing.
+
+That made event ingestion the only thing that could wake the evaluator, and `EVENT_ACCUMULATION` needs POL-TRIG-001's five pending events. A shopper who stops below the threshold leaves work that nothing will ever collect — because the only thing that would collect it is another event from a shopper who has left. It is not a delay; it is permanent.
+
+Found in a live trace. A shopper researched automation across four products, bought ServiceNow, and closed the tab. The purchase burst was four high-signal events. Four is not five, so no run started: the journey stayed ACTIVE, the purchase was never reasoned about, no trait was considered, and the shopper saw "not ready" on a journey the deterministic engines were one run from resolving. Replayed on a copy of that database, a single further run published the requirement at 0.60, flipped readiness to READY with ServiceNow at 100% coverage, and closed the journey as PURCHASED. Nothing was wrong with the reasoning. It never got its last run.
+
+The same gap degrades journeys that do not end in a purchase. Confidence accumulates per run, not per event, so the number of runs a visit produces is a real input to the outcome. Two accounts performed the same research minutes apart in the same live session; the one that clicked more slowly produced three runs and reached READY, while the more thorough one produced two, stalled at 0.30 against the 0.50 publication bar, and left eleven events — including a trial start and a demo request — unprocessed forever. The thorough shopper got the worse answer.
+
+**Why inactivity, not a client signal.** A `pagehide` beacon reports the boundary directly, but it is exactly the report that fails when it matters: a closed laptop, a killed tab, a crashed browser. The tracking client is silent by design (Core 22), so a beacon that never arrives is indistinguishable from a session that never ended. Inactivity is observed server-side from data already recorded, and POL-TRACK-003's window is already the session boundary for both the tracking client and journey resolution. Reusing it adds no new notion of "over".
+
+**Why a sweep over users rather than session rows.** Once every session of a shopper's is past the inactivity window, they have no open session, and the workflow's unit is the shopper. Tracking closure per session row would need a schema column and its own bookkeeping to avoid re-firing; the user-level query needs neither, because a completed run stamps its events processed and the next sweep finds nothing. Candidates are pre-filtered in SQL rather than left to the evaluator, so a five-minute sweep does not write a SKIPPED row per idle shopper per tick — the trigger log stays a record of occasions, not of ticks. The evaluator re-checks both halves of the condition and remains the authority.
+
+## Consequences
+
+Journeys now resolve after the shopper leaves, which is when most journeys actually end. Purchases close their journeys without needing four more clicks; the Learning Engine sees closures it was previously never offered.
+
+Existing databases self-heal: any journey sitting on unprocessed events is swept within five minutes of the next start-up, including the stranded case-3 journey that prompted this.
+
+`POL-TRACK-003` gains a parameter, mirrored in the Chapter 10 catalog. `session_end_sweep` in `pipeline`, the condition in `engines/triggers`, and one APScheduler interval job — the same scheduler the digest already uses, which is why the deployment target remains a long-running host with a persistent disk.
+
+Eight signature tests: four on the evaluator condition (`test_trigger_evaluator`), four on the sweep (`test_session_end_trigger`), all with a simulated clock and no real waits. Sabotage-verified: relaxing the inactivity cutoff reddens the still-shopping case, dropping the signal-class filter reddens the dwell-only case. 309 tests green.
+
+The remaining four declared-but-unraised triggers — `SIGNIFICANT_EVENT`, `STAGE_TRANSITION`, `REQUIREMENT_SHIFT`, `ADMIN_CATALOG_CHANGE` — are unchanged and still unreachable. Each is a latent version of this same defect: a policy that cannot fire is a policy that is not implemented, however complete the evaluator looks. Scoped deliberately: this decision fixes the one that strands shoppers.
