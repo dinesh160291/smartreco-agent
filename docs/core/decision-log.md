@@ -1451,3 +1451,39 @@ No contact form. Events are append-only and immutable (Law 6), so personal data 
 `ui-design-spec` §4.6a specifies the tier cards: the pricing pane opts out of the 68ch prose measure and centres a 720px row of two `flex: 1 1 0` cards, so they stay equal whatever their copy. Domain Pack 13 gains the reachability rule and the `tier` semantics. Four signature tests in `test_ui_tracking_contract.py` pin the registry ratchet, the tier-less tab hook, both tiers as vocabulary the patterns read, and per-pane dwell topics. 206 tests green, all sabotage-verified.
 
 An earlier claim in this session that dwell "never fires" was too strong and is corrected here: BP-001's dwell path was wired correctly all along via the Security tab. What was broken is that no other pane carried a topic, and heartbeats are visible-only by design (POL-TRACK-002), so an automated window that is minimised produces none.
+
+---
+
+# Decision #045
+
+## Title
+
+Reading time substitutes for activity in exactly one pattern — remove the unspecified dwell path
+
+## Status
+
+Accepted
+
+## Decision
+
+Only Security Evaluation promotes evidence to Strong on dwell. The dwell clause the code carried in AI Evaluation is removed, matching Domain Pack doc 02. The dwell vocabulary is named in the pack (`DWELL_TOPICS`, now a single topic) and surfaces run a heartbeat only for topics in that set, so the Security pane is the only one with a stopwatch.
+
+## Rationale
+
+Doc 02 gives Security Evaluation the clause explicitly — *"Strong (≥ 4 qualifying events or supporting dwell)"* — and gives AI Evaluation *"Strong with ≥ 4 qualifying events"*, full stop. The code promoted on dwell in both. The divergence was invisible because **no test covered the AI path**; every dwell test in the suite exercised the security pattern.
+
+The pack's asymmetry is deliberate, not an omission, and that is what decided the direction of the fix. Security interest can only be shown on a product's security page, and a product has exactly one, so reaching four qualifying events means visiting four separate products — reading a single product closely deserves an alternative route. AI Evaluation qualifies on documentation views, product views **and** searches, so four accumulate inside one product plus a couple of searches. It never needed an escape hatch, and giving it one made Strong cheaper there than anywhere else for no stated reason.
+
+The alternative — amending doc 02 so the spec matched the code — was rejected. It would have been the easier edit, and the code had already shipped and been demonstrated, but changing a spec to match its implementation can rationalise any bug. It should require a positive argument, and here the argument ran the other way.
+
+Doc 02 also lists `DWELL ≥ 60s` as *Optional Supporting* evidence for compliance, automation and integration research. That is lineage, not strength: supporting events appear in an evidence object's trail and change no confidence value. It remains unimplemented, knowingly.
+
+## Consequences
+
+Behaviour change: a shopper who reads an AI product's documentation for two minutes without other AI activity now produces Medium rather than Strong evidence, which is what the pack always specified. Nothing else moves — every click is unchanged, and the Security dwell path is untouched.
+
+The Docs pane no longer needs a dwell topic, so `doc_dwell_topic` resolves to empty for every product and **Security is the only pane running a heartbeat** — simpler than the per-product conditional it replaces. `ui-design-spec` §4.6b records the rule.
+
+Two signature tests in `tests/test_patterns_bre.py` pin both directions: reading time alone does not reach Strong, and four qualifying events still do. Sabotage-verified by reinstating the removed clause. 295 tests green.
+
+This is the second defect this session found by reading the Domain Pack against the code rather than trusting the code (the first was the pricing tab asserting enterprise intent, Decision #044). Both had the same shape: the implementation was treated as the description of behaviour, and it was wrong.

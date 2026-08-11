@@ -357,40 +357,35 @@ def test_both_pricing_tiers_are_vocabulary_the_patterns_read(client):
         f"no surface emits a tier BP-002's contradiction branch reads: {contradicting}")
 
 
-def test_reading_a_pane_accrues_dwell_against_that_panes_topic(client):
-    """BP-001 and BP-003 escalate to Strong on dwell >= 60s, keyed on the
-    literal topics "security" and "ai". Every tab but Security carried
-    `data-dwell-topic=""`, which *clears* the topic — so time spent reading an
-    AI product's docs counted for nothing and BP-003's dwell branch could
-    never fire.
+def test_only_the_security_pane_runs_a_dwell_stopwatch(client):
+    """Security Evaluation is the one pattern where reading time substitutes
+    for activity, and doc 02 is deliberate about it: its evidence lives on a
+    single page per product, so reaching four qualifying events means visiting
+    four products. Sixty seconds of reading is the fair alternative.
+
+    Every other pane leaves the topic empty. A dwell topic starts a 10s
+    heartbeat writing LOW-signal rows for as long as the pane is open, so on a
+    pane no clause reads it is storage bought for nothing.
     """
-    html = client.get("/product/PROD-002").text          # Slack — docs topic "ai"
+    html = client.get("/product/PROD-002").text          # Slack — an AI product
     dwell = dict(re.findall(r'data-tab="(\w+)" data-dwell-topic="([^"]*)"', html))
 
     assert dwell.get("security") == "security", (
-        f"BP-001's dwell rule keys on the literal topic 'security': {dwell}")
-    assert dwell.get("docs") == "ai", (
-        f"an AI product's docs pane must accrue dwell as 'ai' for BP-003: {dwell}")
-
-    # The converse, and the reason it is worth pinning: a dwell topic starts a
-    # 10s heartbeat writing LOW-signal rows for as long as the pane is open. On
-    # a pane no dwell clause reads, that is storage and noise bought for
-    # nothing. Only set one where some pattern can act on it.
-    for pane in ("pricing", "integrations"):
+        f"the security dwell clause keys on that literal topic: {dwell}")
+    for pane in ("pricing", "docs", "integrations", "overview"):
         assert dwell.get(pane) == "", (
             f"the {pane} pane sets dwell topic {dwell.get(pane)!r}, which no "
-            f"pattern reads — either add the dwell clause to the Domain Pack "
-            f"or leave the stopwatch off")
+            f"pattern reads — either add the clause to the Domain Pack or "
+            f"leave the stopwatch off")
 
 
 def test_no_pane_runs_a_stopwatch_no_dwell_clause_reads(client):
     """The rule stated as an invariant rather than two examples.
 
-    The Docs pane carries whatever topic the product's own capabilities imply,
-    so it is `ai` on Slack and `sso` on Okta. Only `ai` is read by a dwell
-    clause — so the same pane is useful on one product and pure noise on
-    another, which is why this is checked across the roster rather than on a
-    single page. `DWELL_TOPICS` comes from the Domain Pack: if a pack adds a
+    Checked across the roster rather than on one page because the Docs pane's
+    topic varies per product — it is `ai` on Slack and `sso` on Okta — so a
+    single-page check can pass while another product quietly runs a heartbeat
+    nothing reads. `DWELL_TOPICS` comes from the Domain Pack: if a pack adds a
     dwell clause, the surfaces follow without an edit here.
     """
     from smartreco.domain import active as domain
@@ -403,7 +398,7 @@ def test_no_pane_runs_a_stopwatch_no_dwell_clause_reads(client):
                 f"{product_id} {pane} pane runs a dwell heartbeat on "
                 f"{topic!r}, which no dwell clause reads")
 
-    # …and the useful half still happens: an AI product's docs pane counts.
-    slack = client.get("/product/PROD-002").text
-    assert 'data-tab="docs" data-dwell-topic="ai"' in slack, (
-        "switching off unread topics also switched off the one that works")
+    # …and the one that does work is still on, so "switch everything off"
+    # cannot pass this.
+    assert 'data-dwell-topic="security"' in client.get("/product/PROD-003").text, (
+        "the security stopwatch — the only specified one — is not running")

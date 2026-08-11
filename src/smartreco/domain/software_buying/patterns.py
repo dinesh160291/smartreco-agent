@@ -25,15 +25,24 @@ BP002_SECURITY_TOPICS = {"compliance", "audit"}
 BP002_ENTERPRISE_TIER = "enterprise"
 BP003_SEARCH_TERMS = {"ai", "copilot", "assistant"}
 
-# Topics whose *reading time* counts as evidence. Only two patterns have a
-# dwell clause, because dwell is only a fair proxy for effort where reading is
-# the research itself — security posture and AI data handling are studied,
-# while integration and automation fitness are checked. Named here rather than
-# left as literals in the evaluators so a surface can ask which topics are
-# worth running a heartbeat for, instead of hardcoding the answer.
-BP001_DWELL_TOPIC = "security"
-BP003_DWELL_TOPIC = "ai"
-DWELL_TOPICS = frozenset({BP001_DWELL_TOPIC, BP003_DWELL_TOPIC})
+# Topics whose *reading time* can stand in for volume of activity.
+#
+# Security Evaluation is the only pattern with that clause, and doc 02 is
+# deliberate about it: security interest can only be shown on a product's
+# security page, and each product has exactly one, so reaching the four
+# qualifying events that mean "Strong" requires visiting four separate
+# products. Sixty seconds of reading is the fair alternative for someone who
+# instead studies one product closely.
+#
+# No other pattern needs that escape hatch. AI Evaluation, for instance,
+# qualifies on docs *and* product views *and* searches, so four events
+# accumulate inside a single product without any special allowance — which is
+# why doc 02 gives it no dwell path, and why the code must not invent one.
+#
+# Named here rather than left as a literal so a surface can ask which topics
+# are worth running a heartbeat for instead of hardcoding the answer.
+SECURITY_DWELL_TOPIC = "security"
+DWELL_TOPICS = frozenset({SECURITY_DWELL_TOPIC})
 BP005_DOC_TOPICS = {"messaging", "meetings", "co-editing"}
 BP006_DOC_TOPICS = {"productivity", "templates", "tasks"}
 BP006_SEARCH_TERMS = {"productivity", "templates", "tasks"}
@@ -60,7 +69,7 @@ def _evaluate_bp001(session_events: list[EventView]) -> EvidenceDraft | None:
     qualifying = security_views + security_docs
     dwell_events = [e for e in session_events
                     if e.event_type == "DWELL"
-                    and e.metadata.get("topic") == BP001_DWELL_TOPIC]
+                    and e.metadata.get("topic") == SECURITY_DWELL_TOPIC]
     dwell_seconds = sum(e.metadata.get("seconds", 0) for e in dwell_events)
 
     strength = "STRONG" if len(qualifying) >= 4 or dwell_seconds >= 60 else "MEDIUM"
@@ -80,7 +89,14 @@ def _evaluate_bp001(session_events: list[EventView]) -> EvidenceDraft | None:
 def _evaluate_bp003(session_events: list[EventView]) -> EvidenceDraft | None:
     """BP-003 AI Evaluation: ≥2 among DOCUMENTATION_VIEWED topic=ai,
     PRODUCT_VIEWED in an AI-focused category, SEARCH with AI terms.
-    Strong at ≥4 qualifying (or supporting dwell ≥60s on AI pages)."""
+    Strong at ≥4 qualifying — no dwell path, per doc 02.
+
+    The code carried one until Decision #045. It was never specified: unlike
+    Security Evaluation, this pattern qualifies on three different event kinds,
+    so four of them accumulate inside a single product without needing reading
+    time to stand in. Promoting on dwell here made Strong cheaper for AI
+    research than for anything else, for no stated reason.
+    """
     qualifying = []
     for e in session_events:
         if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") == "ai":
@@ -91,10 +107,7 @@ def _evaluate_bp003(session_events: list[EventView]) -> EvidenceDraft | None:
             qualifying.append(e)
     if len(qualifying) < 2:
         return None
-    dwell_seconds = sum(e.metadata.get("seconds", 0) for e in session_events
-                        if e.event_type == "DWELL"
-                        and e.metadata.get("topic") == BP003_DWELL_TOPIC)
-    strength = "STRONG" if len(qualifying) >= 4 or dwell_seconds >= 60 else "MEDIUM"
+    strength = "STRONG" if len(qualifying) >= 4 else "MEDIUM"
     return EvidenceDraft(
         pattern_id="BP-003", strength=strength, concept_ids=["BC-003"],
         supporting_event_ids=[e.event_id for e in qualifying],

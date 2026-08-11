@@ -98,3 +98,36 @@ def test_evidence_is_deterministic_and_dedupable(policies):
     keys1 = {(d.pattern_id, tuple(sorted(d.supporting_event_ids))) for d in first}
     keys2 = {(d.pattern_id, tuple(sorted(d.supporting_event_ids))) for d in second}
     assert keys1 == keys2  # identical inputs → identical evidence (dedup key stable)
+
+
+def test_ai_evaluation_does_not_upgrade_to_strong_on_reading_time(policies):
+    """Only Security Evaluation lets reading time stand in for activity
+    (Decision #045).
+
+    The code carried a dwell clause here that doc 02 never granted, and no
+    test covered it — which is how it survived. The distinction the pack draws
+    is deliberate: security interest can only be shown on a product's single
+    security page, so four qualifying events means four products, and reading
+    one closely deserves an alternative. AI interest qualifies on docs, product
+    views *and* searches, so four accumulate inside one product without help.
+    Promoting on dwell made Strong cheaper here than anywhere else, unasked.
+    """
+    events = [E(1, "DOCUMENTATION_VIEWED", topic="ai"),
+              E(2, "SEARCH", query="ai assistant")]
+    events += [E(10 + n, "DWELL", topic="ai", seconds=10) for n in range(12)]  # 120s
+
+    drafts = by_pattern(evaluate_patterns(events, policies), "BP-003")
+    assert len(drafts) == 1
+    assert drafts[0].strength == "MEDIUM", (
+        "two minutes of reading promoted AI Evaluation to Strong; doc 02 "
+        "grants it no dwell path")
+
+
+def test_ai_evaluation_still_reaches_strong_on_activity(policies):
+    """The counterpart, so the fix cannot be 'AI can never be Strong'."""
+    events = [E(1, "DOCUMENTATION_VIEWED", topic="ai"),
+              E(2, "SEARCH", query="ai assistant"),
+              E(3, "DOCUMENTATION_VIEWED", topic="ai"),
+              E(4, "SEARCH", query="copilot pricing")]
+    drafts = by_pattern(evaluate_patterns(events, policies), "BP-003")
+    assert len(drafts) == 1 and drafts[0].strength == "STRONG"
