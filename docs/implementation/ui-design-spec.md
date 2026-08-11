@@ -142,6 +142,8 @@ Underline style: 2px `--line` baseline; buttons 14.5, `--muted`, padding 9×16; 
 
 **Card contents, in order:** plan name 12.5/600 uppercase `--muted` · price 24/700 `--ink` with the unit on its own line 12.5 `--muted` · one-line blurb 13.5 `--muted` · five feature bullets 13.5 · CTA. The CTA carries `margin-top: auto` so both buttons sit on the same baseline whatever the lists above them do, plus an explicit `height: 40px` with `box-sizing: border-box` — §4.2's `.btn` and `.btn-ghost` differ in padding and border, which otherwise leaves the two cards' buttons a pixel out of line.
 
+**The two CTAs must agree with the price above them.** Personal is a paid plan, so its control is a *trial* of that plan — "Start 14-day trial", emitting `TRIAL_STARTED`, with the first bullet stating what happens when the trial ends. A bare "Start free" under a monthly price reads as a second, cheaper offer and makes the card contradict itself. Enterprise has no self-serve price, so its control is "Contact sales".
+
 **Selection.** The whole card is clickable and takes `.selected` (accent border plus inset accent ring); hover previews it with the accent border alone.
 
 **Two tiers only — Personal and Enterprise.** These are the discriminating axis for buying intent; a middle "Team" tier blurs exactly the signal the tab exists to capture. The Personal price is presentation-only demo copy derived deterministically from the product id (`pages._personal_price`) — it is deliberately not a product record field, so it can never reach the Embedding Document or any ranking input.

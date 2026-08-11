@@ -55,15 +55,15 @@
       <p class="tier-price">${{ p.personal_price }}<span class="tier-unit">/user/month</span></p>
       <p class="tier-blurb">For individuals and small teams who want to start today.</p>
       <ul class="tier-feats">
+        <li>Free for 14 days, then ${{ p.personal_price }}/user/month</li>
         <li>Self-serve signup, use it in minutes</li>
-        <li>Billed monthly — cancel any time</li>
+        <li>Cancel any time before the trial ends</li>
         <li>Single workspace, up to 10 people</li>
         <li>Community and email support</li>
-        <li>Standard security and data protection</li>
       </ul>
       <button class="btn-ghost tier-cta" data-track="TRIAL_STARTED"
               data-track-meta='{"product_id": "{{ p.product_id }}"}'
-              onclick="srToast('Trial request recorded')">Start free</button>
+              onclick="srToast('Trial started — no charge for 14 days')">Start 14-day trial</button>
     </section>
     <section class="tier" data-track="PRICING_VIEWED"
              data-track-meta='{"product_id": "{{ p.product_id }}", "tier": "enterprise"}'>
