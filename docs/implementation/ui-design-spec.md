@@ -138,7 +138,7 @@ Underline style: 2px `--line` baseline; buttons 14.5, `--muted`, padding 9×16; 
 
 ## 4.6b Long-form pane copy (product page)
 
-**Why it exists.** Security & Compliance, Docs & API and Integrations each carry roughly 900–1,600 words. This is not decoration: BP-001 and BP-003 escalate to Strong at 60 seconds of dwell on a pane's topic, and a hundred-word pane can never earn that from a shopper who is genuinely evaluating. Reading time is only a signal when there is something to read. Overview and Pricing are excluded — Overview renders the product record, and Pricing carries the tier cards.
+**Why it exists.** Security & Compliance, Docs & API and Integrations each carry roughly 900–1,600 words. This is not decoration: the Domain Pack's patterns escalate evidence to Strong at 60 seconds of dwell on a pane's topic, and a hundred-word pane can never earn that from a shopper who is genuinely evaluating. Reading time is only a signal when there is something to read. Overview and Pricing are excluded — Overview renders the product record, and Pricing carries the tier cards.
 
 **Composed, never boilerplate.** `apps/web/content.py` builds the sections from the product's own record: its name, vendor, category, and the capabilities it holds, each contributing a section with the capability's business-value narrative and the review angle for its family. One passage repeated across 250 products would make every page's reading time identical and would be obvious the moment a demo clicks through two products.
 
