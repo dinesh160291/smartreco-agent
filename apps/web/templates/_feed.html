@@ -17,7 +17,9 @@
         <div class="phrow" style="margin-bottom:4px;">
           <div class="thumb thumb-sm" style="background:{{ entry.hue }}">{{ entry.initials }}</div>
           <div class="pcol">
-            <span class="n"><a href="/product/{{ entry.product_id }}">{{ entry.name }}</a></span>
+            <span class="n"><a href="/product/{{ entry.product_id }}"
+               data-track="RECOMMENDATION_CLICKED"
+               data-track-meta='{"product_id": "{{ entry.product_id }}", "rank": {{ entry.rank }}}'>{{ entry.name }}</a></span>
             <span class="v">{{ entry.vendor }}</span>
           </div>
         </div>

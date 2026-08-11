@@ -43,12 +43,25 @@ def monogram(name: str, vendor: str) -> tuple[str, str]:
     return initials, f"hsl({hue} 45% 42%)"
 
 
+def _personal_price(product_id: str) -> int:
+    """Display price for the Personal plan — presentation only.
+
+    Demo catalog copy, deliberately *not* a product record field: it is not
+    catalog truth, so it must never reach the Embedding Document (Core 20) or
+    any ranking input. Derived from the product id so it is stable across
+    renders — a value that changed per request would read as a broken page and
+    would make the pricing tab untestable.
+    """
+    return 8 + (sum(ord(c) for c in product_id) % 12)
+
+
 def _product_view(p: models.Product, cap_count: int | None = None) -> dict:
     initials, hue = monogram(p.name, p.vendor)
     return {"product_id": p.product_id, "name": p.name, "vendor": p.vendor,
             "category": p.category, "description": p.description,
             "business_purpose": p.business_purpose, "price_note": p.price_note,
-            "initials": initials, "hue": hue, "cap_count": cap_count or 0}
+            "initials": initials, "hue": hue, "cap_count": cap_count or 0,
+            "personal_price": _personal_price(p.product_id)}
 
 
 def _base_ctx(request: Request, db, user, state, active_nav, page_events=None,

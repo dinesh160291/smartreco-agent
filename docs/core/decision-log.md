@@ -1415,3 +1415,39 @@ Stored `session_id` values are no longer the client's literal string; nothing pa
 Six signature tests in `tests/test_session_user_isolation.py` reproduce the live failure through the real endpoint and pin the repository-level filter directly, plus one in `test_ui_tracking_contract.py` for the client. 202 tests green. All three locks were sabotage-verified; the client test passed for the wrong reason on the first attempt — asserting on the whole function matched `cfg.user` in the record being written even with the guard deleted — and was tightened to assert on the new-session condition itself.
 
 Pre-existing data cannot be repaired by migration: Runtime Objects are insert-only, so contaminated Requirement Profile and Recommendation Package versions stay in history. Affected databases must be reseeded.
+
+---
+
+# Decision #044
+
+## Title
+
+The UI states intent instead of assuming it — pricing tiers, sales contact, and dwell topics
+
+## Status
+
+Accepted
+
+## Decision
+
+Opening the pricing surface emits `PRICING_VIEWED` with `product_id` only; a `tier` appears solely when the shopper opens a specific plan (`personal` or `enterprise`). The Enterprise plan carries a "Contact sales" control emitting `DEMO_REQUESTED`, which collects no personal data. Recommendation entries emit `RECOMMENDATION_CLICKED`. Each tab accrues dwell against the topic it actually documents. Every event type in the Domain Pack registry must be reachable from a surface or recorded as server-emitted, enforced as a ratchet.
+
+## Rationale
+
+Three of the fourteen registered event types could not be produced by the running product. Nothing emitted `DEMO_REQUESTED`, so a shopper asking to talk to sales — which BP-011 treats as a **Strong** adoption trigger — was indistinguishable from one reading a page. Nothing emitted `RECOMMENDATION_CLICKED`, so acting on a recommendation looked identical to finding the product by browsing, and the platform could not observe whether its own advice was taken. And every pane except Security set `data-dwell-topic=""`, which *clears* the topic, so BP-003's `dwell >= 60s` branch could never fire and time spent reading anything but the security pane counted for nothing.
+
+The pricing tab was worse than missing: it was wrong. Every view emitted `tier: "enterprise"`, so glancing at pricing was recorded as evaluating an enterprise purchase. BP-002 keys on exactly that value, so the pattern was fed a fact the shopper never stated — and its contradiction branch, which reads `individual` / `free` / `personal`, had no surface that could ever produce those values. Half the pattern was unreachable and the other half was manufactured.
+
+This is the same defect class as `2cb6134`, one level up. There the vocabulary inside an event was dead; here whole event types were. Both share a cause: the templates were written against what a page should *look* like, not against what the reasoning engine reads. The fix in each case is a ratchet that fails in CI rather than in a demo.
+
+Two tiers rather than three: Personal versus Enterprise is the discriminating axis, and a middle "Team" tier blurs the very signal the surface exists to capture. Capabilities are deliberately **not** gated by tier — capability profiles are the substrate of coverage ranking, so tier-gating would make requirement satisfaction depend on which plan was opened and would reopen the pinned acceptance numbers.
+
+No contact form. Events are append-only and immutable (Law 6), so personal data placed in event metadata could never be deleted; a deletion request would be impossible to honour without breaking the immutability the decision spine rests on. The account already holds an email, so the control records the *behaviour* — which is all the platform reasons about — and confirms that the team will follow up there. A future form would need its own mutable table, never the spine, and only fields that do work (team size, timeline feed POL-REC-004's deferred constraint derivation).
+
+## Consequences
+
+`PRICING_VIEWED.tier` becomes optional; consumers must treat its absence as "no intent stated" rather than defaulting. BP-009 is unaffected — it filters out tier-less events when checking same-tier focus, and still counts them as pricing consultation. BP-002's contradiction branch is reachable from a browser for the first time.
+
+`ui-design-spec` §4.6a specifies the tier cards: the pricing pane opts out of the 68ch prose measure and centres a 720px row of two `flex: 1 1 0` cards, so they stay equal whatever their copy. Domain Pack 13 gains the reachability rule and the `tier` semantics. Four signature tests in `test_ui_tracking_contract.py` pin the registry ratchet, the tier-less tab hook, both tiers as vocabulary the patterns read, and per-pane dwell topics. 206 tests green, all sabotage-verified.
+
+An earlier claim in this session that dwell "never fires" was too strong and is corrected here: BP-001's dwell path was wired correctly all along via the Security tab. What was broken is that no other pane carried a topic, and heartbeats are visible-only by design (POL-TRACK-002), so an automated window that is minimised produces none.

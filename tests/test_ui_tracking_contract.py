@@ -264,3 +264,110 @@ def test_tracking_client_starts_a_new_session_when_the_user_changes(client):
     assert "data-user=" in html, (
         "base.html does not pass the current user to the tracking client, so "
         "the client cannot tell one shopper's sitting from the next")
+
+
+# Event types no clickable surface can produce, each with the reason it is
+# reachable anyway. Anything not listed here must be emitted by a template.
+SERVER_EMITTED = {
+    "PURCHASE_COMPLETED": "written by the /checkout route after an order is placed",
+    "DWELL": "emitted by the track.js heartbeat, not by a click (POL-TRACK-002)",
+}
+
+
+def test_no_registry_event_type_is_unreachable_from_the_product(client):
+    """The registry is a promise that the platform can observe these things.
+
+    Three of fourteen types were unreachable when this was written — nothing
+    emitted DEMO_REQUESTED or RECOMMENDATION_CLICKED, so a shopper asking to
+    talk to sales and a shopper acting on a recommendation both looked like
+    ordinary browsing. Patterns keyed on them (BP-011 treats DEMO_REQUESTED as
+    a Strong adoption trigger) could never fire in the live product.
+
+    This is the same defect class as the topic bug in `2cb6134`, one level up:
+    there the vocabulary was dead, here the event type was. Adding a type to
+    the registry now costs a surface that emits it, or an explicit entry in
+    SERVER_EMITTED saying why it needs none.
+    """
+    from apps.web.pages import templates
+    from smartreco.domain import active as domain
+
+    pages = ["/", "/?q=single+sign-on", "/?category=Security",
+             "/product/PROD-003", "/compare?a=PROD-003&b=PROD-001",
+             "/cart", "/for-you"]
+    emitted = set()
+    for path in pages:
+        html = client.get(path).text
+        emitted |= set(_tracked_events(html))
+        emitted |= set(re.findall(r'"type":\s*"([A-Z_]+)"', html))
+
+    # The recommendation feed only renders entries for a READY package, which
+    # this fixture's user does not have. Render the partial directly rather
+    # than exempt it — the hook has to survive on a real entry, not merely
+    # exist in the file.
+    feed = templates.get_template("_feed.html").render(feed={
+        "updated": "now", "trigger": "EVENT_ACCUMULATION", "readiness": "READY",
+        "sections": {"executive_summary": "s", "persuasive_narrative": "n",
+                     "trade_offs": "", "next_best_actions": []},
+        "entries": [{"rank": 1, "product_id": "PROD-003", "name": "Okta",
+                     "vendor": "Okta", "hue": "#000", "initials": "O",
+                     "coverage": 100, "why_covered": [], "why_missing": []}],
+    })
+    emitted |= set(_tracked_events(feed))
+
+    unreachable = set(domain.EVENT_TYPES) - emitted - set(SERVER_EMITTED)
+    assert not unreachable, (
+        f"registry event types no surface can emit: {sorted(unreachable)} — "
+        f"either wire a surface or record why they are server-emitted")
+
+
+def test_pricing_tab_does_not_assert_an_intent_the_shopper_has_not_stated(client):
+    """Opening the Pricing tab used to emit `tier: "enterprise"`, so every
+    shopper who glanced at pricing was recorded as evaluating enterprise.
+    BP-002 keys on exactly that value, and BP-002's contradiction branch keys
+    on individual/free/personal — which no surface could ever emit, leaving
+    half the pattern unreachable and the other half fed by an assumption.
+
+    The tab now records only that pricing was read; the tier comes from the
+    plan the shopper actually opens.
+    """
+    html = client.get("/product/PROD-003").text
+    pricing = _tracked_events(html)["PRICING_VIEWED"]
+
+    tab_hooks = [m for m in pricing if "tier" not in m]
+    assert len(tab_hooks) == 1, (
+        f"expected exactly one tier-less pricing hook (the tab): {pricing}")
+
+    tiers = {m["tier"] for m in pricing if "tier" in m}
+    assert tiers == {"personal", "enterprise"}, (
+        f"pricing tiers the shopper can choose: {tiers}")
+
+
+def test_both_pricing_tiers_are_vocabulary_the_patterns_read(client):
+    """A tier no pattern reads would be a click that means nothing."""
+    html = client.get("/product/PROD-003").text
+    tiers = {m["tier"] for m in _tracked_events(html)["PRICING_VIEWED"] if "tier" in m}
+
+    source = pathlib.Path(patterns.__file__).read_text(encoding="utf-8")
+    contradicting = set(re.search(
+        r'tier"\)\s+in\s+\(([^)]*)\)', source).group(1).replace('"', "").split(", "))
+
+    assert patterns.BP002_ENTERPRISE_TIER in tiers, (
+        "no surface emits the tier BP-002 treats as enterprise intent")
+    assert tiers & contradicting, (
+        f"no surface emits a tier BP-002's contradiction branch reads: {contradicting}")
+
+
+def test_reading_a_pane_accrues_dwell_against_that_panes_topic(client):
+    """BP-001 and BP-003 escalate to Strong on dwell >= 60s, keyed on the
+    literal topics "security" and "ai". Every tab but Security carried
+    `data-dwell-topic=""`, which *clears* the topic — so time spent reading an
+    AI product's docs counted for nothing and BP-003's dwell branch could
+    never fire.
+    """
+    html = client.get("/product/PROD-002").text          # Slack — docs topic "ai"
+    dwell = dict(re.findall(r'data-tab="(\w+)" data-dwell-topic="([^"]*)"', html))
+
+    assert dwell.get("security") == "security", (
+        f"BP-001's dwell rule keys on the literal topic 'security': {dwell}")
+    assert dwell.get("docs") == "ai", (
+        f"an AI product's docs pane must accrue dwell as 'ai' for BP-003: {dwell}")

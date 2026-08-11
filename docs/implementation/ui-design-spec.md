@@ -136,6 +136,20 @@ Square, radius per size, weight 700 white initials, background `hsl(H 45% 42%)` 
 ## 4.6 Tabs (product page)
 Underline style: 2px `--line` baseline; buttons 14.5, `--muted`, padding 9×16; active → `--accent` text, 600, 2px accent underline. Tab panes: 20px top/bottom padding, 68ch measure.
 
+## 4.6a Pricing tiers (product page)
+
+**Layout.** Two equal cards side by side, centred. The pricing pane sets `max-width: none` — the 68ch pane measure is a reading width for prose, and a price comparison is not prose — and the `.tiers` row is capped at 720 and centred with `margin-inline: auto`, giving ~351px cards; the pane's own intro line is centred to match. Row gap 18, `align-items: stretch`; each `.tier` is `flex: 1 1 0` (basis 0, so the row divides evenly regardless of copy length) as a column flex container, padding 16, 1px `--line` border, radius 10, `--card` background. Below 620px the row wraps to one full-width column.
+
+**Card contents, in order:** plan name 12.5/600 uppercase `--muted` · price 24/700 `--ink` with the unit on its own line 12.5 `--muted` · one-line blurb 13.5 `--muted` · five feature bullets 13.5 · CTA. The CTA carries `margin-top: auto` so both buttons sit on the same baseline whatever the lists above them do, plus an explicit `height: 40px` with `box-sizing: border-box` — §4.2's `.btn` and `.btn-ghost` differ in padding and border, which otherwise leaves the two cards' buttons a pixel out of line.
+
+**Selection.** The whole card is clickable and takes `.selected` (accent border plus inset accent ring); hover previews it with the accent border alone.
+
+**Two tiers only — Personal and Enterprise.** These are the discriminating axis for buying intent; a middle "Team" tier blurs exactly the signal the tab exists to capture. The Personal price is presentation-only demo copy derived deterministically from the product id (`pages._personal_price`) — it is deliberately not a product record field, so it can never reach the Embedding Document or any ranking input.
+
+**Capabilities are never gated by tier.** Capability profiles are the substrate of coverage ranking; making them tier-dependent would make "does this product satisfy this requirement?" depend on which plan the shopper happened to open, and would reopen the pinned acceptance numbers.
+
+**Behaviour (Decision #044).** Opening the Pricing tab emits `PRICING_VIEWED` carrying only `product_id`: it records that pricing was read, which is true, and asserts no intent. The tier arrives only from the plan the shopper engages with — `tier: "personal"` or `tier: "enterprise"` — carried by the card itself. Because the tracking client fires only the *nearest* `data-track` ancestor, a click landing straight on a card's CTA would record the CTA and lose the tier, so `app.js` emits the card's tier event alongside it. The Enterprise card carries the sole `DEMO_REQUESTED` surface ("Contact sales"), which confirms inline that the team will follow up at the account email; it collects no personal data.
+
 ## 4.7 Forms
 Inputs: 1px `--line` border, radius 8, padding 9–10×12–14, `--card`/`--ground` bg, inherit font. Labels per §2.1. Field stack gap 5px, 12px between fields; paired fields (expiry/CVC) in 2-col grid gap 12.
 
@@ -188,7 +202,7 @@ Only: card border-color hover (150ms), toast (200ms), nav/tab state changes (ins
 |---|---|---|
 | Explore | Shopper | H1 "Find the right software", subtitle "Browse the catalog — every view, search, and click quietly teaches SmartReco what you need." → search row (input + primary button) → category chips → result count §4.7a → card grid §3; card = header-row pattern §4.3/§4.4 |
 | Compare | Shopper | Picker row: two product selects + primary button, all natural width (the base stylesheet's `width: 100%` on selects and buttons must be overridden). Options are sorted **case-insensitively** by display name — a raw column sort is byte order, filing lowercase-initial names after `Z`. Each compared product's header row is a link to its own page: without one the only route back is Explore plus typing the name, which emits a `SEARCH` event the shopper never intended and feeds search-term patterns with manufactured evidence. Navigation must not fabricate behavioural signal |
-| Product detail | Shopper | Breadcrumb 13px `--muted` → lg thumb + title + vendor·category·price subtitle → actions right (Compare ghost · Free trial ghost · Add to cart primary) → 5 tabs: Overview / Pricing / Security & Compliance / Docs & API / Integrations |
+| Product detail | Shopper | Breadcrumb 13px `--muted` → lg thumb + title + vendor·category·price subtitle → actions right (Compare ghost · Free trial ghost · Add to cart primary) → 5 tabs: Overview / Pricing / Security & Compliance / Docs & API / Integrations. Pricing pane holds the two tier cards §4.6a |
 | For you | Shopper | Status line (refresh recency + trigger + READY pill) → AAR card with 3px accent left border: persuasive narrative → ranked coverage rows → expandable plain-language "why" → ownership disclaimer above 1px top border |
 | Cart & checkout | Shopper | 1.2fr/1fr grid: cart list (sm thumbs) · checkout card with demo notice + fake card form; confirmation = centered card, 40px ✅, order line, learning-arc block §4.13 |
 | Admin catalog | Admin | Header row with description + "+ Add product" primary → table §4.10 with Sync pills → reconciliation note |

@@ -190,6 +190,39 @@ main.container { padding: 28px 0 64px; }
 .tabpane { padding: 20px 0; max-width: 68ch; font-size: 14.5px; display: none; }
 .tabpane.active { display: block; }
 
+/* ---- 4.7b Pricing tiers ---- */
+/* `align-items: stretch` (the flex default) plus `flex: 1 1 0` gives two cards
+   of identical width and height whatever their copy — uneven cards read as one
+   plan being an afterthought. `flex-basis: 0` distributes the row evenly rather
+   than sizing from content; a px basis wraps to one column when the two cards
+   plus the gap exceed .tabpane's 68ch measure (~532px). */
+/* The 68ch pane measure is a reading width for prose; a two-card price
+   comparison is not prose, so this pane opts out and centres its own column. */
+.tabpane[data-pane="pricing"] { max-width: none; }
+.tabpane[data-pane="pricing"] > p { max-width: 60ch; margin-inline: auto; text-align: center; }
+.tiers { display: flex; gap: 18px; margin: 18px auto 0; align-items: stretch;
+  max-width: 720px; }
+.tier { flex: 1 1 0; display: flex; flex-direction: column; cursor: pointer;
+  padding: 16px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--card); transition: border-color .12s ease; }
+.tier:hover { border-color: var(--accent); }
+.tier.selected { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.tier-name { margin: 0; font-size: 12.5px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--muted); }
+.tier-price { margin: 6px 0 0; font-size: 24px; font-weight: 700; color: var(--ink);
+  line-height: 1.1; }
+.tier-unit { display: block; font-size: 12.5px; font-weight: 400; color: var(--muted);
+  letter-spacing: 0; margin-top: 3px; }
+.tier-blurb { margin: 10px 0 0; font-size: 13.5px; color: var(--muted); }
+.tier-feats { margin: 12px 0 16px; padding-left: 18px; font-size: 13.5px; }
+.tier-feats li { margin-bottom: 5px; }
+/* Pins both CTAs to the same baseline no matter how the feature lists differ.
+   The explicit size overrides §4.2's differing .btn / .btn-ghost padding, which
+   otherwise leaves the two cards' buttons a couple of pixels out of line. */
+.tier-cta { margin-top: auto; width: 100%; font-size: 14.5px; padding: 9px 16px;
+  box-sizing: border-box; height: 40px; }
+@media (max-width: 620px) { .tiers { flex-wrap: wrap; } .tier { flex-basis: 100%; } }
+
 /* ---- 4.7 Forms ---- */
 label.field { display: block; font-size: 12.5px; font-weight: 600; text-transform: uppercase;
   letter-spacing: .05em; color: var(--muted); margin-bottom: 12px; }
