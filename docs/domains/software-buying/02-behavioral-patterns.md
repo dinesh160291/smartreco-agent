@@ -669,6 +669,23 @@ Conventions:
 
 ---
 
+## Clauses not implemented in v1
+
+Every **Required Evidence** and **Produces** rule above is implemented and tested. Five clauses are not, and are listed here so a reader can tell a deliberate omission from a defect — the distinction this section exists to make. Adding any of them is a normal change; discovering by accident that the pack promised something the platform never did is not.
+
+**Contradicting evidence — 2 of 4 implemented.** Enterprise Evaluation (repeated individual/free-tier pricing views) and Product Affinity (a comparison introducing alternatives after affinity formed) subtract confidence per POL-CONF-003. Two are not implemented:
+
+| Pattern | Unimplemented clause | Why deferred |
+|---|---|---|
+| BP-001 Security Evaluation | *Sustained activity exclusively on non-security content in subsequent sessions* | Needs a definition of "sustained" and a journey-wide absence check; absence is already handled generally by decay (POL-DECAY-001), so the marginal value is small. |
+| BP-011 Adoption Readiness | *No product activity after trial start; cart abandoned across ≥ 2 sessions* | Overlaps journey dormancy and the trial-adoption fallback (POL-JRES-002/003), which already act on the same silence. Implementing both risks penalising one shopper twice for one behaviour. |
+
+**Optional Supporting dwell — 1 of 4 implemented.** `DWELL ≥ 60s` is read only by Security Evaluation, where it also promotes strength. BP-003, BP-004, BP-007 and BP-008 list it as supporting evidence, which is lineage rather than confidence: supporting events appear in an Evidence object's trail and change no score. None of those surfaces runs a dwell heartbeat (Decision #045), so the events do not exist to attach.
+
+Reading time promotes strength in **exactly one pattern**, and that asymmetry is deliberate — see Decision #045. Security interest can only be shown on a product's single security page, so four qualifying events means visiting four products, and reading one closely deserves an alternative route. Patterns qualifying on several event kinds reach four without help.
+
+---
+
 ## Pattern Set Evolution
 
 Patterns for BC-013 Feature Evaluation, BC-009 Technical Evaluation (standalone), BC-014 Pricing Sensitivity (standalone), BC-016 Decision Confidence (standalone), BC-017 Preference Reinforcement, and BC-018 Preference Reversal are planned for Domain Pack v1.1, following this same template. Their concepts are already co-supported by the v1 patterns noted above.

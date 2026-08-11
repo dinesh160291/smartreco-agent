@@ -131,3 +131,39 @@ def test_ai_evaluation_still_reaches_strong_on_activity(policies):
               E(4, "SEARCH", query="copilot pricing")]
     drafts = by_pattern(evaluate_patterns(events, policies), "BP-003")
     assert len(drafts) == 1 and drafts[0].strength == "STRONG"
+
+
+def test_the_set_of_contradiction_rules_matches_what_doc_02_says_is_built():
+    """Doc 02 § 'Clauses not implemented in v1' claims exactly two of the four
+    Contradicting clauses exist. That claim is the only thing standing between
+    a reader and the assumption that the pack describes the platform — so it
+    has to fail here rather than be discovered by someone debugging why a
+    contradiction never fires.
+
+    Either direction is a failure: building a third rule without recording it
+    makes the doc understate the platform, and deleting one makes it overstate.
+    """
+    import ast
+    import pathlib
+
+    from smartreco.domain.software_buying import patterns as module
+
+    # Parsed rather than regexed: an EvidenceDraft call spans several lines and
+    # sits next to others, and a non-greedy pattern quietly matched across call
+    # boundaries — reporting a pattern that has no contradiction rule at all.
+    tree = ast.parse(pathlib.Path(module.__file__).read_text(encoding="utf-8"))
+    emitting = set()
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call)
+                and getattr(node.func, "id", None) == "EvidenceDraft"):
+            continue
+        keywords = {kw.arg: kw.value for kw in node.keywords}
+        if "contradicts" not in keywords:
+            continue
+        pattern_id = keywords.get("pattern_id")
+        if isinstance(pattern_id, ast.Constant):
+            emitting.add(pattern_id.value)
+    assert emitting == {"BP-002", "BP-010"}, (
+        f"patterns emitting contradicting evidence: {sorted(emitting)} — doc 02 "
+        f"records exactly BP-002 and BP-010 as built; update the doc and this "
+        f"test together")
