@@ -285,7 +285,7 @@ def resolve_sessions(db: OrmSession, policies: PolicyCatalog, user_id: int,
     for session_id in unassigned_sessions:
         session_row = db.get(models.Session, session_id)
         if session_row is not None and session_row.journey_id:
-            repos.assign_journey(db, session_id, session_row.journey_id)
+            repos.assign_journey(db, session_id, session_row.journey_id, user_id)
             continue
 
         session_events = db.execute(
@@ -330,7 +330,7 @@ def resolve_sessions(db: OrmSession, policies: PolicyCatalog, user_id: int,
                     reason=decision.explanation, policy_version=policies.version, ts=now))
                 journey.lifecycle = "ACTIVE"
 
-        repos.assign_journey(db, session_id, journey_id)
+        repos.assign_journey(db, session_id, journey_id, user_id)
         if session_row is not None:
             session_row.journey_id = journey_id
     db.commit()

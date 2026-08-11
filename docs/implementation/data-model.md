@@ -141,6 +141,8 @@ Batch-inserted. No UPDATE except `journey_id` assignment and `processed_at` stam
 
 session_id PK · user_id · journey_id · started_at · last_event_at. Closed by the session-timeout policy.
 
+`session_id` is **not** the id the client sent: ingestion namespaces the client's value by the authenticated user (`u{user_id}:{client_session_id}`) before storing or matching it, so a single browser tab reused by two accounts produces two session rows rather than one shared one (Core 22 § Identify honestly; Decision #043). Nothing parses the key — treat it as opaque.
+
 ### journeys
 
 journey_id PK · user_id · lifecycle (`NEW/ACTIVE/DORMANT/CLOSED/ARCHIVED`) · context · outcome nullable · created_at · closed_at nullable.

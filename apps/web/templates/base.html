@@ -54,6 +54,7 @@
         data-heartbeat="{{ tracking.heartbeat_seconds }}"
         data-session-timeout="{{ tracking.inactivity_minutes }}"
         data-max-retries="{{ tracking.max_flush_retries }}"
+        data-user="{{ user.id if user else '' }}"
         {% if dwell_topic %}data-dwell-topic="{{ dwell_topic }}"{% endif %}></script>
 </body>
 </html>

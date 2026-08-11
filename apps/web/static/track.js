@@ -21,7 +21,13 @@
     try {
       var s = JSON.parse(sessionStorage.getItem("sr_session") || "null");
       var now = Date.now(), timeout = (+cfg.sessionTimeout || 30) * 60000;
-      if (!s || now - s.last > timeout) s = { id: "s-" + uuid(), last: now };
+      // sessionStorage is scoped to the tab, not to the person using it: a
+      // logout/login keeps the previous shopper's id alive. A session is one
+      // person's sitting, so a different user starts a new one. The server
+      // namespaces by user regardless (Decision #043) — this keeps the
+      // behavioural boundary honest, it is not what enforces isolation.
+      if (!s || now - s.last > timeout || s.user !== (cfg.user || ""))
+        s = { id: "s-" + uuid(), last: now, user: cfg.user || "" };
       s.last = now;
       sessionStorage.setItem("sr_session", JSON.stringify(s));
       return s.id;

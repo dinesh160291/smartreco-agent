@@ -187,6 +187,18 @@ class EventBatch(BaseModel):
     events: list[EventEnvelope]
 
 
+def _session_key(user_id: int, client_session_id: str) -> str:
+    """Namespace the client's session id by the authenticated user (Decision #043).
+
+    The client keeps its id in `sessionStorage`, which is scoped to the tab and
+    origin, not to the logged-in user — so a logout/login in the same tab keeps
+    sending the previous shopper's id. Trusting it let one session row, and then
+    one journey, hold two accounts' events. The client stays free to send
+    whatever it likes; identity is decided here, where it is known.
+    """
+    return f"u{user_id}:{client_session_id}"
+
+
 def _evaluate_triggers_async(user_id: int):
     """Background: trigger evaluator decides whether reasoning runs (never inline)."""
     from smartreco.orchestration import adk_executor
@@ -216,10 +228,11 @@ def ingest_events(batch: EventBatch, background: BackgroundTasks,
         ts = envelope.ts
         if ts.tzinfo is not None:
             ts = ts.astimezone(timezone.utc).replace(tzinfo=None)
+        session_id = _session_key(user.id, envelope.session_id)
         accepted.append({
             "event_id": envelope.event_id,
             "user_id": user.id,
-            "session_id": envelope.session_id,
+            "session_id": session_id,
             "journey_id": None,  # assigned by Journey Resolution, never by the client
             "event_type": envelope.event_type,
             "signal_class": domain.EVENT_TYPES[envelope.event_type],
@@ -228,15 +241,15 @@ def ingest_events(batch: EventBatch, background: BackgroundTasks,
             "received_at": now,
             "processed_at": None,
         })
-        session_row = (touched_sessions.get(envelope.session_id)
-                       or db.get(models.Session, envelope.session_id))
+        session_row = (touched_sessions.get(session_id)
+                       or db.get(models.Session, session_id))
         if session_row is None:
-            session_row = models.Session(session_id=envelope.session_id, user_id=user.id,
+            session_row = models.Session(session_id=session_id, user_id=user.id,
                                          started_at=ts, last_event_at=ts)
             db.add(session_row)
         elif ts > session_row.last_event_at:
             session_row.last_event_at = ts
-        touched_sessions[envelope.session_id] = session_row
+        touched_sessions[session_id] = session_row
 
     inserted = insert_events_idempotent(db, accepted)
     db.commit()

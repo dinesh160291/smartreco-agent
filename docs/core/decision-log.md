@@ -1372,3 +1372,46 @@ Releasing the claim on failure is equally load-bearing. Fail loud is the rule, b
 `workflow_runs` gains the partial index (`data-model.md` amended); existing databases need it created once, which is idempotent. Six signature tests in `tests/test_run_concurrency.py` cover the announcement, the concurrent skip, release on success, release on crash with the exception still raised, single-journey cold start, and the index's atomicity. 189 tests green.
 
 Historical runs recorded no RUNNING state; the Reasoning Panel's trigger log gains a genuinely reachable third status.
+
+---
+
+# Decision #043
+
+## Title
+
+Session identity is decided by the server — one browser tab, two shoppers, two journeys
+
+## Status
+
+Accepted
+
+## Decision
+
+The Session ID a client sends is a suggestion, never an identity claim. Ingestion namespaces it by the authenticated user (`u{user_id}:{client_session_id}`) before the session row is created or matched, so a stored session can never span two accounts. `repos.assign_journey` filters on `user_id` as well as `session_id`. The tracking client additionally starts a new session when the logged-in user changes.
+
+## Rationale
+
+Found by live browsing, and it is the most serious defect the live scenarios have surfaced. The tracking client keeps its session id in `sessionStorage`, which is scoped to the tab and origin — not to the person using it. Logging out of one account and into another in the same tab keeps sending the previous shopper's id. Ingestion resolved the session by that id alone:
+
+    session_row = touched_sessions.get(sid) or db.get(models.Session, sid)
+
+and journey resolution short-circuits on a session that already owns a journey:
+
+    if session_row is not None and session_row.journey_id:
+        repos.assign_journey(db, session_id, session_row.journey_id)
+
+Neither checked ownership. In the live database one session row owned by user 8 carried 23 events from user 6, and 20 of user 6's events were filed into user 8's journey. The damage did not stop at misfiled rows: user 6's **workflow runs** then wrote Requirement Profile versions 4 and 5 and two Recommendation Packages onto user 8's journey. User 8's top recommendation changed from ServiceNow to Microsoft 365 — a product surfaced by a different person's browsing. Meanwhile user 6 never got a journey of their own, so their own reasoning silently produced nothing.
+
+Candidate scoring was never implicated: `resolve_sessions` already restricts candidate journeys to `user_id`. Both holes were identity holes, so both are closed by identity rather than by scoring.
+
+Namespacing was chosen over rejecting foreign-session events. Rejection is the other honest option and the endpoint already has a per-event `rejected` channel, but it discards a shopper's browsing until the client happens to rotate its id, and it makes correctness depend on client cooperation. Namespacing loses nothing, needs no cooperation, and puts the decision where identity is actually known.
+
+The client-side change is defence in depth and is *not* what enforces isolation — the tracking client fails silently by design (Core 22), so it can never be the guarantee. It earns its place on its own terms: a session is one person's sitting, and continuing someone else's across a login makes the behavioural window a fiction.
+
+## Consequences
+
+Stored `session_id` values are no longer the client's literal string; nothing parses them, and `data-model.md` records the format as opaque. Core 22 gains the server-authority paragraph under *Identify honestly* and a new Invariant 8: no Session and no Journey ever holds more than one user's events. `repos.assign_journey` takes `user_id` — both call sites are in `pipeline.resolve_sessions`, where it is already in scope.
+
+Six signature tests in `tests/test_session_user_isolation.py` reproduce the live failure through the real endpoint and pin the repository-level filter directly, plus one in `test_ui_tracking_contract.py` for the client. 202 tests green. All three locks were sabotage-verified; the client test passed for the wrong reason on the first attempt — asserting on the whole function matched `cfg.user` in the record being written even with the guard deleted — and was tightened to assert on the new-session condition itself.
+
+Pre-existing data cannot be repaired by migration: Runtime Objects are insert-only, so contaminated Requirement Profile and Recommendation Package versions stay in history. Affected databases must be reseeded.

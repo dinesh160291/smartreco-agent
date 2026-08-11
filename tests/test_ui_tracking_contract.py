@@ -232,3 +232,35 @@ def test_identity_product_does_not_masquerade_as_compliance_research(client):
     fired = {d.pattern_id for d in evaluate_patterns(views, load_policies())}
     assert "BP-004" not in fired, "identity browsing wrongly reads as compliance"
     assert "BP-001" in fired
+
+
+def test_tracking_client_starts_a_new_session_when_the_user_changes(client):
+    """A session is one person's sitting, but `sessionStorage` is scoped to the
+    tab: logging out and in as someone else keeps the previous shopper's id
+    alive, which is how one browser tab put two accounts' events on one journey
+    (Decision #043).
+
+    The server namespaces by user regardless — that is what enforces isolation,
+    and `test_session_user_isolation` pins it. This pins the behavioural half:
+    the client must not carry a session across a change of user. Asserted in the
+    source because the failure mode is a missing condition, and the page has no
+    observable output to measure until two accounts have already been mixed.
+    """
+    static = pathlib.Path(web.__file__).parent / "static"
+    js = (static / "track.js").read_text(encoding="utf-8")
+    session_fn = js[js.index("function sessionId()"):js.index("function track(")]
+
+    # The *condition* that mints a new id, not the whole function: asserting on
+    # the function body passes as soon as `cfg.user` appears anywhere in it,
+    # including in the record it writes — which it does even with the guard
+    # deleted. Sabotage caught exactly that.
+    guard = session_fn[session_fn.index("if (!s"):session_fn.index("s.last = now")]
+    assert "s.user" in guard and "cfg.user" in guard, (
+        "the new-session condition does not compare the stored user with the "
+        f"current one, so a session survives a logout/login in the tab:\n{guard}")
+    assert "user:" in session_fn, "the new session records whose sitting it is"
+
+    html = client.get("/").text
+    assert "data-user=" in html, (
+        "base.html does not pass the current user to the tracking client, so "
+        "the client cannot tell one shopper's sitting from the next")

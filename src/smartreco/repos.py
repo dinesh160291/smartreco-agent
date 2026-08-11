@@ -28,9 +28,18 @@ def insert_events_idempotent(db: OrmSession, rows: list[dict]) -> int:
     return result.rowcount
 
 
-def assign_journey(db: OrmSession, session_id: str, journey_id: str) -> None:
+def assign_journey(db: OrmSession, session_id: str, journey_id: str,
+                   user_id: int) -> None:
+    """Assign a session's unowned events to a journey.
+
+    `user_id` is not redundant with `session_id` (Decision #043): a session id
+    reaching here is ultimately client-supplied, and this is the write that puts
+    events on the decision spine, so it filters on identity itself rather than
+    trusting the caller to have done so.
+    """
     db.query(models.Event).filter(
         models.Event.session_id == session_id,
+        models.Event.user_id == user_id,
         models.Event.journey_id.is_(None),
     ).update({"journey_id": journey_id}, synchronize_session=False)
 

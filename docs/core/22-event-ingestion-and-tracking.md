@@ -64,6 +64,8 @@ All sends are asynchronous. No tracking call ever runs on the interaction path, 
 
 Each event carries: anonymous-or-authenticated User ID, Session ID (client-generated, rotated after the inactivity timeout policy `tracking.session_timeout`), client Event ID (UUID, for idempotency), Event Type, timestamp, and type-specific metadata per the Event Schema. No content beyond what the Event Schema defines.
 
+**Session identity belongs to the server (Decision #043).** The Session ID is a client suggestion, never an identity claim. Client session storage is scoped to a browser tab, not to a person, so the same ID keeps arriving after a shopper logs out and another logs in. Ingestion therefore **namespaces the client's Session ID by the authenticated User ID** before it is stored or matched, so one stored session can never span two accounts. The client should also start a new session when the logged-in user changes — a session is one person's sitting — but that is a behavioural nicety, not the isolation mechanism.
+
 ## 6. Tolerate failure
 
 Failed flushes re-queue with capped retry and exponential backoff. The buffer has a maximum size; overflow drops **oldest low-signal events first** (dwell before views). Loss of low-signal events is acceptable by design.
@@ -134,6 +136,10 @@ All thresholds (batch size, intervals, timeouts) are Decision Policy values, not
 ## Invariant 7
 
 Overflow degrades by dropping low-signal events first; high-signal events are protected.
+
+## Invariant 8
+
+No Session and no Journey ever holds more than one user's events. Client-supplied identifiers are namespaced by the authenticated user at ingestion, and journey assignment filters on user as well as session.
 
 ---
 
