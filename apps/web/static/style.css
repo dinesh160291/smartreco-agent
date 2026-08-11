@@ -190,6 +190,11 @@ main.container { padding: 28px 0 64px; }
 .tabpane { padding: 20px 0; max-width: 68ch; font-size: 14.5px; display: none; }
 .tabpane.active { display: block; }
 
+/* ---- 4.6b Long-form pane copy ---- */
+.lf-h { font-size: 15px; font-weight: 600; margin: 22px 0 8px; }
+.lf-h:first-child { margin-top: 4px; }
+.tabpane p.measure + p.measure { margin-top: 10px; }
+
 /* ---- 4.7b Pricing tiers ---- */
 /* `align-items: stretch` (the flex default) plus `flex: 1 1 0` gives two cards
    of identical width and height whatever their copy — uneven cards read as one

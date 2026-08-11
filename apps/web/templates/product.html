@@ -83,19 +83,23 @@
     </section>
   </div>
 </div>
+{% macro longform(sections) -%}
+  {% for heading, paragraphs in sections %}
+  <h2 class="lf-h">{{ heading }}</h2>
+  {% for para in paragraphs %}<p class="measure">{{ para }}</p>{% endfor %}
+  {% endfor %}
+{%- endmacro %}
+
 <div class="tabpane" data-pane="security">
-  <p>Security &amp; compliance posture for {{ p.name }}: authentication controls, data protection,
-     and auditability relevant to enterprise evaluation.</p>
-  <ul>
-    {% for cap in p.security_caps %}<li>{{ cap }}</li>{% endfor %}
-  </ul>
+  {% if p.security_caps %}
+  <p class="sub">Security-relevant capabilities: {{ p.security_caps | join(" · ") }}</p>
+  {% endif %}
+  {{ longform(p.security_body) }}
 </div>
 <div class="tabpane" data-pane="docs">
-  <p>Developer and administrator documentation: setup guides, API reference, provisioning and
-     identity federation instructions.</p>
+  {{ longform(p.docs_body) }}
 </div>
 <div class="tabpane" data-pane="integrations">
-  <p>Prebuilt connectors and API-level integration options for connecting {{ p.name }} with the
-     rest of your stack.</p>
+  {{ longform(p.integrations_body) }}
 </div>
 {% endblock %}

@@ -136,6 +136,18 @@ Square, radius per size, weight 700 white initials, background `hsl(H 45% 42%)` 
 ## 4.6 Tabs (product page)
 Underline style: 2px `--line` baseline; buttons 14.5, `--muted`, padding 9×16; active → `--accent` text, 600, 2px accent underline. Tab panes: 20px top/bottom padding, 68ch measure.
 
+## 4.6b Long-form pane copy (product page)
+
+**Why it exists.** Security & Compliance, Docs & API and Integrations each carry roughly 900–1,600 words. This is not decoration: BP-001 and BP-003 escalate to Strong at 60 seconds of dwell on a pane's topic, and a hundred-word pane can never earn that from a shopper who is genuinely evaluating. Reading time is only a signal when there is something to read. Overview and Pricing are excluded — Overview renders the product record, and Pricing carries the tier cards.
+
+**Composed, never boilerplate.** `apps/web/content.py` builds the sections from the product's own record: its name, vendor, category, and the capabilities it holds, each contributing a section with the capability's business-value narrative and the review angle for its family. One passage repeated across 250 products would make every page's reading time identical and would be obvious the moment a demo clicks through two products.
+
+**Never asserts what the record does not carry.** The scaffolding describes what evaluating this *kind* of product involves — what reviewers ask, what rollouts need — rather than claiming certifications, versions or limits nobody recorded. Where a product lacks a capability the Security pane names the gap plainly; a page that lists only strengths reads as marketing.
+
+**Never indexed.** This copy is presentation and stays out of the products table and the Embedding Document (Core 20, Law 8). Folding ~1,200 words per product into the document would swamp the capability terms retrieval discriminates on. Capability *narratives* are the exception and belong in both: they are part of the record, which is precisely why the panes quote them.
+
+**Rendering.** Sections render as `(heading, [paragraphs])` through the `longform` macro: `h2.lf-h` at 15/600, paragraphs at the pane's 68ch measure. Composing the sections and rendering them are separate failures — `tests/test_product_longform.py` asserts both, because the unit tests once passed against a page showing nothing when the view dict was missing its keys.
+
 ## 4.6a Pricing tiers (product page)
 
 **Layout.** Two equal cards side by side, centred. The pricing pane sets `max-width: none` — the 68ch pane measure is a reading width for prose, and a price comparison is not prose — and the `.tiers` row is capped at 720 and centred with `margin-inline: auto`, giving ~351px cards; the pane's own intro line is centred to match. Row gap 18, `align-items: stretch`; each `.tier` is `flex: 1 1 0` (basis 0, so the row divides evenly regardless of copy length) as a column flex container, padding 16, 1px `--line` border, radius 10, `--card` background. Below 620px the row wraps to one full-width column.

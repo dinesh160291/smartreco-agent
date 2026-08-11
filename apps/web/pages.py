@@ -17,6 +17,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select
 
 from smartreco import models
+from apps.web import content
 from smartreco.catalog_search import search_catalog
 from smartreco.domain.software_buying import BC_TO_REQ, BEHAVIORAL_CONCEPTS, REQUIREMENTS
 from smartreco.domain import active as domain
@@ -275,6 +276,9 @@ def product_page(request: Request, product_id: str, sd=Depends(_db)):
     view = _product_view(p, len(cap_ids))
     view["capabilities"] = sorted(cap_names)
     view["security_caps"] = sorted(security_caps)
+    view["security_body"] = content.security_sections(view, cap_ids)
+    view["docs_body"] = content.docs_sections(view, cap_ids)
+    view["integrations_body"] = content.integrations_sections(view, cap_ids)
     view["doc_topic"] = _doc_topic(cap_ids, _DOC_TOPICS, "api")
     view["integrations_topic"] = _doc_topic(cap_ids, _INTEGRATION_TOPICS, "integrations")
     view["security_topic"] = _doc_topic(cap_ids, _SECURITY_TOPICS, "compliance")
