@@ -146,6 +146,8 @@ Underline style: 2px `--line` baseline; buttons 14.5, `--muted`, padding 9×16; 
 
 **Never indexed.** This copy is presentation and stays out of the products table and the Embedding Document (Core 20, Law 8). Folding ~1,200 words per product into the document would swamp the capability terms retrieval discriminates on. Capability *narratives* are the exception and belong in both: they are part of the record, which is precisely why the panes quote them.
 
+**Dwell topics follow the rules, not the panes.** A pane sets `data-dwell-topic` only where some pattern has a dwell clause that reads it — Security (the literal `security`) and Docs (the product's own doc topic, which the AI clause reads when it is `ai`). Pricing and Integrations leave it empty: a dwell topic starts a 10s heartbeat writing LOW-signal rows for as long as the pane is open, and on a pane no rule reads that is storage bought for nothing. Their clicks still carry their full signal. Turning one on is a Domain Pack change (a new dwell clause), not a template edit.
+
 **Rendering.** Sections render as `(heading, [paragraphs])` through the `longform` macro: `h2.lf-h` at 15/600, paragraphs at the pane's 68ch measure. Composing the sections and rendering them are separate failures — `tests/test_product_longform.py` asserts both, because the unit tests once passed against a page showing nothing when the view dict was missing its keys.
 
 ## 4.6a Pricing tiers (product page)

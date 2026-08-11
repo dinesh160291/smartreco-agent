@@ -25,8 +25,10 @@
 <div class="tabs" style="margin-top:22px;">
   <button class="active" data-tab="overview" data-dwell-topic="">Overview</button>
   {# Opening the tab records that pricing was read — not which tier is wanted.
-     Intent comes only from the tier the shopper opens below (Decision #044). #}
-  <button data-tab="pricing" data-dwell-topic="pricing"
+     Intent comes only from the tier the shopper opens below (Decision #044).
+     No dwell topic: no pattern has a dwell clause for pricing, so a stopwatch
+     here would write LOW-signal rows nothing reads. #}
+  <button data-tab="pricing" data-dwell-topic=""
           data-track="PRICING_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}"}'>Pricing</button>
   {# BP-001's dwell rule keys on the literal topic "security"; the pane's own
      topic (certifications/audit/compliance) belongs on the click event only. #}
@@ -34,7 +36,10 @@
           data-track="SECURITY_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}", "page": "{{ p.product_id }}-security", "topic": "{{ p.security_topic }}"}'>Security &amp; Compliance</button>
   <button data-tab="docs" data-dwell-topic="{{ p.doc_topic }}"
           data-track="DOCUMENTATION_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}", "topic": "{{ p.doc_topic }}"}'>Docs &amp; API</button>
-  <button data-tab="integrations" data-dwell-topic="{{ p.integrations_topic }}"
+  {# Likewise no dwell topic: BP-008 reaches Strong on breadth (an API page and
+     a connector page together), not on time, so reading length means nothing
+     here. The click's own topic still carries the signal. #}
+  <button data-tab="integrations" data-dwell-topic=""
           data-track="DOCUMENTATION_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}", "topic": "{{ p.integrations_topic }}"}'>Integrations</button>
 </div>
 

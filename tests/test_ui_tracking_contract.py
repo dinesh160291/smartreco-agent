@@ -371,3 +371,13 @@ def test_reading_a_pane_accrues_dwell_against_that_panes_topic(client):
         f"BP-001's dwell rule keys on the literal topic 'security': {dwell}")
     assert dwell.get("docs") == "ai", (
         f"an AI product's docs pane must accrue dwell as 'ai' for BP-003: {dwell}")
+
+    # The converse, and the reason it is worth pinning: a dwell topic starts a
+    # 10s heartbeat writing LOW-signal rows for as long as the pane is open. On
+    # a pane no dwell clause reads, that is storage and noise bought for
+    # nothing. Only set one where some pattern can act on it.
+    for pane in ("pricing", "integrations"):
+        assert dwell.get(pane) == "", (
+            f"the {pane} pane sets dwell topic {dwell.get(pane)!r}, which no "
+            f"pattern reads — either add the dwell clause to the Domain Pack "
+            f"or leave the stopwatch off")
