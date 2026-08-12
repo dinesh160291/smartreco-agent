@@ -988,6 +988,48 @@ Requirement Profiles remain Runtime Objects.
 
 ---
 
+# v1.2 Extension — BC-019 … BC-025 Mappings
+
+Added with doc 14. Each of the seven new concepts answers *what is this person
+trying to buy*, so each carries exactly one Primary association — the test
+`test_new_concepts_all_reach_a_requirement` pins that, because a concept with no
+mapping is a belief the platform can hold and never act on, which is the state
+CRM was in.
+
+| Concept | Primary | Secondary | Supporting |
+|---|---|---|---|
+| BC-019 CRM Evaluation | REQ-006 Sales & Customer Mgmt | REQ-009 Marketing Execution | REQ-003 Workflow Automation |
+| BC-020 People Operations | REQ-007 People Operations | REQ-008 Financial Management | REQ-004 Regulatory Compliance |
+| BC-021 Financial Evaluation | REQ-008 Financial Management | REQ-004 Regulatory Compliance | REQ-003 Workflow Automation |
+| BC-022 Marketing Evaluation | REQ-009 Marketing Execution | REQ-011 Data & Insight | REQ-005 AI Assistance |
+| BC-023 Engineering Delivery | REQ-010 Engineering Delivery | REQ-011 Data & Insight | REQ-003 Workflow Automation |
+| BC-024 Data & Insight | REQ-011 Data & Insight | REQ-005 AI Assistance | — |
+| BC-025 Security Operations | REQ-012 Security Operations | REQ-004 Regulatory Compliance | REQ-002 Identity Management |
+
+## Mapping Rationale
+
+The Secondary and Supporting links express how these areas genuinely overlap in
+a buying decision: a sales team choosing a CRM is usually also choosing how it
+reaches the same audience; an engineering team buying delivery tooling usually
+wants the telemetry out of it; payroll and ledger are bought by adjacent people
+under the same governance obligations.
+
+They are kept deliberately sparse — three links at most, and only one Primary
+each. Every additional link is another route by which one journey's evidence
+publishes another journey's need, which is the failure Decisions #049 and #050
+were both about. Adding seven concepts at once multiplies that risk, so the
+mappings are narrow by design and `test_patterns_domain_coverage` checks that
+each domain's own signals activate its own pattern and nothing else in the
+family.
+
+Note that Secondary and Supporting weights (0.6 and 0.3 under POL-REQ-003) mean
+a single concept can rarely publish a requirement through them alone: at 0.6
+confidence a Secondary link derives 0.36, below POL-REQ-001's 0.5 bar. Those
+links strengthen requirements other evidence already supports; they do not
+invent needs.
+
+---
+
 # Mapping Invariants
 
 The following rules must always hold.

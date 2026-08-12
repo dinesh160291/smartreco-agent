@@ -109,17 +109,31 @@ def test_docs_topics_match_the_products_own_capabilities(client):
 
 # --- Whole-vocabulary invariants ---------------------------------------------
 
-# Every topic any pattern keys on (patterns.py). The inline literals are the
-# ones written directly into an evaluator rather than a module constant.
-RECOGNISED_TOPICS = (
-    patterns.BP001_DOC_TOPICS | patterns.BP002_DOC_TOPICS
-    | patterns.BP002_SECURITY_TOPICS | patterns.BP004_DOC_TOPICS
-    | patterns.BP005_DOC_TOPICS | patterns.BP006_DOC_TOPICS
-    | patterns.BP007_DOC_TOPICS | patterns.BP008_DOC_TOPICS
-    | {"ai", "security", "certifications", "onboarding", "migration"}
-)
+# Every topic any pattern keys on. Sourced from the pack rather than restated
+# here: the union is assembled beside the evaluators, from the same constants
+# they read, so it cannot drift from them. Restating it meant this test agreed
+# with a list instead of with the code.
+RECOGNISED_TOPICS = patterns.PATTERN_TOPICS
 
 ROSTER = [p["product_id"] for p in CANONICAL_PRODUCTS]
+
+
+def test_the_whole_ui_vocabulary_is_read_by_some_pattern():
+    """The reachability ratchet over the *tables*, not just the canonical ten.
+
+    The test below can only see topics the ten fixture products emit, and they
+    hold no CRM, HR, finance, marketing, DevOps or analytics capability — so
+    every v1.2 topic is invisible to it. Checking the vocabulary itself is the
+    only way a topic added for the wide catalog cannot go unread.
+    """
+    emitted = ({topic for _cap, topic in patterns.UI_DOC_TOPICS}
+               | {topic for _cap, topic in patterns.UI_SECURITY_TOPICS}
+               | {topic for _cap, topic in patterns.UI_INTEGRATION_TOPICS}
+               | {patterns.UI_DOC_TOPIC_DEFAULT,
+                  patterns.UI_SECURITY_TOPIC_DEFAULT,
+                  patterns.UI_INTEGRATION_TOPIC_DEFAULT})
+    unread = sorted(emitted - patterns.PATTERN_TOPICS)
+    assert not unread, f"the product page can emit topics no pattern reads: {unread}"
 
 
 def test_no_ui_topic_is_dead_vocabulary(client):

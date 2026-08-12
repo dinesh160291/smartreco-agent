@@ -220,37 +220,17 @@ def explore(request: Request, q: str | None = None, category: str | None = None,
 # ---- Product detail ----
 
 # Each tracked pane declares what it actually documents for THIS product, so
-# the BRE reads an identity product's docs as identity docs and a governance
-# product's compliance posture as compliance research. A hardcoded topic makes
-# whole patterns unreachable from the browser — Domain Pack doc 02 keys on
-# these exact topic names. Ordered; first capability the product holds wins.
+# the reasoning engine reads an identity product's docs as identity docs and a
+# CRM's as sales docs. A hardcoded topic makes whole patterns unreachable from
+# the browser (Decision #044).
 #
-# Every topic below must appear in some pattern's vocabulary (patterns.py);
-# test_ui_tracking_contract pins that, so a new topic cannot go unread.
-_DOC_TOPICS = (
-    ("CAP-001", "sso"), ("CAP-002", "mfa"),               # BP-001 Security
-    ("CAP-020", "ai"), ("CAP-021", "ai"), ("CAP-022", "ai"),
-    ("CAP-023", "ai"), ("CAP-024", "ai"),                 # BP-003 AI
-    ("CAP-005", "messaging"), ("CAP-006", "meetings"),
-    ("CAP-007", "co-editing"),                            # BP-005 Collaboration
-    ("CAP-015", "workflows"), ("CAP-017", "triggers"),    # BP-007 Automation
-    ("CAP-012", "compliance"), ("CAP-013", "retention"),
-    ("CAP-014", "ediscovery"), ("CAP-027", "compliance"),
-    ("CAP-010", "audit"),                                 # BP-004 Compliance
-)
-# The Security & Compliance pane is a certifications surface when the product
-# carries governance capabilities, an audit surface when it only logs, and a
-# general posture page otherwise (BP-004 keys on "certifications"; BP-002 on
-# "compliance"/"audit").
-_SECURITY_TOPICS = (
-    ("CAP-012", "certifications"), ("CAP-013", "certifications"),
-    ("CAP-014", "certifications"), ("CAP-027", "certifications"),
-    ("CAP-010", "audit"),
-)
-_INTEGRATION_TOPICS = (
-    ("CAP-003", "provisioning"), ("CAP-008", "federation"),   # BP-002 Enterprise
-    ("CAP-016", "connectors"),                                # BP-008 Integration
-)
+# The tables themselves are Domain Pack artifact 11 and live in the pack, not
+# here: which words describe a product is domain knowledge, and keeping the
+# vocabulary beside the patterns that read it is what stops the two drifting
+# (doc 14 Table 4). This module only applies them.
+_DOC_TOPICS = domain.UI_DOC_TOPICS
+_SECURITY_TOPICS = domain.UI_SECURITY_TOPICS
+_INTEGRATION_TOPICS = domain.UI_INTEGRATION_TOPICS
 
 
 def _doc_topic(cap_ids, table, default: str) -> str:
@@ -279,9 +259,9 @@ def product_page(request: Request, product_id: str, sd=Depends(_db)):
     view["security_body"] = content.security_sections(view, cap_ids)
     view["docs_body"] = content.docs_sections(view, cap_ids)
     view["integrations_body"] = content.integrations_sections(view, cap_ids)
-    view["doc_topic"] = _doc_topic(cap_ids, _DOC_TOPICS, "api")
-    view["integrations_topic"] = _doc_topic(cap_ids, _INTEGRATION_TOPICS, "integrations")
-    view["security_topic"] = _doc_topic(cap_ids, _SECURITY_TOPICS, "compliance")
+    view["doc_topic"] = _doc_topic(cap_ids, _DOC_TOPICS, domain.UI_DOC_TOPIC_DEFAULT)
+    view["integrations_topic"] = _doc_topic(cap_ids, _INTEGRATION_TOPICS, domain.UI_INTEGRATION_TOPIC_DEFAULT)
+    view["security_topic"] = _doc_topic(cap_ids, _SECURITY_TOPICS, domain.UI_SECURITY_TOPIC_DEFAULT)
     # Run the dwell heartbeat only for a topic some pattern's dwell clause
     # reads. Okta's docs pane is "sso", which no clause reads, so a stopwatch
     # there would write LOW-signal rows nobody consumes — the same waste that

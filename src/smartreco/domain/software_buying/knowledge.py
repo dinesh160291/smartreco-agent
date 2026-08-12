@@ -1,8 +1,8 @@
 """Software Buying Domain Pack v1 — canonical reference knowledge.
 
 One-to-one transcription of docs/domains/software-buying/:
-  01 Behavioral Ontology (BC registry) · 02 Behavioral Patterns (BP-001…012)
-  04 Business Requirement Catalog · 10 Capability Catalog (27)
+  01 Behavioral Ontology (BC registry) · 02 Behavioral Patterns (BP-001…019)
+  04 Business Requirement Catalog (REQ-001…012) · 10 Capability Catalog (55)
   06 BC→REQ mapping · 07 REQ→CAP mapping · 00 §4.1 Stage Milestones
   05 Product Capability Profiles (canonical roster PROD-001…010)
 
@@ -11,7 +11,7 @@ Runtime Objects (doc 09, Principles 4-5). Pattern activation thresholds are
 Domain Pack v1 values (doc 02: "the numbers are their v1 defaults").
 """
 
-from smartreco.domain.software_buying.patterns import BP011_TRIGGERS
+from smartreco.domain.software_buying.patterns import BP011_TRIGGERS, DOMAIN_RESEARCH_PATTERNS
 
 DOMAIN_PACK_VERSION = "1.0"
 
@@ -36,6 +36,17 @@ BEHAVIORAL_CONCEPTS: dict[str, str] = {
     "BC-016": "Decision Confidence",
     "BC-017": "Preference Reinforcement",
     "BC-018": "Preference Reversal",
+    # v1.2 (doc 14): one concept per catalog domain that previously had no way
+    # to be understood. Each answers "what is this person trying to buy", so
+    # each maps Primary to a requirement — the side of the line Decision #050
+    # drew.
+    "BC-019": "CRM Evaluation",
+    "BC-020": "People Operations Evaluation",
+    "BC-021": "Financial Evaluation",
+    "BC-022": "Marketing Evaluation",
+    "BC-023": "Engineering Delivery Evaluation",
+    "BC-024": "Data & Insight Evaluation",
+    "BC-025": "Security Operations Evaluation",
 }
 
 # ---- Business Requirement Catalog (doc 04) ----
@@ -46,6 +57,18 @@ REQUIREMENTS: dict[str, str] = {
     "REQ-003": "Workflow Automation",
     "REQ-004": "Regulatory Compliance",
     "REQ-005": "AI Assistance",
+    # v1.2 (doc 14). The catalog grew to 55 capabilities for the wide demo
+    # roster, but the five requirements above reach only 21 of them — so 82 of
+    # 250 products were searchable, viewable, and unrecommendable. These seven
+    # cover the rest. REQ-001…005 are deliberately untouched: their capability
+    # sets are the denominators of doc 09's pinned derivations.
+    "REQ-006": "Sales & Customer Management",
+    "REQ-007": "People Operations",
+    "REQ-008": "Financial Management",
+    "REQ-009": "Marketing Execution",
+    "REQ-010": "Engineering Delivery",
+    "REQ-011": "Data & Insight",
+    "REQ-012": "Security Operations",
 }
 
 # ---- Capability Catalog (doc 10 — 27 capabilities, 6 domains) ----
@@ -107,9 +130,15 @@ CAPABILITIES: list[tuple[str, str, str, str]] = [
     ("CAP-027", "Compliance Reporting", "Compliance",
      "Makes compliance status visible and demonstrable to auditors and leadership."),
     # ---- v1.1 extension (append-only; new domains so wide-catalog products
-    # express themselves honestly — data-model §Catalog Seed Strategy). The five
-    # REQ→CAP mappings are unchanged: these capabilities are realistic noise
-    # retrieval and matching must cut through. ----
+    # express themselves honestly — data-model §Catalog Seed Strategy).
+    #
+    # v1.1 left these out of every REQ→CAP mapping deliberately: the wide catalog
+    # was scenery, "realistic noise retrieval and matching must cut through". The
+    # cost was 82 of 250 products that could be searched and viewed but never
+    # recommended, so v1.2 (doc 14) covers them with REQ-006…012. Two remain
+    # unmapped on purpose — File Sharing and AI Workflow Assistance sit inside
+    # frozen requirements' domains, and no product depends on them to be
+    # reachable. ----
     ("CAP-028", "Contact Management", "CRM",
      "Keeps every customer relationship and its history in one governed record."),
     ("CAP-029", "Sales Pipeline", "CRM",
@@ -208,8 +237,22 @@ BC_TO_REQ: dict[str, dict[str, str]] = {
     "BC-006": {"REQ-005": "Primary", "REQ-003": "Supporting"},
     "BC-007": {"REQ-003": "Primary", "REQ-005": "Secondary"},
     "BC-008": {"REQ-003": "Primary", "REQ-002": "Secondary"},
-    # BC-009…BC-018 deliberately unmapped in v1 (doc 06): they inform stage,
+    # BC-009…BC-018 deliberately unmapped (doc 06): they inform stage,
     # constraints, ranking context, or hypothesis lifecycle — never requirements.
+    # BC-002 joined them for its identity association in Decision #050.
+    #
+    # v1.2 (doc 14 Tables 2 and 3). Secondary and Supporting links express how
+    # these areas genuinely overlap — a CRM buyer is often also buying
+    # marketing reach; an engineering buyer often also wants the data out. They
+    # are kept deliberately sparse: every extra link is another way for one
+    # journey's evidence to publish another journey's need.
+    "BC-019": {"REQ-006": "Primary", "REQ-009": "Secondary", "REQ-003": "Supporting"},
+    "BC-020": {"REQ-007": "Primary", "REQ-008": "Secondary", "REQ-004": "Supporting"},
+    "BC-021": {"REQ-008": "Primary", "REQ-004": "Secondary", "REQ-003": "Supporting"},
+    "BC-022": {"REQ-009": "Primary", "REQ-011": "Secondary", "REQ-005": "Supporting"},
+    "BC-023": {"REQ-010": "Primary", "REQ-011": "Secondary", "REQ-003": "Supporting"},
+    "BC-024": {"REQ-011": "Primary", "REQ-005": "Secondary"},
+    "BC-025": {"REQ-012": "Primary", "REQ-004": "Secondary", "REQ-002": "Supporting"},
 }
 
 # ---- REQ → CAP Mapping (doc 07 — all associations are "required") ----
@@ -237,6 +280,49 @@ REQ_TO_CAP: dict[str, dict[str, str]] = {
         "CAP-010": "Primary", "CAP-012": "Primary",
         "CAP-013": "Secondary", "CAP-014": "Secondary",
     },
+    # v1.2 (doc 14 Table 1). Additive only: nothing above changes, because those
+    # set sizes are the denominators the pinned derivations assert.
+    "REQ-006": {
+        "CAP-029": "Primary", "CAP-028": "Primary",
+        "CAP-030": "Secondary", "CAP-031": "Secondary",
+        "CAP-032": "Supporting",
+    },
+    "REQ-007": {
+        "CAP-035": "Primary", "CAP-033": "Primary",
+        "CAP-034": "Secondary", "CAP-036": "Secondary",
+        "CAP-037": "Supporting",
+    },
+    "REQ-008": {
+        "CAP-040": "Primary", "CAP-038": "Primary",
+        "CAP-039": "Secondary", "CAP-042": "Secondary",
+        "CAP-041": "Supporting",
+    },
+    "REQ-009": {
+        "CAP-044": "Primary", "CAP-043": "Primary",
+        "CAP-045": "Secondary", "CAP-046": "Secondary",
+        "CAP-047": "Supporting",
+    },
+    "REQ-010": {
+        "CAP-048": "Primary", "CAP-049": "Primary",
+        "CAP-050": "Secondary", "CAP-051": "Secondary",
+        "CAP-052": "Supporting",
+    },
+    # The Data & Analytics domain holds only three capabilities, and 21 catalog
+    # products hold all three — a requirement built from them alone produced a
+    # 21-way tie at 100%, which is a ranking that is correct and useless
+    # (test_seed_catalog caught it). Intelligent Search and API Integration are
+    # genuinely part of getting insight out of data, and they discriminate.
+    "REQ-011": {
+        "CAP-055": "Primary", "CAP-054": "Primary",
+        "CAP-053": "Secondary", "CAP-022": "Secondary",
+        "CAP-019": "Supporting",
+    },
+    # Four capabilities stranded inside the *original* domains. Housing them in
+    # a new requirement reaches them without editing a frozen set.
+    "REQ-012": {
+        "CAP-025": "Primary", "CAP-026": "Primary",
+        "CAP-027": "Secondary", "CAP-008": "Supporting",
+    },
     "REQ-005": {
         "CAP-020": "Primary", "CAP-021": "Primary",
         "CAP-022": "Secondary", "CAP-023": "Secondary",
@@ -245,10 +331,18 @@ REQ_TO_CAP: dict[str, dict[str, str]] = {
 }
 
 # ---- Stage Qualification Milestones (doc 00 §4.1) ----
-# Declarative descriptors consumed by the Journey Stage Engine. Evaluation-
-# pattern range for Research/Technical Validation milestones is BP-001…BP-008.
+# Declarative descriptors consumed by the Journey Stage Engine.
+#
+# Evaluation patterns are the ones that mean "this person is researching a kind
+# of software": BP-001…008 in v1, plus the seven v1.2 domain patterns. They
+# carry the Research and Technical Validation milestones, so leaving the new
+# ones out would strand a CRM or payroll journey at Awareness forever — and
+# because stage gates the Critical priority band (POL-REQ-002), a need those
+# journeys produced could never reach Critical while an identity journey's
+# could. Same behavior, different domain, different ceiling: not defensible.
 
-EVALUATION_PATTERNS = tuple(f"BP-{i:03d}" for i in range(1, 9))
+EVALUATION_PATTERNS = (tuple(f"BP-{i:03d}" for i in range(1, 9))
+                       + tuple(f"BP-{i:03d}" for i in range(13, 20)))
 
 STAGE_MILESTONES: list[dict] = [
     {"stage": "Awareness", "kind": "events_no_evidence"},
@@ -414,6 +508,29 @@ PATTERNS: dict[str, dict] = {
         "max_views_per_product": 2,
     },
 }
+
+# v1.2 domain research patterns (doc 14 Table 2). Registry entries are generated
+# from the same table the evaluators are built from, so a pattern can never be
+# described here and absent there — the divergence that produced Decisions #044,
+# #045 and #046. The vocabulary itself lives in `patterns.py` beside the rule
+# that reads it.
+PATTERNS.update({
+    pattern_id: {
+        "name": BEHAVIORAL_CONCEPTS[concept_id],
+        "concepts": [concept_id],
+        "window": "session",
+        # ≥2 among: DOCUMENTATION_VIEWED on a topic of this domain;
+        # PRODUCT_VIEWED / CATEGORY_VIEWED in one of its categories;
+        # SEARCH containing one of its terms
+        "base_strength": "MEDIUM",
+        "strong_qualifying_events": 4,
+        "doc_topics": sorted(doc_topics),
+        "categories": sorted(categories),
+        "search_terms": sorted(search_terms),
+    }
+    for pattern_id, concept_id, doc_topics, categories, search_terms
+    in DOMAIN_RESEARCH_PATTERNS
+})
 
 # ---- Canonical Product Roster PROD-001…010 (doc 05 — test fixture) ----
 # (product_id, name, vendor, category, description, business_purpose, capability_ids)

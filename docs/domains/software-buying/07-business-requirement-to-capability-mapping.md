@@ -1060,6 +1060,65 @@ Capability definitions remain centralized within the Capability Catalog.
 
 ---
 
+# v1.2 Extension — REQ-006 … REQ-012 Mappings
+
+Additive only. REQ-001 … REQ-005 are unchanged: their capability-set sizes are
+the denominators of every coverage percentage doc 09 asserts, so adding a
+capability to one of them would move numbers that twelve acceptance tests pin.
+A capability may belong to several requirements, so the constraint costs nothing.
+
+```text
+REQ-006  Sales & Customer Management
+  Primary     CAP-029 Sales Pipeline / CAP-028 Contact Management
+  Secondary   CAP-030 Lead Scoring / CAP-031 Customer Support Ticketing
+  Supporting  CAP-032 Live Chat
+
+REQ-007  People Operations
+  Primary     CAP-035 Payroll Processing / CAP-033 Applicant Tracking
+  Secondary   CAP-034 Onboarding Workflows / CAP-036 Time & Attendance
+  Supporting  CAP-037 Performance Reviews
+
+REQ-008  Financial Management
+  Primary     CAP-040 General Ledger / CAP-038 Invoicing
+  Secondary   CAP-039 Expense Management / CAP-042 Payment Processing
+  Supporting  CAP-041 Budgeting & Forecasting
+
+REQ-009  Marketing Execution
+  Primary     CAP-044 Marketing Automation / CAP-043 Email Campaigns
+  Secondary   CAP-045 Social Media Management / CAP-046 SEO Analytics
+  Supporting  CAP-047 A/B Testing
+
+REQ-010  Engineering Delivery
+  Primary     CAP-048 CI/CD Pipelines / CAP-049 Infrastructure Monitoring
+  Secondary   CAP-050 Log Management / CAP-051 Incident Response
+  Supporting  CAP-052 Container Orchestration
+
+REQ-011  Data & Insight
+  Primary     CAP-055 Data Warehousing / CAP-054 ETL Pipelines
+  Secondary   CAP-053 Data Visualization / CAP-022 Intelligent Search
+  Supporting  CAP-019 API Integration
+
+REQ-012  Security Operations
+  Primary     CAP-025 Threat Protection / CAP-026 Data Loss Prevention
+  Secondary   CAP-027 Compliance Reporting
+  Supporting  CAP-008 Identity Federation
+```
+
+**Two capabilities remain in no requirement:** CAP-009 File Sharing and CAP-024
+AI Workflow Assistance. Both belong to existing requirements' domains, so
+mapping them means editing a frozen set. No product is stranded by their
+absence, so it is left as a separate decision.
+
+**REQ-011 reaches outside its own capability domain deliberately.** Data &
+Analytics holds three capabilities and 21 catalog products hold all three; a
+requirement of just those produced a 21-way tie at maximum coverage — correct
+and useless. Intelligent Search and API Integration discriminate and genuinely
+belong to getting insight out of data. `test_seed_catalog` pins the general
+rule: no requirement may be fully covered by more products than a Candidate Set
+can hold (POL-RETR-001 top_k).
+
+---
+
 # Relationship to the Recommendation Engine
 
 The Recommendation Engine evaluates Business Requirements against Product Capability Profiles using the semantic relationships defined by this document.

@@ -1793,3 +1793,109 @@ This closes the item left open by Decision #049. It also settles the question
 before the coverage extension (doc 14) adds seven more concepts: the line
 between *what the buyer is* and *what the buyer needs* is now drawn explicitly,
 and every new concept has to be placed on one side of it.
+
+---
+
+# Decision #051
+
+## Title
+
+Domain Pack v1.2 — every product in the catalog can be recommended
+
+## Status
+
+Accepted
+
+## Decision
+
+Seven new Business Requirements (REQ-006…012), seven Behavioral Concepts
+(BC-019…025), seven patterns (BP-013…019), both mappings, and the per-tab topic
+vocabulary that lets the patterns fire from a browser. The five original
+requirements and their capability sets are unchanged. Implements doc 14.
+
+## Rationale
+
+The Capability Catalog extended to 55 capabilities in v1.1 so wide-catalog
+products could describe themselves honestly, and deliberately left them out of
+requirement coverage: the demo catalog was scenery, "realistic noise retrieval
+and matching must cut through" (doc 10). That boundary stopped being defensible
+once the catalog was presented as a marketplace.
+
+**Measured against the seeded roster: 21 of 55 capabilities were named by any
+requirement, and 82 of 250 products held none of them.** Those products were
+searchable, viewable and addable to a cart, and could never appear in a
+recommendation — coverage scoring had nothing to score them on. DevOps 16, HR
+14, Marketing 13, Analytics 12, CRM 10, Finance 9.
+
+**Observed.** A shopper searched "crm" and "sales pipeline", opened four CRM
+products, compared them, priced them, requested a demo and started a trial. The
+platform recommended Microsoft 365, ServiceNow and Zapier, with Salesforce
+fifth. Retrieval understood the journey perfectly — Salesforce was in the
+candidate set. The failure was downstream: with no CRM concept, no CRM
+requirement and no CRM capability in any mapping, the CRM pages' integration and
+automation vocabulary was the only thing the model could read, so it answered
+the nearest question it had.
+
+**Why all four links, together.** A requirement with no concept feeding it is
+inert; a concept with no pattern producing it never forms; a pattern keyed on a
+topic no surface emits cannot fire from a browser. Each new area needed the
+whole chain, which is why this is a large change rather than a mapping edit.
+
+**Why the original five are frozen.** Their capability-set sizes are the
+denominators of every coverage percentage doc 09 asserts. A capability may
+belong to several requirements, so new capabilities joining new requirements
+costs nothing — and it makes the acceptance suite the safety proof: the twelve
+stories and four derivation scenarios pass **untouched**, because the canonical
+ten hold none of the new capabilities and the fixtures emit none of the new
+topics.
+
+## Consequences
+
+53 of 55 capabilities reachable; **0 of 250 products unrecommendable**. File
+Sharing and AI Workflow Assistance remain unmapped by choice: both sit inside
+frozen requirements' domains, and no product depends on them for reachability.
+
+**Two design errors were caught by tests rather than review, and both changed
+the design:**
+
+*REQ-011 Data & Insight* was drafted from the three Data & Analytics
+capabilities alone. 21 catalog products hold all three, so the requirement
+produced a 21-way tie at 100% — a ranking that is correct and useless. Fixed by
+adding Intelligent Search and API Integration, and generalised into a new
+invariant: **no requirement may be fully covered by more products than a
+Candidate Set can hold** (POL-RETR-001 top_k). That threshold is not arbitrary —
+past it, the whole recommendation list can be tied products.
+
+*The distractor constraint* — "no non-canonical product may fully cover any
+requirement" — was written when every requirement had a canonical winner to
+protect. The new requirements have none: the canonical ten hold no CRM, HR,
+finance, marketing, DevOps or analytics capability. Forbidding full coverage
+there would forbid the marketplace from having a best-fit product, which is the
+point of the change. Scoped to REQ-001…005; the discrimination invariant above
+replaces it for the rest.
+
+**The tab vocabulary moved into the pack**, where the contract has always placed
+it (artifact 11) and where the web layer had been holding it. Salesforce's Docs
+tab now reports `pipeline` rather than `workflows` — the mistranslation that
+made a CRM journey read as automation research. `PATTERN_TOPICS` is assembled
+from the same constants the evaluators read, so the reachability ratchet now
+checks the code rather than a list restated in a test.
+
+**The new patterns are evaluation patterns** and carry the Research and
+Technical Validation milestones. Without that a CRM journey would sit at
+Awareness forever, and since stage gates the Critical band, its needs could
+never reach Critical while an identity journey's could.
+
+Doc 09 gains Validation Scenario 5 with exact arithmetic — the regression case
+for the observed journey, and the first scenario that exercises weighted
+coverage across two requirements of different priority. It also records a
+catalog-authoring observation rather than hiding it: Salesforce ranks last of
+eight, because its editorial profile carries three CRM capabilities and no
+marketing capability while HubSpot carries four and four. The ranking follows
+the profile, and the profile is editable.
+
+**Left open.** Four topics are read by patterns and emitted by nothing —
+`admin`, `productivity`, `templates`, `tasks`, plus `automation`. Same class of
+defect as Decision #044, predating this change and deliberately not folded into
+it. The reachability ratchet only checks that emitted topics are read; the
+reverse direction is still unguarded.

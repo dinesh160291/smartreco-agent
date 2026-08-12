@@ -1656,6 +1656,140 @@ This scenario demonstrates deterministic recommendation generation for governanc
 
 ---
 
+# Validation Scenario 5 — Sales & Customer Management
+
+Added with the v1.2 coverage extension (doc 14). The first four scenarios all
+resolve inside the original five requirements; this one exercises the seven
+added for the wide catalog, and exists because a real journey through them was
+answered wrongly.
+
+## Customer Context
+
+```text
+Organization Size
+
+Mid-market
+
+Industry
+
+B2B services
+
+Current Environment
+
+Spreadsheet pipeline tracking, no shared customer record
+
+Business Goal
+
+Adopt a system of record for customer relationships, with campaign reach for the same audience.
+```
+
+---
+
+## Observed Behavior
+
+```text
+SEARCH                "crm"
+PRODUCT_VIEWED        category crm
+DOCUMENTATION_VIEWED  topic pipeline
+COMPARISON_STARTED    two CRM products
+PRODUCT_VIEWED        category crm
+DOCUMENTATION_VIEWED  topic crm
+SEARCH                "marketing campaign"
+DOCUMENTATION_VIEWED  topic campaigns
+```
+
+---
+
+## Activated Behavioral Concepts
+
+```text
+BC-019
+
+CRM Evaluation — hypothesis confidence 0.80
+
+BC-022
+
+Marketing Evaluation — hypothesis confidence 0.50
+```
+
+Journey Stage: Technical Validation
+
+---
+
+## Requirement Derivation (POL-REQ-003)
+
+```text
+REQ-006:  BC-019 Primary (1.0x0.80)
+          = 0.80  -> publish, Critical (>= 0.8, stage >= Technical Validation)
+
+REQ-009:  BC-019 Secondary (0.6x0.80=0.48) + BC-022 Primary (1.0x0.50)
+          = 1 - (0.52)(0.50) = 0.74  -> publish, High
+
+REQ-003:  BC-019 Supporting (0.3x0.80=0.24)
+          = 0.24  -> below 0.5, not published
+
+REQ-011:  BC-022 Secondary (0.6x0.50=0.30)
+          = 0.30  -> below 0.5, not published
+
+REQ-005:  BC-022 Supporting (0.3x0.50=0.15)
+          = 0.15  -> below 0.5, not published
+```
+
+---
+
+## Requirement Profile
+
+```text
+REQ-006
+
+Sales & Customer Management — Priority: Critical
+
+REQ-009
+
+Marketing Execution — Priority: High
+```
+
+---
+
+## Coverage & Ranking (POL-REC-002 — Critical x3, High x2)
+
+Against the demo catalog:
+
+| Rank | Product | Sales & Customer Mgmt | Marketing Execution | Overall |
+|---|---|---|---|---|
+| 1 | HubSpot CRM | 80% | 80% | **80%** |
+| 2 | Zoho CRM | 60% | 60% | 60% |
+| 3 | Pipedrive | 100% | 0% | 60% |
+| 4 | Zendesk | 100% | 0% | 60% |
+| 5 | Freshsales | 80% | 0% | 48% |
+| 6 | Braze | 0% | 100% | 40% |
+| 7 | Mailchimp | 0% | 100% | 40% |
+| 8 | Salesforce Sales Cloud | 60% | 0% | 36% |
+
+Readiness: **READY** (one requirement >= 0.6, >= 5 high-signal events).
+
+### What this scenario is for
+
+**It is the regression case for the defect that motivated doc 14.** Run before
+the extension, this journey published Workflow Automation and Identity
+Management, and ranked Microsoft 365 first with Salesforce fifth — the platform
+had no way to represent wanting a CRM, so it answered the nearest question it
+could.
+
+**It demonstrates weighted coverage doing real work.** Pipedrive covers the
+Critical requirement completely and scores below HubSpot, which covers both
+partially. Ranks 2 and 3 tie at 60% by different routes and are separated by
+the documented tie-break. A single-requirement scenario cannot show either.
+
+**It records a catalog-authoring observation, not an engine one.** Salesforce
+Sales Cloud ranks last of the eight. Its editorial profile carries three CRM
+capabilities and no marketing capability, while HubSpot carries four and four.
+That is a statement about the seed data, which is illustrative rather than a
+vendor claim (doc 12) — but anyone expecting the best-known name to rank first
+should know the ranking follows the profile, and that the profile is editable.
+
+---
+
 # Validation Principles
 
 Every implementation of the Software Buying Domain should produce deterministic, traceable, and explainable recommendation outcomes.

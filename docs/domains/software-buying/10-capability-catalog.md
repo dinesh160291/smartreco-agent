@@ -381,7 +381,13 @@ The Capability Catalog defines the complete, collision-free capability vocabular
 
 **Status:** Accepted (Phase 6; data-model §Catalog Seed Strategy rule 1)
 
-The catalog extends append-only from 27 to 55 capabilities so wide-catalog products can express themselves honestly. Six new Capability Domains are introduced: **CRM, HR, Finance, Marketing, DevOps, Data & Analytics**. The five Business Requirement → Capability mappings (Domain 07) are **unchanged** — none of the v1.1 capabilities participates in requirement coverage; out-of-domain products are the realistic noise retrieval and matching must cut through.
+The catalog extends append-only from 27 to 55 capabilities so wide-catalog products can express themselves honestly. Six new Capability Domains are introduced: **CRM, HR, Finance, Marketing, DevOps, Data & Analytics**.
+
+**v1.1 (superseded by v1.2 — retained because the reasoning matters):** *"The five Business Requirement → Capability mappings (Domain 07) are unchanged — none of the v1.1 capabilities participates in requirement coverage; out-of-domain products are the realistic noise retrieval and matching must cut through."*
+
+That was a deliberate scope boundary: the wide catalog was scenery, present to make retrieval work harder, and nothing in it was ever meant to be recommendable. It stopped being defensible once the catalog was presented as a marketplace. Measured against the seeded roster, 34 of the 55 capabilities were named by no requirement, and **82 of the 250 products held nothing any requirement could score** — searchable, viewable, addable to a cart, and unrecommendable.
+
+**v1.2 (doc 14):** seven new requirements (REQ-006 … REQ-012) cover the extended capabilities. 53 of 55 are now reachable and no product is stranded. The five original requirements remain unchanged, because their capability-set sizes are the denominators of doc 09's pinned derivations — new capabilities join new requirements only. CAP-009 File Sharing and CAP-024 AI Workflow Assistance are the two still unmapped, deliberately: both sit inside frozen requirements' domains, and no product depends on them for reachability.
 
 | ID | Capability | Domain |
 |---|---|---|

@@ -89,6 +89,25 @@ def test_scenario_4_governance_compliance(policies):
     assert reqs["REQ-004"]["priority"] == "CRITICAL"
 
 
+def test_scenario_5_sales_and_customer_management(policies):
+    """Doc 09 Scenario 5 — the v1.2 coverage extension's derivation.
+
+    The first four scenarios all resolve inside the original five requirements.
+    This one is the regression case for the journey that motivated doc 14: before
+    the extension it published Workflow Automation and Identity Management,
+    because the platform had no way to represent wanting a CRM.
+    """
+    hypotheses = {"BC-019": 0.80, "BC-022": 0.50}
+    profile = derive_requirements(hypotheses, BC_TO_REQ, "Technical Validation", policies)
+    reqs = by_req(profile)
+    # REQ-003 0.24, REQ-011 0.30, REQ-005 0.15 all held below 0.5
+    assert set(reqs) == {"REQ-006", "REQ-009"}
+    assert reqs["REQ-006"]["confidence"] == 0.80
+    assert reqs["REQ-006"]["priority"] == "CRITICAL"
+    assert reqs["REQ-009"]["confidence"] == 0.74
+    assert reqs["REQ-009"]["priority"] == "HIGH"
+
+
 def test_critical_band_requires_stage_pol_req_002(policies):
     # Same 0.94 confidence, but stage below Technical Validation → HIGH, not CRITICAL
     hypotheses = {"BC-001": 0.80, "BC-002": 0.70}

@@ -302,6 +302,51 @@ The Behavioral Intelligence Platform owns all Runtime Objects and behavioral sta
 
 ---
 
+# v1.2 Domain Research Patterns — BP-013 … BP-019
+
+Added with doc 14. Seven patterns with one shape, deliberately the same ladder
+as BP-003 and BP-007: **two qualifying signals activate at Medium, four reach
+Strong.** Shopping for payroll should be no harder to recognise than shopping
+for AI.
+
+**Required Evidence (all seven):** ≥ 2 events among —
+DOCUMENTATION_VIEWED on a topic of that domain · PRODUCT_VIEWED or
+CATEGORY_VIEWED in one of its categories · SEARCH containing one of its terms —
+within a session.
+
+**Contradicting:** none specified; absence weakens via decay only.
+
+| Pattern | Concept | Doc topics | Categories | Search terms |
+|---|---|---|---|---|
+| BP-013 CRM Evaluation | BC-019 | pipeline · crm · tickets | CRM · Customer Support | crm, pipeline, lead(s), ticketing, helpdesk |
+| BP-014 People Ops Evaluation | BC-020 | payroll · hiring · performance | HR | hr, payroll, ats, onboarding, recruiting, hiring |
+| BP-015 Finance Evaluation | BC-021 | accounting · billing · expenses · forecasting | Finance | accounting, invoicing, invoice, expenses, ledger, budgeting |
+| BP-016 Marketing Evaluation | BC-022 | campaigns · seo · experiments | Marketing | marketing, campaign(s), seo, newsletter |
+| BP-017 Engineering Delivery | BC-023 | cicd · monitoring · incidents · containers | DevOps | devops, cicd, kubernetes, observability, monitoring, deployment |
+| BP-018 Data & Insight | BC-024 | warehouse · pipelines-data · dashboards | Data & Analytics | warehouse, etl, bi, analytics, dashboard(s) |
+| BP-019 Security Operations | BC-025 | threat · dlp | Security | edr, dlp, threat, endpoint, antivirus |
+
+**These are evaluation patterns**, so they carry the Research and Technical
+Validation stage milestones alongside BP-001 … BP-008. Omitting them would
+strand a CRM or payroll journey at Awareness — and because stage gates the
+Critical priority band (POL-REQ-002), a need those journeys produced could never
+reach Critical while an identity journey's could. Same behaviour, different
+domain, different ceiling: not defensible.
+
+**No certifications clause.** An earlier draft of BP-019 qualified on
+SECURITY_VIEWED topic `certifications`. That topic already qualifies BP-004
+Compliance Evaluation, and handing one page to two patterns is precisely how one
+journey's evidence publishes another journey's need (Decisions #049, #050).
+
+**Every topic above is emitted by a real surface.** The per-tab vocabulary is
+Domain Pack artifact 11 and lives beside these rules in the pack, so the two
+cannot drift; `test_ui_tracking_contract` checks both directions — no pattern
+reads a topic nothing emits, and no surface emits a topic no pattern reads.
+Before that vocabulary existed, a CRM's Docs tab reported its topic as
+`workflows`, which is how a CRM journey was read as automation research.
+
+---
+
 # Pattern Invariants
 
 The following rules must always hold.

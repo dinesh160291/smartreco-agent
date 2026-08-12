@@ -1071,6 +1071,51 @@ Recommendation Packages communicate **which products best satisfy those needs**.
 
 ---
 
+# v1.2 Extension — REQ-006 … REQ-012
+
+Added with doc 14. The five requirements above were authored against a
+ten-product roster; the catalog then grew to 55 capabilities for the wide demo
+roster, and those five reach only 21 of them. The consequence was not
+theoretical: **82 of the 250 catalog products held no capability any requirement
+named**, so they could be searched, viewed and added to a cart but never
+recommended, because coverage scoring had nothing to score them on.
+
+These seven complete the coverage. REQ-001 … REQ-005 are unchanged — their
+capability sets are the denominators of the derivations in doc 09, so new
+capabilities join new requirements only.
+
+| ID | Requirement | Business meaning | Capabilities (doc 07) |
+|---|---|---|---|
+| REQ-006 | **Sales & Customer Management** | Keep customer relationships and deal progress in one governed system of record | Sales Pipeline · Contact Management *(Primary)* · Lead Scoring · Support Ticketing *(Secondary)* · Live Chat *(Supporting)* |
+| REQ-007 | **People Operations** | Run the employee lifecycle — hiring, onboarding, pay and performance | Payroll · Applicant Tracking *(Primary)* · Onboarding · Time & Attendance *(Secondary)* · Performance Reviews *(Supporting)* |
+| REQ-008 | **Financial Management** | Keep the books, bill customers and control spend | General Ledger · Invoicing *(Primary)* · Expenses · Payments *(Secondary)* · Budgeting *(Supporting)* |
+| REQ-009 | **Marketing Execution** | Reach an audience and measure whether the reach worked | Marketing Automation · Email Campaigns *(Primary)* · Social · SEO *(Secondary)* · A/B Testing *(Supporting)* |
+| REQ-010 | **Engineering Delivery** | Ship software and keep it running | CI/CD · Infrastructure Monitoring *(Primary)* · Logs · Incident Response *(Secondary)* · Containers *(Supporting)* |
+| REQ-011 | **Data & Insight** | Consolidate data and get answers out of it | Data Warehousing · ETL *(Primary)* · Visualization · Intelligent Search *(Secondary)* · API Integration *(Supporting)* |
+| REQ-012 | **Security Operations** | Detect threats and stop information leaving | Threat Protection · Data Loss Prevention *(Primary)* · Compliance Reporting *(Secondary)* · Identity Federation *(Supporting)* |
+
+**Why REQ-012 exists.** Four capabilities were stranded inside the *original*
+domains — Threat Protection, Data Loss Prevention, Compliance Reporting and
+Identity Federation belong to Security, Compliance and Identity, but no
+requirement named them. Housing them in a new requirement reaches them without
+editing a frozen capability set.
+
+**Why REQ-011 carries two capabilities from outside its domain.** Data &
+Analytics holds only three capabilities, and 21 catalog products hold all three
+— a requirement built from them alone produced a 21-way tie at 100%, a ranking
+that is correct and useless. Intelligent Search and API Integration are
+genuinely part of getting insight out of data, and they discriminate.
+`test_seed_catalog` now pins the general rule: no requirement may be fully
+covered by more products than a Candidate Set can hold.
+
+**Still unmapped:** File Sharing and AI Workflow Assistance. Both belong to
+existing requirements' domains, so mapping them would edit a frozen set and move
+the pinned derivations. No product is stranded by leaving them out — every
+product holding either also holds something mapped — so this is deliberately
+left as a separate decision.
+
+---
+
 # Summary
 
 The Business Requirement Catalog provides the canonical business vocabulary used throughout the Software Buying Domain.

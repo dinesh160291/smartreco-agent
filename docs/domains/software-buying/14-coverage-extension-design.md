@@ -1,9 +1,23 @@
-# Coverage Extension — Design Table (proposal, not yet adopted)
+# Coverage Extension — Design Table
 
-**Status: for review.** Nothing here is implemented. This document assigns every
-capability in the catalog to a requirement, every requirement to a concept, and
-every concept to a pattern with stated activation conditions — so the design can
-be argued with before any code is written.
+**Status: adopted and implemented** (Decisions #049, #050, #051). This document
+assigns every capability in the catalog to a requirement, every requirement to a
+concept, and every concept to a pattern with stated activation conditions. It is
+now the record of that design; the pack documents (01, 02, 04, 06, 07, 09) carry
+the authoritative versions.
+
+**Two things changed between proposal and implementation, both because a test
+disagreed with the table:**
+
+1. **REQ-011 Data & Insight gained two capabilities.** Drafted from the three
+   Data & Analytics capabilities alone, it was fully covered by 21 catalog
+   products — a 21-way tie at 100%, a ranking that is correct and useless.
+   Intelligent Search and API Integration were added, and a new invariant with
+   it: no requirement may be fully covered by more products than a Candidate Set
+   can hold.
+2. **BP-019 lost its certifications clause.** That topic already qualifies
+   BP-004 Compliance Evaluation, and handing one page to two patterns is exactly
+   how one journey's evidence publishes another journey's need.
 
 ## The problem, measured
 

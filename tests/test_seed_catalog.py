@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from smartreco.domain.software_buying import CANONICAL_PRODUCTS, REQ_TO_CAP
+from smartreco.policies import load_policies
 
 SEED = Path(__file__).resolve().parents[1] / "seed" / "products.json"
 
@@ -38,15 +39,55 @@ def test_ids_unique_and_clear_of_canonical(seed):
     assert not canonical & set(ids)
 
 
-def test_distractor_constraint_holds(seed):
-    """No non-canonical product may fully cover any scenario requirement's
-    capability set — canonical winners must remain deterministic."""
+SCENARIO_REQUIREMENTS = ("REQ-001", "REQ-002", "REQ-003", "REQ-004", "REQ-005")
+
+
+def test_distractor_constraint_holds_for_scenario_requirements(seed):
+    """No non-canonical product may fully cover a *scenario* requirement's
+    capability set — canonical winners must remain deterministic.
+
+    Scoped to REQ-001…005 (doc 14). Those are the requirements the demo script's
+    journeys produce and the ones doc 09's derivations assert, so a distractor
+    reaching 100% on them would displace the canonical winner the story names.
+
+    The v1.2 requirements have no canonical product to protect: the canonical
+    ten hold no CRM, HR, finance, marketing, DevOps or analytics capability at
+    all. Forbidding full coverage there would forbid the marketplace from having
+    a best-fit product for those needs, which is the whole point of adding them.
+    What must hold instead is that they still discriminate — see below.
+    """
     for product in seed["products"]:
         caps = set(product["capabilities"])
-        for req_id, required in REQ_TO_CAP.items():
-            assert not set(required) <= caps, (
+        for req_id in SCENARIO_REQUIREMENTS:
+            assert not set(REQ_TO_CAP[req_id]) <= caps, (
                 f"{product['product_id']} fully covers {req_id} — distractor "
                 "constraint violated")
+
+
+def test_every_requirement_discriminates(seed):
+    """No requirement may be fully covered by more products than a Candidate Set
+    can hold (POL-RETR-001 top_k).
+
+    Retrieval returns at most top_k candidates. If more products tie at maximum
+    coverage than that, the recommendation list can be composed entirely of
+    tied products and the ranking expresses no preference — "correct and
+    useless", the same failure test_fictional_products_in_a_category_are_not_clones
+    exists to prevent, arriving through the requirement instead of the data.
+
+    This caught a real design error: REQ-011 Data & Insight was first drafted
+    from the three Data & Analytics capabilities alone, and 21 catalog products
+    hold all three.
+    """
+    top_k = load_policies().param("POL-RETR-001", "top_k")
+    saturating: dict[str, int] = {}
+    for req_id, required in REQ_TO_CAP.items():
+        full = sum(1 for p in seed["products"]
+                   if set(required) <= set(p["capabilities"]))
+        if full > top_k:
+            saturating[req_id] = full
+    assert not saturating, (
+        f"requirements saturated beyond a Candidate Set ({top_k}): {saturating} — "
+        "the top coverage band is a tie the ranking cannot break")
 
 
 def test_fictional_products_in_a_category_are_not_clones(seed):

@@ -444,6 +444,150 @@ def _evaluate_bp002(session_events: list[EventView], journey_events: list[EventV
         ),
     )
 
+# ---- v1.2 domain research patterns (doc 14 Table 2) ----
+#
+# Seven patterns with one shape: ≥2 qualifying signals activate, ≥4 make it
+# Strong — the same ladder as BP-003 and BP-007, deliberately, so shopping for
+# a CRM is no harder to recognise than shopping for AI.
+#
+# A table rather than seven near-identical functions: there are seven concrete
+# uses, and what is worth reading here is the *vocabulary* — which words and
+# categories mean "this person is shopping for payroll" — not the control flow
+# repeated seven times. Each row is a claim about this domain, which is exactly
+# what a Domain Pack is for.
+#
+# Every topic below must appear in the UI vocabulary (UI_DOC_TOPICS) or the
+# pattern cannot fire from a browser; test_ui_tracking_contract pins that both
+# ways.
+
+DOMAIN_RESEARCH_PATTERNS = (
+    # (pattern_id, concept_id, doc topics, product categories, search terms)
+    ("BP-013", "BC-019",
+     {"pipeline", "crm", "tickets"},
+     {"crm", "customer support"},
+     {"crm", "pipeline", "leads", "lead", "ticketing", "helpdesk"}),
+    ("BP-014", "BC-020",
+     {"payroll", "hiring", "performance"},
+     {"hr"},
+     {"hr", "payroll", "ats", "onboarding", "recruiting", "hiring"}),
+    ("BP-015", "BC-021",
+     {"accounting", "billing", "expenses", "forecasting"},
+     {"finance"},
+     {"accounting", "invoicing", "invoice", "expenses", "ledger", "budgeting"}),
+    ("BP-016", "BC-022",
+     {"campaigns", "seo", "experiments"},
+     {"marketing"},
+     {"marketing", "campaign", "campaigns", "seo", "newsletter"}),
+    ("BP-017", "BC-023",
+     {"cicd", "monitoring", "incidents", "containers"},
+     {"devops"},
+     {"devops", "cicd", "kubernetes", "observability", "monitoring", "deployment"}),
+    ("BP-018", "BC-024",
+     {"warehouse", "pipelines-data", "dashboards"},
+     {"data & analytics"},
+     {"warehouse", "etl", "bi", "analytics", "dashboard", "dashboards"}),
+    # No certifications clause, though doc 14 Table 2 sketched one: that topic
+    # already qualifies BP-004 Compliance Evaluation, and handing the same page
+    # to two patterns is how one journey's evidence publishes another journey's
+    # need (Decisions #049, #050).
+    ("BP-019", "BC-025",
+     {"threat", "dlp"},
+     {"security"},
+     {"edr", "dlp", "threat", "endpoint", "antivirus"}),
+)
+
+
+# ---- UI vocabulary (Domain Pack artifact 11; doc 14 Table 4) ----
+#
+# Which topic each tracked tab reports, per product. Ordered — first capability
+# the product holds wins — and it lives here rather than in the web layer
+# because it is domain knowledge: the contract lists "per-tab tracked topics"
+# as a pack artifact, and a pattern keyed on a topic no surface emits cannot
+# fire from a browser at all (Decision #044).
+#
+# Ordering is by *specificity*, not by version, and it is load-bearing in both
+# directions. Identity comes first so a suite holding single sign-on still
+# describes its docs as identity docs. The v1.2 product-type topics come next,
+# so a CRM stops describing its docs as workflow automation — which is exactly
+# how a CRM journey was read as automation research. Threat and data-loss
+# topics come last, after governance, so a content-governance product still
+# reports compliance.
+
+UI_DOC_TOPICS = (
+    ("CAP-001", "sso"), ("CAP-002", "mfa"),                    # BP-001 Security
+    # v1.2 product-type topics. Support before sales: a helpdesk product must
+    # not describe itself as a sales pipeline.
+    ("CAP-031", "tickets"), ("CAP-032", "tickets"),
+    ("CAP-029", "pipeline"), ("CAP-028", "crm"), ("CAP-030", "crm"),
+    ("CAP-035", "payroll"), ("CAP-036", "payroll"),
+    ("CAP-033", "hiring"), ("CAP-034", "hiring"), ("CAP-037", "performance"),
+    ("CAP-040", "accounting"), ("CAP-038", "billing"), ("CAP-042", "billing"),
+    ("CAP-039", "expenses"), ("CAP-041", "forecasting"),
+    ("CAP-044", "campaigns"), ("CAP-043", "campaigns"), ("CAP-045", "campaigns"),
+    ("CAP-046", "seo"), ("CAP-047", "experiments"),
+    ("CAP-048", "cicd"), ("CAP-049", "monitoring"), ("CAP-050", "monitoring"),
+    ("CAP-051", "incidents"), ("CAP-052", "containers"),
+    ("CAP-054", "pipelines-data"), ("CAP-055", "warehouse"), ("CAP-053", "dashboards"),
+    # v1 generic platform topics
+    ("CAP-020", "ai"), ("CAP-021", "ai"), ("CAP-022", "ai"),
+    ("CAP-023", "ai"), ("CAP-024", "ai"),                      # BP-003 AI
+    ("CAP-005", "messaging"), ("CAP-006", "meetings"),
+    ("CAP-007", "co-editing"),                                 # BP-005 Collaboration
+    ("CAP-015", "workflows"), ("CAP-017", "triggers"),          # BP-007 Automation
+    ("CAP-012", "compliance"), ("CAP-013", "retention"),
+    ("CAP-014", "ediscovery"), ("CAP-027", "compliance"),
+    ("CAP-010", "audit"),                                      # BP-004 Compliance
+    ("CAP-025", "threat"), ("CAP-026", "dlp"),                 # BP-019 Security Ops
+)
+UI_DOC_TOPIC_DEFAULT = "api"
+
+# The Security & Compliance pane is a certifications surface when the product
+# carries governance capabilities, an audit surface when it only logs, and a
+# general posture page otherwise (BP-004 keys on "certifications"; BP-002 on
+# "compliance"/"audit").
+UI_SECURITY_TOPICS = (
+    ("CAP-012", "certifications"), ("CAP-013", "certifications"),
+    ("CAP-014", "certifications"), ("CAP-027", "certifications"),
+    ("CAP-010", "audit"),
+)
+UI_SECURITY_TOPIC_DEFAULT = "compliance"
+
+UI_INTEGRATION_TOPICS = (
+    ("CAP-003", "provisioning"), ("CAP-008", "federation"),    # BP-002 Enterprise
+    ("CAP-016", "connectors"),                                 # BP-008 Integration
+)
+UI_INTEGRATION_TOPIC_DEFAULT = "integrations"
+
+
+def _evaluate_domain_research(session_events: list[EventView], pattern_id: str,
+                              concept_id: str, doc_topics: set[str],
+                              categories: set[str],
+                              search_terms: set[str]) -> EvidenceDraft | None:
+    qualifying = []
+    for e in session_events:
+        if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in doc_topics:
+            qualifying.append(e)
+        elif e.event_type in ("PRODUCT_VIEWED", "CATEGORY_VIEWED"):
+            category = str(e.metadata.get("category", "")).lower()
+            if category and any(name in category for name in categories):
+                qualifying.append(e)
+        elif e.event_type == "SEARCH" and _tokens(e.metadata.get("query", "")) & search_terms:
+            qualifying.append(e)
+    if len(qualifying) < 2:
+        return None
+    strength = "STRONG" if len(qualifying) >= 4 else "MEDIUM"
+    return EvidenceDraft(
+        pattern_id=pattern_id, strength=strength, concept_ids=[concept_id],
+        supporting_event_ids=[e.event_id for e in qualifying],
+        explanation=f"{pattern_id} activated: {len(qualifying)} signal(s) -> {strength}")
+
+
+def _domain_research_evaluator(row):
+    pattern_id, concept_id, doc_topics, categories, search_terms = row
+    return lambda se, all_events: _evaluate_domain_research(
+        se, pattern_id, concept_id, doc_topics, categories, search_terms)
+
+
 # Evaluation order is part of the contract: session-scoped evaluators run per
 # session, then journey-scoped ones over the whole history. `journey_events`
 # is passed to evaluators whose rules look beyond the current session.
@@ -460,6 +604,21 @@ SESSION_EVALUATORS = (
     lambda se, all_events: _evaluate_bp009(se, all_events),
     lambda se, all_events: _evaluate_bp011(se),
     lambda se, all_events: _evaluate_bp012(se),
-)
+) + tuple(_domain_research_evaluator(row) for row in DOMAIN_RESEARCH_PATTERNS)
 
 JOURNEY_EVALUATORS = (_evaluate_bp010,)   # product-scoped, spans the journey
+
+
+# Every topic any evaluator reads. Assembled from the same constants the
+# evaluators use, so it cannot drift from them — and exported so the UI
+# reachability ratchet checks against the pack rather than restating the list in
+# a test, which is how a topic went unread for three patterns (Decision #044).
+PATTERN_TOPICS = frozenset(
+    BP001_DOC_TOPICS | BP002_DOC_TOPICS | BP002_SECURITY_TOPICS
+    | BP004_DOC_TOPICS | BP005_DOC_TOPICS | BP006_DOC_TOPICS
+    | BP007_DOC_TOPICS | BP008_DOC_TOPICS
+    # Read as literals inside an evaluator rather than via a constant:
+    # BP-003's "ai", BP-004's "certifications", BP-011's onboarding/migration.
+    | {SECURITY_DWELL_TOPIC, "ai", "certifications", "onboarding", "migration"}
+    | {topic for _p, _c, topics, _cat, _s in DOMAIN_RESEARCH_PATTERNS for topic in topics}
+)

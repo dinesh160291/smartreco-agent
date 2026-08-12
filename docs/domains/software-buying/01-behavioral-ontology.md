@@ -242,6 +242,29 @@ Future behavioral concepts may be added, with new IDs, through a new Domain Pack
 
 ---
 
+# v1.2 Extension — BC-019 … BC-025
+
+Added with doc 14, one concept per catalog domain that previously had no way to
+be understood. Each answers *"what is this person trying to buy"*, so each maps
+Primary to a requirement — the side of the line Decision #050 drew between a
+buyer's needs and a buyer's attributes.
+
+| ID | Concept | Activated by | Primary requirement |
+|---|---|---|---|
+| BC-019 | CRM Evaluation | BP-013 | REQ-006 Sales & Customer Management |
+| BC-020 | People Operations Evaluation | BP-014 | REQ-007 People Operations |
+| BC-021 | Financial Evaluation | BP-015 | REQ-008 Financial Management |
+| BC-022 | Marketing Evaluation | BP-016 | REQ-009 Marketing Execution |
+| BC-023 | Engineering Delivery Evaluation | BP-017 | REQ-010 Engineering Delivery |
+| BC-024 | Data & Insight Evaluation | BP-018 | REQ-011 Data & Insight |
+| BC-025 | Security Operations Evaluation | BP-019 | REQ-012 Security Operations |
+
+BC-009 … BC-018 remain deliberately unmapped: they inform stage, constraints,
+ranking context or hypothesis lifecycle and never produce a requirement. BC-002
+Enterprise Evaluation joined them for its identity association in Decision #050.
+
+---
+
 # Ontology Invariants
 
 The following rules must always hold.
