@@ -658,7 +658,7 @@ The following are the platform's initial published policy values. They are confi
 | POL-BEH-001 | Hypothesis promotion | Create a Hypothesis at 2 supporting Evidence objects, or 1 with Strength ≥ Strong |
 | POL-BEH-002 | Evidence expiration | Evidence older than 30 days contributes at 50% weight |
 | POL-CONF-001 | Confidence contribution | Weak +0.05, Medium +0.10, Strong +0.20, Very Strong +0.30 per Evidence; diversity increment +0.10 per distinct pattern beyond the first |
-| POL-CONF-002 | Diminishing returns | Repeated identical Evidence contributes at 50% of prior contribution. Identical = same pattern, same strength, same supporting event-type composition; a different strength or composition contributes at full class value (Decision #036) |
+| POL-CONF-002 | Diminishing returns | v1.4: Repeated identical Evidence contributes at 50% of prior contribution. Identical = same pattern, same strength, same **set** of supporting event types; a different strength, or a kind of event not yet seen for that pattern, contributes at full class value. More events of kinds already counted is the same finding restated, not new evidence (Decision #054). v1 read "event-type composition" as the multiset (Decision #036), under which session-window patterns never repeated and confidence tracked run count rather than evidence |
 | POL-CONF-003 | Contradiction penalty | Contradicting Evidence subtracts at 75% of its class contribution |
 | POL-CONF-004 | Confidence saturation | Cap 0.95; floor 0.05 |
 | POL-CONF-005 | Hypothesis retirement | Retire when confidence < 0.15 for 2 consecutive updates |

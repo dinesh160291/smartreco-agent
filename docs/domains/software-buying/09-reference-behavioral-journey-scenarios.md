@@ -542,15 +542,19 @@ Standardize enterprise identity management while improving authentication securi
 ## Observed Behavior
 
 ```text
-Customer compares multiple identity platforms.
+Day 1 — Customer finds an identity platform, opens its security page, and
+reads the Single Sign-On and administration documentation.
 
-Customer requests Single Sign-On capabilities.
+Day 1 — Customer returns to the audit page and the Multi-Factor Authentication
+documentation, spending over a minute on the security material.
 
-Customer requests Multi-Factor Authentication.
+Day 2 — Customer compares the security posture of four identity platforms in
+one sitting, alongside their identity lifecycle documentation.
 
-Customer evaluates centralized identity lifecycle management.
+Day 2 — Customer narrows back to one platform: Single Sign-On and
+Multi-Factor Authentication documentation, and the enterprise pricing tier.
 
-Customer asks about enterprise audit capabilities.
+Day 2 — Customer makes a final pass over the same material.
 ```
 
 ---
@@ -604,6 +608,27 @@ Enterprise Evaluation — hypothesis confidence 0.70
 ```
 
 Journey Stage: Technical Validation
+
+## How those confidences are reached (POL-CONF-001/002)
+
+Each run contributes at full class value only when it differs from what came
+before in **strength** or in the **kind** of behavior backing it; more of a kind
+already counted damps to half (POL-CONF-002, Decision #054). The five
+observations above therefore produce:
+
+| Run | BC-001 Security Evaluation | BC-002 Enterprise Evaluation |
+|---|---|---|
+| 1 | Medium · security page + docs · **+0.10** | Medium · admin docs · **+0.10** |
+| 2 | Strong · + reading time · **+0.20** | Medium · + audit page · **+0.10** |
+| 3 | Strong · security pages alone · **+0.20** | Strong (2 sessions) · **+0.20** |
+| 4 | Strong · pages + docs · **+0.20** | Strong · + enterprise tier · **+0.20** |
+| 5 | Strong · repeat · **+0.10** | Strong · repeat · **+0.10** |
+| | **0.80** | **0.70** |
+
+This derivation is why the observed behavior is written as five distinct
+episodes rather than one summary: under POL-CONF-002 the *shape* of the
+research, not merely its volume, is what produces the confidences. A shopper
+who performed the fifth episode ten more times would still reach 0.80.
 
 ---
 
@@ -851,14 +876,25 @@ Consolidate collaboration capabilities while improving employee productivity.
 ## Observed Behavior
 
 ```text
-Customer evaluates collaboration platforms.
+Customer browses the collaboration category and its platforms, and searches
+for AI meeting summaries.
 
-Customer requests document collaboration.
+Customer widens to more collaboration platforms and AI feature pages.
 
-Customer requests integrated communication capabilities.
+Customer opens a second line of research on the same platforms, and reads
+productivity, template and task documentation.
 
-Customer asks about AI-assisted productivity.
+Customer requests integrated communication capabilities — meetings
+documentation and AI assistant research.
+
+Customer returns to the collaboration category, and to template and task
+documentation.
 ```
+
+The two lines of research reach the concept differently — one through the
+category and its products, the other through the products and then their
+documentation — which is what earns BC-005 0.80 under POL-CONF-002
+(Decision #054) rather than repetition of a single route.
 
 ---
 

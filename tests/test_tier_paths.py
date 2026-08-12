@@ -129,31 +129,40 @@ def test_tier2_budget_gate_skips_llm_entirely(seeded, chroma, backend, policies)
 # ---- Pipeline-level: caching, budgets, full-catalog fallback ----
 
 def _pump_requirements(db, user_id, gateway, chroma, backend, policies):
-    """Three cooldown-spaced runs of growing security research → BC-001 0.6 →
-    REQ-002 published at 0.6 → READY."""
+    """Three cooldown-spaced runs of security research → BC-001 0.6 →
+    REQ-002 published at 0.6 → READY.
+
+    Each run adds a kind of evidence the last one lacked — pages, then the
+    product documentation, then reading time — so all three contribute at full
+    class value under POL-CONF-002 (Decision #054). Three runs of *more of the
+    same* would converge on 0.35 and never publish, which is the point of the
+    policy, not a limitation of this fixture.
+    """
     day = datetime(2026, 8, 3)
     batches = [
+        # Security pages alone: {SECURITY_VIEWED} → Strong, +0.20
         (day.replace(hour=9, minute=0), [
             ("q1", "SEARCH", "HIGH", {"query": "single sign-on"}),
             ("q2", "SECURITY_VIEWED", "HIGH", {"page": "a"}),
             ("q3", "SECURITY_VIEWED", "HIGH", {"page": "b"}),
-            ("q4", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
-            ("q5", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"}),
+            ("q4", "SECURITY_VIEWED", "HIGH", {"page": "c"}),
+            ("q5", "SECURITY_VIEWED", "HIGH", {"page": "d"}),
         ]),
+        # The documentation joins in: {SECURITY_VIEWED, DOCUMENTATION_VIEWED} +0.20
         (day.replace(hour=9, minute=15), [
-            ("q6", "SECURITY_VIEWED", "HIGH", {"page": "c"}),
+            ("q6", "SECURITY_VIEWED", "HIGH", {"page": "e"}),
             ("q7", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
             ("q8", "SEARCH", "HIGH", {"query": "okta mfa"}),
-            ("q9", "SECURITY_VIEWED", "HIGH", {"page": "d"}),
-            ("q10", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"}),
+            ("q9", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"}),
+            ("q10", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
         ]),
+        # Reading time joins in: {SECURITY_VIEWED, DOCUMENTATION_VIEWED, DWELL} +0.20
         (day.replace(hour=9, minute=30), [
-            ("q11", "SECURITY_VIEWED", "HIGH", {"page": "e"}),
-            ("q12", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
+            ("q11", "SECURITY_VIEWED", "HIGH", {"page": "f"}),
+            ("q12", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"}),
             ("q13", "SEARCH", "HIGH", {"query": "sso audit"}),
-            ("q14", "SECURITY_VIEWED", "HIGH", {"page": "f"}),
-            ("q15", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"}),
-        ]),
+        ] + [(f"q{n}", "DWELL", "LOW", {"topic": "security", "seconds": 10})
+             for n in range(14, 20)]),
     ]
     runs = []
     for i, (ts, specs) in enumerate(batches):

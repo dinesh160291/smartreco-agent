@@ -2064,3 +2064,119 @@ constrained by pinned scenarios (#050, #051, #052, this one), which is the
 mechanism working as designed — but it is worth noticing that the pins are
 starting to shape the model, and a deliberate re-derivation of Scenario 2 would
 unblock several of them at once.
+
+---
+
+# Decision #054
+
+## Title
+
+POL-CONF-002 identity is the *set* of supporting event types, not the multiset — superseding Decision #036
+
+## Status
+
+Accepted (supersedes Decision #036)
+
+## Decision
+
+"Repeated identical Evidence" is now identified by **pattern + strength + the
+set of supporting event types**. A different strength, or a kind of event not
+yet seen for that pattern, contributes at full class value. More events of kinds
+already counted is the same finding restated and damps at `repeat_factor`.
+
+Policy Catalog v1.4. This is the first change to how a published policy
+*behaves* rather than to one of its numbers, so the version bump is what keeps
+historical runs interpretable — every run records the `policy_version` it ran
+under.
+
+## Rationale
+
+Found by reading the trace of a real journey (J-3, 12 minutes, 82 events) whose
+shopper searched for analytics and DevOps tooling and was recommended
+ServiceNow, a workflow-automation product they never opened. The product they
+had put in their cart did not appear at all.
+
+**The mechanism.** Session-window patterns re-report their *whole session* on
+every workflow run. Under #036's multiset identity, each run's composition grew
+by one event, so the identity key changed, so the damping never engaged.
+Integration Evaluation fired eight times on nothing but Integrations-tab clicks
+— Medium every time, never escalating — and climbed +0.10 per run to 0.80:
+
+| Run | Events cited | Confidence |
+|---|---|---|
+| 1 | 2 | 0.10 |
+| … | … | … |
+| 8 | 11 | 0.80 |
+
+That published Workflow Automation as a Critical requirement, and ServiceNow is
+the one product in 250 that covers it completely. It won on 36% overall while
+scoring zero on Engineering Delivery, the need the shopper actually had.
+
+Across the whole journey, **1 of 41 evidence rows hit the damping rule.** A
+policy that never fires is not a policy. Confidence was measuring how many times
+the workflow happened to run, not how much evidence existed.
+
+**Chapter 05 already said this.** Its Diminishing Returns section reads:
+"Viewing the same pricing page twenty times should not increase confidence as
+much as observing: Pricing, Documentation, API Reference, Security,
+Integrations." That is set-of-kinds semantics stated in the constitution.
+Decision #036 implemented the opposite, and no test caught it because the tests
+were written from #036. Same family as Decisions #044, #045, #046, #049 and
+#052 — a specification that agrees with itself but not with the running system —
+and the most expensive instance so far, because this one lived in the core
+arithmetic every hypothesis passes through.
+
+**Why not identity-by-pattern-alone.** Still rejected, for exactly the reason
+#036 gave: it caps a single-pattern concept near 0.4 (a geometric series of one
+class contribution) and makes the Domain 09 confidences underivable. The set of
+event *kinds* sits between the two failures — reachable, so the policy fires;
+discriminating, so genuine escalation still pays.
+
+## Consequences
+
+**Every hypothesis confidence in the system moves.** On the journey that
+prompted this, Integration Evaluation falls 0.80 → 0.20, which drops Workflow
+Automation and Identity Management below the publication threshold and leaves
+exactly the two requirements the shopper's behavior supports. Ranked over the
+full catalog, the top two become Splunk and Datadog — the products they had in
+their cart and on their comparison screen.
+
+**Validation Scenario 1 was re-derived, deliberately.** Its pinned 0.80 / 0.70
+were themselves produced by the ratchet: two of the five evidence rows behind
+Security Evaluation were "same pattern, same strength, same kinds, just more of
+them". Under the corrected rule the old clickstream yields 0.65, which drops
+Identity Management out of Critical and pushes Regulatory Compliance below
+publication — Okta / Microsoft 365 / Google Workspace would become 100 / 60 / 60,
+a tie for second.
+
+Rather than accept that, the scenario's **observed behavior** was rewritten so
+the same confidences are earned by evidence that changes in kind: security pages,
+then reading time, then a cross-product comparison sweep, then the product
+documentation. Both concepts land exactly on 0.80 and 0.70, and every downstream
+number — REQ-002 Critical, REQ-004 Medium, REQ-001 held at 0.48, Okta 81 /
+Microsoft 365 70 / Google Workspace 58, READY — is unchanged.
+
+This is recorded plainly because it deserves scrutiny: **reshaping a fixture to
+preserve a number is adjacent to the one move this project forbids.** Three
+things distinguish it. The scenario's *conclusions* were held fixed while its
+*inputs* were re-derived, not the other way round. The replacement behavior is
+more realistic than what it replaced, not less — a security buyer comparing four
+platforms' security pages is ordinary, and the old clickstream's fifth repeat of
+the same page was filler that existed to reach a number. And the constraint was
+surfaced and decided explicitly rather than absorbed. The alternative — moving
+81/70/58 — was offered and declined.
+
+Validation Scenario 2 needed the same treatment for the same reason and got it:
+its two sessions now take different routes through the evidence lattice, and
+BC-005 0.80 / BC-006 0.50 / BC-003 0.50 are unchanged.
+
+**Fixtures that reached a threshold by repetition no longer do**, which is the
+policy working. Three platform fixtures (`_pump_requirements`, `_pump_focus`,
+and Story 7's resumed session) were rebuilt to add a kind of evidence per run
+instead of more of the same.
+
+**Not addressed here.** The Integrations tab still emits a word that wakes
+Integration Evaluation on 225 of 250 products; that is a Domain Pack vocabulary
+defect and lands separately. Either fix alone corrects the journey above — this
+one was chosen first because the other leaves the ratchet in place for the next
+over-broad pattern.

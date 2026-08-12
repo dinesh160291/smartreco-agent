@@ -62,7 +62,7 @@ def test_story2_collaboration_modernizer(seeded, chroma, backend, policies, fake
     assert r1.status == "COMPLETED"
 
     _insert(db, user.id, sA, day.replace(hour=9, minute=15), [
-        ("a06", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "co-editing"}),
+        ("a06", "PRODUCT_VIEWED", "HIGH", {"product_id": "PROD-005", "category": "collaboration"}),
         ("a07", "PRODUCT_VIEWED", "HIGH", {"product_id": "PROD-009", "category": "ai"}),
         ("a08", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "ai"}),
         ("a09", "SEARCH", "HIGH", {"query": "notion ai writing"}),
@@ -76,7 +76,7 @@ def test_story2_collaboration_modernizer(seeded, chroma, backend, policies, fake
         ("b01", "PRODUCT_VIEWED", "HIGH", {"product_id": "PROD-005", "category": "collaboration"}),
         ("b02", "PRODUCT_VIEWED", "HIGH", {"product_id": "PROD-009", "category": "collaboration"}),
         ("b03", "SEARCH", "HIGH", {"query": "google workspace notion collaboration"}),
-        ("b04", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "co-editing"}),
+        ("b04", "PRODUCT_VIEWED", "HIGH", {"product_id": "PROD-004", "category": "collaboration"}),
     ])
     _insert(db, user.id, sA, day.replace(hour=9, minute=31), [
         ("a13", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "templates"}),

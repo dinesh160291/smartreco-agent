@@ -44,8 +44,14 @@ def test_identical_composition_repeats_halve_pol_conf_002(policies):
     assert compute_confidence(seq, policies).confidence == 0.35
 
 
-def test_changed_composition_contributes_full_value_decision_036(policies):
-    # Same pattern+strength but growing event-type composition: full value each
+def test_more_of_the_same_kind_damps_decision_054(policies):
+    """More events of kinds already counted is the same finding restated.
+
+    This sequence used to reach 0.80 under the Decision #036 multiset identity:
+    the composition grew each time, so nothing was ever recognised as a repeat.
+    It is the shape every session-window pattern produces, because each run
+    re-reports the whole session.
+    """
     seq = [
         ev("BP-001", "STRONG", ["SECURITY_VIEWED", "DOCUMENTATION_VIEWED", "DWELL"]),
         ev("BP-001", "STRONG", ["SECURITY_VIEWED", "SECURITY_VIEWED", "DOCUMENTATION_VIEWED", "DWELL"]),
@@ -54,19 +60,82 @@ def test_changed_composition_contributes_full_value_decision_036(policies):
         ev("BP-001", "STRONG", ["SECURITY_VIEWED", "SECURITY_VIEWED", "SECURITY_VIEWED",
                                 "DOCUMENTATION_VIEWED", "DOCUMENTATION_VIEWED", "DWELL"]),
     ]
-    assert compute_confidence(seq, policies).confidence == 0.80  # Story 1: BC-001
+    # 0.20 + 0.10 + 0.05 + 0.025
+    assert compute_confidence(seq, policies).confidence == 0.375
 
 
-def test_story1_bc002_reaches_070(policies):
+def test_a_new_kind_of_behavior_contributes_full_value_decision_054(policies):
+    """A behavior kind not seen before for this pattern is a new finding.
+
+    This is what keeps the damping from collapsing to identity-by-pattern,
+    which Decision #036 rejected for capping single-pattern concepts near 0.4.
+    Reading time appearing alongside pages already read is genuinely new
+    information about the shopper; a fifth page view is not.
+    """
     seq = [
-        ev("BP-002", "MEDIUM", ["PRICING_VIEWED", "DOCUMENTATION_VIEWED"]),
-        ev("BP-002", "STRONG", ["PRICING_VIEWED", "DOCUMENTATION_VIEWED", "SECURITY_VIEWED"]),
-        ev("BP-002", "STRONG", ["PRICING_VIEWED", "DOCUMENTATION_VIEWED", "DOCUMENTATION_VIEWED",
-                                "SECURITY_VIEWED"]),
-        ev("BP-002", "STRONG", ["PRICING_VIEWED", "PRICING_VIEWED", "DOCUMENTATION_VIEWED",
-                                "DOCUMENTATION_VIEWED", "SECURITY_VIEWED"]),
+        ev("BP-001", "STRONG", ["SECURITY_VIEWED"]),
+        ev("BP-001", "STRONG", ["SECURITY_VIEWED", "DOCUMENTATION_VIEWED"]),
+        ev("BP-001", "STRONG", ["SECURITY_VIEWED", "DOCUMENTATION_VIEWED", "DWELL"]),
     ]
-    assert compute_confidence(seq, policies).confidence == 0.70  # Story 1: BC-002
+    assert compute_confidence(seq, policies).confidence == 0.60
+
+
+def test_a_change_of_strength_contributes_full_value(policies):
+    """Escalation is a new finding even over the same behavior kinds."""
+    seq = [
+        ev("BP-002", "MEDIUM", ["DOCUMENTATION_VIEWED", "SECURITY_VIEWED"]),
+        ev("BP-002", "STRONG", ["DOCUMENTATION_VIEWED", "SECURITY_VIEWED"]),
+    ]
+    assert compute_confidence(seq, policies).confidence == 0.30
+
+
+def test_story1_hypothesis_confidences_are_derivable(policies):
+    """Story 1 must still reach BC-001 0.80 / BC-002 0.70 (Domain 09 Scenario 1).
+
+    Under Decision #054 those numbers are earned by evidence that changes in
+    kind or strength, not by repetition. Mirrors the re-derived clickstream in
+    test_story1_acceptance — if these two diverge, the scenario is no longer
+    the thing the acceptance test replays.
+    """
+    bc001 = [
+        ev("BP-001", "MEDIUM", ["SECURITY_VIEWED", "DOCUMENTATION_VIEWED"]),
+        ev("BP-001", "STRONG", ["SECURITY_VIEWED", "DOCUMENTATION_VIEWED", "DWELL"]),
+        ev("BP-001", "STRONG", ["SECURITY_VIEWED"]),
+        ev("BP-001", "STRONG", ["SECURITY_VIEWED", "DOCUMENTATION_VIEWED"]),
+        ev("BP-001", "STRONG", ["SECURITY_VIEWED", "DOCUMENTATION_VIEWED"]),
+    ]
+    assert compute_confidence(bc001, policies).confidence == 0.80
+
+    bc002 = [
+        ev("BP-002", "MEDIUM", ["DOCUMENTATION_VIEWED"]),
+        ev("BP-002", "MEDIUM", ["DOCUMENTATION_VIEWED", "SECURITY_VIEWED"]),
+        ev("BP-002", "STRONG", ["DOCUMENTATION_VIEWED", "SECURITY_VIEWED"]),
+        ev("BP-002", "STRONG", ["DOCUMENTATION_VIEWED", "SECURITY_VIEWED", "PRICING_VIEWED"]),
+        ev("BP-002", "STRONG", ["DOCUMENTATION_VIEWED", "SECURITY_VIEWED", "PRICING_VIEWED"]),
+    ]
+    assert compute_confidence(bc002, policies).confidence == 0.70
+
+
+def test_cumulative_restatement_does_not_ratchet_decision_054(policies):
+    """A session-window pattern re-reporting the same finding must not compound.
+
+    Replays the defect from journey J-3 (Decision #054): BP-008 fired eight
+    times in one session on nothing but Integrations-tab clicks. Every run it
+    re-reported the whole session, so under the Decision #036 multiset identity
+    the composition grew by one event and the POL-CONF-002 damping never
+    engaged — eight Medium readings paid full value and Integration Evaluation
+    reached 0.80, minting a Critical Workflow Automation requirement.
+
+    Same pattern, same strength, same *kinds* of behavior = the same finding
+    restated. It must converge on the geometric series, not climb to the cap.
+    """
+    seq = [ev("BP-008", "MEDIUM", ["DOCUMENTATION_VIEWED"] * n) for n in range(2, 12)]
+    confidence = compute_confidence(seq, policies).confidence
+    assert confidence < 0.25, (
+        f"eight restatements of one Medium finding reached {confidence} — "
+        "POL-CONF-002 did not engage")
+    # 0.10 + 0.05 + 0.025 + ... — bounded by twice the class contribution.
+    assert confidence == pytest.approx(0.199, abs=0.001)
 
 
 def test_diversity_increment_per_distinct_pattern_beyond_first(policies):
@@ -89,9 +158,11 @@ def test_contradiction_subtracts_75pct_of_class_pol_conf_003(policies):
 
 
 def test_saturation_cap_and_floor_pol_conf_004(policies):
+    # Reaching the cap now takes genuinely varied evidence: five patterns at
+    # Strong contribute 5×0.20 plus four diversity increments = 1.40.
     strong = [
-        ev("BP-001", "STRONG", ["SECURITY_VIEWED"] * n + ["DOCUMENTATION_VIEWED"])
-        for n in range(1, 8)
+        ev(f"BP-00{n}", "STRONG", ["SECURITY_VIEWED", "DOCUMENTATION_VIEWED"])
+        for n in range(1, 6)
     ]
     assert compute_confidence(strong, policies).confidence == 0.95  # capped, not 1.40
     contradicted = [

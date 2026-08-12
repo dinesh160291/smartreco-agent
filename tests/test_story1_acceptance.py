@@ -53,72 +53,99 @@ def user(seeded):
 
 def replay_story1(db, chroma, backend, policies, user, gw):
     """Replays the Story 1 clickstream (5 batches, 2 sessions, 5 runs).
-    Returns the list of completed runs. Reused by Story 9 (the Buyer)."""
+    Returns the list of completed runs. Reused by Story 9 (the Buyer).
+
+    Each run contributes evidence that differs from the last in *kind* or in
+    strength — that is what earns 0.80 / 0.70 under POL-CONF-002 as Decision
+    #054 defines it. The run-by-run derivation is tabulated in Domain 09
+    Scenario 1; if you change a batch here, change it there.
+    """
     s1, s2 = "story1-s1", "story1-s2"
     day1 = datetime(2026, 8, 1)
     day2 = datetime(2026, 8, 2)
 
-    # --- Session 1: search → Okta → security & compliance tab → SSO/SCIM docs → compare
+    # --- Day 1, arrival: finds Okta, opens its security page, reads SSO and
+    #     the administration docs.
+    #     BC-001 Medium {security page, docs}      +0.10
+    #     BC-002 Medium {docs}                     +0.10
     _batch(db, user.id, s1, day1.replace(hour=9, minute=0), [
         ("e01", "SEARCH", "HIGH", {"query": "single sign-on okta"}),
         ("e02", "PRODUCT_VIEWED", "HIGH", {"product_id": "PROD-003"}),
-        ("e03", "SECURITY_VIEWED", "HIGH", {"page": "security-overview", "topic": "compliance"}),
+        ("e03", "SECURITY_VIEWED", "HIGH", {"page": "security-overview"}),
         ("e04", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
-        ("e05", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "provisioning"}),
+        ("e05", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "admin"}),
+        ("e06", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "provisioning"}),
     ])
     r1 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION", gateway=gw,
                       now=day1.replace(hour=9, minute=2))
     assert r1.status == "COMPLETED"
 
+    # --- Day 1, settling in: reads the audit page and the MFA docs, and spends
+    #     a minute on the security material (reading time is a kind of evidence
+    #     the first run had none of).
+    #     BC-001 Strong {security page, docs, dwell}   +0.20
+    #     BC-002 Medium {docs, audit page}             +0.10
     dwell = [(f"e{n:02d}", "DWELL", "LOW", {"topic": "security", "seconds": 10})
-             for n in range(6, 12)]
+             for n in range(10, 16)]
     _batch(db, user.id, s1, day1.replace(hour=9, minute=15), dwell + [
-        ("e12", "SECURITY_VIEWED", "HIGH", {"page": "security-certifications", "topic": "audit"}),
-        ("e13", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"}),
-        ("e14", "COMPARISON_STARTED", "HIGH", {"product_a": "PROD-003", "product_b": "PROD-001"}),
-        ("e15", "SEARCH", "HIGH", {"query": "okta scim provisioning"}),
-        ("e16", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "admin"}),
+        ("e16", "SECURITY_VIEWED", "HIGH", {"page": "security-certifications", "topic": "audit"}),
+        ("e17", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"}),
+        ("e18", "COMPARISON_STARTED", "HIGH", {"product_a": "PROD-003", "product_b": "PROD-001"}),
+        ("e19", "SEARCH", "HIGH", {"query": "okta scim provisioning"}),
     ])
     r2 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION", gateway=gw,
                       now=day1.replace(hour=9, minute=17))
     assert r2.status == "COMPLETED"
 
-    _batch(db, user.id, s1, day1.replace(hour=9, minute=30), [
-        ("e17", "DWELL", "LOW", {"topic": "security", "seconds": 10}),
-        ("e18", "DWELL", "LOW", {"topic": "security", "seconds": 10}),
-        ("e19", "DWELL", "LOW", {"topic": "security", "seconds": 10}),
-        ("e20", "SECURITY_VIEWED", "HIGH", {"page": "security-encryption"}),
-        ("e21", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "federation"}),
-        ("e22", "PRODUCT_VIEWED", "HIGH", {"product_id": "PROD-003"}),
-        ("e23", "SEARCH", "HIGH", {"query": "single sign on audit logging"}),
-        ("e24", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
+    # --- Day 2, morning: a comparison sweep — the security posture of four
+    #     identity platforms back to back, plus their administration docs.
+    #     No product documentation on security topics this run, so Security
+    #     Evaluation rests on pages alone: a kind of evidence not yet seen.
+    #     BC-001 Strong {security pages}        +0.20
+    #     BC-002 Strong {docs, audit page}      +0.20  (escalates: 2 sessions)
+    _batch(db, user.id, s2, day2.replace(hour=10, minute=0), [
+        ("e30", "SECURITY_VIEWED", "HIGH", {"page": "okta-security"}),
+        ("e31", "SECURITY_VIEWED", "HIGH", {"page": "m365-security"}),
+        ("e32", "SECURITY_VIEWED", "HIGH", {"page": "google-security"}),
+        ("e33", "SECURITY_VIEWED", "HIGH", {"page": "onelogin-security"}),
+        ("e34", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "admin"}),
+        ("e35", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "provisioning"}),
+        ("e36", "SEARCH", "HIGH", {"query": "okta single sign-on comparison"}),
+        ("e37", "PRODUCT_VIEWED", "HIGH", {"product_id": "PROD-003"}),
+        ("e38", "PRODUCT_VIEWED", "HIGH", {"product_id": "PROD-001"}),
     ])
     r3 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION", gateway=gw,
-                      now=day1.replace(hour=9, minute=32))
+                      now=day2.replace(hour=10, minute=2))
     assert r3.status == "COMPLETED"
 
-    # --- Session 2 (next day): enterprise pricing, admin docs, more security research
-    _batch(db, user.id, s2, day2.replace(hour=10, minute=0), [
-        ("e30", "PRICING_VIEWED", "HIGH", {"product_id": "PROD-003", "tier": "enterprise"}),
-        ("e31", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "admin"}),
-        ("e32", "SECURITY_VIEWED", "HIGH", {"page": "deployment-security"}),
-        ("e33", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"}),
-        ("e34", "SEARCH", "HIGH", {"query": "single sign-on scim provisioning okta"}),
-        ("e35", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
+    # --- Day 2, narrowing: back to Okta's SSO/MFA documentation, and the
+    #     enterprise pricing tier for the first time.
+    #     BC-001 Strong {security pages, docs}             +0.20
+    #     BC-002 Strong {docs, audit page, enterprise tier} +0.20
+    _batch(db, user.id, s2, day2.replace(hour=10, minute=15), [
+        ("e40", "SECURITY_VIEWED", "HIGH", {"page": "deployment-security"}),
+        ("e41", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
+        ("e42", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"}),
+        ("e43", "PRICING_VIEWED", "HIGH", {"product_id": "PROD-003", "tier": "enterprise"}),
+        ("e44", "SEARCH", "HIGH", {"query": "single sign-on scim provisioning okta"}),
     ])
     r4 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION", gateway=gw,
-                      now=day2.replace(hour=10, minute=2))
+                      now=day2.replace(hour=10, minute=17))
     assert r4.status == "COMPLETED"
 
-    _batch(db, user.id, s2, day2.replace(hour=10, minute=15), [
-        ("e40", "SECURITY_VIEWED", "HIGH", {"page": "security-overview-v2"}),
-        ("e41", "PRICING_VIEWED", "HIGH", {"product_id": "PROD-003", "tier": "enterprise"}),
-        ("e42", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "provisioning"}),
-        ("e43", "SEARCH", "HIGH", {"query": "okta sso audit logging"}),
-        ("e44", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "admin"}),
+    # --- Day 2, final pass: more of what has already been seen. Both concepts
+    #     are restating a settled finding now, so both damp.
+    #     BC-001 Strong {security pages, docs}              +0.10  -> 0.80
+    #     BC-002 Strong {docs, audit page, enterprise tier} +0.10  -> 0.70
+    _batch(db, user.id, s2, day2.replace(hour=10, minute=30), [
+        ("e50", "SECURITY_VIEWED", "HIGH", {"page": "security-overview-v2"}),
+        ("e51", "PRICING_VIEWED", "HIGH", {"product_id": "PROD-003", "tier": "enterprise"}),
+        ("e52", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
+        ("e53", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "admin"}),
+        ("e54", "SEARCH", "HIGH", {"query": "okta sso audit logging"}),
     ])
     r5 = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION", gateway=gw,
-                      now=day2.replace(hour=10, minute=17))
+                      now=day2.replace(hour=10, minute=32))
     return [r1, r2, r3, r4, r5]
 
 

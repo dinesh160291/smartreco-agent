@@ -2,8 +2,8 @@
 
 Arithmetic is entirely policy-driven:
   POL-CONF-001 class contributions + diversity increment
-  POL-CONF-002 diminishing returns (identity per Decision #036:
-               pattern + strength + supporting event-type composition)
+  POL-CONF-002 diminishing returns (identity per Decision #054:
+               pattern + strength + the *set* of supporting event types)
   POL-CONF-003 contradiction penalty
   POL-CONF-004 saturation cap/floor
   POL-CONF-005 retirement condition
@@ -54,7 +54,12 @@ def compute_confidence(evidence: list[EvidenceInput], policies: PolicyCatalog) -
             steps.append(f"{item.pattern_id} {item.strength} contradicting {delta:+.4f}")
             continue
 
-        identity = (item.pattern_id, item.strength, item.event_type_composition)
+        # Identity is the *set* of event kinds, not how many of each (Decision
+        # #054). Session-window patterns re-report their whole session on every
+        # run, so a multiset identity grew by one event each time and the
+        # damping below never engaged — confidence tracked how many times the
+        # workflow happened to run, not how much evidence there was.
+        identity = (item.pattern_id, item.strength, frozenset(item.event_type_composition))
         if identity in last_contribution:
             delta = last_contribution[identity] * repeat_factor
         else:

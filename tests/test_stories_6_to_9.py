@@ -139,23 +139,27 @@ def test_story6_multi_journey_context_switch(seeded, chroma, backend, policies, 
 
 def _pump_focus(db, chroma, backend, policies, user, gw, day, session_id):
     """Three runs of tightly-scoped identity research (small entity set so a
-    resumed session can overlap near-fully). BC-001 reaches 0.6 → REQ-002 0.6."""
+    resumed session can overlap near-fully). BC-001 reaches 0.6 → REQ-002 0.6.
+
+    Pages, then documentation, then reading time: each run brings a kind of
+    evidence the last lacked, so each contributes fully (Decision #054).
+    """
     batches = [
         [("p1", "SEARCH", "HIGH", {"query": "single sign-on okta"}),
          ("p2", "SECURITY_VIEWED", "HIGH", {"page": "a"}),
          ("p3", "SECURITY_VIEWED", "HIGH", {"page": "b"}),
-         ("p4", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
-         ("p5", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"})],
-        [("p6", "SECURITY_VIEWED", "HIGH", {"page": "c"}),
-         ("p7", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
+         ("p4", "SECURITY_VIEWED", "HIGH", {"page": "c"}),
+         ("p5", "SECURITY_VIEWED", "HIGH", {"page": "d"})],
+        [("p6", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
+         ("p7", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"}),
          ("p8", "SEARCH", "HIGH", {"query": "okta sso mfa"}),
-         ("p9", "SECURITY_VIEWED", "HIGH", {"page": "d"}),
-         ("p10", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"})],
-        [("p11", "SECURITY_VIEWED", "HIGH", {"page": "e"}),
-         ("p12", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"}),
-         ("p13", "SEARCH", "HIGH", {"query": "single sign-on okta mfa"}),
-         ("p14", "SECURITY_VIEWED", "HIGH", {"page": "f"}),
-         ("p15", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"})],
+         ("p9", "SECURITY_VIEWED", "HIGH", {"page": "e"}),
+         ("p10", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "sso"})],
+        [("p11", "SECURITY_VIEWED", "HIGH", {"page": "f"}),
+         ("p12", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"}),
+         ("p13", "SEARCH", "HIGH", {"query": "single sign-on okta mfa"})]
+        + [(f"p{n}", "DWELL", "LOW", {"topic": "security", "seconds": 10})
+           for n in range(14, 20)],
     ]
     runs = []
     for i, specs in enumerate(batches):
@@ -187,7 +191,8 @@ def test_story7_returning_researcher_reactivation(seeded, chroma, backend, polic
         ("q3", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "mfa"}),
         ("q4", "SECURITY_VIEWED", "HIGH", {"page": "a"}),
         ("q5", "SEARCH", "HIGH", {"query": "okta sso mfa"}),
-    ])
+    ] + [(f"q{n}", "DWELL", "LOW", {"topic": "security", "seconds": 10})
+         for n in range(6, 9)])
     run = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION",
                        now=resume + timedelta(minutes=2), gateway=fake_gateway)
     assert run.status == "COMPLETED"

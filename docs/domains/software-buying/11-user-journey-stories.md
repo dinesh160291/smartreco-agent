@@ -22,14 +22,20 @@ Conventions: events named per Core 22; policies per Core 10 (Policy Catalog v1);
 
 | # | Action | Event | Signal |
 |---|---|---|---|
-| 1 | Logs in, searches "single sign-on" | SEARCH | High |
-| 2 | Opens Okta | PRODUCT_VIEWED | High |
-| 3 | Security & Compliance tab, reads 90s | SECURITY_VIEWED + DWELL×9 | High + Low |
-| 4 | Docs & API tab (SSO/SCIM docs) | DOCUMENTATION_VIEWED topic=api | High |
-| 5 | Compares Okta vs Microsoft 365 | COMPARISON_STARTED | High |
-| 6 | *(session 2, next day)* Enterprise pricing, admin docs | PRICING_VIEWED, DOCUMENTATION_VIEWED topic=admin | High |
+| 1 | Logs in, searches "single sign-on", opens Okta | SEARCH, PRODUCT_VIEWED | High |
+| 1 | Security tab; SSO + admin/provisioning docs | SECURITY_VIEWED, DOCUMENTATION_VIEWED topic=sso/admin/provisioning | High |
+| 2 | Audit page + MFA docs, reads 60s | SECURITY_VIEWED topic=audit, DOCUMENTATION_VIEWED topic=mfa, DWELL×6 | High + Low |
+| 2 | Compares Okta vs Microsoft 365 | COMPARISON_STARTED | High |
+| 3 | *(session 2, next day)* Security pages of four identity platforms, plus their admin docs | SECURITY_VIEWED×4, DOCUMENTATION_VIEWED topic=admin/provisioning | High |
+| 4 | Narrows to Okta: SSO/MFA docs, enterprise pricing | DOCUMENTATION_VIEWED, PRICING_VIEWED tier=enterprise | High |
+| 5 | Final pass over the same material | SECURITY_VIEWED, PRICING_VIEWED, DOCUMENTATION_VIEWED | High |
 
-**Expected pipeline:** BP-001 fires (Medium→Strong with dwell), BP-002 fires (enterprise tier + admin docs) → BC-001 ≈ 0.8, BC-002 ≈ 0.7 → REQ-002 0.94 Critical, REQ-004 0.56 Medium, REQ-001 0.48 **held** → stage Technical Validation → retrieval + match.
+Each run brings a kind of evidence the last one lacked — pages, then reading
+time, then a cross-product sweep, then documentation — which is what earns the
+confidences below under POL-CONF-002 (Decision #054). The final run is
+deliberately a repeat, and contributes half.
+
+**Expected pipeline:** BP-001 fires (Medium→Strong with dwell), BP-002 fires (enterprise tier + admin docs) → BC-001 0.80, BC-002 0.70 → REQ-002 0.80 Critical, REQ-004 0.56 Medium, REQ-001 0.48 **held** → stage Technical Validation → retrieval + match.
 
 **Expected outcome:** For-you page READY. **Okta rank 1 (81%)**, Microsoft 365 rank 2 (70%), Google Workspace rank 3 (58%). Persuasive narrative references *this user's* security/SSO research and names the SCIM/provisioning advantage; plain language only. Reasoning Panel (admin) shows both hypotheses, the held REQ-001 at 0.48, stage chip on Technical Validation.
 
@@ -41,7 +47,7 @@ Conventions: events named per Core 22; policies per Core 10 (Policy Catalog v1);
 
 **Persona:** Ops director consolidating collaboration tools, curious about AI.
 
-**Clickstream:** collaboration category → Google Workspace, Notion, Zoom product views → co-editing/meetings docs → search "AI meeting summaries" → AI feature pages.
+**Clickstream:** collaboration category → Google Workspace, Notion, Zoom product views → search "AI meeting summaries" → AI feature pages → *(second session)* the same platforms again, then meetings/template/task docs.
 
 **Expected pipeline:** BP-005 (0.8), BP-006 (0.5), BP-003 (0.5) → REQ-001 0.83 Critical, REQ-005 0.75 High, REQ-003 0.41 held.
 

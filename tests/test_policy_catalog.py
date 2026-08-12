@@ -30,8 +30,10 @@ def catalog():
 
 
 def test_catalog_version_is_recorded(catalog):
-    # v1.1: POL-TRIG-002 retuned for demo pacing (Decision #038)
-    assert catalog.version == "1.3"
+    # v1.4: POL-CONF-002 identity redefined (Decision #054) — the first change
+    # to how a published policy *behaves* rather than what its numbers are, so
+    # historical runs stay distinguishable by the policy_version they recorded.
+    assert catalog.version == "1.4"
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
     assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 45
     assert catalog.param("POL-TRIG-001", "unprocessed_event_threshold") == 3

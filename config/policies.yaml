@@ -3,7 +3,7 @@
 # Engines consume it only through the policy loader; every workflow run records policy_version.
 # Every value change produces a new catalog version.
 
-catalog_version: "1.3"
+catalog_version: "1.4"
 
 policies:
 
@@ -42,11 +42,12 @@ policies:
     category: confidence
     rule: >-
       Repeated identical Evidence contributes at 50% of prior contribution. Identical = same
-      pattern, same strength, same supporting event-type composition; a different strength or
-      composition contributes at full class value (Decision #036).
+      pattern, same strength, same *set* of supporting event types; a different strength, or a
+      kind of event not yet seen for that pattern, contributes at full class value. More events
+      of kinds already counted is the same finding restated (Decision #054, superseding #036).
     params:
       repeat_factor: 0.5
-      identity: [pattern_id, strength, event_type_composition]
+      identity: [pattern_id, strength, event_type_set]
 
   POL-CONF-003:
     name: Contradiction penalty
