@@ -195,6 +195,17 @@ CAPABILITIES: list[tuple[str, str, str, str]] = [
      "Moves and shapes data dependably between systems."),
     ("CAP-055", "Data Warehousing", "Data & Analytics",
      "Gives analytics one fast, governed home for enterprise data."),
+    # ---- v1.3 extension (append-only). Work Management had a product category,
+    # 31 products, and no capabilities of its own — so a task tool's docs tab
+    # described itself with whatever generic capability it happened to hold, and
+    # BP-006's productivity/templates/tasks vocabulary was unreachable from any
+    # page (Decision #053). ----
+    ("CAP-056", "Task Management", "Work Management",
+     "Turns intent into assigned, trackable work with clear ownership and due dates."),
+    ("CAP-057", "Template Library", "Work Management",
+     "Removes the blank page: proven structures are reused instead of reinvented."),
+    ("CAP-058", "Workload Management", "Work Management",
+     "Makes capacity visible so commitments match the team that has to deliver them."),
 ]
 
 # ---- Buyer shorthand (doc 10 § Buyer Shorthand) ----

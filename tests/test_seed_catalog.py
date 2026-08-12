@@ -90,6 +90,37 @@ def test_every_requirement_discriminates(seed):
         "the top coverage band is a tie the ranking cannot break")
 
 
+WORK_MANAGEMENT_CAPS = {"CAP-056", "CAP-057", "CAP-058"}
+
+
+def test_work_management_products_describe_their_own_work(seed):
+    """A task tool's documentation must be able to say it is about tasks.
+
+    Work Management was a product category with no capabilities of its own, so
+    each of these products described its docs with whatever generic capability it
+    happened to carry — Asana's read as `messaging`. BP-006's
+    productivity/templates/tasks vocabulary was therefore unreachable from any
+    page in the catalog (Decision #053).
+    """
+    from smartreco.domain.software_buying import patterns
+
+    def doc_topic(caps):
+        for cap_id, topic in patterns.UI_DOC_TOPICS:
+            if cap_id in caps:
+                return topic
+        return patterns.UI_DOC_TOPIC_DEFAULT
+
+    work = [p for p in seed["products"] if p["category"] == "Work Management"]
+    assert work, "no Work Management products in the seed"
+    for product in work:
+        caps = set(product["capabilities"])
+        assert caps & WORK_MANAGEMENT_CAPS, (
+            f"{product['name']} manages work and holds no work-management capability")
+        assert doc_topic(caps) in patterns.BP006_DOC_TOPICS, (
+            f"{product['name']} documents itself as {doc_topic(caps)!r}, which "
+            "Productivity Evaluation does not read")
+
+
 def test_fictional_products_in_a_category_are_not_clones(seed):
     """Distractors must differ from each other, not just from the canonical 10.
     The generator drew from a small per-domain pool, so all 11 fictional

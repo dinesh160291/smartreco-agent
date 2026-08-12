@@ -1985,3 +1985,82 @@ spoke its vocabulary. The class is the same — a specification that agrees with
 itself and not with the running system — and the general defense is a check in
 both directions, which now exists for topics and does not yet exist for anything
 else.
+
+---
+
+# Decision #053
+
+## Title
+
+Work Management gains capabilities of its own — closing the last unemittable topics
+
+## Status
+
+Accepted
+
+## Decision
+
+Three capabilities, append-only, in a new Work Management Capability Domain:
+CAP-056 Task Management, CAP-057 Template Library, CAP-058 Workload Management.
+Assigned to 31 catalog products, and mapped to the document topics BP-006
+Productivity Evaluation reads. They participate in no Business Requirement.
+
+## Rationale
+
+Decision #052's reverse vocabulary check left three entries on its deviation
+list: `productivity`, `templates`, `tasks`. All three belonged to BP-006, and all
+three failed for one reason — **Work Management was a product category with 31
+products and no capabilities of its own.**
+
+The topic a tab reports is derived from the product's capabilities. Asana's
+capability list was Messaging, File Sharing, Document Collaboration, Integration
+Connectors, API Integration, so its documentation described itself as
+`messaging`. A task tool could not say it was about tasks, because the catalog
+had no word for that. BP-006 was listening for three words the marketplace was
+structurally unable to speak.
+
+That is the same defect as Decision #044, arriving through the capability catalog
+rather than through a template: a rule that reads correct in the specification
+and cannot fire in the product. It stayed invisible until the vocabulary check
+ran in both directions, which is the argument for that check.
+
+**Why three rather than one.** They are one coherent product space and they fail
+together. Adding only Task Management would have left two entries on a list whose
+whole purpose is to shrink to nothing.
+
+**Why they participate in no requirement — the interesting constraint.** The
+concept that would naturally feed one is BC-006 Productivity Evaluation, and it
+maps Primary to REQ-005. Giving it a second Primary publishes a new requirement
+inside Validation Scenario 2, whose published set (`{REQ-001, REQ-005}`) is
+pinned — a shopper in that scenario would acquire a need the scenario does not
+assert. Every product holding these capabilities is already reachable through
+others, so the v1.1 failure of 82 unrecommendable products does not recur.
+Wiring them into coverage means moving Scenario 2 deliberately, which is a
+separate decision.
+
+## Consequences
+
+The deviation list is **empty**, and the ratchet keeps it there: a topic no
+surface can emit fails the build, and an entry that becomes emittable must be
+deleted.
+
+Emitted now: `tasks` by 11 products, `templates` by 4, `productivity` by 16.
+Asana, Todoist and Linear report `tasks`; Confluence reports `templates`;
+Calendly reports `productivity`. A new seed test pins the general rule — every
+Work Management product must hold a work-management capability and must document
+itself in a word BP-006 reads — sabotage-verified by unassigning Asana's.
+
+The canonical ten are untouched, so no acceptance number moves. 328 tests green.
+
+**Operational note:** capability rows are added on start-up, but existing
+databases keep their old product→capability assignments. The demo database needs
+reseeding for these 31 products to gain the new capabilities; the automated tests
+seed the canonical ten only and are unaffected.
+
+**Still unmapped to any requirement:** CAP-009 File Sharing, CAP-024 AI Workflow
+Assistance, and now these three. The first two sit inside frozen requirements'
+domains; these three are blocked by Scenario 2. Four decisions have now been
+constrained by pinned scenarios (#050, #051, #052, this one), which is the
+mechanism working as designed — but it is worth noticing that the pins are
+starting to shape the model, and a deliberate re-derivation of Scenario 2 would
+unblock several of them at once.

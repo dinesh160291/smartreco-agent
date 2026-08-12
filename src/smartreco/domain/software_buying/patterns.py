@@ -533,6 +533,8 @@ UI_DOC_TOPICS = (
     ("CAP-004", "admin"),                                      # BP-002 Enterprise
     # v1.2 product-type topics. Support before sales: a helpdesk product must
     # not describe itself as a sales pipeline.
+    ("CAP-056", "tasks"), ("CAP-057", "templates"),
+    ("CAP-058", "productivity"),                               # BP-006 Productivity
     ("CAP-031", "tickets"), ("CAP-032", "tickets"),
     ("CAP-029", "pipeline"), ("CAP-028", "crm"), ("CAP-030", "crm"),
     ("CAP-035", "payroll"), ("CAP-036", "payroll"),

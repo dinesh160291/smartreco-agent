@@ -56,6 +56,8 @@ Every Capability entry defines:
 | Compliance | Governance and regulatory obligations |
 | Automation | Process automation and integration |
 | Artificial Intelligence | Intelligent assistance and content generation |
+| CRM · HR · Finance · Marketing · DevOps · Data & Analytics | v1.1 domains for the wide catalog |
+| Work Management | v1.3 — task, template and capacity management (Decision #053) |
 
 ---
 
@@ -90,6 +92,10 @@ Every Capability entry defines:
 | CAP-025 | Threat Protection | Security |
 | CAP-026 | Data Loss Prevention | Security |
 | CAP-027 | Compliance Reporting | Compliance |
+| … | v1.1 extension CAP-028 … CAP-055 | CRM · HR · Finance · Marketing · DevOps · Data & Analytics |
+| CAP-056 | Task Management | Work Management |
+| CAP-057 | Template Library | Work Management |
+| CAP-058 | Workload Management | Work Management |
 
 ---
 
@@ -391,6 +397,37 @@ That was a deliberate scope boundary: the wide catalog was scenery, present to m
 
 | ID | Capability | Domain |
 |---|---|---|
+## v1.3 Extension — Work Management (Decision #053)
+
+Three capabilities, append-only, in a new **Work Management** Capability Domain.
+
+| ID | Capability | Domain |
+|---|---|---|
+| CAP-056 | Task Management | Work Management |
+| CAP-057 | Template Library | Work Management |
+| CAP-058 | Workload Management | Work Management |
+
+**Why they were needed.** Work Management was a product *category* with 31
+products across it and no capabilities of its own, so each product described
+itself with whatever generic capability it happened to carry — Asana's
+documentation reported its topic as `messaging`. Consequently BP-006 Productivity
+Evaluation's document vocabulary (`productivity`, `templates`, `tasks`) could not
+be emitted by any page in the catalog: the pattern was listening for words the
+marketplace was unable to say.
+
+The gap was invisible until the vocabulary check ran in both directions
+(Decision #052). It is the same class of defect as Decision #044 — a rule that
+reads correct in the specification and cannot fire in the product.
+
+**They participate in no Business Requirement, deliberately.** The concept that
+would naturally feed one — BC-006 Productivity Evaluation — maps Primary to
+REQ-005, and giving it a second Primary would publish a new requirement inside
+Validation Scenario 2, whose published set is pinned. Every product holding these
+capabilities is already reachable through others, so the v1.1 failure (82
+unrecommendable products) does not recur. Wiring them into coverage is a separate
+decision that has to move Scenario 2 deliberately.
+
+
 | CAP-028 | Contact Management | CRM |
 | CAP-029 | Sales Pipeline | CRM |
 | CAP-030 | Lead Scoring | CRM |

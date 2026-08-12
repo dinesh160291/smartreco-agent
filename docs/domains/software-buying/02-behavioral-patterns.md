@@ -373,17 +373,13 @@ entirely on who is listening.
 | `automation` | BP-007 Automation | Removed. A synonym for `workflows` and `triggers`, both of which are emitted. Nothing observable changed |
 | `onboarding` · `migration` | BP-011 Adoption, and the Adoption stage milestone | A product the shopper **already owns** reports `onboarding` on its Docs tab and `migration` on its Integrations tab. Reading either after buying is exactly what those words describe, and it is the evidence the milestone was always asking for |
 
+| `productivity` · `templates` · `tasks` | BP-006 Productivity | The catalog gained Work Management capabilities (Decision #053). Task Management reports `tasks`, Template Library `templates`, Workload Management `productivity` |
+
 ## Known unemittable
 
-`productivity`, `templates`, `tasks` (BP-006). The topic a tab reports is
-derived from the product's capabilities, and this catalog has no capability
-meaning task or template management — so no product page can say these words.
-Recorded as a ratchet in the test: nothing may be added to the list, and an
-entry that becomes emittable must be deleted.
-
-BP-006 still activates on searches and category browsing, which is how it has
-always actually worked. Closing this properly means adding a capability, not
-changing a surface — deliberately out of scope.
+**None.** The deviation list is empty as of Decision #053, and the ratchet keeps
+it that way: a topic no surface can emit fails the build, and an entry that
+becomes emittable must be deleted from the list.
 
 ---
 

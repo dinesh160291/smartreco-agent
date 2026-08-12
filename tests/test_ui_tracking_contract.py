@@ -122,13 +122,11 @@ ROSTER = [p["product_id"] for p in CANONICAL_PRODUCTS]
 # nothing may be added, and an entry that becomes emittable must be deleted
 # (test_no_stale_topic_deviations enforces that, so the list can only shrink).
 # Same shape as the domain-boundary ratchet, for the same reason.
-UNEMITTABLE_TOPICS: dict[str, str] = {
-    "productivity": "BP-006. No capability in the catalog means task or template "
-                    "management, and the tab topic is capability-derived — so no "
-                    "product page can say it. Needs a capability, not a UI change.",
-    "templates": "BP-006 — same cause as 'productivity'.",
-    "tasks": "BP-006 — same cause as 'productivity'.",
-}
+#
+# Empty as of Decision #053: the last three entries — productivity, templates
+# and tasks — were emitted once the catalog gained Work Management capabilities
+# for the products whose documentation is actually about those things.
+UNEMITTABLE_TOPICS: dict[str, str] = {}
 
 
 def test_every_topic_a_pattern_reads_can_actually_be_emitted():
