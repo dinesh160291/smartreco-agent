@@ -1,6 +1,6 @@
 {% if feed %}
 <p class="sub" style="margin-bottom:10px;">
-  Updated {{ feed.updated }} · trigger: {{ feed.trigger }}
+  {% if feed.label %}<strong>{{ feed.label }}</strong> · {% endif %}Updated {{ feed.updated }} · trigger: {{ feed.trigger }}
   {% if feed.readiness == "READY" %}<span class="pill pill-acc">READY</span>
   {% else %}<span class="pill pill-held">NOT READY</span>{% endif %}
 </p>
@@ -61,9 +61,25 @@
   <div class="disclaimer">Rankings, match scores, and coverage are computed deterministically
     by the platform. AI wrote the words — not the numbers.</div>
 </div>
+{# Other buying efforts. A shopper who changes subject mid-session gets a
+   second journey (Decision #056) — the one they left keeps its own beliefs and
+   its own ranking. Showing it here is what makes the split honest: nothing was
+   forgotten, it simply stopped competing with what they are doing now. #}
+{% if feed.others %}
+<div class="card" style="margin-top:14px;">
+  <p class="sub" style="margin:0 0 8px;">Also exploring</p>
+  {% for other in feed.others %}
+  <p class="measure" style="margin:6px 0;">
+    <a href="/for-you?journey={{ other.journey_id }}"><strong>{{ other.label }}</strong></a>
+    <span class="v">— {{ other.count }} product{{ "s" if other.count != 1 }}: {{ other.top | join(", ") }}</span>
+  </p>
+  {% endfor %}
+</div>
+{% endif %}
 {% else %}
 <div class="card">
   <p class="measure">No recommendations yet — browse the catalog and your research will shape
     what appears here.</p>
 </div>
+
 {% endif %}

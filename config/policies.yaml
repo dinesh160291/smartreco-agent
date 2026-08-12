@@ -348,6 +348,11 @@ policies:
       # judge. A two-event session scored 0.438 against its own journey and
       # forked; the same session at nine events scored 0.653 — a continuation.
       min_session_events: 5
+      # Intent fork (Decision #056): ownership is decided once per *settled
+      # block* rather than once per session, so a shopper who changes subject
+      # mid-session gets a second journey instead of contaminating the first.
+      # Same guard as above — a block too small to judge inherits.
+      fork_min_events: 5
 
   POL-JRES-002:
     name: Journey dormancy

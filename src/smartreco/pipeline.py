@@ -26,9 +26,10 @@ from smartreco.advisor import (
     assemble_aar_sections,
     generate_sections,
 )
-from smartreco.domain.software_buying import BC_TO_REQ, CAPABILITIES, REQ_TO_CAP, REQUIREMENTS
+from smartreco.domain.software_buying import (
+    BC_TO_REQ, CAPABILITIES, INTENT_CONCEPTS, REQ_TO_CAP, REQUIREMENTS)
 from smartreco.engines.confidence import EvidenceInput, compute_confidence
-from smartreco.engines.journey_resolution import resolve
+from smartreco.engines.journey_resolution import intent_diverged, resolve
 from smartreco.engines.learning import derive_traits, reinforced_strength
 from smartreco.engines.lifecycle import evaluate_closure, should_go_dormant
 from smartreco.engines.matching import evaluate_readiness, rank_products
@@ -270,6 +271,84 @@ def _session_has_settled(db: OrmSession, policies: PolicyCatalog, user_id: int,
     return newer is not None
 
 
+def _intent_signature(events: list[models.Event], policies: PolicyCatalog) -> set[str]:
+    """Which subjects this block of behavior is about (Decision #056).
+
+    The Domain Pack names the subject-bearing concepts; the platform only asks
+    the pattern engine which of them the evidence supports.
+    """
+    views = [EventView(event_id=e.event_id, event_type=e.event_type,
+                       session_id=e.session_id, metadata=e.event_metadata or {})
+             for e in events]
+    signature: set[str] = set()
+    for draft in evaluate_patterns(views, policies):
+        signature |= set(draft.concept_ids) & INTENT_CONCEPTS
+    return signature
+
+
+def _resolve_continuation(db: OrmSession, policies: PolicyCatalog, user_id: int,
+                          session_id: str, owner_id: str, now: datetime) -> str:
+    """Which journey the *new* events of an already-owned session belong to.
+
+    Decision #041 settled journey ownership exactly once per session, which was
+    right about the danger it addressed — judging a two-event session forks a
+    journey the same session would plainly have continued — and wrong that once
+    per session is the only way to avoid it. A shopper who moves from analytics
+    to DevOps mid-session was filed under one journey, so both intents shared a
+    Requirement Profile and the earlier one kept the higher priority band
+    (Decision #056).
+
+    Ownership is now decided once per *settled block* of events rather than
+    once per session. The protection is unchanged: a block too small to judge
+    inherits, exactly as before.
+
+    Returning to an earlier subject continues that journey rather than opening a
+    third — which is the whole point of splitting them, since the abandoned
+    journey keeps its hypotheses at the confidence they reached.
+    """
+    fork_min = policies.param("POL-JRES-001", "fork_min_events")
+    pending = db.execute(
+        select(models.Event).where(
+            models.Event.session_id == session_id, models.Event.user_id == user_id,
+            models.Event.journey_id.is_(None))
+    ).scalars().all()
+    if len(pending) < fork_min:
+        return owner_id  # too little to judge on — inherit, revisit next run
+
+    new_intent = _intent_signature(pending, policies)
+    owner_intent = _intent_signature(repos.journey_events(db, owner_id), policies)
+    if not intent_diverged(new_intent, owner_intent):
+        return owner_id
+
+    for journey in db.execute(
+        select(models.Journey).where(
+            models.Journey.user_id == user_id,
+            models.Journey.lifecycle.in_(("NEW", "ACTIVE", "DORMANT")))
+    ).scalars().all():
+        if journey.journey_id == owner_id:
+            continue
+        if _intent_signature(repos.journey_events(db, journey.journey_id),
+                             policies) & new_intent:
+            if journey.lifecycle == "DORMANT":
+                repos.insert_journey_transition(db, models.JourneyTransition(
+                    journey_id=journey.journey_id, from_state=journey.lifecycle,
+                    to_state="ACTIVE", policy_version=policies.version, ts=now,
+                    reason=f"resumed subject within session {session_id} (POL-JRES-004)"))
+                journey.lifecycle = "ACTIVE"
+            return journey.journey_id
+
+    journey_id = f"J-{user_id}-{uuid.uuid4().hex[:8]}"
+    db.add(models.Journey(journey_id=journey_id, user_id=user_id,
+                          lifecycle="ACTIVE", created_at=now))
+    repos.insert_journey_transition(db, models.JourneyTransition(
+        journey_id=journey_id, from_state="NEW", to_state="ACTIVE",
+        reason=(f"intent changed within session {session_id}: "
+                f"{sorted(owner_intent)} -> {sorted(new_intent)} (POL-JRES-004)"),
+        policy_version=policies.version, ts=now))
+    db.flush()  # journey row must exist before events reference it (FK)
+    return journey_id
+
+
 def resolve_sessions(db: OrmSession, policies: PolicyCatalog, user_id: int,
                      now: datetime | None = None) -> None:
     """Assign journey ownership to sessions with unassigned events (core 12).
@@ -285,7 +364,10 @@ def resolve_sessions(db: OrmSession, policies: PolicyCatalog, user_id: int,
     for session_id in unassigned_sessions:
         session_row = db.get(models.Session, session_id)
         if session_row is not None and session_row.journey_id:
-            repos.assign_journey(db, session_id, session_row.journey_id, user_id)
+            target = _resolve_continuation(db, policies, user_id, session_id,
+                                           session_row.journey_id, now)
+            repos.assign_journey(db, session_id, target, user_id)
+            session_row.journey_id = target
             continue
 
         session_events = db.execute(

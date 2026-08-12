@@ -593,33 +593,67 @@ UI_INTEGRATION_TOPICS = (
 UI_INTEGRATION_TOPIC_DEFAULT = None
 
 
-def _evaluate_domain_research(session_events: list[EventView], pattern_id: str,
+def _evaluate_domain_research(session_events: list[EventView],
+                              journey_events: list[EventView], pattern_id: str,
                               concept_id: str, doc_topics: set[str],
                               categories: set[str],
                               search_terms: set[str]) -> EvidenceDraft | None:
-    qualifying = []
-    for e in session_events:
-        if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in doc_topics:
-            qualifying.append(e)
-        elif e.event_type in ("PRODUCT_VIEWED", "CATEGORY_VIEWED"):
-            category = str(e.metadata.get("category", "")).lower()
-            if category and any(name in category for name in categories):
-                qualifying.append(e)
-        elif e.event_type == "SEARCH" and _tokens(e.metadata.get("query", "")) & search_terms:
-            qualifying.append(e)
+    """Strong at ≥4 qualifying signals in a session, **or** on recurrence across
+    ≥2 sessions (Decision #056).
+
+    The multi-session clause is not new to the domain — BP-004, BP-007 and
+    BP-009 have carried it since v1, on the reasoning that coming back to a
+    subject after leaving it is itself evidence of intent, and stronger than
+    the same volume of clicking in one sitting. The v1.2 patterns were built
+    from a flat count ladder and were the only ones without it, so returning to
+    a subject the next day counted for nothing beyond the clicks themselves.
+    """
+    def quals(events):
+        out = []
+        for e in events:
+            if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in doc_topics:
+                out.append(e)
+            elif e.event_type in ("PRODUCT_VIEWED", "CATEGORY_VIEWED"):
+                category = str(e.metadata.get("category", "")).lower()
+                if category and any(name in category for name in categories):
+                    out.append(e)
+            elif e.event_type == "SEARCH" and _tokens(e.metadata.get("query", "")) & search_terms:
+                out.append(e)
+        return out
+
+    qualifying = quals(session_events)
     if len(qualifying) < 2:
         return None
-    strength = "STRONG" if len(qualifying) >= 4 else "MEDIUM"
+    journey_qualifying = quals(journey_events)
+    multi_session = len({e.session_id for e in journey_qualifying}) >= 2
+    strong = len(qualifying) >= 4 or multi_session
+    supporting = journey_qualifying if multi_session else qualifying
+    strength = "STRONG" if strong else "MEDIUM"
     return EvidenceDraft(
         pattern_id=pattern_id, strength=strength, concept_ids=[concept_id],
-        supporting_event_ids=[e.event_id for e in qualifying],
-        explanation=f"{pattern_id} activated: {len(qualifying)} signal(s) -> {strength}")
+        supporting_event_ids=[e.event_id for e in supporting],
+        explanation=(f"{pattern_id} activated: {len(qualifying)} signal(s) in session; "
+                     f"{len(journey_qualifying)} across "
+                     f"{len({e.session_id for e in journey_qualifying})} session(s) -> {strength}"))
+
+
+# The concepts that say *what the shopper is shopping for*, as opposed to how far
+# along they are or how they behave. Assembled from the same table the
+# evaluators are generated from, so a new domain pattern joins this set for
+# free (Decision #056).
+#
+# Journey resolution reads this to decide when a shopper has changed subject
+# mid-session: Data & Insight giving way to Engineering Delivery is a different
+# buying effort, whereas Commercial Evaluation appearing beside either is the
+# same effort maturing. Only these concepts carry that meaning, which is why
+# the platform is handed a set rather than left to guess from entity overlap.
+INTENT_CONCEPTS = frozenset(concept_id for _p, concept_id, *_rest in DOMAIN_RESEARCH_PATTERNS)
 
 
 def _domain_research_evaluator(row):
     pattern_id, concept_id, doc_topics, categories, search_terms = row
     return lambda se, all_events: _evaluate_domain_research(
-        se, pattern_id, concept_id, doc_topics, categories, search_terms)
+        se, all_events, pattern_id, concept_id, doc_topics, categories, search_terms)
 
 
 # Evaluation order is part of the contract: session-scoped evaluators run per

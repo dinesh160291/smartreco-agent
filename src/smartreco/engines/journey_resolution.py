@@ -43,6 +43,29 @@ def time_decay(days_inactive: float, half_life_days: float) -> float:
     return max(0.0, 0.5 ** (days_inactive / half_life_days))
 
 
+def intent_diverged(new_concepts: set[str], current_concepts: set[str]) -> bool:
+    """Has the shopper changed subject? (core 12 — intra-session divergence)
+
+    True when both blocks of evidence name a subject and they share none.
+    The concept sets come from the Domain Pack (`INTENT_CONCEPTS`); the engine
+    is told which concepts carry subject meaning rather than knowing any.
+
+    Two properties are deliberate. **An overlap of one is continuity** — a
+    shopper who adds engineering delivery to an analytics search has widened
+    their evaluation, not started a new one; only a clean substitution forks.
+    And **evidence naming no subject never forks**, in either direction:
+    pricing, comparisons and security research say how far along someone is,
+    not what they are shopping for, so a block of them continues whatever
+    journey is open.
+
+    Deliberately not a similarity threshold. Entity-set overlap was measured
+    first and rejected: across short blocks it is dominated by product ids, so
+    a shopper comparing five analytics tools reads as five changes of subject,
+    and no threshold separated that from a real switch (Decision #056).
+    """
+    return bool(new_concepts) and bool(current_concepts) and not (new_concepts & current_concepts)
+
+
 def resolution_score(topic: float, behavioral: float, decay: float, policies: PolicyCatalog) -> float:
     weights = policies.param("POL-JRES-001", "signal_weights")
     return weights["topic"] * topic + weights["behavioral"] * behavioral + weights["time_decay"] * decay

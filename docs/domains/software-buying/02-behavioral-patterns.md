@@ -306,8 +306,20 @@ The Behavioral Intelligence Platform owns all Runtime Objects and behavioral sta
 
 Added with doc 14. Seven patterns with one shape, deliberately the same ladder
 as BP-003 and BP-007: **two qualifying signals activate at Medium, four reach
-Strong.** Shopping for payroll should be no harder to recognise than shopping
-for AI.
+Strong** — or two sessions do (Decision #056). Shopping for payroll should be
+no harder to recognise than shopping for AI.
+
+**Multi-session recurrence reaches Strong**, as it already did for BP-004,
+BP-007 and BP-009. Returning to a subject after leaving it is a stronger
+statement of intent than the same volume of clicking in one sitting. These
+seven were built from a flat count ladder and were the only patterns in the
+pack without the clause, so coming back the next day counted for nothing beyond
+the clicks themselves — and a resumed journey is exactly what the intra-session
+fork makes possible.
+
+These are also the patterns that define `INTENT_CONCEPTS`: their concepts are
+what journey resolution reads to tell one buying effort from another
+(core 12 — Changing subject mid-session).
 
 **Required Evidence (all seven):** ≥ 2 events among —
 DOCUMENTATION_VIEWED on a topic of that domain · PRODUCT_VIEWED or

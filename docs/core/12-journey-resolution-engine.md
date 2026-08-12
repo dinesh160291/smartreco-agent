@@ -210,7 +210,7 @@ resolution_score = w_topic × topic_similarity
 
 # Session Settlement — when ownership may be decided
 
-Journey ownership is decided **exactly once per session**, so the moment of the decision is as load-bearing as the scoring. A session that has produced two events has almost no entity overlap and almost no behavioural shape; it scores low against every candidate and forks a new journey. The same session a few events later may be an obvious continuation — and by then the decision is already final.
+Journey ownership is decided **exactly once per settled block of events**, so the moment of the decision is as load-bearing as the scoring. A session that has produced two events has almost no entity overlap and almost no behavioural shape; it scores low against every candidate and forks a new journey. The same session a few events later may be an obvious continuation — and by then the decision is already final.
 
 The signals are not at fault; they are being asked too early. A session must therefore **settle** before its ownership is resolved. A session has settled when any of the following holds:
 
@@ -223,6 +223,42 @@ Conditions 2 and 3 make deferral **bounded**. Leaving events permanently unowned
 **Cold start is exempt.** When the user has no candidate journey, there is no comparison to get wrong — resolution returns *create* whether the session has two events or two hundred, so waiting only denies a first-time visitor the journey the platform needs to answer them at all.
 
 Deferral costs a run: unsettled sessions are simply skipped and reconsidered on the next resolution pass. Their events stay unassigned in the meantime, which is the normal pre-resolution state, not an error.
+
+
+## Changing subject mid-session (Decision #056)
+
+Settlement was originally *once per session*, which assumed a session carries
+one buying effort. It does not. A shopper who researches analytics for ten
+minutes and then starts on DevOps has begun a second effort, and filing both
+under one journey merges their Requirement Profiles — the earlier subject keeps
+the higher priority band and the ranking answers a question the shopper has
+stopped asking.
+
+Ownership is therefore reconsidered for each **settled block** of new events in
+an already-owned session. The protection that motivated once-per-session is
+unchanged: a block below `fork_min_events` inherits, exactly as a too-small
+session used to defer.
+
+**The test is the concepts, not the entities.** Two blocks belong to different
+efforts when both name a subject and they share none — where "subject" means
+the Domain Pack's `INTENT_CONCEPTS`, the concepts that say *what* is being
+shopped for rather than how far along the shopper is. Entity-set overlap was
+measured first and rejected: across short blocks it is dominated by product
+ids, so a shopper comparing five analytics tools reads as five changes of
+subject, and no threshold separated that from a real switch.
+
+Two properties follow from the rule and are deliberate:
+
+- **An overlap of one is continuity.** Adding engineering delivery to an
+  analytics evaluation widens it; only a clean substitution forks.
+- **Evidence naming no subject never forks.** Pricing, comparisons and security
+  research describe progress, not subject, so a block of them continues
+  whatever journey is open.
+
+Returning to an earlier subject continues *that* journey rather than opening a
+third — reactivating it if dormant. This is what makes the split worth having:
+the abandoned journey keeps its hypotheses at the confidence they reached, so
+coming back resumes rather than restarts.
 
 ---
 

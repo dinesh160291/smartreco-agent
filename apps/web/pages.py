@@ -343,18 +343,83 @@ def compare(request: Request, a: str | None = None, b: str | None = None, sd=Dep
 
 # ---- For you ----
 
-def _build_feed(db, user) -> dict | None:
-    journey = db.execute(
-        select(models.Journey).where(models.Journey.user_id == user.id)
-        .order_by(models.Journey.created_at.desc())).scalars().first()
+def _journey_label(db, journey_id: str) -> str:
+    """What a journey is *about*, in shopper vocabulary.
+
+    Requirement display names, never their codes (vocabulary rule). A journey
+    with no published requirement yet is still worth naming — "Just started"
+    beats an empty chip.
+    """
+    rp = db.execute(
+        select(models.RequirementProfile)
+        .where(models.RequirementProfile.journey_id == journey_id)
+        .order_by(models.RequirementProfile.version.desc())).scalars().first()
+    names = [REQUIREMENTS[r["req_id"]] for r in (rp.requirements if rp else [])
+             if r["req_id"] in REQUIREMENTS]
+    return " · ".join(names[:2]) if names else "Just started"
+
+
+def _other_journeys(db, user, active_id: str) -> list[dict]:
+    """The shopper's other open buying efforts (Decision #056).
+
+    A journey the shopper moved away from keeps its own beliefs and its own
+    ranking. Showing it here is what makes the split honest: nothing was
+    forgotten, it simply stopped competing with what they are doing now.
+    """
+    out = []
+    for journey in db.execute(
+        select(models.Journey).where(
+            models.Journey.user_id == user.id,
+            models.Journey.lifecycle.in_(("NEW", "ACTIVE", "DORMANT")))
+        .order_by(models.Journey.created_at.desc())
+    ).scalars().all():
+        if journey.journey_id == active_id:
+            continue
+        pkg = db.execute(
+            select(models.RecommendationPackage)
+            .where(models.RecommendationPackage.journey_id == journey.journey_id)
+            .order_by(models.RecommendationPackage.created_at.desc())).scalars().first()
+        if pkg is None or not pkg.entries:
+            continue
+        out.append({
+            "journey_id": journey.journey_id,
+            "label": _journey_label(db, journey.journey_id),
+            "count": len(pkg.entries),
+            "top": [db.get(models.Product, e["product_id"]).name
+                    for e in pkg.entries[:3]
+                    if db.get(models.Product, e["product_id"]) is not None],
+        })
+    return out
+
+
+def _build_feed(db, user, journey_id: str | None = None) -> dict | None:
+    if journey_id is not None:
+        journey = db.execute(
+            select(models.Journey).where(
+                models.Journey.user_id == user.id,          # never another user's journey
+                models.Journey.journey_id == journey_id)).scalars().first()
+    else:
+        journey = db.execute(
+            select(models.Journey).where(models.Journey.user_id == user.id)
+            .order_by(models.Journey.created_at.desc())).scalars().first()
     if journey is None:
         return None
     pkg = db.execute(
         select(models.RecommendationPackage)
         .where(models.RecommendationPackage.journey_id == journey.journey_id)
         .order_by(models.RecommendationPackage.created_at.desc())).scalars().first()
+    others = _other_journeys(db, user, journey.journey_id)
     if pkg is None:
-        return None
+        # A freshly forked journey has no ranking yet. Returning nothing here
+        # would blank the page at exactly the moment the shopper changed
+        # subject — losing sight of the effort they just left as well as the
+        # one they started. Show the not-ready state and the other journeys.
+        if not others:
+            return None
+        return {"readiness": "NOT_READY", "entries": [], "sections": {},
+                "updated": journey.created_at.strftime("%Y-%m-%d %H:%M UTC"),
+                "trigger": "—", "label": _journey_label(db, journey.journey_id),
+                "others": others}
     aar = db.execute(
         select(models.AdvisoryResponse)
         .where(models.AdvisoryResponse.rpkg_id == pkg.rpkg_id,
@@ -388,28 +453,30 @@ def _build_feed(db, user) -> dict | None:
         "sections": aar.sections if aar else {},
         "updated": pkg.created_at.strftime("%Y-%m-%d %H:%M UTC"),
         "trigger": last_run.trigger_type if last_run else "—",
+        "label": _journey_label(db, journey.journey_id),
+        "others": others,
     }
 
 
 @router.get("/for-you", response_class=HTMLResponse)
-def for_you(request: Request, sd=Depends(_db)):
+def for_you(request: Request, journey: str | None = None, sd=Depends(_db)):
     state, db = sd
     user = _optional_user(request, db)
     if user is None:
         return RedirectResponse("/login", status_code=303)
     ctx = _base_ctx(request, db, user, state, "foryou")
-    ctx["feed"] = _build_feed(db, user)
+    ctx["feed"] = _build_feed(db, user, journey)
     return templates.TemplateResponse(request, "foryou.html", ctx)
 
 
 @router.get("/for-you/feed", response_class=HTMLResponse)
-def for_you_feed(request: Request, sd=Depends(_db)):
+def for_you_feed(request: Request, journey: str | None = None, sd=Depends(_db)):
     state, db = sd
     user = _optional_user(request, db)
     if user is None:
         raise HTTPException(401)
     return templates.TemplateResponse(request, "_feed.html", {
-        "request": request, "feed": _build_feed(db, user)})
+        "request": request, "feed": _build_feed(db, user, journey)})
 
 
 # ---- Cart & checkout ----

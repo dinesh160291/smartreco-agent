@@ -169,3 +169,33 @@ def test_new_concepts_all_reach_a_requirement():
         primaries = [req for req, level in BC_TO_REQ[concept_id].items()
                      if level == "Primary"]
         assert len(primaries) == 1, f"{concept_id} needs exactly one Primary: {primaries}"
+
+
+def test_returning_to_a_subject_next_session_makes_it_strong(policies):
+    """Coming back is evidence (Decision #056).
+
+    Two signals in a sitting is Medium; four is Strong. A shopper who does two,
+    leaves, and comes back the next day to do two more used to stay at Medium —
+    the v1.2 patterns were the only ones in the pack without the multi-session
+    clause BP-004, BP-007 and BP-009 have carried since v1. Persistence across
+    a gap is a stronger statement of intent than the same clicking in one go,
+    and it is what makes a journey worth resuming rather than merely remembered.
+    """
+    def views(session_id, prefix):
+        return [
+            EventView(event_id=f"{prefix}1", event_type="SEARCH", session_id=session_id,
+                      metadata={"query": "warehouse etl"}),
+            EventView(event_id=f"{prefix}2", event_type="DOCUMENTATION_VIEWED",
+                      session_id=session_id, metadata={"topic": "pipelines-data"}),
+        ]
+
+    one_sitting = [d for d in evaluate_patterns(views("s1", "a"), policies)
+                   if d.pattern_id == "BP-018"]
+    assert one_sitting and one_sitting[0].strength == "MEDIUM"
+
+    came_back = [d for d in evaluate_patterns(views("s1", "a") + views("s2", "b"), policies)
+                 if d.pattern_id == "BP-018"]
+    assert came_back, "Data & Insight did not activate across two sessions"
+    assert any(d.strength == "STRONG" for d in came_back), (
+        f"returning the next session did not strengthen the belief: "
+        f"{[(d.strength, d.explanation) for d in came_back]}")

@@ -2294,3 +2294,112 @@ The catalog now splits 97 products that make a specific, true integration claim
 against 153 that make none. `test_a_product_with_nothing_to_integrate_claims_no_integration_research`
 and `test_browsing_two_unconnected_products_does_not_infer_an_integration_need`
 pin both halves — the vocabulary and the pattern behaviour it drives.
+
+---
+
+# Decision #056
+
+## Title
+
+A session can carry more than one buying effort — intra-session intent forking
+
+## Status
+
+Accepted (amends Decision #041)
+
+## Decision
+
+Three changes, one behaviour:
+
+1. **Journey ownership is decided once per settled block of events, not once
+   per session.** A block below `fork_min_events` (5) inherits, exactly as a
+   too-small session used to defer.
+2. **Divergence is tested on subject-bearing concepts**, exported by the Domain
+   Pack as `INTENT_CONCEPTS`. Two blocks belong to different efforts when both
+   name a subject and share none. Returning to an earlier subject continues
+   *that* journey — reactivating it if dormant — rather than opening a third.
+3. **The v1.2 domain research patterns gain the multi-session clause** BP-004,
+   BP-007 and BP-009 have carried since v1: recurrence across two sessions
+   reaches Strong.
+
+For You leads with the active journey and lists the others under "Also
+exploring", named by requirement display names.
+
+## Rationale
+
+Reported from a live session: analytics and ETL research for six minutes, then
+a deliberate switch to DevOps and CI/CD in the same session. The shopper
+expected the recommendations to follow them. They did not.
+
+**Data & Insight froze at 0.775 and never moved again** across five subsequent
+runs of pure DevOps behavior. Nothing in the model represents "stopped caring":
+confidence only rises, and browsing DevOps does not *contradict* analytics.
+Evidence ageing is 30 days and hypothesis retirement needs confidence under
+0.15 — both unreachable inside a fourteen-minute session.
+
+The final profile put Data & Insight at Critical 0.85 (weight ×3) and
+Engineering Delivery at Medium 0.57 (×1): **the abandoned intent outweighed the
+current one three to one.** Worse, it was *promoted by* the new one — BC-023
+maps Secondary to REQ-011, so the DevOps browsing pushed the analytics
+requirement from 0.775 past the 0.8 Critical threshold. Switching subject made
+the abandoned subject Critical.
+
+The output followed: rank 1 Datadog, an overlap product; GitHub, which the
+shopper had put in their cart and which covers Engineering Delivery completely,
+scored 40% and was never retrieved.
+
+**Why forking rather than decaying confidence.** Recency-weighted evidence and
+a rolling pattern window were both considered. Both change the arithmetic every
+pinned scenario depends on, and Decision #054 had just spent a full re-derivation
+of Validation Scenarios 1 and 2 on exactly that. Forking touches no scenario —
+none of them changes subject — and it reuses machinery that already exists.
+It is also the more honest model: two subjects *are* two buying efforts, and
+merging their Requirement Profiles was the actual error.
+
+**Why concepts rather than entity similarity — measured, not assumed.** Entity
+Jaccard was implemented and tested against two real sessions first. The
+composite resolution score could not separate them: a genuine switch scored
+0.470 and ordinary drift *inside* one subject scored 0.563, both under the 0.6
+reuse threshold. Behavioural cosine is near-constant within a session (same
+site, same event kinds) and time decay is 1.0, so 60% of the composite was
+noise. Topic alone was tried at several window sizes; over short blocks it is
+dominated by product ids, so a shopper comparing five analytics tools produced
+false splits at every threshold that caught the real one. Concept divergence
+separated both sessions cleanly with no threshold at all:
+
+| Session | Fork point | Transition |
+|---|---|---|
+| Deliberate switch | the `cicd` search | Data & Insight → Engineering Delivery |
+| Gradual drift | mid-session | Data & Insight → Engineering Delivery |
+
+The concepts were already being computed for another purpose. Using a tuned
+proxy for something the system knows exactly was the wrong instinct.
+
+## Consequences
+
+**Memory is kept, and kept out of the ranking.** The contamination was never
+that the platform remembered analytics — it was that analytics memory sat
+inside the DevOps ranking math at triple weight. Two journeys means two
+Requirement Profiles and two rankings; nothing is forgotten and nothing blends.
+
+**Returning resumes rather than restarts**, and now escalates: the multi-session
+clause means coming back to a subject is itself evidence. Under Decision #054
+alone, returning and re-reading the same material would have damped to nearly
+nothing.
+
+**A freshly forked journey has no ranking yet.** `_build_feed` returned nothing
+in that state, which blanked For You at precisely the moment the shopper
+changed subject — losing sight of the effort they had just left as well as the
+one they started. It now renders the not-ready state alongside the other
+journeys. Found by the acceptance test, not by review.
+
+**Decision #041 is amended, not overturned.** Its finding stands: a two-event
+session scores 0.438 against its own journey and forks wrongly. The error was
+concluding that once-per-session was the only remedy; the remedy is not judging
+a block too small to judge, which `fork_min_events` preserves.
+
+**Not addressed.** POL-BEH-002 (evidence older than 30 days contributes at 50%)
+still has no consumer in the code — a published policy nothing reads, and the
+mechanism one would expect to handle long-run memory fade. Retrieval dilution
+(the Finding 4 of this review series) is also untouched: journey B's ranking is
+still capped by what retrieval returns for it.
