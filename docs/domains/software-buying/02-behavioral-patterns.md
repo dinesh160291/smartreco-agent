@@ -443,7 +443,7 @@ Conventions:
 
 **Supports Concepts:** BC-002 Enterprise Evaluation.
 
-**Possible Requirements:** REQ-001, REQ-002, REQ-004.
+**Possible Requirements:** REQ-004 Regulatory Compliance (Secondary), and only in combination with other evidence. This pattern publishes no requirement on its own — see doc 06 and Decision #050: it establishes that the buyer is an organization, which informs stage and framing rather than naming a need.
 
 **Possible Journey Stages:** Research, Technical Validation, Commercial Evaluation.
 

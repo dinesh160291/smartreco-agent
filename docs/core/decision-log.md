@@ -1710,3 +1710,86 @@ or ranking context without ever producing a requirement, and Enterprise
 Evaluation may belong among them. Gating the evidence fixes the observed defect;
 whether the association should exist at all is a larger argument, deliberately
 not settled here.
+
+---
+
+# Decision #050
+
+## Title
+
+Enterprise Evaluation states the buyer's scale, not their need — the identity association is removed
+
+## Status
+
+Accepted
+
+## Decision
+
+BC-002 Enterprise Evaluation no longer maps Primary to REQ-002 Identity
+Management. Its Secondary association to REQ-004 Regulatory Compliance is
+retained. The concept joins those that inform stage, framing and ranking
+context without ever publishing a requirement of its own.
+
+## Rationale
+
+Decision #049 required an administration page before the pattern could
+activate, which stopped four enterprise-tier pricing clicks on four CRM
+products from publishing an identity need. That narrowed the defect without
+closing it.
+
+**The hole it left, measured:** four HR products in the catalog — Rippling
+among them — carry provisioning capabilities, so their integrations page
+reports topic `provisioning`. An HR buyer reading it activates the pattern
+*legitimately*, satisfies the new administration clause, and is still told they
+need Identity Management. Narrower than before — four products instead of every
+product with an enterprise tier — but the same wrong answer.
+
+Which locates the defect properly. It was never in the evidence; it was in the
+association. "This person is buying for an organization" answers *what kind of
+buyer is this*, and it had been wired into the socket for *what do they want to
+buy*. Ten of the eighteen concepts already sit on the correct side of that line,
+marked as informing stage, constraints or ranking lifecycle without producing
+requirements. This one belongs with them.
+
+Nothing is lost: identity interest is carried by BC-001 Security Evaluation,
+which reads the behavior that actually means it.
+
+**Why the governance link stays.** Buying at organizational scale genuinely does
+imply governance exposure, in a way it does not imply identity software. At
+Secondary weight it can strengthen a compliance requirement that other evidence
+supports while never publishing one alone — a lone Enterprise Evaluation
+hypothesis at 0.70 derives 0.42, below POL-REQ-001's 0.5 bar. The test pins that.
+
+**Why the partial demotion rather than the full one.** Removing both
+associations was the purer reading and was rejected on evidence. It would have
+dropped Regulatory Compliance out of Scenario 1's requirement profile entirely
+(0.24, unpublished), collapsing the reference derivation from two requirements
+to one and its coverage spread from 81/70/58 to 100/60/60 — a tie for second.
+The flagship scenario exists to demonstrate multi-requirement derivation with
+differentiated ranking; the purer change would have cost that to fix nothing the
+partial change does not.
+
+## Consequences
+
+**One number moves in the entire specification.** Scenario 1's REQ-002 goes from
+0.94 to 0.80 — same Critical band, same requirement set, same stage, same
+coverage percentages (Okta 81%, Microsoft 365 70%, Google Workspace 58%), same
+READY. That invariance is the evidence the change was surgical rather than
+disruptive, and it is why the amendment to doc 09 is three lines rather than a
+rewrite.
+
+313 of 314 tests passed unchanged on the first run; the single failure was
+Story 1's requirement confidence, which is exactly the number this decision
+changes and nothing else. Two new signature tests: the amended Scenario 1
+derivation, and one pinning that an enterprise buyer with no other evidence
+publishes nothing at all.
+
+Docs 02, 06 and 09 amended. Doc 06 retains the superseded rationale verbatim
+rather than deleting it — it was correct for the ten-product roster it was
+written against, and the way it failed as the catalog grew is the more useful
+record.
+
+This closes the item left open by Decision #049. It also settles the question
+before the coverage extension (doc 14) adds seven more concepts: the line
+between *what the buyer is* and *what the buyer needs* is now drawn explicitly,
+and every new concept has to be placed on one side of it.

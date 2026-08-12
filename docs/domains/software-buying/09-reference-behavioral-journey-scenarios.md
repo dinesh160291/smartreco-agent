@@ -610,8 +610,8 @@ Journey Stage: Technical Validation
 ## Requirement Derivation (POL-REQ-003)
 
 ```text
-REQ-002:  BC-001 Primary (1.0×0.80) + BC-002 Primary (1.0×0.70)
-          = 1 − (0.20)(0.30) = 0.94  → publish, Critical (≥0.8, stage ≥ Technical Validation)
+REQ-002:  BC-001 Primary (1.0×0.80)
+          = 0.80  → publish, Critical (≥0.8, stage ≥ Technical Validation)
 
 REQ-004:  BC-001 Supporting (0.3×0.80=0.24) + BC-002 Secondary (0.6×0.70=0.42)
           = 1 − (0.76)(0.58) = 0.56  → publish, Medium
@@ -619,6 +619,16 @@ REQ-004:  BC-001 Supporting (0.3×0.80=0.24) + BC-002 Secondary (0.6×0.70=0.42)
 REQ-001:  BC-001 Secondary (0.6×0.80=0.48)
           = 0.48  → below 0.5, not published
 ```
+
+**Why BC-002 does not appear in REQ-002 (Decision #050).** Enterprise Evaluation
+was Primary to Identity Management until this scenario was amended, which put
+REQ-002 at 0.94. The association was removed: organizational scale is a fact
+about the buyer, not a statement of what they need — an HR buyer reading a
+provisioning page is still buying HR software. The Secondary link to REQ-004
+survives, because governance obligations genuinely do follow from
+organizational adoption. Nothing downstream moves: the same two requirements
+publish, in the same priority bands, producing the same coverage percentages
+below. That invariance is the evidence the change was surgical.
 
 ---
 

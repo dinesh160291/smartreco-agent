@@ -662,7 +662,7 @@ Enterprise Evaluation
 ### Primary Association
 
 ```text
-REQ-002   Identity Management
+(none — see Mapping Rationale)
 ```
 
 ### Secondary Association
@@ -675,11 +675,17 @@ REQ-004   Regulatory Compliance
 
 ## Mapping Rationale
 
-Organizational adoption hinges first on centralized identity: enterprise evaluation behavior (admin documentation, provisioning, enterprise tiers) most strongly indicates an Identity Management need.
+**Enterprise Evaluation states the buyer's scale, not their need (Decision #050).** It answers *"is this person buying for an organization?"* — a fact about the buyer that should colour stage, framing and ranking context, not a statement about which software they want. It is now one of the concepts that informs the journey without ever publishing a requirement of its own.
 
-**This rationale rests on the administration evidence, and BP-002 now requires it (Decision #049).** Of the three signals that activate the pattern, only admin/provisioning/federation pages are about running identities at organizational scale. Enterprise pricing tiers and compliance posture pages exist on every product in the catalog and are read by shoppers in every domain; on their own they indicate company size, which is a buyer attribute rather than a need. The pattern therefore cannot activate without at least one administration page, so this Primary association is never asserted on commercial evidence alone.
+This corrects an earlier rationale, retained here because the reasoning is instructive:
 
-Governance and regulatory obligations frequently accompany enterprise adoption as a secondary consideration.
+> Organizational adoption hinges first on centralized identity: enterprise evaluation behavior (admin documentation, provisioning, enterprise tiers) most strongly indicates an Identity Management need.
+
+Sound against the ten-product v1 roster, where every product was identity, collaboration or automation software and enterprise interest genuinely was identity interest. Against a marketplace it fails, in two escalating ways. Decision #049 closed the first: enterprise pricing tiers alone activated the pattern, so four CRM products priced at Enterprise published an identity need. Requiring an administration page narrowed that but did not close it — four HR products in the catalog carry provisioning capabilities, so an HR buyer reading Rippling's integrations page still activated the pattern legitimately and was still told they needed identity software. The defect was never in the evidence; it was in the association.
+
+Identity interest is already carried by BC-001 Security Evaluation, which reads the behavior that actually means it. Nothing is lost.
+
+Governance and regulatory obligations frequently accompany enterprise adoption as a secondary consideration, and that inference survives: buying at organizational scale does imply governance exposure in a way it does not imply identity software. At Secondary weight (0.6) it can strengthen a compliance requirement that other evidence supports, while never publishing one on its own — a lone Enterprise Evaluation hypothesis at 0.70 derives 0.42, below POL-REQ-001's 0.5 bar.
 
 Collaboration needs are inferred from collaboration behavior itself (BC-005), not from enterprise context alone.
 

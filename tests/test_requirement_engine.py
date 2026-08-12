@@ -22,14 +22,42 @@ def by_req(profile):
 
 
 def test_scenario_1_security_identity(policies):
+    """Doc 09 Scenario 1, as amended by Decision #050.
+
+    Identity Management is derived from Security Evaluation alone (0.80).
+    Enterprise Evaluation no longer contributes to it: buying at organizational
+    scale is a fact about the buyer, not a statement that they need identity
+    software. Its Secondary link to Regulatory Compliance survives — governance
+    obligations genuinely do follow from organizational adoption — so REQ-004
+    is unchanged, and with it the priority bands and every coverage percentage
+    the story asserts.
+    """
     hypotheses = {"BC-001": 0.80, "BC-002": 0.70}
     profile = derive_requirements(hypotheses, BC_TO_REQ, "Technical Validation", policies)
     reqs = by_req(profile)
     assert set(reqs) == {"REQ-002", "REQ-004"}  # REQ-001 at 0.48 held below 0.5
-    assert reqs["REQ-002"]["confidence"] == 0.94
+    assert reqs["REQ-002"]["confidence"] == 0.80  # was 0.94 with BC-002 Primary
     assert reqs["REQ-002"]["priority"] == "CRITICAL"
     assert reqs["REQ-004"]["confidence"] == 0.56
     assert reqs["REQ-004"]["priority"] == "MEDIUM"
+
+
+def test_enterprise_evaluation_states_no_identity_need(policies):
+    """The defect Decision #050 closes, at the mapping layer.
+
+    An enterprise buyer with no security research at all must not produce an
+    Identity Management requirement. Before this change a lone Enterprise
+    Evaluation hypothesis at 0.70 published one at 0.70 — which is how an HR
+    shopper reading a provisioning page could be told they need identity
+    software.
+    """
+    profile = derive_requirements({"BC-002": 0.70}, BC_TO_REQ, "Technical Validation", policies)
+    reqs = by_req(profile)
+    assert "REQ-002" not in reqs
+    # Governance still follows from organizational scale, but Secondary weight
+    # puts it at 0.42 — below POL-REQ-001's 0.5 bar. So knowing only that the
+    # buyer is an enterprise publishes nothing at all, which is the point.
+    assert reqs == {}
 
 
 def test_scenario_2_collaboration_productivity(policies):

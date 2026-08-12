@@ -148,7 +148,12 @@ def test_story1_security_evaluator(seeded, chroma, backend, policies, user, fake
                     .order_by(models.RequirementProfile.version.desc())).scalars().first()
     reqs = {entry["req_id"]: entry for entry in rp.requirements}
     assert set(reqs) == {"REQ-002", "REQ-004"}          # REQ-001 held below 0.5
-    assert reqs["REQ-002"]["confidence"] == 0.94
+    # 0.80, not 0.94: Enterprise Evaluation no longer contributes to Identity
+    # Management (Decision #050) — this shopper's identity need rests on their
+    # security research alone. Everything downstream is unchanged, which is the
+    # evidence the demotion was surgical: same requirement set, same priority
+    # bands, same coverage percentages asserted below.
+    assert reqs["REQ-002"]["confidence"] == 0.80
     assert reqs["REQ-002"]["priority"] == "CRITICAL"
     assert reqs["REQ-004"]["confidence"] == 0.56
     assert reqs["REQ-004"]["priority"] == "MEDIUM"

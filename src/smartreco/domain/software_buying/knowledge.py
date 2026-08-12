@@ -194,7 +194,14 @@ SEARCH_ALIASES: dict[str, str] = {
 
 BC_TO_REQ: dict[str, dict[str, str]] = {
     "BC-001": {"REQ-002": "Primary", "REQ-001": "Secondary", "REQ-004": "Supporting"},
-    "BC-002": {"REQ-002": "Primary", "REQ-004": "Secondary"},
+    # Enterprise Evaluation states the buyer's scale, not their need (Decision
+    # #050). Its Primary link to Identity Management was removed: organizational
+    # adoption does not imply identity software — an HR buyer reading a
+    # provisioning page is still buying HR software. Governance obligations do
+    # follow from scale, so the Secondary link to Regulatory Compliance stays,
+    # and at Secondary weight it can support a requirement without ever
+    # publishing one alone.
+    "BC-002": {"REQ-004": "Secondary"},
     "BC-003": {"REQ-005": "Primary", "REQ-003": "Secondary", "REQ-001": "Supporting"},
     "BC-004": {"REQ-004": "Primary", "REQ-002": "Secondary", "REQ-001": "Supporting"},
     "BC-005": {"REQ-001": "Primary", "REQ-002": "Supporting"},
