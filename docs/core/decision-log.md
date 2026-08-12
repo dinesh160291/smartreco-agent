@@ -1618,3 +1618,95 @@ All twelve acceptance stories and the four derivation scenarios pass unchanged, 
 The gate tests in `test_trigger_evaluator` and the burst in `test_session_end_trigger` now derive their inputs from the catalog rather than restating tuned numbers. They pin the rule — *below the threshold skips, at it runs* — while the values themselves are pinned in one place, the catalog test, where a retuning has to be declared. 310 tests green.
 
 Runs recorded before this change carry policy_version 1.2 and are not comparable on timing; the decision spine is versioned precisely so that stays visible.
+
+---
+
+# Decision #049
+
+## Title
+
+Enterprise Evaluation requires an administration signal — company size is not a need
+
+## Status
+
+Accepted
+
+## Decision
+
+BP-002 Enterprise Evaluation activates only when at least one of its qualifying
+events is an administration page (`DOCUMENTATION_VIEWED` topic admin,
+provisioning or federation). Enterprise pricing tiers and compliance posture
+pages still qualify and still contribute strength, but cannot activate the
+pattern between them.
+
+## Rationale
+
+The pattern fired on any two of three signals: administration pages, enterprise
+pricing tiers, compliance or audit pages. It maps **Primary** to REQ-002
+Identity Management on doc 06's rationale that *"organizational adoption hinges
+first on centralized identity"*.
+
+Only one of those three signals supports that rationale. Administration pages
+are about running identities at organizational scale. **Every product in the
+catalog has an enterprise tier and a compliance posture page** — those two are
+read by shoppers in every domain, and on their own they say the buyer is a
+company, not what the company needs. Company size is a buyer attribute; the
+mapping treated it as a product requirement.
+
+The rule was sound when it was written, against a ten-product roster of
+identity, collaboration and automation software, where enterprise-tier interest
+genuinely was identity interest. It does not survive a 250-product marketplace.
+
+**Observed.** A shopper searched "crm" and "sales pipeline", opened four CRM
+products, compared them, priced them and requested a demo. At the run that
+published the requirement profile, BP-002's qualifying evidence was four
+enterprise-tier pricing views, zero administration pages, zero compliance pages.
+It published Identity Management at 0.55.
+
+The consequence was not cosmetic. Overall coverage averages across published
+requirements, so an irrelevant need halves the score of every product that fits
+the real one and lifts products that do not:
+
+| | CRM need only | With the phantom identity need |
+|---|---|---|
+| HubSpot | 80% | 40% |
+| Salesforce | 60% | 30% |
+| Microsoft 365 | **0%** | **30%** |
+
+Microsoft 365 covers none of a CRM need and was promoted into a tie with
+Salesforce by a need the shopper never expressed.
+
+**Nothing is lost by the tightening.** Pricing behaviour is already read by
+BP-009 Commercial Evaluation. The same click was being counted twice — once by
+the pattern that legitimately wants it, and once by a pattern drawing an
+unsupported conclusion from it.
+
+## Consequences
+
+Every journey the specification describes still activates the pattern: Story 1
+and the multi-session enterprise stories supply provisioning, admin and
+federation views, and all three pre-existing unit tests include an
+administration page. The twelve acceptance stories and four derivation
+scenarios pass **untouched**, which is what distinguishes this from a
+regression — the only journeys that lose the pattern are the unspecified ones it
+was misclassifying.
+
+Re-evaluated against the live CRM journey's 31 real events, BP-002 no longer
+activates; the pricing views are read by BP-009 alone, as intended.
+
+Doc 02 gains the clause and a counter-example; doc 06 records why the Primary
+association depends on the administration half of the evidence. Three signature
+tests in `test_patterns_bre.py`, two of them a replay of the live journey, both
+watched red before the fix.
+
+Landed ahead of the coverage extension (doc 14) deliberately. That change adds
+seven patterns, and cross-contamination is its main risk; correcting the one
+live instance first means the acceptance suite proves the correction in
+isolation, before attribution gets harder.
+
+**Left open.** Company size arguably should not map to a requirement at all —
+ten of the eighteen concepts are already marked as informing stage, constraints
+or ranking context without ever producing a requirement, and Enterprise
+Evaluation may belong among them. Gating the evidence fixes the observed defect;
+whether the association should exist at all is a larger argument, deliberately
+not settled here.

@@ -431,7 +431,9 @@ Conventions:
 
 **Intent:** The user is evaluating for organizational (not personal) adoption.
 
-**Required Evidence:** ≥ 2 events among: DOCUMENTATION_VIEWED topic = admin/provisioning/federation, PRICING_VIEWED on enterprise tier, SECURITY_VIEWED topic = compliance/audit, within a session.
+**Required Evidence:** ≥ 2 events among: DOCUMENTATION_VIEWED topic = admin/provisioning/federation, PRICING_VIEWED on enterprise tier, SECURITY_VIEWED topic = compliance/audit, within a session — **at least one of which must be an administration page** (topic = admin/provisioning/federation).
+
+**Why the administration signal is required (Decision #049):** this pattern maps Primary to REQ-002 Identity Management, on doc 06's rationale that *"organizational adoption hinges first on centralized identity"*. Only the administration evidence carries that meaning. Every product in the catalog has an enterprise tier and a compliance posture page, so those two signals alone state that the buyer is a company — not what the company needs. Without this clause a shopper comparing four CRM products on their Enterprise plans published an Identity Management need at 0.55, which halved every CRM's coverage and promoted a product scoring 0% on the actual need. Pricing behaviour is read by BP-009 Commercial Evaluation, which is where it belongs.
 
 **Optional Supporting:** COMPARISON_STARTED between enterprise products; DEMO_REQUESTED.
 
@@ -446,6 +448,8 @@ Conventions:
 **Possible Journey Stages:** Research, Technical Validation, Commercial Evaluation.
 
 **Example:** Enterprise pricing → admin docs → SCIM provisioning docs.
+
+**Counter-example (does not activate):** Enterprise pricing on four different CRM products. Four qualifying events, no administration page — company size, not an identity need.
 
 ---
 

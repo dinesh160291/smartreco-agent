@@ -399,11 +399,32 @@ def _bp002_qualifying(events: list[EventView]) -> list[EventView]:
     return out
 
 
+def _bp002_administration_signals(events: list[EventView]) -> list[EventView]:
+    """The qualifying events that actually carry the identity meaning.
+
+    Doc 06 maps this concept Primary to Identity Management because
+    "organizational adoption hinges first on centralized identity". Only the
+    administration half of the evidence supports that: admin, provisioning and
+    federation pages are about running identities at organizational scale.
+    Enterprise pricing tiers and compliance posture pages are read by shoppers
+    in every domain, so on their own they state company size, not need.
+    """
+    return [e for e in events
+            if e.event_type == "DOCUMENTATION_VIEWED"
+            and e.metadata.get("topic") in BP002_DOC_TOPICS]
+
+
 def _evaluate_bp002(session_events: list[EventView], journey_events: list[EventView]) -> EvidenceDraft | None:
-    """BP-002 Enterprise Evaluation: ≥2 qualifying events within a session.
-    Strong with ≥3 qualifying events across ≥2 sessions (journey lookback)."""
+    """BP-002 Enterprise Evaluation: ≥2 qualifying events within a session, at
+    least one of them an administration page (Decision #049). Strong with ≥3
+    qualifying events across ≥2 sessions (journey lookback)."""
     session_qualifying = _bp002_qualifying(session_events)
     if len(session_qualifying) < 2:
+        return None
+    if not _bp002_administration_signals(session_events):
+        # Commercial and compliance signals alone. Pricing behaviour is already
+        # BP-009's; counting it here too let four enterprise-tier clicks on four
+        # CRM products publish an Identity Management need (Decision #049).
         return None
 
     journey_qualifying = _bp002_qualifying(journey_events)

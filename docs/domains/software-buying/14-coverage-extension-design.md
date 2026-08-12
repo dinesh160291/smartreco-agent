@@ -170,7 +170,11 @@ this work rather than growing further in the wrong place.
 
 ---
 
-## Table 5 — One existing pattern must be corrected first
+## Table 5 — One existing pattern must be corrected first — **LANDED (Decision #049)**
+
+*This section is now a record, not a proposal. The correction shipped ahead of
+the extension so the acceptance suite could prove it in isolation. Doc 02 and
+doc 06 carry the rule; the rest of this document remains a proposal.*
 
 **BP-002 Enterprise Evaluation activates on evidence that carries no meaning.**
 

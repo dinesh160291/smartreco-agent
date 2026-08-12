@@ -677,6 +677,8 @@ REQ-004   Regulatory Compliance
 
 Organizational adoption hinges first on centralized identity: enterprise evaluation behavior (admin documentation, provisioning, enterprise tiers) most strongly indicates an Identity Management need.
 
+**This rationale rests on the administration evidence, and BP-002 now requires it (Decision #049).** Of the three signals that activate the pattern, only admin/provisioning/federation pages are about running identities at organizational scale. Enterprise pricing tiers and compliance posture pages exist on every product in the catalog and are read by shoppers in every domain; on their own they indicate company size, which is a buyer attribute rather than a need. The pattern therefore cannot activate without at least one administration page, so this Primary association is never asserted on commercial evidence alone.
+
 Governance and regulatory obligations frequently accompany enterprise adoption as a secondary consideration.
 
 Collaboration needs are inferred from collaboration behavior itself (BC-005), not from enterprise context alone.

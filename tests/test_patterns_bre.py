@@ -71,6 +71,50 @@ def test_bp002_activates_on_enterprise_pricing_plus_admin_docs(policies):
     assert drafts[0].concept_ids == ["BC-002"]
 
 
+def test_bp002_enterprise_pricing_alone_does_not_activate(policies):
+    """Replay of a live CRM journey (Decision #049).
+
+    A shopper searched "crm" and "sales pipeline", opened four CRM products,
+    compared them and requested a demo — clicking the Enterprise plan on each.
+    Four qualifying signals, every one of them a pricing tier, no admin or
+    provisioning page anywhere. BP-002 activated and, mapping Primary to
+    Identity Management, published an identity need at 0.55 that halved every
+    CRM's coverage and lifted Microsoft 365 — 0% on a CRM need — into a tie
+    with Salesforce.
+
+    Opening an enterprise plan says the buyer is a company. It does not say
+    what the company wants to buy: every product in the catalog has an
+    enterprise tier. Enterprise Evaluation needs at least one *administration*
+    signal, which is the half of doc 06's rationale that carries the identity
+    meaning.
+    """
+    events = [E(1, "PRICING_VIEWED", tier="enterprise", product_id="PROD-100"),
+              E(2, "PRICING_VIEWED", tier="enterprise", product_id="PROD-101"),
+              E(3, "PRICING_VIEWED", tier="enterprise", product_id="PROD-103"),
+              E(4, "PRICING_VIEWED", tier="enterprise", product_id="PROD-104")]
+    assert by_pattern(evaluate_patterns(events, policies), "BP-002") == []
+
+
+def test_bp002_compliance_page_alone_does_not_activate(policies):
+    """The other non-administration signal, for the same reason: a compliance
+    posture page is read by shoppers in every domain."""
+    events = [E(1, "PRICING_VIEWED", tier="enterprise"),
+              E(2, "SECURITY_VIEWED", topic="compliance", page="p1"),
+              E(3, "SECURITY_VIEWED", topic="audit", page="p2")]
+    assert by_pattern(evaluate_patterns(events, policies), "BP-002") == []
+
+
+def test_bp002_one_admin_signal_is_enough_to_activate(policies):
+    """The gate is presence, not proportion — one administration page among
+    otherwise commercial evidence still means someone is scoping a rollout."""
+    events = [E(1, "PRICING_VIEWED", tier="enterprise"),
+              E(2, "PRICING_VIEWED", tier="enterprise", product_id="PROD-101"),
+              E(3, "DOCUMENTATION_VIEWED", topic="provisioning")]
+    drafts = by_pattern(evaluate_patterns(events, policies), "BP-002")
+    assert len(drafts) == 1
+    assert set(drafts[0].supporting_event_ids) == {"e1", "e2", "e3"}
+
+
 def test_bp002_individual_tier_pricing_does_not_qualify(policies):
     # Individual/free tiers never SUPPORT Enterprise Evaluation — they produce
     # contradicting evidence instead (Phase 4; pinned in test_patterns_bre_phase4)
