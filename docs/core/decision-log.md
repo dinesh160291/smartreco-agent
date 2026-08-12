@@ -2180,3 +2180,94 @@ Integration Evaluation on 225 of 250 products; that is a Domain Pack vocabulary
 defect and lands separately. Either fix alone corrects the journey above — this
 one was chosen first because the other leaves the ratchet in place for the next
 over-broad pattern.
+
+---
+
+# Decision #055
+
+## Title
+
+A pane with nothing to declare declares nothing — the Integrations tab stops asserting a capability the product lacks
+
+## Status
+
+Accepted
+
+## Decision
+
+The Integrations tab's tracked topic is derived from the product's own
+capabilities with **no generic fallback**:
+
+| Capability held | Topic emitted |
+|---|---|
+| CAP-016 Integration Connectors | `connectors` |
+| CAP-019 API Integration | `api` *(new)* |
+| CAP-003 SCIM Provisioning | `provisioning` |
+| CAP-008 Identity Federation | `federation` |
+| none of the above | **nothing — the pane emits no event** |
+
+`integrations` is removed from BP-008's vocabulary, leaving `{api, connectors}`
+— the two words its own Strong clause is written around.
+
+## Rationale
+
+Second of the two defects behind the ServiceNow misrecommendation (Decision
+#054 was the first). Either fix alone corrects that journey; this one removes
+the false input rather than damping it.
+
+**The tab was lying.** The topic a pane reports is derived from the product's
+capabilities. When the derivation had no input it fell back to the word
+`integrations` — which **153 of 250 products** hit, because they hold no
+connective capability at all. Two clicks on that tab, the most ordinary thing a
+shopper does, activated Integration Evaluation, which is Primary to Workflow
+Automation and Secondary to Identity Management. One generic affordance minted
+two requirements.
+
+The prose on the very same pane already said the opposite: for these products
+it reads "none of which are specifically connective — integration here will
+mean a generic API or an intermediary rather than a purpose-built connector."
+The page told the truth in words and the wrong thing in metadata.
+
+This is Decision #053 inverted. There, a task tool could not say it was about
+tasks because the catalog had no word for it. Here, a product with nothing to
+integrate was made to claim integration, because a fallback existed. Both are
+the topic derivation disagreeing with the product.
+
+**Why not gate the evidence instead** (the Decision #049 move — require a
+specific signal alongside the generic one). It would have worked, and it is
+less code. It leaves the false claim in place: 153 product pages would still
+report integration research to anything else that ever reads that stream. The
+defect is in what the page says about the product, so that is where it is
+fixed.
+
+**Why not demote the mapping** (the Decision #050 move — BC-008 stops being
+Primary to REQ-003). The concept is not wrong. In Validation Scenario 3 a
+shopper reading API and connector documentation of automation products
+genuinely is evaluating integration, and that scenario pins BC-008 Primary at
+1.0×0.70. The evidence was wrong, not the meaning, and Scenario 3 is untouched.
+
+**`api` becomes emittable for the first time.** 25 products hold API Integration
+and no other connective capability; they previously fell through to the generic
+word. The reverse vocabulary check (Decision #052) had not caught this because
+`api` was structurally emittable as the Docs tab default — no product happened
+to reach it. Structural reachability is weaker than actual reachability, which
+is worth remembering the next time that check reports clean.
+
+## Consequences
+
+Verified against the journey that prompted it. Of the ten products that shopper
+opened the Integrations tab on, nine now declare nothing and only GitHub — which
+genuinely holds Integration Connectors — emits a signal. One signal; the pattern
+needs two. Integration Evaluation never activates, so Workflow Automation and
+Identity Management are never derived and ServiceNow is never ranked.
+
+Emitting no event where one used to fire is a deliberate narrowing of the event
+stream, not a hole in the vocabulary: the shopper's visit is still recorded
+against the product, it is simply not a documentation *topic*. Both vocabulary
+guards were adjusted to treat a `None` default as "declares nothing" rather
+than as an unread word.
+
+The catalog now splits 97 products that make a specific, true integration claim
+against 153 that make none. `test_a_product_with_nothing_to_integrate_claims_no_integration_research`
+and `test_browsing_two_unconnected_products_does_not_infer_an_integration_need`
+pin both halves — the vocabulary and the pattern behaviour it drives.

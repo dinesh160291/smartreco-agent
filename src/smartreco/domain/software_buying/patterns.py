@@ -210,7 +210,12 @@ BP004_DOC_TOPICS = {"compliance", "audit", "retention", "ediscovery"}
 # "workflows" and "triggers" both do. Nothing observable changed.
 BP007_DOC_TOPICS = {"workflows", "triggers"}
 BP007_SEARCH_TERMS = {"automate", "automation", "workflow", "workflows"}
-BP008_DOC_TOPICS = {"integrations", "api", "connectors"}
+# "integrations" removed in Decision #055: it was the generic fallback the
+# Integrations tab emitted for every product with no connective capability, so
+# the pattern's cheapest activation path carried no integration meaning at all.
+# What remains are the two words the pattern's own Strong clause is written
+# around — an API reference and a connector page.
+BP008_DOC_TOPICS = {"api", "connectors"}
 BP011_TRIGGERS = {"TRIAL_STARTED", "DEMO_REQUESTED", "ADD_TO_CART",
                   "CHECKOUT_STARTED", "PURCHASE_COMPLETED"}
 BP011_VERY_STRONG = {"CHECKOUT_STARTED", "PURCHASE_COMPLETED"}
@@ -572,9 +577,19 @@ UI_SECURITY_TOPIC_DEFAULT = "compliance"
 
 UI_INTEGRATION_TOPICS = (
     ("CAP-003", "provisioning"), ("CAP-008", "federation"),    # BP-002 Enterprise
-    ("CAP-016", "connectors"),                                 # BP-008 Integration
+    ("CAP-016", "connectors"), ("CAP-019", "api"),             # BP-008 Integration
 )
-UI_INTEGRATION_TOPIC_DEFAULT = "integrations"
+# No fallback (Decision #055). A product holding none of the four capabilities
+# above has no integration story to research, and its pane says exactly that:
+# "none of which are specifically connective — integration here will mean a
+# generic API or an intermediary rather than a purpose-built connector."
+# Emitting `integrations` there made 153 of 250 products claim research they
+# cannot support, and two such clicks were enough to activate BP-008.
+#
+# A pane with nothing to declare declares nothing. That is not a hole in the
+# vocabulary: the shopper's visit is still an event on the product, it simply
+# is not a documentation topic.
+UI_INTEGRATION_TOPIC_DEFAULT = None
 
 
 def _evaluate_domain_research(session_events: list[EventView], pattern_id: str,

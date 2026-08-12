@@ -74,11 +74,23 @@ def test_bp007_activation_and_strong(policies):
 # ---- BP-008 Integration ----
 
 def test_bp008_two_integration_docs_medium(policies):
-    events = [E(1, "DOCUMENTATION_VIEWED", topic="integrations"),
+    # Two connector pages — breadth on one kind of integration research, so
+    # Medium. The generic `integrations` topic no longer qualifies at all
+    # (Decision #055); it was the fallback for products with no connective
+    # capability, which is not integration research.
+    events = [E(1, "DOCUMENTATION_VIEWED", topic="connectors"),
               E(2, "DOCUMENTATION_VIEWED", topic="connectors")]
     drafts = by_pattern(evaluate_patterns(events, policies), "BP-008")
     assert len(drafts) == 1 and drafts[0].strength == "MEDIUM"
     assert drafts[0].concept_ids == ["BC-008", "BC-009"]  # co-supports Technical Evaluation
+
+
+def test_bp008_ignores_the_generic_integrations_topic(policies):
+    """Decision #055: the word that used to be every product's fallback."""
+    events = [E(1, "DOCUMENTATION_VIEWED", topic="integrations"),
+              E(2, "DOCUMENTATION_VIEWED", topic="integrations"),
+              E(3, "DOCUMENTATION_VIEWED", topic="integrations")]
+    assert not by_pattern(evaluate_patterns(events, policies), "BP-008")
 
 
 def test_bp008_strong_when_api_and_connector_both_appear(policies):

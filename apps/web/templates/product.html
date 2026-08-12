@@ -42,8 +42,11 @@
   {# Likewise no dwell topic: BP-008 reaches Strong on breadth (an API page and
      a connector page together), not on time, so reading length means nothing
      here. The click's own topic still carries the signal. #}
+  {# No topic means this product holds no connective capability, so the pane
+     has no integration research to declare and emits nothing (Decision #055).
+     The pane itself still renders — it just does not assert a topic. #}
   <button data-tab="integrations" data-dwell-topic=""
-          data-track="DOCUMENTATION_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}", "topic": "{{ p.integrations_topic }}"}'>Integrations</button>
+          {% if p.integrations_topic %}data-track="DOCUMENTATION_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}", "topic": "{{ p.integrations_topic }}"}'{% endif %}>Integrations</button>
 </div>
 
 <div class="tabpane active" data-pane="overview">

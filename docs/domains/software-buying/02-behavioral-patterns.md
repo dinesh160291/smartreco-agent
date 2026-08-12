@@ -648,7 +648,14 @@ Conventions:
 
 **Intent:** The user is validating fit with an existing stack.
 
-**Required Evidence:** ≥ 2 DOCUMENTATION_VIEWED events with topic = integrations/API/connectors, within a session.
+**Required Evidence:** ≥ 2 DOCUMENTATION_VIEWED events with topic = API/connectors, within a session.
+
+The generic `integrations` topic does **not** qualify (Decision #055). It was
+the word an Integrations tab emitted when the product held no connective
+capability to name — true of 153 of 250 catalog products — so it marked the
+absence of an integration story rather than research into one. A product with
+nothing connective to document now declares no topic at all, and this pattern
+reads only the two words its Strong clause is written around.
 
 **Optional Supporting:** SEARCH naming a specific system ("Salesforce integration"); DWELL ≥ 60s on API reference.
 

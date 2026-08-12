@@ -250,7 +250,13 @@ _SECURITY_TOPICS = domain.UI_SECURITY_TOPICS
 _INTEGRATION_TOPICS = domain.UI_INTEGRATION_TOPICS
 
 
-def _doc_topic(cap_ids, table, default: str) -> str:
+def _doc_topic(cap_ids, table, default: str | None) -> str | None:
+    """The topic a pane declares, derived from the product's own capabilities.
+
+    A None default means the pane declares nothing when the derivation has no
+    input — the Integrations tab does that rather than assert a connective
+    story the product does not have (Decision #055).
+    """
     held = set(cap_ids)
     for cap_id, topic in table:
         if cap_id in held:

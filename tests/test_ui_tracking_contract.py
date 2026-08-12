@@ -107,6 +107,48 @@ def test_docs_topics_match_the_products_own_capabilities(client):
         f"no enterprise doc topic emitted: {topics}")
 
 
+def test_a_product_with_nothing_to_integrate_claims_no_integration_research(client):
+    """The Integrations tab must not assert a capability the product lacks.
+
+    Decision #055. The tab's topic is derived from the product's capabilities
+    and fell back to the generic word `integrations` when the derivation had no
+    input — which 153 of 250 catalog products hit, because they hold no
+    connective capability at all. Two such clicks in a session activated BP-008
+    Integration Evaluation, Primary to Workflow Automation, and that is how an
+    analytics shopper was recommended ServiceNow.
+
+    The prose on the same pane already tells the truth for these products:
+    integration "will mean a generic API or an intermediary rather than a
+    purpose-built connector". The tracked topic now agrees with it.
+    """
+    for product_id in ("PROD-004", "PROD-005", "PROD-010"):  # no connective capability
+        tracked = _tracked_events(client.get(f"/product/{product_id}").text)
+        topics = {meta.get("topic") for meta in tracked.get("DOCUMENTATION_VIEWED", [])}
+        claimed = topics & patterns.BP008_DOC_TOPICS
+        assert not claimed, (
+            f"{product_id} holds no connective capability but its panes claim "
+            f"{sorted(claimed)}, which activates Integration Evaluation")
+
+
+def test_browsing_two_unconnected_products_does_not_infer_an_integration_need(client):
+    """The defect end to end: the pattern, not just the vocabulary.
+
+    A shopper opening the Integrations tab of two products that have no
+    integration story is doing the most ordinary thing on the site. It must not
+    produce evidence for Integration Evaluation.
+    """
+    views = []
+    for i, product_id in enumerate(("PROD-004", "PROD-010")):
+        tracked = _tracked_events(client.get(f"/product/{product_id}").text)
+        for j, meta in enumerate(tracked.get("DOCUMENTATION_VIEWED", [])):
+            views.append(EventView(event_id=f"e{i}{j}", event_type="DOCUMENTATION_VIEWED",
+                                   session_id="s1", metadata=meta))
+    fired = {draft.pattern_id for draft in evaluate_patterns(views, load_policies())}
+    assert "BP-008" not in fired, (
+        "two generic Integrations tabs activated Integration Evaluation; "
+        f"emitted topics were {[v.metadata.get('topic') for v in views]}")
+
+
 # --- Whole-vocabulary invariants ---------------------------------------------
 
 # Every topic any pattern keys on. Sourced from the pack rather than restated
@@ -151,7 +193,7 @@ def test_every_topic_a_pattern_reads_can_actually_be_emitted():
                     patterns.UI_SECURITY_TOPIC_DEFAULT,
                     patterns.UI_INTEGRATION_TOPIC_DEFAULT}
                  | set(patterns.DWELL_TOPICS)
-                 | set(patterns.ADOPTION_DOC_TOPICS))  # owned-product panes
+                 | set(patterns.ADOPTION_DOC_TOPICS)) - {None}  # owned-product panes
     unemittable = sorted(patterns.PATTERN_TOPICS - emittable - set(UNEMITTABLE_TOPICS))
     assert not unemittable, (
         "patterns read topics no surface can emit, so those clauses can never "
@@ -210,7 +252,9 @@ def test_the_whole_ui_vocabulary_is_read_by_some_pattern():
                | {patterns.UI_DOC_TOPIC_DEFAULT,
                   patterns.UI_SECURITY_TOPIC_DEFAULT,
                   patterns.UI_INTEGRATION_TOPIC_DEFAULT})
-    unread = sorted(emitted - patterns.PATTERN_TOPICS)
+    # A None default is a pane that declares nothing, not a topic (Decision
+    # #055) — there is no word for a pattern to read or fail to read.
+    unread = sorted(emitted - patterns.PATTERN_TOPICS - {None})
     assert not unread, f"the product page can emit topics no pattern reads: {unread}"
 
 
