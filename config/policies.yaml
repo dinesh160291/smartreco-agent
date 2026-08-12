@@ -3,7 +3,7 @@
 # Engines consume it only through the policy loader; every workflow run records policy_version.
 # Every value change produces a new catalog version.
 
-catalog_version: "1.4"
+catalog_version: "1.5"
 
 policies:
 
@@ -353,6 +353,11 @@ policies:
       # mid-session gets a second journey instead of contaminating the first.
       # Same guard as above — a block too small to judge inherits.
       fork_min_events: 5
+      # How much recent activity defines "what the shopper is doing now"
+      # (Decision #057). Comparing against the journey's whole history could
+      # never fork, because one transitional block puts both subjects in it
+      # permanently. Insensitive between 10 and 20 on replayed sessions.
+      recent_window_events: 15
 
   POL-JRES-002:
     name: Journey dormancy

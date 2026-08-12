@@ -15,35 +15,37 @@ tools looks like five changes of subject.
 
 import pytest
 
-from smartreco.engines.journey_resolution import intent_diverged
+from smartreco.engines.journey_resolution import subject_abandoned
 
 
-def test_a_different_subject_diverges():
-    # Data & Insight giving way to Engineering Delivery.
-    assert intent_diverged({"BC-023"}, {"BC-024"}) is True
+def test_abandoning_the_journeys_subject_forks():
+    """Established on analytics, recent activity is all engineering delivery."""
+    assert subject_abandoned("BC-024", {"BC-023"}) is True
 
 
-def test_the_same_subject_does_not_diverge():
-    assert intent_diverged({"BC-024"}, {"BC-024"}) is False
+def test_still_doing_it_does_not_fork():
+    assert subject_abandoned("BC-024", {"BC-024"}) is False
 
 
-def test_widening_within_a_subject_does_not_diverge():
-    """Still shopping for analytics, now also touching engineering delivery.
-    An overlap of one is continuity — the shopper has widened, not moved."""
-    assert intent_diverged({"BC-024", "BC-023"}, {"BC-024"}) is False
+def test_a_transitional_block_does_not_fork():
+    """The block where the shopper is doing both. This is the case the first
+    rule got wrong: it merged here (rightly) and could never fork afterwards,
+    because the journey's history then contained both subjects for good."""
+    assert subject_abandoned("BC-024", {"BC-024", "BC-023"}) is False
+
+
+def test_widening_and_still_returning_never_forks():
+    """A shopper who keeps coming back to the original subject has widened
+    their evaluation, not left it — however many other subjects they touch."""
+    assert subject_abandoned("BC-024", {"BC-024", "BC-023", "BC-021"}) is False
 
 
 def test_evidence_carrying_no_subject_never_forks():
     """Pricing, comparisons and security research say how far along a shopper
-    is, not what they are shopping for. A block of them must not fork a
-    journey, and must not fork it merely because the journey has a subject."""
-    assert intent_diverged(set(), {"BC-024"}) is False
-    assert intent_diverged({"BC-024"}, set()) is False
-    assert intent_diverged(set(), set()) is False
-
-
-def test_divergence_is_symmetric():
-    assert intent_diverged({"BC-019"}, {"BC-021"}) == intent_diverged({"BC-021"}, {"BC-019"})
+    is, not what they are shopping for — they must never fork a journey."""
+    assert subject_abandoned("BC-024", set()) is False
+    assert subject_abandoned(None, {"BC-024"}) is False
+    assert subject_abandoned(None, set()) is False
 
 
 # --- Integration: the session that prompted this (Decision #056) -------------
@@ -78,7 +80,32 @@ def _devops(prefix, n=6):
         (f"{prefix}4", "SEARCH", "HIGH", {"query": "monitoring observability"}),
         (f"{prefix}5", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "monitoring"}),
         (f"{prefix}6", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "incidents"}),
+        (f"{prefix}7", "PRODUCT_VIEWED", "HIGH", {"product_id": "PROD-002", "category": "devops"}),
+        (f"{prefix}8", "SEARCH", "HIGH", {"query": "kubernetes deployment"}),
+        (f"{prefix}9", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "containers"}),
+        (f"{prefix}10", "CATEGORY_VIEWED", "MEDIUM", {"category": "devops"}),
+        (f"{prefix}11", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "cicd"}),
+        (f"{prefix}12", "PRODUCT_VIEWED", "HIGH", {"product_id": "PROD-007", "category": "devops"}),
+        (f"{prefix}13", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "monitoring"}),
+        (f"{prefix}14", "SEARCH", "HIGH", {"query": "devops incidents"}),
+        (f"{prefix}15", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "incidents"}),
+        (f"{prefix}16", "CATEGORY_VIEWED", "MEDIUM", {"category": "devops"}),
     ][:n]
+
+
+def _switch_to_devops(db, chroma, backend, policies, user, gw, s, prefix, at):
+    """Move to DevOps and stay there.
+
+    Deliberately more than a couple of clicks: the fork fires once the journey's
+    established subject is absent from recent activity (POL-JRES-001
+    recent_window_events), so it takes a shopper who has actually moved on
+    rather than one who glanced sideways. Two batches, as a real session would
+    deliver them.
+    """
+    _insert(db, user.id, s, at, _devops(prefix, 8))
+    _run(db, chroma, backend, policies, user, gw, at + timedelta(minutes=2))
+    _insert(db, user.id, s, at + timedelta(minutes=4), _devops(prefix + "x", 8))
+    _run(db, chroma, backend, policies, user, gw, at + timedelta(minutes=6))
 
 
 def _run(db, chroma, backend, policies, user, gw, at):
@@ -108,8 +135,8 @@ def test_changing_subject_midsession_opens_a_second_journey(
     _run(db, chroma, backend, policies, user, fake_gateway, DAY + timedelta(minutes=2))
     assert len(_journeys(db, user)) == 1
 
-    _insert(db, user.id, s, DAY + timedelta(minutes=5), _devops("b"))
-    _run(db, chroma, backend, policies, user, fake_gateway, DAY + timedelta(minutes=7))
+    _switch_to_devops(db, chroma, backend, policies, user, fake_gateway, s, "b",
+                      DAY + timedelta(minutes=5))
 
     journeys = _journeys(db, user)
     assert len(journeys) == 2, (
@@ -123,10 +150,17 @@ def test_changing_subject_midsession_opens_a_second_journey(
     assert "BC-024" not in concepts, (
         f"analytics belief followed the shopper into the new journey: {concepts}")
 
-    # ...and the abandoned journey keeps its own, at the confidence it reached.
-    first = {h.concept_id for h in db.execute(select(models.Hypothesis).where(
-        models.Hypothesis.journey_id == journeys[0].journey_id)).scalars().all()}
-    assert "BC-024" in first and "BC-023" not in first
+    # ...and the abandoned journey keeps its own belief, at the confidence it
+    # reached. It may also hold some engineering-delivery evidence from the
+    # transitional block — the stretch where the shopper was doing both stays
+    # with the journey that was running, by design (Decision #057). What must
+    # hold is that analytics is still what that journey is *about*.
+    first_id = journeys[0].journey_id
+    first = {h.concept_id: h.confidence for h in db.execute(select(models.Hypothesis).where(
+        models.Hypothesis.journey_id == first_id)).scalars().all()}
+    assert "BC-024" in first, f"the abandoned journey lost its own subject: {first}"
+    assert first["BC-024"] >= first.get("BC-023", 0.0), (
+        f"engineering delivery took over the analytics journey: {first}")
 
 
 def test_staying_on_one_subject_does_not_fork(
@@ -165,8 +199,8 @@ def test_returning_to_the_first_subject_resumes_that_journey(
     before = {h.concept_id: h.confidence for h in db.execute(select(models.Hypothesis).where(
         models.Hypothesis.journey_id == first)).scalars().all()}
 
-    _insert(db, user.id, s, DAY + timedelta(minutes=5), _devops("f"))
-    _run(db, chroma, backend, policies, user, fake_gateway, DAY + timedelta(minutes=7))
+    _switch_to_devops(db, chroma, backend, policies, user, fake_gateway, s, "f",
+                      DAY + timedelta(minutes=5))
     assert len(_journeys(db, user)) == 2
 
     _insert(db, user.id, s, DAY + timedelta(minutes=10), [
@@ -241,8 +275,8 @@ def test_for_you_shows_the_abandoned_journey_without_ranking_it(
             assert pkg is not None and pkg.entries, (
                 "precondition: the analytics journey never produced a ranking")
 
-            _insert(db, user.id, s, DAY + timedelta(minutes=20), _devops("i"))
-            _run(db, chroma, backend, policies, user, fake_gateway, DAY + timedelta(minutes=22))
+            _switch_to_devops(db, chroma, backend, policies, user, fake_gateway, s, "i",
+                              DAY + timedelta(minutes=20))
             assert len(_journeys(db, user)) == 2, "precondition: the session should have forked"
 
         with TestClient(web.app) as c:

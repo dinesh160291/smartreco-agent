@@ -43,27 +43,35 @@ def time_decay(days_inactive: float, half_life_days: float) -> float:
     return max(0.0, 0.5 ** (days_inactive / half_life_days))
 
 
-def intent_diverged(new_concepts: set[str], current_concepts: set[str]) -> bool:
-    """Has the shopper changed subject? (core 12 — intra-session divergence)
+def subject_abandoned(established: str | None, recent_subjects: set[str]) -> bool:
+    """Has the shopper stopped doing what this journey was about? (core 12)
 
-    True when both blocks of evidence name a subject and they share none.
-    The concept sets come from the Domain Pack (`INTENT_CONCEPTS`); the engine
-    is told which concepts carry subject meaning rather than knowing any.
+    True when the journey has an established subject, recent activity names a
+    subject, and the established one is not among them. The two are sampled
+    from **disjoint** slices — `established` is the dominant subject of
+    everything *before* a trailing window, `recent_subjects` is what appears
+    *in* it. Both are supplied by the caller, so the engine knows no concept
+    ids. Overlapping the samples defeats the rule: a new subject pursued long
+    enough becomes the dominant one, and then there is nothing left to
+    abandon.
 
-    Two properties are deliberate. **An overlap of one is continuity** — a
-    shopper who adds engineering delivery to an analytics search has widened
-    their evaluation, not started a new one; only a clean substitution forks.
-    And **evidence naming no subject never forks**, in either direction:
-    pricing, comparisons and security research say how far along someone is,
-    not what they are shopping for, so a block of them continues whatever
-    journey is open.
+    **Why abandonment rather than divergence.** The first rule compared a block
+    of new events against everything the journey had ever contained and forked
+    when they shared nothing. It could not survive contact with real behavior:
+    a switch of subject always passes through a transitional block where the
+    shopper is doing both, that block overlaps and merges, and from then on the
+    journey's history contains both subjects so nothing can ever diverge from it
+    again. It fired only when a workflow run happened to land exactly on the
+    pivot — luck, not a rule (Decision #057).
 
-    Deliberately not a similarity threshold. Entity-set overlap was measured
-    first and rejected: across short blocks it is dominated by product ids, so
-    a shopper comparing five analytics tools reads as five changes of subject,
-    and no threshold separated that from a real switch (Decision #056).
+    Abandonment reads the other way round and survives the transition: the
+    mixed block continues, and the fork happens on the first block after the
+    shopper has genuinely stopped. Two consequences are deliberate — a shopper
+    who keeps returning to the original subject never forks however much they
+    widen, and evidence naming no subject at all never forks, because progress
+    signals like pricing and comparisons say nothing about what is being bought.
     """
-    return bool(new_concepts) and bool(current_concepts) and not (new_concepts & current_concepts)
+    return established is not None and bool(recent_subjects) and established not in recent_subjects
 
 
 def resolution_score(topic: float, behavioral: float, decay: float, policies: PolicyCatalog) -> float:

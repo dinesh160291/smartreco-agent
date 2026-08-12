@@ -30,10 +30,13 @@ def catalog():
 
 
 def test_catalog_version_is_recorded(catalog):
-    # v1.4: POL-CONF-002 identity redefined (Decision #054) — the first change
-    # to how a published policy *behaves* rather than what its numbers are, so
-    # historical runs stay distinguishable by the policy_version they recorded.
-    assert catalog.version == "1.4"
+    # v1.5: POL-JRES-001 gained the intra-session fork params (#056/#057).
+    # v1.4 redefined POL-CONF-002's identity (#054). Both change behaviour
+    # rather than a number, and the version is how a run says which build
+    # produced it — #056 shipped without bumping it and the omission cost a
+    # debugging round, because policy_version 1.4 could not distinguish a
+    # server running the fork from one that was not.
+    assert catalog.version == "1.5"
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
     assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 45
     assert catalog.param("POL-TRIG-001", "unprocessed_event_threshold") == 3

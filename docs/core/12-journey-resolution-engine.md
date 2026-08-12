@@ -239,21 +239,38 @@ an already-owned session. The protection that motivated once-per-session is
 unchanged: a block below `fork_min_events` inherits, exactly as a too-small
 session used to defer.
 
-**The test is the concepts, not the entities.** Two blocks belong to different
-efforts when both name a subject and they share none — where "subject" means
-the Domain Pack's `INTENT_CONCEPTS`, the concepts that say *what* is being
-shopped for rather than how far along the shopper is. Entity-set overlap was
-measured first and rejected: across short blocks it is dominated by product
-ids, so a shopper comparing five analytics tools reads as five changes of
-subject, and no threshold separated that from a real switch.
+**The test is the concepts, not the entities**, and it asks whether the
+journey's subject has been *abandoned* — not whether one block diverges.
+"Subject" means the Domain Pack's `INTENT_CONCEPTS`, the concepts that say
+*what* is being shopped for rather than how far along the shopper is.
 
-Two properties follow from the rule and are deliberate:
+The journey forks when its **established subject is absent from recent
+activity**, where the two are sampled from disjoint slices: established is the
+dominant subject of everything before a trailing window of
+`recent_window_events`, recent is whatever appears inside it.
 
-- **An overlap of one is continuity.** Adding engineering delivery to an
-  analytics evaluation widens it; only a clean substitution forks.
+Both halves are load-bearing, and both were learned by replaying real sessions
+(Decision #057):
+
+- **Disjoint slices.** If "established" includes the recent activity it is
+  compared against, a new subject pursued long enough simply becomes the
+  dominant one and there is nothing left to abandon.
+- **Abandonment, not divergence.** A change of subject always passes through a
+  transitional stretch where the shopper is doing both. A divergence test
+  merges there — correctly — and the journey's history then contains both
+  subjects for good, so nothing can ever diverge from it again.
+
+Two properties follow and are deliberate:
+
+- **Widening never forks.** A shopper who keeps returning to the original
+  subject has broadened their evaluation, however many others they touch.
 - **Evidence naming no subject never forks.** Pricing, comparisons and security
   research describe progress, not subject, so a block of them continues
   whatever journey is open.
+
+Entity-set overlap was measured first and rejected: across short blocks it is
+dominated by product ids, so a shopper comparing five analytics tools reads as
+five changes of subject, and no threshold separated that from a real switch.
 
 Returning to an earlier subject continues *that* journey rather than opening a
 third — reactivating it if dormant. This is what makes the split worth having:

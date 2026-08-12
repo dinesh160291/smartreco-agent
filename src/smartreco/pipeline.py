@@ -29,7 +29,7 @@ from smartreco.advisor import (
 from smartreco.domain.software_buying import (
     BC_TO_REQ, CAPABILITIES, INTENT_CONCEPTS, REQ_TO_CAP, REQUIREMENTS)
 from smartreco.engines.confidence import EvidenceInput, compute_confidence
-from smartreco.engines.journey_resolution import intent_diverged, resolve
+from smartreco.engines.journey_resolution import resolve, subject_abandoned
 from smartreco.engines.learning import derive_traits, reinforced_strength
 from smartreco.engines.lifecycle import evaluate_closure, should_go_dormant
 from smartreco.engines.matching import evaluate_readiness, rank_products
@@ -271,19 +271,27 @@ def _session_has_settled(db: OrmSession, policies: PolicyCatalog, user_id: int,
     return newer is not None
 
 
-def _intent_signature(events: list[models.Event], policies: PolicyCatalog) -> set[str]:
-    """Which subjects this block of behavior is about (Decision #056).
+def _intent_profile(events: list[models.Event],
+                    policies: PolicyCatalog) -> tuple[str | None, set[str]]:
+    """(dominant subject, all subjects) for a block of behavior — Decision #056.
 
     The Domain Pack names the subject-bearing concepts; the platform only asks
-    the pattern engine which of them the evidence supports.
+    the pattern engine which of them the evidence supports. Dominance is by
+    weight of supporting evidence, so a subject touched once does not outrank
+    the one the journey is actually about.
     """
     views = [EventView(event_id=e.event_id, event_type=e.event_type,
                        session_id=e.session_id, metadata=e.event_metadata or {})
              for e in events]
-    signature: set[str] = set()
+    weight: dict[str, int] = {}
     for draft in evaluate_patterns(views, policies):
-        signature |= set(draft.concept_ids) & INTENT_CONCEPTS
-    return signature
+        for concept_id in set(draft.concept_ids) & INTENT_CONCEPTS:
+            weight[concept_id] = max(weight.get(concept_id, 0),
+                                     len(draft.supporting_event_ids))
+    if not weight:
+        return None, set()
+    dominant = max(sorted(weight), key=lambda c: weight[c])  # sorted() = deterministic ties
+    return dominant, set(weight)
 
 
 def _resolve_continuation(db: OrmSession, policies: PolicyCatalog, user_id: int,
@@ -307,6 +315,7 @@ def _resolve_continuation(db: OrmSession, policies: PolicyCatalog, user_id: int,
     journey keeps its hypotheses at the confidence they reached.
     """
     fork_min = policies.param("POL-JRES-001", "fork_min_events")
+    window = policies.param("POL-JRES-001", "recent_window_events")
     pending = db.execute(
         select(models.Event).where(
             models.Event.session_id == session_id, models.Event.user_id == user_id,
@@ -315,11 +324,17 @@ def _resolve_continuation(db: OrmSession, policies: PolicyCatalog, user_id: int,
     if len(pending) < fork_min:
         return owner_id  # too little to judge on — inherit, revisit next run
 
-    new_intent = _intent_signature(pending, policies)
-    owner_intent = _intent_signature(repos.journey_events(db, owner_id), policies)
-    if not intent_diverged(new_intent, owner_intent):
+    # Before and after, sampled from disjoint slices. "Established" must not
+    # include the activity it is being compared against, or a long enough new
+    # subject simply becomes the dominant one and there is nothing left to
+    # abandon (Decision #057).
+    combined = list(repos.journey_events(db, owner_id)) + list(pending)
+    established, _older_subjects = _intent_profile(combined[:-window], policies)
+    _dominant_now, recent_subjects = _intent_profile(combined[-window:], policies)
+    if not subject_abandoned(established, recent_subjects):
         return owner_id
 
+    new_intent = recent_subjects
     for journey in db.execute(
         select(models.Journey).where(
             models.Journey.user_id == user_id,
@@ -327,8 +342,9 @@ def _resolve_continuation(db: OrmSession, policies: PolicyCatalog, user_id: int,
     ).scalars().all():
         if journey.journey_id == owner_id:
             continue
-        if _intent_signature(repos.journey_events(db, journey.journey_id),
-                             policies) & new_intent:
+        _dominant, subjects = _intent_profile(
+            repos.journey_events(db, journey.journey_id), policies)
+        if subjects & new_intent:
             if journey.lifecycle == "DORMANT":
                 repos.insert_journey_transition(db, models.JourneyTransition(
                     journey_id=journey.journey_id, from_state=journey.lifecycle,
@@ -342,8 +358,8 @@ def _resolve_continuation(db: OrmSession, policies: PolicyCatalog, user_id: int,
                           lifecycle="ACTIVE", created_at=now))
     repos.insert_journey_transition(db, models.JourneyTransition(
         journey_id=journey_id, from_state="NEW", to_state="ACTIVE",
-        reason=(f"intent changed within session {session_id}: "
-                f"{sorted(owner_intent)} -> {sorted(new_intent)} (POL-JRES-004)"),
+        reason=(f"subject abandoned within session {session_id}: "
+                f"{established} -> {sorted(new_intent)} (POL-JRES-004)"),
         policy_version=policies.version, ts=now))
     db.flush()  # journey row must exist before events reference it (FK)
     return journey_id

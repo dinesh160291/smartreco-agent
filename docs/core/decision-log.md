@@ -2403,3 +2403,92 @@ still has no consumer in the code — a published policy nothing reads, and the
 mechanism one would expect to handle long-run memory fade. Retrieval dilution
 (the Finding 4 of this review series) is also untouched: journey B's ranking is
 still capped by what retrieval returns for it.
+
+---
+
+# Decision #057
+
+## Title
+
+The intent fork tests abandonment, not divergence — Decision #056 could not fire on real behavior
+
+## Status
+
+Accepted (corrects Decision #056)
+
+## Decision
+
+A journey forks when its **established subject is absent from recent
+activity**, sampled from disjoint slices: `established` is the dominant subject
+of everything before a trailing window of `recent_window_events` (15), and
+`recent` is whatever appears inside it.
+
+This replaces #056's rule, which forked when a block of new events shared no
+subject with the journey's whole history.
+
+## Rationale
+
+Reported, not reviewed: the shopper ran the switch test twice more after #056
+shipped and saw one journey both times. The first report turned out to be a
+stale server process; this one was a real defect, and the trace named it
+exactly.
+
+```
+20:08:34  new=[Data & Insight, Engineering Delivery]  journey=[Data & Insight]         continue
+20:11:31  new=[Engineering Delivery]  journey=[Data & Insight, Engineering Delivery]   continue
+20:12:27  new=[Engineering Delivery]  journey=[Data & Insight, Engineering Delivery]   continue
+```
+
+**A change of subject always passes through a transitional block.** At 20:08
+the shopper was still on analytics and starting on DevOps. #056's rule says an
+overlap of one is continuity, so that block merged — correctly. But it merged
+into a journey whose signature then held *both* subjects permanently, and every
+later block of pure DevOps overlapped it. The fork became unreachable.
+
+#056 passed its tests and one live session for the same wrong reason: both had
+a clean pivot with no transitional block, so the workflow run happened to land
+exactly on the switch. **It fired on luck, not on a rule.** The synthetic
+clickstream was clean because it was written clean.
+
+Two corrections, both found by measurement against three replayed sessions:
+
+**Abandonment rather than divergence.** Asking "has the shopper stopped doing
+what this journey was about" survives the transition; asking "does this block
+share anything with the journey's history" cannot, because the history only
+accumulates. This is the same failure shape as the cumulative comparison window
+in Decision #054, and as the entity-Jaccard-against-all-prior measurement
+rejected during #056 — the third instance in one working session of a growing
+baseline destroying a signal.
+
+**Disjoint slices.** The first attempt at the corrected rule still computed
+dominance over the whole journey *including* the recent window. That fails
+differently: pursue the new subject long enough and it becomes the dominant
+one, so there is nothing left to abandon. Caught by an acceptance test whose
+first phase was short — the fixture that was unrealistically small is the one
+that exposed it.
+
+## Consequences
+
+All three replayed sessions now fork exactly once, at the right moment:
+
+| Session | Fork | Transition |
+|---|---|---|
+| testcase0300 | 20:11:31 | Data & Insight → Engineering Delivery |
+| testcase0126 | 18:37:56 | Data & Insight → Engineering Delivery |
+| earlier analytics/DevOps | 16:46:01 | Data & Insight → Engineering Delivery |
+
+Stable for `recent_window_events` anywhere between 10 and 20, which is the
+evidence it reads a real signal rather than a tuned one.
+
+**The transitional stretch stays with the original journey.** That is the right
+place for it — the shopper genuinely was doing both — and it means the
+abandoned journey holds a little evidence for the new subject. The acceptance
+test asserts what actually matters instead of absence: the new journey carries
+no trace of the old subject, and the old journey is still dominated by its own.
+
+**Acceptance fixtures now use realistic volumes.** The fork needs a shopper who
+has moved on, not one who glanced sideways, so a six-event switch no longer
+triggers it — correctly. The earlier fixtures were small enough to pass under a
+rule that could not work in production, which is the lesson of this entry: a
+synthetic clickstream validates the code against itself; only a replayed one
+validates it against the world.
