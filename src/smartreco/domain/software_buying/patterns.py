@@ -23,6 +23,19 @@ BP001_DOC_TOPICS = {"security", "sso", "mfa"}
 BP002_DOC_TOPICS = {"admin", "provisioning", "federation"}
 BP002_SECURITY_TOPICS = {"compliance", "audit"}
 BP002_ENTERPRISE_TIER = "enterprise"
+
+# The documentation a shopper reads *after* choosing a product. Named here
+# because both BP-011 and the Adoption stage milestone key on it, and because
+# the surface that emits it has to ask the pack which word to use.
+#
+# Both words were unemitted until Decision #052, which is worse here than dead
+# vocabulary elsewhere: the Adoption stage milestone requires one of them, so
+# Adoption was unreachable from a browser entirely. An owned product's Docs tab
+# now reports onboarding and its Integrations tab migration — reading either
+# after you have bought the thing is exactly what those words mean.
+ADOPTION_ONBOARDING_TOPIC = "onboarding"
+ADOPTION_MIGRATION_TOPIC = "migration"
+ADOPTION_DOC_TOPICS = frozenset({ADOPTION_ONBOARDING_TOPIC, ADOPTION_MIGRATION_TOPIC})
 BP003_SEARCH_TERMS = {"ai", "copilot", "assistant"}
 
 # Topics whose *reading time* can stand in for volume of activity.
@@ -193,7 +206,9 @@ def _evaluate_bp012(session_events: list[EventView]) -> EvidenceDraft | None:
 
 
 BP004_DOC_TOPICS = {"compliance", "audit", "retention", "ediscovery"}
-BP007_DOC_TOPICS = {"workflows", "automation", "triggers"}
+# "automation" removed in Decision #052: a synonym no surface emitted, while
+# "workflows" and "triggers" both do. Nothing observable changed.
+BP007_DOC_TOPICS = {"workflows", "triggers"}
 BP007_SEARCH_TERMS = {"automate", "automation", "workflow", "workflows"}
 BP008_DOC_TOPICS = {"integrations", "api", "connectors"}
 BP011_TRIGGERS = {"TRIAL_STARTED", "DEMO_REQUESTED", "ADD_TO_CART",
@@ -366,7 +381,7 @@ def _evaluate_bp011(session_events: list[EventView]) -> list[EvidenceDraft]:
         return []
     onboarding = [e for e in session_events
                   if e.event_type == "DOCUMENTATION_VIEWED"
-                  and e.metadata.get("topic") in ("onboarding", "migration")]
+                  and e.metadata.get("topic") in ADOPTION_DOC_TOPICS]
     by_product: dict[str, list[EventView]] = {}
     for e in triggers:
         by_product.setdefault(str(e.metadata.get("product_id") or "journey"), []).append(e)
@@ -515,6 +530,7 @@ DOMAIN_RESEARCH_PATTERNS = (
 
 UI_DOC_TOPICS = (
     ("CAP-001", "sso"), ("CAP-002", "mfa"),                    # BP-001 Security
+    ("CAP-004", "admin"),                                      # BP-002 Enterprise
     # v1.2 product-type topics. Support before sales: a helpdesk product must
     # not describe itself as a sales pipeline.
     ("CAP-031", "tickets"), ("CAP-032", "tickets"),
@@ -619,6 +635,6 @@ PATTERN_TOPICS = frozenset(
     | BP007_DOC_TOPICS | BP008_DOC_TOPICS
     # Read as literals inside an evaluator rather than via a constant:
     # BP-003's "ai", BP-004's "certifications", BP-011's onboarding/migration.
-    | {SECURITY_DWELL_TOPIC, "ai", "certifications", "onboarding", "migration"}
+    | {SECURITY_DWELL_TOPIC, "ai", "certifications"} | ADOPTION_DOC_TOPICS
     | {topic for _p, _c, topics, _cat, _s in DOMAIN_RESEARCH_PATTERNS for topic in topics}
 )

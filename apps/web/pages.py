@@ -94,6 +94,23 @@ def _caps_of(db, product_id: str) -> list[str]:
         models.ProductCapability.product_id == product_id)).scalars().all()
 
 
+def _already_owns(db, user, product_id: str) -> bool:
+    """Has this shopper bought this product?
+
+    Reading a product's docs means something different once you own it: it is
+    no longer evaluation, it is onboarding. The Adoption stage milestone keys on
+    exactly that (Decision #046), and until Decision #052 no surface said the
+    word, so Adoption was unreachable from a browser.
+    """
+    if user is None:
+        return False
+    return db.execute(
+        select(models.OrderItem.product_id)
+        .join(models.Order, models.Order.order_id == models.OrderItem.order_id)
+        .where(models.Order.user_id == user.id,
+               models.OrderItem.product_id == product_id)).first() is not None
+
+
 # ---- Auth pages ----
 
 @router.get("/login", response_class=HTMLResponse)
@@ -259,8 +276,15 @@ def product_page(request: Request, product_id: str, sd=Depends(_db)):
     view["security_body"] = content.security_sections(view, cap_ids)
     view["docs_body"] = content.docs_sections(view, cap_ids)
     view["integrations_body"] = content.integrations_sections(view, cap_ids)
-    view["doc_topic"] = _doc_topic(cap_ids, _DOC_TOPICS, domain.UI_DOC_TOPIC_DEFAULT)
-    view["integrations_topic"] = _doc_topic(cap_ids, _INTEGRATION_TOPICS, domain.UI_INTEGRATION_TOPIC_DEFAULT)
+    # Once the shopper owns the product, the same two panes document a different
+    # act: getting it running, and moving onto it. That is what the Adoption
+    # milestone looks for (Decision #052).
+    owned = _already_owns(db, user, product_id)
+    view["doc_topic"] = (domain.ADOPTION_ONBOARDING_TOPIC if owned
+                         else _doc_topic(cap_ids, _DOC_TOPICS, domain.UI_DOC_TOPIC_DEFAULT))
+    view["integrations_topic"] = (
+        domain.ADOPTION_MIGRATION_TOPIC if owned
+        else _doc_topic(cap_ids, _INTEGRATION_TOPICS, domain.UI_INTEGRATION_TOPIC_DEFAULT))
     view["security_topic"] = _doc_topic(cap_ids, _SECURITY_TOPICS, domain.UI_SECURITY_TOPIC_DEFAULT)
     # Run the dwell heartbeat only for a topic some pattern's dwell clause
     # reads. Okta's docs pane is "sso", which no clause reads, so a stopwatch

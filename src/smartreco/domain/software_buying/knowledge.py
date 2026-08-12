@@ -11,7 +11,7 @@ Runtime Objects (doc 09, Principles 4-5). Pattern activation thresholds are
 Domain Pack v1 values (doc 02: "the numbers are their v1 defaults").
 """
 
-from smartreco.domain.software_buying.patterns import BP011_TRIGGERS, DOMAIN_RESEARCH_PATTERNS
+from smartreco.domain.software_buying.patterns import ADOPTION_DOC_TOPICS, BP011_TRIGGERS, DOMAIN_RESEARCH_PATTERNS
 
 DOMAIN_PACK_VERSION = "1.0"
 
@@ -366,7 +366,7 @@ STAGE_MILESTONES: list[dict] = [
     # pattern that defines them so the two cannot drift apart.
     {"stage": "Adoption", "kind": "adoption_milestone",
      "patterns": ["BP-011"], "event_types": ["DOCUMENTATION_VIEWED"],
-     "topics": ["onboarding", "migration"],
+     "topics": sorted(ADOPTION_DOC_TOPICS),
      "product_event_types": sorted(BP011_TRIGGERS)},
 ]
 

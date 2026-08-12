@@ -347,6 +347,46 @@ Before that vocabulary existed, a CRM's Docs tab reported its topic as
 
 ---
 
+# Emitted Vocabulary — a rule must be reachable to be a rule
+
+Every topic a pattern reads has to be a topic some surface can say. A clause
+keyed on a word no page emits is documented, unit-tested against synthetic
+events, and dead in production.
+
+`test_ui_tracking_contract` now checks **both** directions:
+
+- every topic a page emits is read by some pattern (the original ratchet), and
+- every topic a pattern reads can be emitted by some surface (Decision #052).
+
+Seven topics failed the second check when it was written. Five were harmless
+synonyms sitting beside words that do get emitted. **Two were not:** the
+Adoption stage milestone requires a documentation view on `onboarding` or
+`migration`, and no surface emitted either — so the highest stage in the model
+was unreachable from a browser. Whether dead vocabulary is cosmetic depends
+entirely on who is listening.
+
+## Resolved
+
+| Topic | Pattern | Resolution |
+|---|---|---|
+| `admin` | BP-002 Enterprise | Conditional Access now reports `admin` on the Docs tab. Identity products holding single sign-on still report `sso`; the five products carrying conditional access *without* it now have an administration page to read |
+| `automation` | BP-007 Automation | Removed. A synonym for `workflows` and `triggers`, both of which are emitted. Nothing observable changed |
+| `onboarding` · `migration` | BP-011 Adoption, and the Adoption stage milestone | A product the shopper **already owns** reports `onboarding` on its Docs tab and `migration` on its Integrations tab. Reading either after buying is exactly what those words describe, and it is the evidence the milestone was always asking for |
+
+## Known unemittable
+
+`productivity`, `templates`, `tasks` (BP-006). The topic a tab reports is
+derived from the product's capabilities, and this catalog has no capability
+meaning task or template management — so no product page can say these words.
+Recorded as a ratchet in the test: nothing may be added to the list, and an
+entry that becomes emittable must be deleted.
+
+BP-006 still activates on searches and category browsing, which is how it has
+always actually worked. Closing this properly means adding a capability, not
+changing a surface — deliberately out of scope.
+
+---
+
 # Pattern Invariants
 
 The following rules must always hold.
@@ -590,7 +630,7 @@ Conventions:
 
 **Intent:** The user is evaluating workflow/process automation.
 
-**Required Evidence:** ≥ 2 events among: DOCUMENTATION_VIEWED topic = workflows/automation/triggers, PRODUCT_VIEWED in an automation category, SEARCH with automation terms, within a session.
+**Required Evidence:** ≥ 2 events among: DOCUMENTATION_VIEWED topic = workflows/triggers, PRODUCT_VIEWED in an automation category, SEARCH with automation terms, within a session.
 
 **Optional Supporting:** DWELL ≥ 60s on workflow-builder pages; DOCUMENTATION_VIEWED topic = business rules.
 

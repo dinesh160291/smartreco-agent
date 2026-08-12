@@ -33,6 +33,8 @@ from smartreco.domain.software_buying.knowledge import (
     STAGE_MILESTONES,
 )
 from smartreco.domain.software_buying.patterns import (
+    ADOPTION_MIGRATION_TOPIC,
+    ADOPTION_ONBOARDING_TOPIC,
     DOMAIN_RESEARCH_PATTERNS,
     DWELL_TOPICS,
     JOURNEY_EVALUATORS,
@@ -50,6 +52,7 @@ DOMAIN_ID = "software_buying"
 DOMAIN_NAME = "Software Buying"
 
 __all__ = [
+    "ADOPTION_MIGRATION_TOPIC", "ADOPTION_ONBOARDING_TOPIC",
     "BC_TO_REQ", "BEHAVIORAL_CONCEPTS", "CANONICAL_PRODUCTS", "CAPABILITIES",
     "DOMAIN_ID", "DOMAIN_NAME", "DOMAIN_PACK_VERSION",
     "DOMAIN_RESEARCH_PATTERNS", "DWELL_TOPICS",

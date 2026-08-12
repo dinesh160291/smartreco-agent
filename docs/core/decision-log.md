@@ -1899,3 +1899,89 @@ the profile, and the profile is editable.
 defect as Decision #044, predating this change and deliberately not folded into
 it. The reachability ratchet only checks that emitted topics are read; the
 reverse direction is still unguarded.
+
+---
+
+# Decision #052
+
+## Title
+
+A rule must be reachable to be a rule — the reverse vocabulary check, and the Adoption stage it unblocked
+
+## Status
+
+Accepted
+
+## Decision
+
+`test_ui_tracking_contract` gains the reverse-direction check: **every topic a
+pattern reads must be emittable by some surface.** Three of the seven topics
+that failed it are fixed, three are recorded as a shrinking ratchet, and one
+was removed as a redundant synonym.
+
+| Topic | Resolution |
+|---|---|
+| `onboarding` · `migration` | An owned product's Docs tab reports `onboarding`, its Integrations tab `migration` |
+| `admin` | Conditional Access reports `admin` on the Docs tab, ordered after single sign-on |
+| `automation` | Removed from BP-007 — a synonym for `workflows`/`triggers`, both emitted |
+| `productivity` · `templates` · `tasks` | Ratchet entry: no capability in the catalog means task or template management |
+
+## Rationale
+
+Decision #044 established that an event type nothing emits is not implemented,
+and added a ratchet: every topic a page emits must be read by some pattern. The
+ratchet only ever ran in one direction. It could not see the opposite failure —
+a pattern listening for a word no page says. Such a clause is documented,
+unit-tested against synthetic events, and dead in production.
+
+Seven topics were in that state. Five were harmless: spare synonyms beside words
+that are emitted.
+
+**Two were not.** Decision #046 tightened the Adoption stage milestone to require
+a documentation view on `onboarding` or `migration`. No surface emitted either,
+so **the highest stage in the model became unreachable from a browser** — the
+tightening did not narrow Adoption, it closed it. Whether dead vocabulary is
+cosmetic depends entirely on who is listening, and here a stage engine was.
+
+**The fix for those two is a surface, not a deletion.** Reading a product's docs
+means something different once you own it: it is no longer evaluation, it is
+onboarding. So an owned product's Docs tab reports `onboarding` and its
+Integrations tab `migration`. The words were always right; nothing had ever said
+them.
+
+**The acceptance suite corrected a wrong first attempt, which is the more useful
+part of this entry.** The initial fix deleted BP-006's document vocabulary as
+unreachable — and Story 2, a binding acceptance journey, feeds `templates`,
+`tasks` and `productivity` views directly. Deleting the clause broke it. Editing
+Story 2 to avoid the vocabulary would have been adjusting a fixture to make an
+assertion pass, which is the one forbidden move. The vocabulary is specified
+behavior; the defect is the missing surface. So it stays, recorded as a ratchet
+entry with what it actually needs: a capability meaning task or template
+management, which is a catalog change and deliberately out of scope.
+
+## Consequences
+
+Adoption is reachable, proved behaviorally rather than by vocabulary
+bookkeeping: a test buys a product and asserts the same two panes change what
+they document. Sabotage-verified — forcing the ownership check to False reddens
+it, and adding a topic no surface emits reddens the reverse check.
+
+`ADOPTION_DOC_TOPICS` is named in the pack and consumed by three places that
+previously each restated the words: the pattern, the stage milestone, and now
+the surface. `BP007_DOC_TOPICS` loses `automation`; no test fed it, and nothing
+observable changed.
+
+The deviation list is a ratchet in the same shape as the domain-boundary one:
+nothing may be added, and `test_no_stale_topic_deviations` fails if an entry
+becomes emittable, so it can only shrink.
+
+327 tests green. Doc 02 records the two-directional rule, the resolutions, and
+the remaining entry.
+
+**What this says about the earlier decisions.** #044, #045, #046 and #049 were
+each a rule that described behavior the implementation did not produce. This one
+is the inverse: a rule the implementation could not produce because no surface
+spoke its vocabulary. The class is the same — a specification that agrees with
+itself and not with the running system — and the general defense is a check in
+both directions, which now exists for topics and does not yet exist for anything
+else.

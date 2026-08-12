@@ -118,6 +118,86 @@ RECOGNISED_TOPICS = patterns.PATTERN_TOPICS
 ROSTER = [p["product_id"] for p in CANONICAL_PRODUCTS]
 
 
+# Topics a pattern reads that no surface can emit. A ratchet, not an excuse:
+# nothing may be added, and an entry that becomes emittable must be deleted
+# (test_no_stale_topic_deviations enforces that, so the list can only shrink).
+# Same shape as the domain-boundary ratchet, for the same reason.
+UNEMITTABLE_TOPICS: dict[str, str] = {
+    "productivity": "BP-006. No capability in the catalog means task or template "
+                    "management, and the tab topic is capability-derived — so no "
+                    "product page can say it. Needs a capability, not a UI change.",
+    "templates": "BP-006 — same cause as 'productivity'.",
+    "tasks": "BP-006 — same cause as 'productivity'.",
+}
+
+
+def test_every_topic_a_pattern_reads_can_actually_be_emitted():
+    """The reverse direction, and the one that was missing.
+
+    The ratchet below checks that every word a page says is heard by some
+    pattern. It cannot catch the opposite: a pattern listening for a word no
+    page ever says. That clause is documented, tested against synthetic events,
+    and dead in production.
+
+    Seven topics were in that state when this test was written. Five were
+    harmless — spare synonyms beside words that do get emitted. Two were not:
+    the Adoption stage milestone requires a documentation view on `onboarding`
+    or `migration`, and nothing emitted either, so the highest stage in the
+    model was unreachable from a browser. A dead topic is not always cosmetic;
+    it depends entirely on who is listening.
+    """
+    emittable = ({topic for _cap, topic in patterns.UI_DOC_TOPICS}
+                 | {topic for _cap, topic in patterns.UI_SECURITY_TOPICS}
+                 | {topic for _cap, topic in patterns.UI_INTEGRATION_TOPICS}
+                 | {patterns.UI_DOC_TOPIC_DEFAULT,
+                    patterns.UI_SECURITY_TOPIC_DEFAULT,
+                    patterns.UI_INTEGRATION_TOPIC_DEFAULT}
+                 | set(patterns.DWELL_TOPICS)
+                 | set(patterns.ADOPTION_DOC_TOPICS))  # owned-product panes
+    unemittable = sorted(patterns.PATTERN_TOPICS - emittable - set(UNEMITTABLE_TOPICS))
+    assert not unemittable, (
+        "patterns read topics no surface can emit, so those clauses can never "
+        f"fire from a browser: {unemittable}")
+
+
+def test_an_owned_products_panes_report_adoption(client, session_factory):
+    """Behavioural proof that Adoption is reachable, not just that the words
+    exist somewhere.
+
+    Before purchase Okta's panes document identity. After it, the same two panes
+    document getting Okta running — which is the evidence the Adoption stage
+    milestone requires (Decision #046), and which nothing emitted until
+    Decision #052.
+    """
+    before = _tracked_events(client.get("/product/PROD-003").text)
+    doc_topics = [m["topic"] for m in before["DOCUMENTATION_VIEWED"]]
+    assert set(doc_topics).isdisjoint(patterns.ADOPTION_DOC_TOPICS), (
+        f"an unowned product already claims adoption topics: {doc_topics}")
+
+    with session_factory() as db:
+        user = db.query(models.User).filter(models.User.email == "s@example.com").one()
+        db.add(models.Order(order_id="ORD-owned", user_id=user.id, journey_id=None))
+        db.add(models.OrderItem(order_id="ORD-owned", product_id="PROD-003"))
+        db.commit()
+
+    after = _tracked_events(client.get("/product/PROD-003").text)
+    owned_topics = {m["topic"] for m in after["DOCUMENTATION_VIEWED"]}
+    assert owned_topics == set(patterns.ADOPTION_DOC_TOPICS), (
+        f"owned product's panes report {sorted(owned_topics)}, "
+        f"expected {sorted(patterns.ADOPTION_DOC_TOPICS)}")
+
+
+def test_no_stale_topic_deviations():
+    """An entry that has become emittable must be deleted, so the list shrinks."""
+    emittable = ({topic for _cap, topic in patterns.UI_DOC_TOPICS}
+                 | {topic for _cap, topic in patterns.UI_SECURITY_TOPICS}
+                 | {topic for _cap, topic in patterns.UI_INTEGRATION_TOPICS}
+                 | set(patterns.DWELL_TOPICS)
+                 | set(patterns.ADOPTION_DOC_TOPICS))
+    stale = sorted(set(UNEMITTABLE_TOPICS) & emittable)
+    assert not stale, f"these topics are emitted now — remove them from the list: {stale}"
+
+
 def test_the_whole_ui_vocabulary_is_read_by_some_pattern():
     """The reachability ratchet over the *tables*, not just the canonical ten.
 
