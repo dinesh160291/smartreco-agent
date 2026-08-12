@@ -11,7 +11,7 @@ calls `PATTERN_EVALUATORS` below. Bodies are unchanged from the engine
 version; this was a move, not a rewrite.
 
 Event metadata conventions (Core 13 leaves the shapes to the domain):
-  SECURITY_VIEWED: {page, topic?} · DOCUMENTATION_VIEWED: {topic}
+  SECURITY_VIEWED: {page, topic?} · DOCUMENTATION_VIEWED: {product_id, topic?}
   PRICING_VIEWED: {product_id?, tier} · DWELL: {topic?, seconds}
   SEARCH: {query} · PRODUCT_VIEWED: {product_id, category?}
   CATEGORY_VIEWED: {category}
@@ -586,9 +586,10 @@ UI_INTEGRATION_TOPICS = (
 # Emitting `integrations` there made 153 of 250 products claim research they
 # cannot support, and two such clicks were enough to activate BP-008.
 #
-# A pane with nothing to declare declares nothing. That is not a hole in the
-# vocabulary: the shopper's visit is still an event on the product, it simply
-# is not a documentation topic.
+# A pane with nothing to declare declares nothing. The visit is still tracked —
+# a DOCUMENTATION_VIEWED carrying the product but no `topic` — so the read is
+# recorded and counts toward accumulation while no topic-keyed clause can act
+# on it. SECURITY_VIEWED has always worked this way.
 UI_INTEGRATION_TOPIC_DEFAULT = None
 
 

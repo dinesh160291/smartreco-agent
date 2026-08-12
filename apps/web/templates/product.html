@@ -43,10 +43,12 @@
      a connector page together), not on time, so reading length means nothing
      here. The click's own topic still carries the signal. #}
   {# No topic means this product holds no connective capability, so the pane
-     has no integration research to declare and emits nothing (Decision #055).
-     The pane itself still renders — it just does not assert a topic. #}
+     has no integration research to declare (Decision #055). The visit is still
+     tracked — it is a real read of a real page, and it still counts toward
+     accumulation — but the event carries no `topic`, so no topic-keyed pattern
+     can act on it. Same rule the Security tab already follows. #}
   <button data-tab="integrations" data-dwell-topic=""
-          {% if p.integrations_topic %}data-track="DOCUMENTATION_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}", "topic": "{{ p.integrations_topic }}"}'{% endif %}>Integrations</button>
+          data-track="DOCUMENTATION_VIEWED" data-track-meta='{"product_id": "{{ p.product_id }}"{% if p.integrations_topic %}, "topic": "{{ p.integrations_topic }}"{% endif %}}'>Integrations</button>
 </div>
 
 <div class="tabpane active" data-pane="overview">

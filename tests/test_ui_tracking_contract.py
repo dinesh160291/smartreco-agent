@@ -123,11 +123,21 @@ def test_a_product_with_nothing_to_integrate_claims_no_integration_research(clie
     """
     for product_id in ("PROD-004", "PROD-005", "PROD-010"):  # no connective capability
         tracked = _tracked_events(client.get(f"/product/{product_id}").text)
-        topics = {meta.get("topic") for meta in tracked.get("DOCUMENTATION_VIEWED", [])}
+        docs = tracked.get("DOCUMENTATION_VIEWED", [])
+        topics = {meta.get("topic") for meta in docs}
         claimed = topics & patterns.BP008_DOC_TOPICS
         assert not claimed, (
             f"{product_id} holds no connective capability but its panes claim "
             f"{sorted(claimed)}, which activates Integration Evaluation")
+
+        # ...but the read is still tracked. Declaring no topic is not the same
+        # as going dark: the visit counts toward accumulation, and a later
+        # pattern keyed on something other than topic can still see it.
+        untyped = [meta for meta in docs if "topic" not in meta]
+        assert len(untyped) == 1, (
+            f"{product_id}'s Integrations tab should emit one topic-less "
+            f"documentation view; got {docs}")
+        assert untyped[0].get("product_id") == product_id
 
 
 def test_browsing_two_unconnected_products_does_not_infer_an_integration_need(client):

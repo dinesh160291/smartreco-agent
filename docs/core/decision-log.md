@@ -2204,7 +2204,7 @@ capabilities with **no generic fallback**:
 | CAP-019 API Integration | `api` *(new)* |
 | CAP-003 SCIM Provisioning | `provisioning` |
 | CAP-008 Identity Federation | `federation` |
-| none of the above | **nothing — the pane emits no event** |
+| none of the above | **no topic** — the pane emits `DOCUMENTATION_VIEWED` carrying only the product |
 
 `integrations` is removed from BP-008's vocabulary, leaving `{api, connectors}`
 — the two words its own Strong clause is written around.
@@ -2261,11 +2261,34 @@ genuinely holds Integration Connectors — emits a signal. One signal; the patte
 needs two. Integration Evaluation never activates, so Workflow Automation and
 Identity Management are never derived and ServiceNow is never ranked.
 
-Emitting no event where one used to fire is a deliberate narrowing of the event
-stream, not a hole in the vocabulary: the shopper's visit is still recorded
-against the product, it is simply not a documentation *topic*. Both vocabulary
-guards were adjusted to treat a `None` default as "declares nothing" rather
-than as an unread word.
+Declaring no topic is a deliberate narrowing of what the event *asserts*, not
+of what is recorded: the read still fires a `DOCUMENTATION_VIEWED` carrying the
+product, so it counts toward accumulation and stays available to any future
+clause keyed on something other than topic. It simply makes no claim about
+subject matter. `SECURITY_VIEWED` has always behaved this way — a security view
+with no topic cannot contribute to Enterprise Evaluation — so this is an
+existing convention applied, not a new one invented. Both vocabulary guards
+were adjusted to treat a `None` default as "declares nothing" rather than as an
+unread word.
+
+### Amendment — emit without a topic, rather than not at all
+
+As first written this decision dropped the event entirely for those 153
+products. That was wrong in three ways, and the correction landed immediately
+after: a shopper genuinely comparing integration fit across generic products
+would have produced *no* signal at all (a false signal replaced by no signal is
+not obviously better); those clicks are High-signal events that count toward
+POL-TRIG-001, so reasoning would have fired less often on exactly those
+journeys; and it would have left 61% of the catalog with no telemetry on that
+tab for anything later.
+
+Downstream was checked before the change: every consumer of `topic` already
+guards — the pattern predicates via `.get()` (where `None in SET` is simply
+False), `_entities` and the behavior summary via truthiness tests so no `None`
+leaks into an entity set, and `track.js` via `JSON.parse(… || "{}")`. Ingest
+validates the event type against the closed registry and does not check
+metadata shape. The metadata convention in `patterns.py` was amended from
+`DOCUMENTATION_VIEWED: {topic}` to `{product_id, topic?}` to match.
 
 The catalog now splits 97 products that make a specific, true integration claim
 against 153 that make none. `test_a_product_with_nothing_to_integrate_claims_no_integration_research`
