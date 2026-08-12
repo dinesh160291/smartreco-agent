@@ -29,9 +29,13 @@ def ctx(**overrides):
 
 
 def test_accumulation_threshold_pol_trig_001(policies):
-    decision = evaluate_trigger("EVENT_ACCUMULATION", ctx(unprocessed_high_medium_events=5), policies)
+    # Relative to the catalog: this pins the gate, not the tuning. The value
+    # itself is pinned in test_policy_catalog, which is where a retuning has to
+    # be declared (Decision #048).
+    threshold = policies.param("POL-TRIG-001", "unprocessed_event_threshold")
+    decision = evaluate_trigger("EVENT_ACCUMULATION", ctx(unprocessed_high_medium_events=threshold), policies)
     assert decision.run is True
-    decision = evaluate_trigger("EVENT_ACCUMULATION", ctx(unprocessed_high_medium_events=4), policies)
+    decision = evaluate_trigger("EVENT_ACCUMULATION", ctx(unprocessed_high_medium_events=threshold - 1), policies)
     assert decision.run is False and "accumulation" in decision.reason
 
 
@@ -44,11 +48,15 @@ def test_significant_event_debounce_pol_trig_002(policies):
 
 
 def test_cooldown_blocks_but_stage_transition_bypasses(policies):
-    recent = ctx(unprocessed_high_medium_events=5, seconds_since_last_run=120.0)
+    cooldown = policies.param("POL-TRIG-002", "cooldown_seconds")
+    threshold = policies.param("POL-TRIG-001", "unprocessed_event_threshold")
+    recent = ctx(unprocessed_high_medium_events=threshold,
+                 seconds_since_last_run=cooldown - 1)
     decision = evaluate_trigger("EVENT_ACCUMULATION", recent, policies)
     assert decision.run is False and "cooldown" in decision.reason
     assert evaluate_trigger("STAGE_TRANSITION", recent, policies).run is True
-    cooled = ctx(unprocessed_high_medium_events=5, seconds_since_last_run=601.0)
+    cooled = ctx(unprocessed_high_medium_events=threshold,
+                 seconds_since_last_run=cooldown + 1)
     assert evaluate_trigger("EVENT_ACCUMULATION", cooled, policies).run is True
 
 
@@ -65,7 +73,7 @@ def test_session_end_needs_unprocessed_activity(policies):
 def test_session_end_waits_for_the_session_to_close(policies):
     """The shopper is still clicking: the session has not closed, so its
     boundary has not arrived (POL-TRACK-003)."""
-    still_active = ctx(unprocessed_high_medium_events=4, newest_event_age_seconds=600.0)
+    still_active = ctx(unprocessed_high_medium_events=3, newest_event_age_seconds=600.0)
     decision = evaluate_trigger("SESSION_END", still_active, policies)
     assert decision.run is False and "session" in decision.reason
 
@@ -74,7 +82,9 @@ def test_session_end_runs_below_the_accumulation_threshold(policies):
     """The defect this trigger exists to fix: a shopper who stops clicking with
     fewer than POL-TRIG-001's five events pending — a purchase, say — must still
     be reasoned about. EVENT_ACCUMULATION cannot do it; SESSION_END must."""
-    stranded = ctx(unprocessed_high_medium_events=4, newest_event_age_seconds=31 * 60.0)
+    threshold = policies.param("POL-TRIG-001", "unprocessed_event_threshold")
+    stranded = ctx(unprocessed_high_medium_events=threshold - 1,
+                   newest_event_age_seconds=31 * 60.0)
     assert evaluate_trigger("EVENT_ACCUMULATION", stranded, policies).run is False
     assert evaluate_trigger("SESSION_END", stranded, policies).run is True
 
@@ -82,8 +92,8 @@ def test_session_end_runs_below_the_accumulation_threshold(policies):
 def test_session_end_still_respects_cooldown(policies):
     """Only STAGE_TRANSITION bypasses cooldown (Core 23) — SESSION_END is not
     an exception to POL-TRIG-002."""
-    recent = ctx(unprocessed_high_medium_events=4, newest_event_age_seconds=31 * 60.0,
-                 seconds_since_last_run=60.0)
+    recent = ctx(unprocessed_high_medium_events=3, newest_event_age_seconds=31 * 60.0,
+                 seconds_since_last_run=policies.param("POL-TRIG-002", "cooldown_seconds") - 1)
     decision = evaluate_trigger("SESSION_END", recent, policies)
     assert decision.run is False and "cooldown" in decision.reason
 
@@ -95,7 +105,10 @@ def test_concurrency_skip_pol_trig_005(policies):
 
 
 def test_budget_gates_slow_path_only_pol_trig_003(policies):
-    exhausted = ctx(unprocessed_high_medium_events=5, tier1_calls_today=10, tier2_calls_today=20)
+    exhausted = ctx(
+        unprocessed_high_medium_events=5,
+        tier1_calls_today=policies.param("POL-TRIG-003", "tier1_calls_per_user_per_day"),
+        tier2_calls_today=policies.param("POL-TRIG-003", "tier2_calls_per_user_per_day"))
     decision = evaluate_trigger("EVENT_ACCUMULATION", exhausted, policies)
     # Budget exhaustion never blocks the deterministic run — it degrades the slow path
     assert decision.run is True

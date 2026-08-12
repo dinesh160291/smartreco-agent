@@ -31,9 +31,23 @@ def catalog():
 
 def test_catalog_version_is_recorded(catalog):
     # v1.1: POL-TRIG-002 retuned for demo pacing (Decision #038)
-    assert catalog.version == "1.2"
+    assert catalog.version == "1.3"
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
-    assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 180
+    assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 45
+    assert catalog.param("POL-TRIG-001", "unprocessed_event_threshold") == 3
+    assert catalog.param("POL-TRIG-003", "tier1_calls_per_user_per_day") == 30
+    assert catalog.param("POL-TRIG-003", "tier2_calls_per_user_per_day") == 40
+
+
+def test_judgment_thresholds_are_untouched_by_demo_pacing(catalog):
+    """v1.1 and v1.3 retuned *how often* the platform reasons. What it concludes
+    is a separate class of value, pinned here so a future pacing change cannot
+    quietly drift into lowering the bar for a claim (Decision #048)."""
+    assert catalog.param("POL-REQ-001", "min_confidence") == 0.5
+    assert catalog.param("POL-REC-001", "min_requirement_confidence") == 0.6
+    assert catalog.param("POL-REC-001", "min_high_signal_events") == 5
+    assert catalog.param("POL-BEH-001", "min_supporting_evidence") == 2
+    assert catalog.param("POL-TRACK-003", "inactivity_minutes") == 30
 
 
 def test_every_v1_policy_id_present_and_no_extras(catalog):

@@ -8,7 +8,7 @@ while the shopper was still clicking.
 
 Found in a live trace. A shopper researched automation, bought ServiceNow, and
 closed the tab. The purchase burst was four high-signal events — one short of
-POL-TRIG-001's five — so no run ever started: the journey stayed open, the
+POL-TRIG-001's threshold, five at the time — so no run ever started: the journey stayed open, the
 purchase was never reasoned about, and the recommendation the deterministic
 engines were one run away from producing never appeared. Waiting could not fix
 it; without a fifth click nothing would ever wake the evaluator again.
@@ -29,21 +29,34 @@ NOW = datetime(2026, 8, 11, 20, 35)
 SESSION_TIMEOUT = timedelta(minutes=30)  # POL-TRACK-003
 
 
-def _departed_shopper(db, *, last_event_at, email="stranded@example.com"):
+PURCHASE_BURST = [
+    ("PRODUCT_VIEWED", {"product_id": "PROD-007", "category": "workflow automation"}),
+    ("ADD_TO_CART", {"product_id": "PROD-007"}),
+    ("CHECKOUT_STARTED", {}),
+    ("PURCHASE_COMPLETED", {"product_id": "PROD-007", "order_id": "ORD-test"}),
+]
+
+
+def _departed_shopper(db, policies, *, last_event_at, email="stranded@example.com"):
     """Case 3 from the live traces: an automation journey that ends in a
-    purchase, four unprocessed high-signal events, and a closed tab."""
+    purchase, and a closed tab.
+
+    The burst is sized one event *below* POL-TRIG-001's threshold rather than
+    at a literal four, because the point is the relationship — a visit that
+    ends short of the accumulation threshold — not the tuning of the day. The
+    threshold has already moved once for demo pacing (Decision #048); the
+    defect this pins is the same at any value.
+    """
+    threshold = policies.param("POL-TRIG-001", "unprocessed_event_threshold")
+    events = PURCHASE_BURST[-(threshold - 1):]  # still ends in the purchase
+    assert 0 < len(events) < threshold
+
     user = models.User(email=email, password_hash="x", role="user")
     db.add(user)
     db.commit()
     db.add(models.Session(session_id="se1", user_id=user.id,
                           started_at=last_event_at - timedelta(minutes=5),
                           last_event_at=last_event_at))
-    events = [
-        ("PRODUCT_VIEWED", {"product_id": "PROD-007", "category": "workflow automation"}),
-        ("ADD_TO_CART", {"product_id": "PROD-007"}),
-        ("CHECKOUT_STARTED", {}),
-        ("PURCHASE_COMPLETED", {"product_id": "PROD-007", "order_id": "ORD-test"}),
-    ]
     repos.insert_events_idempotent(db, [
         {"event_id": f"se-{i}", "user_id": user.id, "session_id": "se1",
          "journey_id": None, "event_type": event_type, "signal_class": "HIGH",
@@ -61,10 +74,10 @@ def _runs_for(db, user_id):
 
 def test_sweep_reasons_about_what_a_departing_shopper_left_behind(
         seeded, chroma, backend, policies, fake_gateway):
-    """The defect itself: four pending events is below the accumulation
-    threshold, so only a session boundary can start this run."""
+    """The defect itself: the burst ends below POL-TRIG-001's threshold, so
+    only a session boundary can start this run."""
     db = seeded
-    user = _departed_shopper(db, last_event_at=NOW - SESSION_TIMEOUT - timedelta(minutes=1))
+    user = _departed_shopper(db, policies, last_event_at=NOW - SESSION_TIMEOUT - timedelta(minutes=1))
 
     runs = session_end_sweep(db, chroma, backend, policies, now=NOW, gateway=fake_gateway)
 
@@ -88,13 +101,14 @@ def test_sweep_leaves_a_shopper_who_is_still_shopping_alone(
     """Mid-session quiet is not a session boundary. Reasoning early would spend
     the cooldown on an incomplete story."""
     db = seeded
-    user = _departed_shopper(db, last_event_at=NOW - timedelta(minutes=5))
+    user = _departed_shopper(db, policies, last_event_at=NOW - timedelta(minutes=5))
 
     runs = session_end_sweep(db, chroma, backend, policies, now=NOW, gateway=fake_gateway)
 
     assert runs == []
     # Not even a SKIPPED row: an active shopper is not a trigger occasion, and
-    # a five-minute sweep would otherwise bury the trigger log in non-events.
+    # a sweep on a few minutes' interval would otherwise bury the trigger log
+    # in non-events.
     assert _runs_for(db, user.id) == []
 
 
@@ -104,7 +118,7 @@ def test_sweep_does_not_re_reason_about_a_journey_it_has_finished(
     nothing. Without this the sweep would re-run every user, every interval,
     forever."""
     db = seeded
-    user = _departed_shopper(db, last_event_at=NOW - SESSION_TIMEOUT - timedelta(minutes=1))
+    user = _departed_shopper(db, policies, last_event_at=NOW - SESSION_TIMEOUT - timedelta(minutes=1))
 
     first = session_end_sweep(db, chroma, backend, policies, now=NOW, gateway=fake_gateway)
     second = session_end_sweep(db, chroma, backend, policies,

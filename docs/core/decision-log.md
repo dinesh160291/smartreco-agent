@@ -1569,3 +1569,52 @@ Existing databases self-heal: any journey sitting on unprocessed events is swept
 Eight signature tests: four on the evaluator condition (`test_trigger_evaluator`), four on the sweep (`test_session_end_trigger`), all with a simulated clock and no real waits. Sabotage-verified: relaxing the inactivity cutoff reddens the still-shopping case, dropping the signal-class filter reddens the dwell-only case. 309 tests green.
 
 The remaining four declared-but-unraised triggers — `SIGNIFICANT_EVENT`, `STAGE_TRANSITION`, `REQUIREMENT_SHIFT`, `ADMIN_CATALOG_CHANGE` — are unchanged and still unreachable. Each is a latent version of this same defect: a policy that cannot fire is a policy that is not implemented, however complete the evaluator looks. Scoped deliberately: this decision fixes the one that strands shoppers.
+
+---
+
+# Decision #048
+
+## Title
+
+Catalog v1.3 — retune pacing for demonstration, and pin the judgment values against drift
+
+## Status
+
+Accepted
+
+## Decision
+
+Catalog version 1.3. Four pacing values change:
+
+| Policy | v1.2 | v1.3 |
+|---|---|---|
+| POL-TRIG-001 accumulation threshold | 5 events | **3** |
+| POL-TRIG-002 cooldown | 180s | **45s** |
+| POL-TRIG-003 daily AI budget | 10 / 20 | **30 / 40** |
+| POL-TRACK-003 sweep interval | 5 min | **2 min** |
+
+Debounce stays at 30s, the session-inactivity window stays at 30 minutes, and no confidence, publication, promotion, or readiness threshold moves.
+
+## Rationale
+
+Reaching a recommendation takes three or four workflow runs, because confidence accumulates per run rather than per event. At a 180-second cooldown that put a floor of roughly nine minutes under any demonstration, no matter how purposefully the shopper clicked — and the floor was invisible, so it read as the platform being unsure rather than the platform being rate-limited. The live traces made the cost concrete: two accounts performed the same research minutes apart, and the more thorough one produced fewer runs and the worse answer.
+
+**The distinction this decision turns on** is between values that govern *how often the platform reasons* and values that govern *what it is willing to conclude*. Cooldown, accumulation threshold, sweep interval, and AI budget are the first kind: moving them changes latency and cost, and nothing else — every number the shopper sees is derived the same way and means the same thing. Publication at 0.5, readiness at 0.6, the confidence contributions, and hypothesis promotion are the second kind: moving them would make the platform assert confidence it has not earned, which is the one claim the whole design exists to support.
+
+Precedent: Decision #038 already retuned this same cooldown for the same reason. This decision extends that and, more usefully, writes the distinction down.
+
+**Budgets are raised because cadence consumes them.** The per-shopper daily AI budget is a fixed count, so quadrupling the run rate quadruples the draw on it. At 10 Tier-1 calls a rehearsed demonstration on one account would exhaust the budget mid-journey and silently degrade to the last stored narrative — correct behaviour under POL-TRIG-003, and indistinguishable on stage from the narrative having frozen. The AAR cache absorbs some of this (repeat runs over an unchanged package hit it), so 30/40 is headroom rather than a proportional increase.
+
+**Two values deliberately left alone.** The 30-second debounce gates only SIGNIFICANT_EVENT, which nothing raises (Decision #047) — changing it would be theatre. The 30-minute inactivity window is not only the SESSION_END boundary: it is also what the tracking client uses to mint a new session id, and several patterns are session-scoped, with two reaching Strong only across multiple sessions. Shortening it to make the walk-away path demonstrable would risk manufacturing Strong evidence out of a clock, which is precisely the kind of number this decision refuses to move.
+
+## Consequences
+
+Roughly three minutes of steady clicking to a recommendation, against nine-plus. More runs land on NOT_READY before the picture forms, so the clarify path is seen more often — which is the honest shape of the system and arguably the better demonstration.
+
+All twelve acceptance stories and the four derivation scenarios pass unchanged, which is the evidence that this retuning is pacing and not judgment: the derivations assert exact confidences and coverages, and none of them moved.
+
+`test_policy_catalog` gains `test_judgment_thresholds_are_untouched_by_demo_pacing`, pinning publication, readiness, promotion, and the inactivity window, so a future pacing change cannot drift across the line this decision draws. Sabotage-verified: lowering publication to 0.4 fails it and seven acceptance tests with it.
+
+The gate tests in `test_trigger_evaluator` and the burst in `test_session_end_trigger` now derive their inputs from the catalog rather than restating tuned numbers. They pin the rule — *below the threshold skips, at it runs* — while the values themselves are pinned in one place, the catalog test, where a retuning has to be declared. 310 tests green.
+
+Runs recorded before this change carry policy_version 1.2 and are not comparable on timing; the decision spine is versioned precisely so that stays visible.

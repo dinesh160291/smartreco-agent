@@ -698,9 +698,9 @@ The following are the platform's initial published policy values. They are confi
 
 | Policy ID | Policy | v1 Value |
 |---|---|---|
-| POL-TRIG-001 | Event accumulation | Run workflow after 5 unprocessed high/medium-signal events |
-| POL-TRIG-002 | Debounce / cooldown | v1.1: Debounce 30s; cooldown 3min (STAGE_TRANSITION bypasses cooldown). v1 was 60s / 10min — retuned for demo pacing (Decision #038); historical runs recorded policy_version 1.0 |
-| POL-TRIG-003 | AI budgets | Tier 1: 10 calls/user/day; Tier 2: 20 calls/user/day |
+| POL-TRIG-001 | Event accumulation | v1.3: Run workflow after **3** unprocessed high/medium-signal events. v1 was 5 — retuned for demo pacing (Decision #048) |
+| POL-TRIG-002 | Debounce / cooldown | v1.3: Debounce 30s; cooldown **45s** (STAGE_TRANSITION bypasses cooldown). v1.1 was 30s / 3min (Decision #038), v1 was 60s / 10min — both retunings are demo pacing (Decision #048); historical runs record the policy_version they ran under |
+| POL-TRIG-003 | AI budgets | v1.3: Tier 1: **30** calls/user/day; Tier 2: **40** calls/user/day. v1 was 10 / 20 — raised alongside the faster cadence so a demo does not exhaust the budget mid-journey (Decision #048) |
 | POL-TRIG-004 | Material change | New/removed Requirement, priority band change, stage change, or top-candidate change |
 | POL-TRIG-005 | Run concurrency | At most one in-flight workflow run per user; a trigger arriving during a run is recorded as SKIP (already-running) and its events remain accumulated for the next evaluation |
 | POL-CACHE-001 | AAR cache | One AAR per (Recommendation Package, prompt version, surface) |
@@ -711,7 +711,7 @@ The following are the platform's initial published policy values. They are confi
 |---|---|---|
 | POL-TRACK-001 | Client batching | batch_size = 10 events; flush_interval = 15s; failed flushes retry max 3 times with exponential backoff, then drop (low-signal first); server rejects batches > 50 events |
 | POL-TRACK-002 | Dwell heartbeat | 10s cadence, visible pages only |
-| POL-TRACK-003 | Session timeout | 30 minutes of inactivity. The same window is the SESSION_END boundary (Chapter 23): a session past it with unprocessed high/medium events raises the trigger. **end_sweep_interval_minutes = 5** — how often the platform looks for those boundaries (Decision #047) |
+| POL-TRACK-003 | Session timeout | 30 minutes of inactivity. The same window is the SESSION_END boundary (Chapter 23): a session past it with unprocessed high/medium events raises the trigger. **end_sweep_interval_minutes = 2** (v1.3; was 5) — how often the platform looks for those boundaries (Decisions #047, #048). The 30-minute window itself is deliberately *not* retuned: it is also what the tracking client uses to mint a new session id, and several patterns are session-scoped |
 
 ## Learning, Decay & Journey Policies
 

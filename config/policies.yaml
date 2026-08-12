@@ -3,7 +3,7 @@
 # Engines consume it only through the policy loader; every workflow run records policy_version.
 # Every value change produces a new catalog version.
 
-catalog_version: "1.2"
+catalog_version: "1.3"
 
 policies:
 
@@ -214,26 +214,30 @@ policies:
   POL-TRIG-001:
     name: Event accumulation
     category: trigger
-    rule: "Run workflow after 5 unprocessed high/medium-signal events"
+    rule: "Run workflow after 3 unprocessed high/medium-signal events — v1.3 demo pacing (Decision #048; v1 was 5)"
     params:
-      unprocessed_event_threshold: 5
+      unprocessed_event_threshold: 3
 
   POL-TRIG-002:
     name: Debounce / cooldown
     category: trigger
-    rule: "Debounce 30s; cooldown 3min (STAGE_TRANSITION bypasses cooldown) — v1.1 demo pacing (Decision #038; v1 was 60s/10min)"
+    rule: >-
+      Debounce 30s; cooldown 45s (STAGE_TRANSITION bypasses cooldown) — v1.3 demo pacing
+      (Decision #048; v1.1 was 30s/3min, v1 was 60s/10min)
     params:
       debounce_seconds: 30
-      cooldown_seconds: 180
+      cooldown_seconds: 45
       cooldown_bypass_triggers: [STAGE_TRANSITION]
 
   POL-TRIG-003:
     name: AI budgets
     category: trigger
-    rule: "Tier 1: 10 calls/user/day; Tier 2: 20 calls/user/day"
+    rule: >-
+      Tier 1: 30 calls/user/day; Tier 2: 40 calls/user/day — raised with the v1.3 cadence
+      (Decision #048; v1 was 10/20), so a faster demo does not exhaust the budget mid-journey
     params:
-      tier1_calls_per_user_per_day: 10
-      tier2_calls_per_user_per_day: 20
+      tier1_calls_per_user_per_day: 30
+      tier2_calls_per_user_per_day: 40
 
   POL-TRIG-004:
     name: Material change
@@ -292,11 +296,11 @@ policies:
     category: tracking
     rule: >-
       30 minutes of inactivity. A closed session with unprocessed high/medium activity raises
-      SESSION_END (Core 23); the platform looks for those boundaries every 5 minutes
-      (Decision #047).
+      SESSION_END (Core 23); the platform looks for those boundaries every 2 minutes
+      (Decision #047; sweep interval retuned in v1.3, Decision #048).
     params:
       inactivity_minutes: 30
-      end_sweep_interval_minutes: 5
+      end_sweep_interval_minutes: 2
 
   # ---- Learning, Decay & Journey Policies ----
 
