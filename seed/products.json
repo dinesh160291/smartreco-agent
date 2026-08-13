@@ -28,6 +28,7 @@
       "business_purpose": "Help crm teams work faster with sales pipeline at the core.",
       "business_value_narrative": "HubSpot CRM optimizes sales processes with tools for managing pipelines and enhancing customer interactions through live support.",
       "capabilities": [
+        "CAP-028",
         "CAP-029",
         "CAP-030",
         "CAP-031",
@@ -50,9 +51,7 @@
       "capabilities": [
         "CAP-028",
         "CAP-029",
-        "CAP-030",
-        "CAP-031",
-        "CAP-032"
+        "CAP-030"
       ],
       "fictional": false
     },
@@ -100,8 +99,6 @@
       "business_value_narrative": "Zendesk streamlines customer support with efficient contact management and ticketing features.",
       "capabilities": [
         "CAP-028",
-        "CAP-029",
-        "CAP-030",
         "CAP-031",
         "CAP-032"
       ],
@@ -151,9 +148,7 @@
       "business_purpose": "Help customer support teams work faster with contact management at the core.",
       "business_value_narrative": "Help Scout combines contact management with customer support ticketing for a streamlined support experience.",
       "capabilities": [
-        "CAP-028",
-        "CAP-029",
-        "CAP-030",
+        "CAP-019",
         "CAP-031",
         "CAP-032"
       ],
@@ -171,7 +166,6 @@
         "CAP-033",
         "CAP-034",
         "CAP-037",
-        "CAP-038",
         "CAP-039",
         "CAP-042"
       ],
@@ -207,10 +201,7 @@
         "CAP-035",
         "CAP-036",
         "CAP-037",
-        "CAP-038",
         "CAP-039",
-        "CAP-040",
-        "CAP-041",
         "CAP-042"
       ],
       "fictional": false
@@ -278,9 +269,8 @@
         "CAP-033",
         "CAP-034",
         "CAP-035",
-        "CAP-038",
         "CAP-039",
-        "CAP-040"
+        "CAP-042"
       ],
       "fictional": false
     },
@@ -326,7 +316,9 @@
       "business_purpose": "Help finance teams work faster with invoicing at the core.",
       "business_value_narrative": "Xero effortlessly manages invoicing and payment processing for efficient financial operations.",
       "capabilities": [
+        "CAP-019",
         "CAP-038",
+        "CAP-040",
         "CAP-041",
         "CAP-042"
       ],
@@ -348,6 +340,7 @@
         "CAP-038",
         "CAP-039",
         "CAP-040",
+        "CAP-041",
         "CAP-042"
       ],
       "fictional": false
@@ -363,8 +356,6 @@
       "capabilities": [
         "CAP-038",
         "CAP-039",
-        "CAP-040",
-        "CAP-041",
         "CAP-042"
       ],
       "fictional": false
@@ -378,9 +369,9 @@
       "business_purpose": "Help finance teams work faster with expense management at the core.",
       "business_value_narrative": "Expensify streamlines expense management and reporting, making financial oversight simpler.",
       "capabilities": [
+        "CAP-019",
         "CAP-039",
-        "CAP-040",
-        "CAP-041"
+        "CAP-042"
       ],
       "fictional": false
     },
@@ -393,8 +384,8 @@
       "business_purpose": "Help finance teams work faster with invoicing at the core.",
       "business_value_narrative": "Ramp enhances financial operations through comprehensive general ledger management and streamlined invoicing.",
       "capabilities": [
-        "CAP-038",
-        "CAP-040",
+        "CAP-019",
+        "CAP-039",
         "CAP-041",
         "CAP-042"
       ],
@@ -409,9 +400,7 @@
       "business_purpose": "Help finance teams work faster with invoicing at the core.",
       "business_value_narrative": "Brex enables efficient expense management while providing robust budgeting tools for financial control.",
       "capabilities": [
-        "CAP-038",
         "CAP-039",
-        "CAP-040",
         "CAP-041",
         "CAP-042"
       ],
@@ -430,7 +419,6 @@
         "CAP-016",
         "CAP-019",
         "CAP-038",
-        "CAP-039",
         "CAP-042"
       ],
       "fictional": false
@@ -444,10 +432,9 @@
       "business_purpose": "Help finance teams work faster with invoicing at the core.",
       "business_value_narrative": "Bill.com streamlines financial processes, enhancing efficiency in invoicing and expense management for businesses of all sizes.",
       "capabilities": [
+        "CAP-019",
         "CAP-038",
-        "CAP-039",
-        "CAP-040",
-        "CAP-041"
+        "CAP-042"
       ],
       "fictional": false
     },
@@ -872,6 +859,7 @@
       "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
       "business_value_narrative": "Looker Studio enables effective data visualization and analysis, supporting informed decisions and strategic planning.",
       "capabilities": [
+        "CAP-016",
         "CAP-019",
         "CAP-053"
       ],
@@ -887,6 +875,7 @@
       "business_value_narrative": "Mode Analytics offers comprehensive data visualization tools, facilitating easier analysis and insights for businesses.",
       "capabilities": [
         "CAP-019",
+        "CAP-022",
         "CAP-053"
       ],
       "fictional": false
@@ -999,6 +988,7 @@
       "business_value_narrative": "Amplitude supports companies in analyzing user behavior through intuitive data visualizations and reporting mechanisms.",
       "capabilities": [
         "CAP-019",
+        "CAP-047",
         "CAP-053"
       ],
       "fictional": false
@@ -1195,10 +1185,10 @@
       "business_purpose": "Help collaboration teams work faster with messaging at the core.",
       "business_value_narrative": "Miro facilitates remote collaboration through integrated messaging and document-sharing solutions for teams.",
       "capabilities": [
-        "CAP-005",
-        "CAP-006",
         "CAP-007",
-        "CAP-009"
+        "CAP-009",
+        "CAP-056",
+        "CAP-057"
       ],
       "fictional": false
     },
@@ -1211,10 +1201,9 @@
       "business_purpose": "Help design teams work faster with messaging at the core.",
       "business_value_narrative": "Figma enhances team collaboration in design with integrated tools for messaging and file sharing.",
       "capabilities": [
-        "CAP-005",
-        "CAP-006",
         "CAP-007",
-        "CAP-009"
+        "CAP-009",
+        "CAP-057"
       ],
       "fictional": false
     },
@@ -1325,10 +1314,10 @@
       "business_purpose": "Help content management teams work faster with integration connectors at the core.",
       "business_value_narrative": "PandaDoc enables dynamic content management through robust API integration and event-driven workflows.",
       "capabilities": [
-        "CAP-016",
-        "CAP-017",
-        "CAP-018",
-        "CAP-019"
+        "CAP-007",
+        "CAP-009",
+        "CAP-019",
+        "CAP-057"
       ],
       "fictional": false
     },
@@ -1685,7 +1674,6 @@
       "capabilities": [
         "CAP-005",
         "CAP-006",
-        "CAP-007",
         "CAP-009"
       ],
       "fictional": false
@@ -1699,10 +1687,9 @@
       "business_purpose": "Help collaboration teams work faster with messaging at the core.",
       "business_value_narrative": "GoTo Meeting facilitates seamless collaboration with effective tools for messaging and document sharing.",
       "capabilities": [
-        "CAP-005",
         "CAP-006",
-        "CAP-007",
-        "CAP-009"
+        "CAP-009",
+        "CAP-019"
       ],
       "fictional": false
     },
@@ -1957,8 +1944,8 @@
       "capabilities": [
         "CAP-016",
         "CAP-017",
-        "CAP-018",
-        "CAP-019"
+        "CAP-019",
+        "CAP-024"
       ],
       "fictional": false
     },

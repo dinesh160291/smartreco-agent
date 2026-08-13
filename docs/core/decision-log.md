@@ -2930,3 +2930,79 @@ ecosystem genuinely are alike.
 
 The audit is a pass per domain, not a single change. This entry covers DevOps;
 the clusters above are the remaining work, in roughly that order of impact.
+
+---
+
+# Decision #063
+
+## Title
+
+Catalog audit, second pass: the remaining identical-profile clusters, and finance
+
+## Status
+
+Accepted (audit complete for real products)
+
+## Decision
+
+The five remaining identical-profile clusters are restated by what each product
+is: whiteboards separated from video conferencing, a sales CRM from support
+desks, spend management from accounting, an e-signature tool from automation
+platforms, product analytics from BI. Twenty-four products changed in total.
+
+The Finance and HR boundary is corrected in the same pass.
+
+## Rationale
+
+Each cluster was a capability domain copied wholesale onto every product in it.
+Figma, Miro, GoTo Meeting and Webex all held Messaging, Video Meetings,
+Document Collaboration and File Sharing — a design tool and a
+video-conferencing product, indistinguishable. Zendesk, Help Scout and
+Pipedrive all held the full CRM set, so a support desk claimed a sales
+pipeline. Brex, QuickBooks and FreshBooks all held the full finance set.
+
+**Two faults were found by the invariants, not by inspection**, which is the
+whole argument for having them:
+
+*Splitting CRM left REQ-006 with no coverer.* No product held all five CRM
+capabilities once support and sales were separated.
+`test_every_requirement_is_coverable` failed immediately. The honest fix was in
+the catalog, not the requirement: HubSpot CRM lacked **Contact Management**,
+which for a product that is fundamentally a contact database is a plain error.
+Restoring it gives REQ-006 exactly one coverer, and it is the right one.
+
+*Financial Management was won by a payroll product.* Gusto held all five
+finance capabilities — invoicing, general ledger, budgeting — while NetSuite, a
+full ERP, and QuickBooks Online, an accounting package, each fell one short.
+Payroll runs payments and reimburses expenses; it does not keep your ledger.
+NetSuite and QuickBooks now cover the requirement, and Gusto, Deel and Workday
+hold the two finance capabilities payroll genuinely has.
+
+**Removing without adding was avoided this time.** After two rounds of the same
+mistake (#061 and #062), each product's adjacent capabilities were restored in
+the same pass, and a check for products left under two capabilities now runs
+before the change is accepted. Expensify briefly fell to one and was given back
+reimbursement payments and its public API.
+
+## Consequences
+
+Every requirement is coverable and none is saturated. The winners are all
+plausible: Okta for identity, ServiceNow for workflow automation, HubSpot for
+CRM, NetSuite and QuickBooks for finance, GitLab for engineering delivery,
+Snowflake and Databricks for data.
+
+**Two identical profiles remain and are allowed to stand.** Bitbucket, CircleCI
+and Jenkins really are three hosted CI services with a public API and an
+integration ecosystem. Tableau, Power BI and Mode really are three BI tools with
+natural-language query. Products that are genuinely alike should look alike; the
+defect was never similarity, it was similarity between things that differ.
+
+**Eleven pairs still share a profile**, which is left alone for the same reason
+— at that scale it is indistinguishable from honest similarity, and forcing
+difference would be inventing capabilities, which is the fault this audit
+exists to remove.
+
+**The fictional products were not audited.** They hold generated three-capability
+sets by design and nobody can say they are wrong. If the catalog is ever cut to
+real products only, that decision stands on its own merits and is recorded in
+the session history rather than here.
