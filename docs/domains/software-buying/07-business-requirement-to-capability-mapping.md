@@ -1094,9 +1094,8 @@ REQ-010  Engineering Delivery
   Supporting  CAP-052 Container Orchestration
 
 REQ-011  Data & Insight
-  Primary     CAP-055 Data Warehousing / CAP-054 ETL Pipelines
-  Secondary   CAP-053 Data Visualization / CAP-022 Intelligent Search
-  Supporting  CAP-019 API Integration
+  Primary     CAP-054 ETL Pipelines / CAP-055 Data Warehousing
+  Secondary   CAP-053 Data Visualization
 
 REQ-012  Security Operations
   Primary     CAP-025 Threat Protection / CAP-026 Data Loss Prevention
@@ -1109,13 +1108,22 @@ AI Workflow Assistance. Both belong to existing requirements' domains, so
 mapping them means editing a frozen set. No product is stranded by their
 absence, so it is left as a separate decision.
 
-**REQ-011 reaches outside its own capability domain deliberately.** Data &
-Analytics holds three capabilities and 21 catalog products hold all three; a
-requirement of just those produced a 21-way tie at maximum coverage — correct
-and useless. Intelligent Search and API Integration discriminate and genuinely
-belong to getting insight out of data. `test_seed_catalog` pins the general
-rule: no requirement may be fully covered by more products than a Candidate Set
-can hold (POL-RETR-001 top_k).
+**REQ-011 stays inside its own capability domain (Decision #061).** It briefly
+did not: Intelligent Search and API Integration were added because a
+requirement of the three Data & Analytics capabilities alone was fully covered
+by 21 products — a tie at maximum coverage, correct and useless. That broke the
+tie and made the requirement *unsatisfiable*: nothing in the catalog reached
+5/5, so the true winner was capped at 80% and anything satisfiable outranked it.
+
+The tie was never about the requirement. All 21 products held all three because
+the catalog assigned the domain as a block — it said Tableau, Fivetran and
+BigQuery were the same product. With each restated as what it is, three
+capabilities discriminate perfectly well: two end-to-end platforms cover all
+three, warehouses and pipeline tools cover two, visualization tools cover one.
+
+`test_seed_catalog` pins both halves of the rule: no requirement may be fully
+covered by more products than a Candidate Set can hold (POL-RETR-001 top_k),
+and every requirement must be coverable by at least one.
 
 ---
 

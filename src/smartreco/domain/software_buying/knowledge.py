@@ -318,15 +318,22 @@ REQ_TO_CAP: dict[str, dict[str, str]] = {
         "CAP-050": "Secondary", "CAP-051": "Secondary",
         "CAP-052": "Supporting",
     },
-    # The Data & Analytics domain holds only three capabilities, and 21 catalog
-    # products hold all three — a requirement built from them alone produced a
-    # 21-way tie at 100%, which is a ranking that is correct and useless
-    # (test_seed_catalog caught it). Intelligent Search and API Integration are
-    # genuinely part of getting insight out of data, and they discriminate.
+    # Move the data, store it, show it — the three things a shopper means by
+    # "data and insight", and nothing borrowed from another domain.
+    #
+    # It was briefly five, with Intelligent Search and API Integration added to
+    # break a 21-way tie at 100%. That fixed the tie and made the requirement
+    # *unsatisfiable*: no product in 250 could reach 5/5, so the true winner was
+    # capped at 80% while anything satisfiable beat it (Decision #061).
+    #
+    # The tie was never really about the requirement. All 21 products held all
+    # three capabilities because the catalog assigned the Data & Analytics
+    # domain as a block — it said Tableau, Fivetran and BigQuery were the same
+    # product. With each restated as what it is, three capabilities discriminate
+    # perfectly well and only the end-to-end platforms cover all of them.
     "REQ-011": {
-        "CAP-055": "Primary", "CAP-054": "Primary",
-        "CAP-053": "Secondary", "CAP-022": "Secondary",
-        "CAP-019": "Supporting",
+        "CAP-054": "Primary", "CAP-055": "Primary",
+        "CAP-053": "Secondary",
     },
     # Four capabilities stranded inside the *original* domains. Housing them in
     # a new requirement reaches them without editing a frozen set.

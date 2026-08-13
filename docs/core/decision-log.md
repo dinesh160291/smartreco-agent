@@ -2743,3 +2743,95 @@ and the Candidate Set is a Runtime Object that has to explain itself.
 `max_guaranteed`. That is a deliberate widening of what the Candidate Set is: a
 top_k drawn by similarity, plus a bounded set drawn by exact coverage. Ranking
 is unchanged and still decides the order.
+
+---
+
+# Decision #061
+
+## Title
+
+A requirement nothing can cover is as broken as one everything covers — Data & Insight restored to three capabilities
+
+## Status
+
+Accepted
+
+## Decision
+
+REQ-011 Data & Insight returns to the three Data & Analytics capabilities:
+ETL Pipelines and Data Warehousing Primary, Data Visualization Secondary.
+Intelligent Search and API Integration are removed.
+
+The three capabilities are no longer assigned as a block. Twenty-one products
+held all three; each is now restated as what it actually is, and connective and
+AI capabilities they genuinely have were added in the same pass.
+
+`test_every_requirement_is_coverable` pins the missing half of the invariant.
+
+## Rationale
+
+Finding 5 of the trace review. No product in 250 could cover Data & Insight —
+the best was 4 of 5 — so the honest winner was capped at 80% and any
+satisfiable requirement beat it. An analytics shopper's top recommendation was
+Datadog, a DevOps monitoring tool, at 60%.
+
+Self-inflicted, and recently. The requirement was drafted from the three
+Data & Analytics capabilities, `test_every_requirement_discriminates` caught a
+21-way tie at 100%, and two capabilities from other domains were added to break
+it. The tie went away and a worse fault arrived in its place: **the guard
+checked that a requirement was not too easy to cover and never checked that it
+could be covered at all.**
+
+**The tie was never about the requirement.** All 21 products held all three
+capabilities because the catalog assigned the Data & Analytics domain as a
+block. It said Tableau, Fivetran and BigQuery were the same product — eleven
+products had that identical three-capability profile and nothing else. Adding
+capabilities to the requirement was treating the symptom; the disease was that
+the catalog could not tell a visualization tool from a pipeline tool.
+
+Restated by what each product actually does:
+
+| | |
+|---|---|
+| End-to-end platforms | Databricks, Snowflake — move it, store it, show it |
+| Warehouse-first | BigQuery |
+| Movement and transformation | Fivetran, Airbyte, Segment, dbt Cloud |
+| Presentation | Tableau, Power BI, Looker Studio, Mode, Amplitude, Mixpanel |
+| Dashboards only | Grafana, Datadog, Splunk |
+| Not data platforms at all | Airtable, Smartsheet, Klaviyo, Semrush |
+
+The last row matters most: a spreadsheet and an SEO tool were *fully covering*
+"Data & Insight". That is the same defect as Decision #058's Linear and n8n
+covering Engineering Delivery.
+
+**Removing alone would have been worse.** The first pass stripped what products
+did not do and left Tableau and Fivetran holding one capability each — accurate
+and useless. The change only works because each product also gained the
+connective and AI capabilities it genuinely has: connectors for the pipeline
+tools, natural-language query for Tableau and Power BI, API integration
+throughout.
+
+## Consequences
+
+Data & Insight is covered by exactly two products, Databricks and Snowflake,
+against a Candidate Set of eight — satisfiable and discriminating. An analytics
+journey now ranks Databricks, Snowflake, BigQuery, which is the answer a person
+would give.
+
+**The invariant gained its second half.** `test_every_requirement_discriminates`
+forbids a requirement covered by more products than a Candidate Set can hold;
+`test_every_requirement_is_coverable` now forbids one covered by none. Verified
+by restoring the five-capability definition and watching it fail.
+
+**Intelligent Search is no longer stranded.** It was borrowed into REQ-011
+because no analytics product held it; Tableau and Power BI now do, on the
+strength of Ask Data and Q&A, so the capability describes something real
+instead of being a tie-breaker.
+
+**Twenty-one products were re-embedded** through `save_product`, so the vector
+index moved with the relational rows. All 250 remain SYNCED.
+
+This is the third catalog-plausibility finding (#053 Work Management, #058
+Splunk/Linear/n8n, this one). All three were found because a ranking made them
+visible, never by inspection. The systematic audit is still outstanding and is
+now clearly the highest-value remaining work on the catalog.

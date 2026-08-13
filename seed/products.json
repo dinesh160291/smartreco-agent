@@ -477,12 +477,10 @@
       "business_purpose": "Help marketing teams work faster with social media management at the core.",
       "business_value_narrative": "Klaviyo provides tools for social media management and data visualization, helping brands optimize their marketing strategies.",
       "capabilities": [
+        "CAP-019",
         "CAP-045",
         "CAP-046",
-        "CAP-047",
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-047"
       ],
       "fictional": false
     },
@@ -563,14 +561,12 @@
       "business_purpose": "Help marketing teams work faster with email campaigns at the core.",
       "business_value_narrative": "Semrush offers an integrated platform for managing email campaigns and social media, optimizing marketing efforts across channels.",
       "capabilities": [
+        "CAP-019",
         "CAP-043",
         "CAP-044",
         "CAP-045",
         "CAP-046",
-        "CAP-047",
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-047"
       ],
       "fictional": false
     },
@@ -704,13 +700,12 @@
       "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
       "business_value_narrative": "Datadog enhances infrastructure monitoring and incident response capabilities for more reliable software applications.",
       "capabilities": [
+        "CAP-019",
         "CAP-048",
         "CAP-049",
         "CAP-050",
         "CAP-051",
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-053"
       ],
       "fictional": false
     },
@@ -740,12 +735,11 @@
       "business_purpose": "Help devops teams work faster with log management at the core.",
       "business_value_narrative": "Grafana Cloud enables data visualization and log management, assisting teams in monitoring application performance effectively.",
       "capabilities": [
+        "CAP-019",
         "CAP-050",
         "CAP-051",
         "CAP-052",
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-053"
       ],
       "fictional": false
     },
@@ -759,6 +753,7 @@
       "business_value_narrative": "Splunk enhances security through encryption and threat protection while providing robust CI/CD pipeline capabilities.",
       "capabilities": [
         "CAP-011",
+        "CAP-022",
         "CAP-025",
         "CAP-026",
         "CAP-048",
@@ -766,9 +761,7 @@
         "CAP-050",
         "CAP-051",
         "CAP-052",
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-053"
       ],
       "fictional": false
     },
@@ -861,9 +854,9 @@
       "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
       "business_value_narrative": "Tableau enables organizations to visualize data effectively while streamlining ETL pipelines and data warehousing.",
       "capabilities": [
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-019",
+        "CAP-022",
+        "CAP-053"
       ],
       "fictional": false
     },
@@ -876,9 +869,9 @@
       "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
       "business_value_narrative": "Power BI streamlines data visualization and analysis, enhancing decision-making processes for organizations.",
       "capabilities": [
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-019",
+        "CAP-022",
+        "CAP-053"
       ],
       "fictional": false
     },
@@ -891,9 +884,8 @@
       "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
       "business_value_narrative": "Looker Studio enables effective data visualization and analysis, supporting informed decisions and strategic planning.",
       "capabilities": [
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-019",
+        "CAP-053"
       ],
       "fictional": false
     },
@@ -906,9 +898,8 @@
       "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
       "business_value_narrative": "Mode Analytics offers comprehensive data visualization tools, facilitating easier analysis and insights for businesses.",
       "capabilities": [
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-019",
+        "CAP-053"
       ],
       "fictional": false
     },
@@ -921,9 +912,9 @@
       "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
       "business_value_narrative": "Fivetran simplifies data integration, allowing organizations to focus on insightful analytics and strategic initiatives.",
       "capabilities": [
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-016",
+        "CAP-019",
+        "CAP-054"
       ],
       "fictional": false
     },
@@ -936,9 +927,9 @@
       "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
       "business_value_narrative": "Airbyte provides efficient data integration capabilities, which empower teams to transform datasets for actionable insights.",
       "capabilities": [
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-016",
+        "CAP-019",
+        "CAP-054"
       ],
       "fictional": false
     },
@@ -951,9 +942,8 @@
       "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
       "business_value_narrative": "dbt Cloud enhances data modeling and analytics efficiency, supporting robust business intelligence strategies.",
       "capabilities": [
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-019",
+        "CAP-054"
       ],
       "fictional": false
     },
@@ -967,6 +957,7 @@
       "business_value_narrative": "Snowflake provides secure data management solutions, helping organizations safeguard data while enabling insightful analysis.",
       "capabilities": [
         "CAP-011",
+        "CAP-019",
         "CAP-025",
         "CAP-026",
         "CAP-053",
@@ -984,7 +975,7 @@
       "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
       "business_value_narrative": "BigQuery leverages powerful data analytics capabilities, streamlining data processing for agile business decisions.",
       "capabilities": [
-        "CAP-053",
+        "CAP-019",
         "CAP-054",
         "CAP-055"
       ],
@@ -999,6 +990,7 @@
       "business_purpose": "Help data & analytics teams work faster with ai chat at the core.",
       "business_value_narrative": "Databricks enhances productivity with AI-driven analytics tools, facilitating collaboration and efficient data processing.",
       "capabilities": [
+        "CAP-019",
         "CAP-020",
         "CAP-021",
         "CAP-023",
@@ -1018,9 +1010,8 @@
       "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
       "business_value_narrative": "Amplitude supports companies in analyzing user behavior through intuitive data visualizations and reporting mechanisms.",
       "capabilities": [
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-019",
+        "CAP-053"
       ],
       "fictional": false
     },
@@ -1033,9 +1024,8 @@
       "business_purpose": "Help data & analytics teams work faster with data visualization at the core.",
       "business_value_narrative": "Mixpanel empowers businesses with insights into user engagement and behavior, driving effective product strategies.",
       "capabilities": [
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-019",
+        "CAP-053"
       ],
       "fictional": false
     },
@@ -1052,9 +1042,7 @@
         "CAP-017",
         "CAP-018",
         "CAP-019",
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-054"
       ],
       "fictional": false
     },
@@ -1190,9 +1178,6 @@
         "CAP-017",
         "CAP-018",
         "CAP-019",
-        "CAP-053",
-        "CAP-054",
-        "CAP-055",
         "CAP-056"
       ],
       "fictional": false
@@ -1209,9 +1194,6 @@
         "CAP-015",
         "CAP-016",
         "CAP-019",
-        "CAP-053",
-        "CAP-054",
-        "CAP-055",
         "CAP-056"
       ],
       "fictional": false
@@ -3922,9 +3904,7 @@
       "business_purpose": "Give marketing teams data visualization without the overhead.",
       "business_value_narrative": "DriftReach gives marketing teams a dependable home for their work, leading with data visualization, etl pipelines, data warehousing.",
       "capabilities": [
-        "CAP-053",
-        "CAP-054",
-        "CAP-055"
+        "CAP-053"
       ],
       "fictional": true
     }

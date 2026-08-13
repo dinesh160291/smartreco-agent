@@ -167,3 +167,26 @@ def test_narratives_are_clean(seed):
         assert narrative and len(narrative) < 300
         for banned in ("CAP-", "REQ-", "PROD-"):
             assert banned not in narrative
+
+
+def test_every_requirement_is_coverable(seed):
+    """The other half of discrimination: a requirement no product can satisfy
+    is as useless as one every product satisfies (Decision #061).
+
+    REQ-011 spent a version at five capabilities, two of them borrowed from
+    other domains to break a 21-way tie. Nothing in 250 products reached 5/5,
+    so the honest winner was capped at 80% and any satisfiable requirement
+    outranked it — an analytics shopper was shown a DevOps monitoring tool
+    first. The tie it was solving had a different cause: the catalog assigned
+    the Data & Analytics domain as a block.
+    """
+    products = seed["products"] + list(CANONICAL_PRODUCTS)
+    uncoverable = {}
+    for req_id, required in REQ_TO_CAP.items():
+        need = set(required)
+        best = max(len(need & set(p["capabilities"])) for p in products)
+        if best < len(need):
+            uncoverable[req_id] = f"best {best}/{len(need)}"
+    assert not uncoverable, (
+        f"no product can fully cover these requirements: {uncoverable} — "
+        "their true winner is capped below 100% and loses to any satisfiable one")

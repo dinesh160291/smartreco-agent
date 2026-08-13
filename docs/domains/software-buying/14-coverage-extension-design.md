@@ -9,12 +9,20 @@ the authoritative versions.
 **Two things changed between proposal and implementation, both because a test
 disagreed with the table:**
 
-1. **REQ-011 Data & Insight gained two capabilities.** Drafted from the three
-   Data & Analytics capabilities alone, it was fully covered by 21 catalog
-   products — a 21-way tie at 100%, a ranking that is correct and useless.
-   Intelligent Search and API Integration were added, and a new invariant with
-   it: no requirement may be fully covered by more products than a Candidate Set
-   can hold.
+1. **REQ-011 Data & Insight gained two capabilities, then gave them back.**
+   Drafted from the three Data & Analytics capabilities alone, it was fully
+   covered by 21 catalog products — a 21-way tie at 100%, a ranking that is
+   correct and useless. Intelligent Search and API Integration were added, and a
+   new invariant with it: no requirement may be fully covered by more products
+   than a Candidate Set can hold.
+
+   That fixed the tie and created a worse fault — the requirement became
+   unsatisfiable, capping its true winner at 80% while anything satisfiable beat
+   it. Decision #061 restored the three-capability definition and fixed the real
+   cause: the catalog was assigning the Data & Analytics domain as a block, so
+   21 products were identical by construction. The invariant survives and gained
+   a second half: every requirement must also be coverable by at least one
+   product.
 2. **BP-019 lost its certifications clause.** That topic already qualifies
    BP-004 Compliance Evaluation, and handing one page to two patterns is exactly
    how one journey's evidence publishes another journey's need.
