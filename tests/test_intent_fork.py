@@ -288,3 +288,78 @@ def test_for_you_shows_the_abandoned_journey_without_ranking_it(
             assert banned not in html, f"{banned} code leaked onto a shopper surface"
     finally:
         web._state.clear()
+
+
+# --- A dwell heartbeat must not decide which journey a run reasons about ------
+# (Decision #066; found while auditing the 95 events stuck at processed_at NULL)
+
+def test_low_signal_events_are_stamped_processed_once_consumed(
+        seeded, chroma, backend, policies, fake_gateway):
+    """`data-model.md`: processed_at is "set when behavioral reasoning consumed
+    it". Dwell is consumed — BP-001 sums security dwell to reach Strong — but
+    only the high/medium slice was ever stamped, so every dwell heartbeat a
+    shopper ever emitted stayed pending for the life of the database.
+    """
+    db = seeded
+    user = _user(db, "dwell-stamp@example.com")
+    _insert(db, user.id, "dwell-s1", DAY, _analytics("j") + [
+        ("j7", "DWELL", "LOW", {"topic": "security", "seconds": 45})])
+    run = _run(db, chroma, backend, policies, user, fake_gateway, DAY + timedelta(minutes=2))
+    assert run.status == "COMPLETED"
+
+    pending = db.execute(select(models.Event).where(
+        models.Event.user_id == user.id,
+        models.Event.processed_at.is_(None))).scalars().all()
+    assert pending == [], (
+        f"{len(pending)} event(s) still pending after a completed run: "
+        f"{[e.event_type for e in pending]}")
+
+
+def test_a_stale_dwell_does_not_route_a_run_to_an_abandoned_journey(
+        seeded, chroma, backend, policies, fake_gateway):
+    """The consequence, and the reason this is not bookkeeping.
+
+    Journey ownership for a run is the journey of the newest *unprocessed*
+    event. With dwell never stamped, the only pending events are dwell
+    heartbeats — so a trigger that carries no condition of its own (SCHEDULED,
+    the daily digest) reasons about whichever journey last had a heartbeat.
+    For a shopper who has forked, that is the subject they walked away from.
+    """
+    db = seeded
+    user = _user(db, "dwell-route@example.com")
+    s = "dwell-s2"
+
+    _insert(db, user.id, s, DAY, _analytics("k") + [
+        ("k7", "DWELL", "LOW", {"topic": "security", "seconds": 30})])
+    _run(db, chroma, backend, policies, user, fake_gateway, DAY + timedelta(minutes=2))
+    abandoned = _journeys(db, user)[0].journey_id
+
+    _switch_to_devops(db, chroma, backend, policies, user, fake_gateway, s, "l",
+                      DAY + timedelta(minutes=5))
+    assert len(_journeys(db, user)) == 2, "precondition: the session should have forked"
+
+    scheduled = run_workflow(db, chroma, backend, policies, user.id, "SCHEDULED",
+                             now=DAY + timedelta(minutes=30), gateway=fake_gateway)
+    assert scheduled.journey_id != abandoned, (
+        "a dwell heartbeat from before the fork pulled the run back onto the "
+        "journey the shopper left")
+
+
+def test_dwell_heartbeats_alone_never_trigger_a_run(
+        seeded, chroma, backend, policies, fake_gateway):
+    """POL-TRIG-001 counts unprocessed *high/medium*-signal events, and Law 9
+    forbids an AI call per raw event. Dwell is sampled by heartbeat, so if it
+    counted toward the accumulation threshold a shopper sitting still on one
+    page would trigger runs indefinitely.
+
+    This is the guard on the distinction Decision #066 introduced: the stamp
+    covers every pending event, the trigger gate still sees only high/medium.
+    """
+    db = seeded
+    user = _user(db, "dwell-trigger@example.com")
+    _insert(db, user.id, "dwell-s3", DAY, [
+        (f"m{i}", "DWELL", "LOW", {"topic": "security", "seconds": 20})
+        for i in range(6)])   # twice POL-TRIG-001's threshold
+
+    run = _run(db, chroma, backend, policies, user, fake_gateway, DAY + timedelta(minutes=2))
+    assert run.status == "SKIPPED", f"dwell heartbeats triggered a run: {run.gates}"

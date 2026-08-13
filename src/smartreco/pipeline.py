@@ -943,14 +943,19 @@ def run_workflow(
     run_id = f"WR-{uuid.uuid4().hex[:12]}"
 
     # --- Trigger gates ---
+    # Everything pending, because everything pending is what the reasoning
+    # below will read. Signal class decides what may *trigger* a run (Core 22:
+    # "signal class is domain knowledge consumed by Execution Triggers"), not
+    # what counts as consumed — so the gates below look at the high/medium
+    # slice while the stamp at the end covers the lot (Decision #066).
     unprocessed = db.execute(
         select(models.Event).where(
             models.Event.user_id == user_id,
-            models.Event.processed_at.is_(None),
-            models.Event.signal_class.in_(("HIGH", "MEDIUM")))
+            models.Event.processed_at.is_(None))
     ).scalars().all()
+    high_medium = [e for e in unprocessed if e.signal_class in ("HIGH", "MEDIUM")]
     newest_age = min(
-        ((now - e.received_at).total_seconds() for e in unprocessed), default=1e9)
+        ((now - e.received_at).total_seconds() for e in high_medium), default=1e9)
     last_run_ts = db.execute(
         select(func.max(models.WorkflowRun.finished_at)).where(
             models.WorkflowRun.user_id == user_id,
@@ -963,7 +968,7 @@ def run_workflow(
     ).scalar()
 
     trigger_ctx = TriggerContext(
-        unprocessed_high_medium_events=len(unprocessed),
+        unprocessed_high_medium_events=len(high_medium),
         newest_event_age_seconds=newest_age,
         seconds_since_last_run=(now - last_run_ts).total_seconds() if last_run_ts else None,
         run_in_flight=bool(in_flight),

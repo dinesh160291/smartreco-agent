@@ -3153,3 +3153,61 @@ exists so the fix cannot degrade into "regression never fires".
 `apply_regression` takes the recorded stage as a second argument — the engine
 stays pure, and the orchestration reads the stored stage before deciding rather
 than after.
+
+---
+
+# Decision #066
+
+## Title
+
+Low-signal events are stamped processed; signal class gates triggering, not consumption
+
+## Status
+
+Accepted
+
+## Decision
+
+A completed workflow run stamps `processed_at` on **every** event it consumed,
+not only the high/medium-signal slice. The trigger gates continue to count
+high/medium events alone.
+
+## Rationale
+
+Ninety-five events in the demo database sat at `processed_at IS NULL`, every one
+of them a dwell heartbeat, going back to the first session ever recorded. One
+query built the trigger-gate count *and* the stamp list, and it filtered to
+`signal_class IN ('HIGH','MEDIUM')` — correct for the gate, wrong for the stamp.
+`data-model.md` defines the field as "set when behavioral reasoning consumed
+it", and dwell is consumed: BP-001 sums security dwell to reach Strong.
+
+**The leak is not bookkeeping.** Journey ownership for a run is the journey of
+the newest *unprocessed* event. Once every high/medium event is stamped, the
+only pending events are heartbeats — so any trigger carrying no condition of its
+own resolves the run to whichever journey last had a dwell. SCHEDULED, the daily
+digest, is exactly such a trigger. For a shopper who has forked (#057), that is
+the subject they walked away from: two of the six live demo users were in that
+state, one of them with three journeys, pointing at the wrong one.
+
+**The two uses of signal class are genuinely different**, which is why they now
+read from different lists rather than one filtered query. Core 22: "signal class
+is domain knowledge consumed by Execution Triggers." It says what may *start* a
+run — Law 9's no-AI-call-per-raw-event, and heartbeats must never count toward
+POL-TRIG-001 or a shopper sitting still would trigger runs forever. It says
+nothing about what reasoning read. Conflating the two is what produced a
+distinction the code could not hold.
+
+## Consequences
+
+No event survives a completed run unprocessed, and the pending set is bounded by
+what has arrived since the last run rather than by the age of the database.
+
+A SCHEDULED run for a user with no new activity now resolves no journey and is
+SKIPPED, where before it silently reasoned about a heartbeat's journey. The
+digest is unaffected: it reads the latest Recommendation Package for the user's
+newest journey, which the accumulation runs already keep current.
+
+`test_dwell_heartbeats_alone_never_trigger_a_run` pins the half of the
+distinction nothing was guarding — six heartbeats, twice POL-TRIG-001's
+threshold, must not start a run. It was written because sabotaging the gate to
+count every pending event left all 363 tests green.
