@@ -236,6 +236,8 @@ The catalog's *scale, composition and seeding rules* are Domain Pack artifact 9,
 
 What stays platform: products are seeded through the standard dual-write path (relational → embed → vector upsert → SYNCED), never generated at runtime, and the vector index is always re-derivable from the relational store.
 
+Seeding is **convergent, and runs on every startup** — not once on an empty database. Each seeded product is compared against its stored row (the caller's fields plus the capability set); products that already match are skipped, so an unchanged catalog costs no embedding calls, and an edited one reaches the database without a manual step. The seed file is therefore the catalog's source of truth at all times, not merely at first boot (Decision #069).
+
 ---
 
 # Vector Index (Chroma)

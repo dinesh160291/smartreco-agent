@@ -64,11 +64,14 @@ def _init_state():
         _state["gateway"] = None  # deterministic service continues (Core 21/23)
     with _state["session_factory"]() as db:
         seed_capabilities(db)
-        if db.query(models.Product).count() == 0:
-            from smartreco.seeding import seed_canonical_products, seed_demo_catalog
+        # Unconditionally, not only on an empty database: the seeders skip
+        # every product that already matches, so this costs nothing when the
+        # catalog has not moved and picks up edits when it has. Gating on
+        # "count() == 0" froze the catalog at first boot (Decision #069).
+        from smartreco.seeding import seed_canonical_products, seed_demo_catalog
 
-            seed_canonical_products(db, _state["chroma"], _state["backend"])
-            seed_demo_catalog(db, _state["chroma"], _state["backend"])
+        seed_canonical_products(db, _state["chroma"], _state["backend"])
+        seed_demo_catalog(db, _state["chroma"], _state["backend"])
         reconcile_pending(db, _state["chroma"], _state["backend"])
         _bootstrap_admin(db)
 

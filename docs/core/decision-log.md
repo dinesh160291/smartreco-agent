@@ -3348,3 +3348,73 @@ passes verified capability assignments against each other and never once asked
 whether the sentences describing them still held. A catalog invariant that reads
 only structured fields cannot see prose drift, and prose is half of what the
 index is built from.
+
+---
+
+# Decision #069
+
+## Title
+
+Seeding is convergent and runs every startup; the catalog no longer freezes at first boot
+
+## Status
+
+Accepted
+
+## Decision
+
+`seed_canonical_products` and `seed_demo_catalog` compare each seed entry with
+its stored row and write only what differs. Startup calls both unconditionally
+rather than only when the products table is empty.
+
+## Rationale
+
+`seed_demo_catalog` began each product with `if db.get(...) is not None:
+continue`, and startup ran it only `if db.query(models.Product).count() == 0`.
+Together those meant **a demo database that had booted once never took another
+catalog edit** — not on restart, not ever.
+
+Demonstrated rather than deduced: writing a sentinel description into
+`seed/products.json` and running the seeder against the live demo database
+reported "inserted: 0" and left the stored description untouched.
+
+This is why three passes of catalog audit — #062, #063, #064 — each needed a
+hand-written re-embed script to reach the running demo, and why Decision #068's
+prose fix needed a fourth. Four ad-hoc scripts is not four accidents; it is the
+seeding path telling us it did not work, four times, and being answered with a
+workaround each time. The catalog audit's whole premise was that
+`seed/products.json` is the source of truth, and for a booted database it was
+not.
+
+**The skip existed for a real reason and is kept.** Re-saving 250 products on
+every boot spends one embedding call each against the configured provider. The
+fix is to skip on *equality* rather than on *existence*: `product_matches_seed`
+compares the caller's fields and the capability set, so an unchanged catalog
+still costs nothing. Measured on the live database: a one-product edit wrote
+exactly one product, and a second pass wrote none.
+
+**Fields are the caller's, not the function's.** The canonical roster carries no
+`business_value_narrative`; comparing a field the caller does not supply would
+make all ten canonical products look stale on every boot and re-embed them
+forever. A stored NULL and an absent key both read as "nothing here" for the
+same reason.
+
+**Unsynced rows are never skipped**, whatever their fields say: a product whose
+vector write failed is PENDING or FAILED and must be re-attempted, which is what
+`reconcile_pending` is for and what an equality check alone would defeat.
+
+## Consequences
+
+Editing `seed/products.json` and restarting is now sufficient to move the demo
+catalog. No re-embed script is needed, and the four written so far are
+superseded.
+
+The predicate is pure and tested directly, so the 240-product catalog stays out
+of the automated tests as fixture separation requires.
+
+**What this says about the previous four decisions.** Their *data* was correct —
+the store and index were verified against the seed file each time. What was
+wrong is that verification depended on remembering to run a script, and a
+correctness property that depends on remembering is not a property. The audit
+kept finding drift because the mechanism that was supposed to prevent it had
+been switched off since the first boot.
