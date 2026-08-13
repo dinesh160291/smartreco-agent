@@ -3006,3 +3006,82 @@ exists to remove.
 sets by design and nobody can say they are wrong. If the catalog is ever cut to
 real products only, that decision stands on its own merits and is recorded in
 the session history rather than here.
+
+---
+
+# Decision #064
+
+## Title
+
+Catalog audit, third pass: fictional products in the wrong domain, at unchanged depth
+
+## Status
+
+Accepted (catalog audit complete)
+
+## Decision
+
+Forty-four fictional products held no capability from their own category's
+domain and are re-drawn from it — at the **same depth**, and never taking a
+domain's complete set. Their descriptions are regenerated from the new
+capability list. Twelve further fictional products had descriptions that had
+drifted from their capabilities since Decision #053; those are regenerated too.
+
+## Rationale
+
+A third of the fictional catalog was mislabelled rather than shallow. A
+"Data & Analytics platform" whose capabilities were Intelligent Search,
+Document Summarization and AI Workflow Assistance. A "CRM" with no CRM
+capability. Six DevOps products that did nothing related to delivery. After the
+real-product audit, exactly one real product had that fault; forty-four
+fictional ones did.
+
+**Depth was deliberately not changed.** The alternative considered was
+reshaping the fictional set to match the real distribution — average 3.2
+capabilities against 5.6, and no fictional product above six. It was rejected
+on three grounds:
+
+- **Coverage ranking rewards breadth, and the tie-break is total capability
+  count.** A broadened distractor would tie a real product at 100% and then win
+  the tie. "QuillWatch" above Datadog is a worse outcome than any realism gain.
+- **Saturation.** Engineering Delivery has one full coverer and Data & Insight
+  two; broadening 125 products would push several requirements past what a
+  Candidate Set can hold, and the only remedy would be trimming them again.
+- Doc 12 already says distractors get "deliberately partial capability sets so
+  canonical winners remain deterministic". Shallow is the design.
+
+The narrow fix raises plausibility without touching any of that: a three-
+capability distractor still loses to Databricks, it simply stops claiming to be
+something it is not.
+
+**The saturation risk was not hypothetical.** The first attempt drew each
+product a full-depth set from its own domain, which for the three-capability
+domains meant the complete set — seven fictional analytics products then
+covered Data & Insight completely and
+`test_every_requirement_discriminates` failed at nine coverers. The rule that
+fixes it is doc 12's own distractor constraint, generalised: **a fictional
+product never holds a domain's complete capability set.**
+
+**Descriptions had to move with the capabilities.** Fictional prose is
+templated from the capability list — "X is a devops platform offering A, B, C."
+Leaving it would have reproduced the GitHub defect from Decision #060, where a
+description naming a subset of what a product holds pulls its embedding toward
+the wrong half. Regenerating found twelve more products whose prose had drifted
+when Decision #053 added Workload Management without regenerating them: a
+pre-existing fault, found only because this pass compared the two.
+
+## Consequences
+
+No fictional product is in the wrong domain. Ninety-six distinct capability
+profiles across 125 products, so they remain distractors rather than clones.
+Every requirement is still coverable and none saturated.
+
+Fifty-six products were re-embedded — the forty-four re-drawn, the twelve with
+stale prose — so the vector index carries the corrected documents. All 250
+SYNCED.
+
+**The catalog audit is complete.** Real products across every domain (#062,
+#063), and fictional products for domain placement (this entry). What remains
+untouched by design: fictional capability *depth*, for the reasons above, and
+the eleven real-product pairs that share a profile, where forcing difference
+would mean inventing capabilities — the fault the audit existed to remove.

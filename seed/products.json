@@ -1972,13 +1972,13 @@
       "name": "FlowDesk",
       "vendor": "Flow Labs",
       "category": "CRM",
-      "description": "FlowDesk is a crm platform offering Workflow Automation, Integration Connectors, Event Triggers.",
-      "business_purpose": "Give crm teams workflow automation without the overhead.",
-      "business_value_narrative": "FlowDesk gives crm teams a dependable home for their work, leading with workflow automation, integration connectors, event triggers.",
+      "description": "FlowDesk is a crm platform offering Contact Management, Sales Pipeline, Lead Scoring.",
+      "business_purpose": "Give crm teams contact management without the overhead.",
+      "business_value_narrative": "FlowDesk gives crm teams a dependable home for their work, leading with contact management, sales pipeline, lead scoring.",
       "capabilities": [
-        "CAP-015",
-        "CAP-016",
-        "CAP-017"
+        "CAP-028",
+        "CAP-029",
+        "CAP-030"
       ],
       "fictional": true
     },
@@ -1987,13 +1987,13 @@
       "name": "FlowCrew",
       "vendor": "Flow Labs",
       "category": "HR",
-      "description": "FlowCrew is a hr platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning.",
-      "business_purpose": "Give hr teams single sign-on without the overhead.",
-      "business_value_narrative": "FlowCrew gives hr teams a dependable home for their work, leading with single sign-on, multi-factor authentication, scim provisioning.",
+      "description": "FlowCrew is a hr platform offering Applicant Tracking, Onboarding Workflows, Payroll Processing.",
+      "business_purpose": "Give hr teams applicant tracking without the overhead.",
+      "business_value_narrative": "FlowCrew gives hr teams a dependable home for their work, leading with applicant tracking, onboarding workflows, payroll processing.",
       "capabilities": [
-        "CAP-001",
-        "CAP-002",
-        "CAP-003"
+        "CAP-033",
+        "CAP-034",
+        "CAP-035"
       ],
       "fictional": true
     },
@@ -2002,13 +2002,13 @@
       "name": "FlowCount",
       "vendor": "Flow Labs",
       "category": "Finance",
-      "description": "FlowCount is a finance platform offering Workflow Automation, Integration Connectors, Event Triggers.",
-      "business_purpose": "Give finance teams workflow automation without the overhead.",
-      "business_value_narrative": "FlowCount gives finance teams a dependable home for their work, leading with workflow automation, integration connectors, event triggers.",
+      "description": "FlowCount is a finance platform offering Invoicing, Expense Management, General Ledger.",
+      "business_purpose": "Give finance teams invoicing without the overhead.",
+      "business_value_narrative": "FlowCount gives finance teams a dependable home for their work, leading with invoicing, expense management, general ledger.",
       "capabilities": [
-        "CAP-015",
-        "CAP-016",
-        "CAP-017"
+        "CAP-038",
+        "CAP-039",
+        "CAP-040"
       ],
       "fictional": true
     },
@@ -2017,13 +2017,13 @@
       "name": "FlowReach",
       "vendor": "Flow Labs",
       "category": "Marketing",
-      "description": "FlowReach is a marketing platform offering Workflow Automation, Integration Connectors, Event Triggers.",
-      "business_purpose": "Give marketing teams workflow automation without the overhead.",
-      "business_value_narrative": "FlowReach gives marketing teams a dependable home for their work, leading with workflow automation, integration connectors, event triggers.",
+      "description": "FlowReach is a marketing platform offering Email Campaigns, Marketing Automation, Social Media Management.",
+      "business_purpose": "Give marketing teams email campaigns without the overhead.",
+      "business_value_narrative": "FlowReach gives marketing teams a dependable home for their work, leading with email campaigns, marketing automation, social media management.",
       "capabilities": [
-        "CAP-015",
-        "CAP-016",
-        "CAP-017"
+        "CAP-043",
+        "CAP-044",
+        "CAP-045"
       ],
       "fictional": true
     },
@@ -2032,13 +2032,13 @@
       "name": "FlowWatch",
       "vendor": "Flow Labs",
       "category": "DevOps",
-      "description": "FlowWatch is a devops platform offering Encryption, Workflow Automation, Integration Connectors.",
-      "business_purpose": "Give devops teams encryption without the overhead.",
-      "business_value_narrative": "FlowWatch gives devops teams a dependable home for their work, leading with encryption, workflow automation, integration connectors.",
+      "description": "FlowWatch is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management.",
+      "business_purpose": "Give devops teams ci/cd pipelines without the overhead.",
+      "business_value_narrative": "FlowWatch gives devops teams a dependable home for their work, leading with ci/cd pipelines, infrastructure monitoring, log management.",
       "capabilities": [
-        "CAP-011",
-        "CAP-015",
-        "CAP-016"
+        "CAP-048",
+        "CAP-049",
+        "CAP-050"
       ],
       "fictional": true
     },
@@ -2047,13 +2047,12 @@
       "name": "FlowInsight",
       "vendor": "Flow Labs",
       "category": "Data & Analytics",
-      "description": "FlowInsight is a data & analytics platform offering Encryption, Workflow Automation, Integration Connectors.",
-      "business_purpose": "Give data & analytics teams encryption without the overhead.",
-      "business_value_narrative": "FlowInsight gives data & analytics teams a dependable home for their work, leading with encryption, workflow automation, integration connectors.",
+      "description": "FlowInsight is a data & analytics platform offering Data Visualization, ETL Pipelines.",
+      "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+      "business_value_narrative": "FlowInsight gives data & analytics teams a dependable home for their work, leading with data visualization, etl pipelines.",
       "capabilities": [
-        "CAP-011",
-        "CAP-015",
-        "CAP-016"
+        "CAP-053",
+        "CAP-054"
       ],
       "fictional": true
     },
@@ -2077,13 +2076,13 @@
       "name": "FlowChain",
       "vendor": "Flow Labs",
       "category": "Workflow Automation",
-      "description": "FlowChain is a workflow automation platform offering Audit Logging, Information Governance, Data Retention.",
-      "business_purpose": "Give workflow automation teams audit logging without the overhead.",
-      "business_value_narrative": "FlowChain gives workflow automation teams a dependable home for their work, leading with audit logging, information governance, data retention.",
+      "description": "FlowChain is a workflow automation platform offering Workflow Automation, Integration Connectors, Event Triggers.",
+      "business_purpose": "Give workflow automation teams workflow automation without the overhead.",
+      "business_value_narrative": "FlowChain gives workflow automation teams a dependable home for their work, leading with workflow automation, integration connectors, event triggers.",
       "capabilities": [
-        "CAP-010",
-        "CAP-012",
-        "CAP-013"
+        "CAP-015",
+        "CAP-016",
+        "CAP-017"
       ],
       "fictional": true
     },
@@ -2124,9 +2123,9 @@
       "name": "FlowSprint",
       "vendor": "Flow Labs",
       "category": "Productivity",
-      "description": "FlowSprint is a productivity platform offering Messaging, Video Meetings, Document Collaboration.",
+      "description": "FlowSprint is a productivity platform offering Messaging, Video Meetings, Document Collaboration, Workload Management.",
       "business_purpose": "Give productivity teams messaging without the overhead.",
-      "business_value_narrative": "FlowSprint gives productivity teams a dependable home for their work, leading with messaging, video meetings, document collaboration.",
+      "business_value_narrative": "FlowSprint gives productivity teams a dependable home for their work, leading with messaging, video meetings, document collaboration, workload management.",
       "capabilities": [
         "CAP-005",
         "CAP-006",
@@ -2200,13 +2199,13 @@
       "name": "NovaWatch",
       "vendor": "Nova Labs",
       "category": "DevOps",
-      "description": "NovaWatch is a devops platform offering Event Triggers, Business Rules, API Integration.",
-      "business_purpose": "Give devops teams event triggers without the overhead.",
-      "business_value_narrative": "NovaWatch gives devops teams a dependable home for their work, leading with event triggers, business rules, api integration.",
+      "description": "NovaWatch is a devops platform offering Infrastructure Monitoring, Log Management, Incident Response.",
+      "business_purpose": "Give devops teams infrastructure monitoring without the overhead.",
+      "business_value_narrative": "NovaWatch gives devops teams a dependable home for their work, leading with infrastructure monitoring, log management, incident response.",
       "capabilities": [
-        "CAP-017",
-        "CAP-018",
-        "CAP-019"
+        "CAP-049",
+        "CAP-050",
+        "CAP-051"
       ],
       "fictional": true
     },
@@ -2215,13 +2214,12 @@
       "name": "NovaInsight",
       "vendor": "Nova Labs",
       "category": "Data & Analytics",
-      "description": "NovaInsight is a data & analytics platform offering Event Triggers, Business Rules, API Integration.",
-      "business_purpose": "Give data & analytics teams event triggers without the overhead.",
-      "business_value_narrative": "NovaInsight gives data & analytics teams a dependable home for their work, leading with event triggers, business rules, api integration.",
+      "description": "NovaInsight is a data & analytics platform offering ETL Pipelines, Data Warehousing.",
+      "business_purpose": "Give data & analytics teams etl pipelines without the overhead.",
+      "business_value_narrative": "NovaInsight gives data & analytics teams a dependable home for their work, leading with etl pipelines, data warehousing.",
       "capabilities": [
-        "CAP-017",
-        "CAP-018",
-        "CAP-019"
+        "CAP-054",
+        "CAP-055"
       ],
       "fictional": true
     },
@@ -2292,9 +2290,9 @@
       "name": "NovaSprint",
       "vendor": "Nova Labs",
       "category": "Productivity",
-      "description": "NovaSprint is a productivity platform offering File Sharing, Workflow Automation, Integration Connectors.",
+      "description": "NovaSprint is a productivity platform offering File Sharing, Workflow Automation, Integration Connectors, Workload Management.",
       "business_purpose": "Give productivity teams file sharing without the overhead.",
-      "business_value_narrative": "NovaSprint gives productivity teams a dependable home for their work, leading with file sharing, workflow automation, integration connectors.",
+      "business_value_narrative": "NovaSprint gives productivity teams a dependable home for their work, leading with file sharing, workflow automation, integration connectors, workload management.",
       "capabilities": [
         "CAP-009",
         "CAP-015",
@@ -2383,13 +2381,12 @@
       "name": "BrightInsight",
       "vendor": "Bright Labs",
       "category": "Data & Analytics",
-      "description": "BrightInsight is a data & analytics platform offering AI Chat, Content Generation, Intelligent Search.",
-      "business_purpose": "Give data & analytics teams ai chat without the overhead.",
-      "business_value_narrative": "BrightInsight gives data & analytics teams a dependable home for their work, leading with ai chat, content generation, intelligent search.",
+      "description": "BrightInsight is a data & analytics platform offering Data Visualization, Data Warehousing.",
+      "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+      "business_value_narrative": "BrightInsight gives data & analytics teams a dependable home for their work, leading with data visualization, data warehousing.",
       "capabilities": [
-        "CAP-020",
-        "CAP-021",
-        "CAP-022"
+        "CAP-053",
+        "CAP-055"
       ],
       "fictional": true
     },
@@ -2398,13 +2395,13 @@
       "name": "BrightSpace",
       "vendor": "Bright Labs",
       "category": "Collaboration",
-      "description": "BrightSpace is a collaboration platform offering Intelligent Search, Document Summarization, AI Workflow Assistance.",
-      "business_purpose": "Give collaboration teams intelligent search without the overhead.",
-      "business_value_narrative": "BrightSpace gives collaboration teams a dependable home for their work, leading with intelligent search, document summarization, ai workflow assistance.",
+      "description": "BrightSpace is a collaboration platform offering Messaging, Video Meetings, Document Collaboration.",
+      "business_purpose": "Give collaboration teams messaging without the overhead.",
+      "business_value_narrative": "BrightSpace gives collaboration teams a dependable home for their work, leading with messaging, video meetings, document collaboration.",
       "capabilities": [
-        "CAP-022",
-        "CAP-023",
-        "CAP-024"
+        "CAP-005",
+        "CAP-006",
+        "CAP-007"
       ],
       "fictional": true
     },
@@ -2459,9 +2456,9 @@
       "name": "BrightSprint",
       "vendor": "Bright Labs",
       "category": "Productivity",
-      "description": "BrightSprint is a productivity platform offering Event Triggers, Business Rules, API Integration.",
+      "description": "BrightSprint is a productivity platform offering Event Triggers, Business Rules, API Integration, Workload Management.",
       "business_purpose": "Give productivity teams event triggers without the overhead.",
-      "business_value_narrative": "BrightSprint gives productivity teams a dependable home for their work, leading with event triggers, business rules, api integration.",
+      "business_value_narrative": "BrightSprint gives productivity teams a dependable home for their work, leading with event triggers, business rules, api integration, workload management.",
       "capabilities": [
         "CAP-017",
         "CAP-018",
@@ -2550,13 +2547,12 @@
       "name": "QuillInsight",
       "vendor": "Quill Labs",
       "category": "Data & Analytics",
-      "description": "QuillInsight is a data & analytics platform offering Document Summarization, AI Workflow Assistance, Threat Protection.",
-      "business_purpose": "Give data & analytics teams document summarization without the overhead.",
-      "business_value_narrative": "QuillInsight gives data & analytics teams a dependable home for their work, leading with document summarization, ai workflow assistance, threat protection.",
+      "description": "QuillInsight is a data & analytics platform offering Data Visualization, ETL Pipelines.",
+      "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+      "business_value_narrative": "QuillInsight gives data & analytics teams a dependable home for their work, leading with data visualization, etl pipelines.",
       "capabilities": [
-        "CAP-023",
-        "CAP-024",
-        "CAP-025"
+        "CAP-053",
+        "CAP-054"
       ],
       "fictional": true
     },
@@ -2580,13 +2576,13 @@
       "name": "QuillChain",
       "vendor": "Quill Labs",
       "category": "Workflow Automation",
-      "description": "QuillChain is a workflow automation platform offering Compliance Reporting, CI/CD Pipelines, Infrastructure Monitoring.",
-      "business_purpose": "Give workflow automation teams compliance reporting without the overhead.",
-      "business_value_narrative": "QuillChain gives workflow automation teams a dependable home for their work, leading with compliance reporting, ci/cd pipelines, infrastructure monitoring.",
+      "description": "QuillChain is a workflow automation platform offering Integration Connectors, Event Triggers, Business Rules.",
+      "business_purpose": "Give workflow automation teams integration connectors without the overhead.",
+      "business_value_narrative": "QuillChain gives workflow automation teams a dependable home for their work, leading with integration connectors, event triggers, business rules.",
       "capabilities": [
-        "CAP-027",
-        "CAP-048",
-        "CAP-049"
+        "CAP-016",
+        "CAP-017",
+        "CAP-018"
       ],
       "fictional": true
     },
@@ -2595,9 +2591,9 @@
       "name": "QuillKey",
       "vendor": "Quill Labs",
       "category": "Identity & Access Management",
-      "description": "QuillKey is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation.",
+      "description": "QuillKey is a identity & access management platform offering Single Sign-On, Multi-Factor Authentication, SCIM Provisioning, Conditional Access, Identity Federation, API Integration.",
       "business_purpose": "Give identity & access management teams single sign-on without the overhead.",
-      "business_value_narrative": "QuillKey secures access management with features like single sign-on and multi-factor authentication.",
+      "business_value_narrative": "QuillKey gives identity & access management teams a dependable home for their work, leading with single sign-on, multi-factor authentication, scim provisioning, conditional access, identity federation, api integration.",
       "capabilities": [
         "CAP-001",
         "CAP-002",
@@ -2628,9 +2624,9 @@
       "name": "QuillSprint",
       "vendor": "Quill Labs",
       "category": "Productivity",
-      "description": "QuillSprint is a productivity platform offering AI Chat, Content Generation, Intelligent Search.",
+      "description": "QuillSprint is a productivity platform offering AI Chat, Content Generation, Intelligent Search, Workload Management.",
       "business_purpose": "Give productivity teams ai chat without the overhead.",
-      "business_value_narrative": "QuillSprint gives productivity teams a dependable home for their work, leading with ai chat, content generation, intelligent search.",
+      "business_value_narrative": "QuillSprint gives productivity teams a dependable home for their work, leading with ai chat, content generation, intelligent search, workload management.",
       "capabilities": [
         "CAP-020",
         "CAP-021",
@@ -2644,13 +2640,13 @@
       "name": "VertexDesk",
       "vendor": "Vertex Labs",
       "category": "CRM",
-      "description": "VertexDesk is a crm platform offering Social Media Management, SEO Analytics, A/B Testing.",
-      "business_purpose": "Give crm teams social media management without the overhead.",
-      "business_value_narrative": "VertexDesk gives crm teams a dependable home for their work, leading with social media management, seo analytics, a/b testing.",
+      "description": "VertexDesk is a crm platform offering Sales Pipeline, Lead Scoring, Customer Support Ticketing.",
+      "business_purpose": "Give crm teams sales pipeline without the overhead.",
+      "business_value_narrative": "VertexDesk gives crm teams a dependable home for their work, leading with sales pipeline, lead scoring, customer support ticketing.",
       "capabilities": [
-        "CAP-045",
-        "CAP-046",
-        "CAP-047"
+        "CAP-029",
+        "CAP-030",
+        "CAP-031"
       ],
       "fictional": true
     },
@@ -2659,13 +2655,13 @@
       "name": "VertexCrew",
       "vendor": "Vertex Labs",
       "category": "HR",
-      "description": "VertexCrew is a hr platform offering General Ledger, Budgeting & Forecasting, Payment Processing.",
-      "business_purpose": "Give hr teams general ledger without the overhead.",
-      "business_value_narrative": "VertexCrew gives hr teams a dependable home for their work, leading with general ledger, budgeting & forecasting, payment processing.",
+      "description": "VertexCrew is a hr platform offering Onboarding Workflows, Payroll Processing, Time & Attendance.",
+      "business_purpose": "Give hr teams onboarding workflows without the overhead.",
+      "business_value_narrative": "VertexCrew gives hr teams a dependable home for their work, leading with onboarding workflows, payroll processing, time & attendance.",
       "capabilities": [
-        "CAP-040",
-        "CAP-041",
-        "CAP-042"
+        "CAP-034",
+        "CAP-035",
+        "CAP-036"
       ],
       "fictional": true
     },
@@ -2674,13 +2670,13 @@
       "name": "VertexCount",
       "vendor": "Vertex Labs",
       "category": "Finance",
-      "description": "VertexCount is a finance platform offering Event Triggers, Business Rules, API Integration.",
-      "business_purpose": "Give finance teams event triggers without the overhead.",
-      "business_value_narrative": "VertexCount gives finance teams a dependable home for their work, leading with event triggers, business rules, api integration.",
+      "description": "VertexCount is a finance platform offering Expense Management, General Ledger, Budgeting & Forecasting.",
+      "business_purpose": "Give finance teams expense management without the overhead.",
+      "business_value_narrative": "VertexCount gives finance teams a dependable home for their work, leading with expense management, general ledger, budgeting & forecasting.",
       "capabilities": [
-        "CAP-017",
-        "CAP-018",
-        "CAP-019"
+        "CAP-039",
+        "CAP-040",
+        "CAP-041"
       ],
       "fictional": true
     },
@@ -2689,13 +2685,13 @@
       "name": "VertexReach",
       "vendor": "Vertex Labs",
       "category": "Marketing",
-      "description": "VertexReach is a marketing platform offering Workflow Automation, Integration Connectors, Data Warehousing.",
-      "business_purpose": "Give marketing teams workflow automation without the overhead.",
-      "business_value_narrative": "VertexReach gives marketing teams a dependable home for their work, leading with workflow automation, integration connectors, data warehousing.",
+      "description": "VertexReach is a marketing platform offering Marketing Automation, Social Media Management, SEO Analytics.",
+      "business_purpose": "Give marketing teams marketing automation without the overhead.",
+      "business_value_narrative": "VertexReach gives marketing teams a dependable home for their work, leading with marketing automation, social media management, seo analytics.",
       "capabilities": [
-        "CAP-015",
-        "CAP-016",
-        "CAP-055"
+        "CAP-044",
+        "CAP-045",
+        "CAP-046"
       ],
       "fictional": true
     },
@@ -2734,13 +2730,13 @@
       "name": "VertexSpace",
       "vendor": "Vertex Labs",
       "category": "Collaboration",
-      "description": "VertexSpace is a collaboration platform offering AI Chat, Content Generation, Intelligent Search.",
-      "business_purpose": "Give collaboration teams ai chat without the overhead.",
-      "business_value_narrative": "VertexSpace gives collaboration teams a dependable home for their work, leading with ai chat, content generation, intelligent search.",
+      "description": "VertexSpace is a collaboration platform offering Video Meetings, Document Collaboration, File Sharing.",
+      "business_purpose": "Give collaboration teams video meetings without the overhead.",
+      "business_value_narrative": "VertexSpace gives collaboration teams a dependable home for their work, leading with video meetings, document collaboration, file sharing.",
       "capabilities": [
-        "CAP-020",
-        "CAP-021",
-        "CAP-022"
+        "CAP-006",
+        "CAP-007",
+        "CAP-009"
       ],
       "fictional": true
     },
@@ -2749,13 +2745,13 @@
       "name": "VertexChain",
       "vendor": "Vertex Labs",
       "category": "Workflow Automation",
-      "description": "VertexChain is a workflow automation platform offering Log Management, Incident Response, Container Orchestration.",
-      "business_purpose": "Give workflow automation teams log management without the overhead.",
-      "business_value_narrative": "VertexChain gives workflow automation teams a dependable home for their work, leading with log management, incident response, container orchestration.",
+      "description": "VertexChain is a workflow automation platform offering Event Triggers, Business Rules, API Integration.",
+      "business_purpose": "Give workflow automation teams event triggers without the overhead.",
+      "business_value_narrative": "VertexChain gives workflow automation teams a dependable home for their work, leading with event triggers, business rules, api integration.",
       "capabilities": [
-        "CAP-050",
-        "CAP-051",
-        "CAP-052"
+        "CAP-017",
+        "CAP-018",
+        "CAP-019"
       ],
       "fictional": true
     },
@@ -2795,9 +2791,9 @@
       "name": "VertexSprint",
       "vendor": "Vertex Labs",
       "category": "Productivity",
-      "description": "VertexSprint is a productivity platform offering Document Summarization, AI Workflow Assistance, Email Campaigns.",
+      "description": "VertexSprint is a productivity platform offering Document Summarization, AI Workflow Assistance, Email Campaigns, Workload Management.",
       "business_purpose": "Give productivity teams document summarization without the overhead.",
-      "business_value_narrative": "VertexSprint gives productivity teams a dependable home for their work, leading with document summarization, ai workflow assistance, email campaigns.",
+      "business_value_narrative": "VertexSprint gives productivity teams a dependable home for their work, leading with document summarization, ai workflow assistance, email campaigns, workload management.",
       "capabilities": [
         "CAP-023",
         "CAP-024",
@@ -2811,13 +2807,13 @@
       "name": "LumenDesk",
       "vendor": "Lumen Labs",
       "category": "CRM",
-      "description": "LumenDesk is a crm platform offering Integration Connectors, Event Triggers, Business Rules.",
-      "business_purpose": "Give crm teams integration connectors without the overhead.",
-      "business_value_narrative": "LumenDesk gives crm teams a dependable home for their work, leading with integration connectors, event triggers, business rules.",
+      "description": "LumenDesk is a crm platform offering Lead Scoring, Customer Support Ticketing, Live Chat.",
+      "business_purpose": "Give crm teams lead scoring without the overhead.",
+      "business_value_narrative": "LumenDesk gives crm teams a dependable home for their work, leading with lead scoring, customer support ticketing, live chat.",
       "capabilities": [
-        "CAP-016",
-        "CAP-017",
-        "CAP-018"
+        "CAP-030",
+        "CAP-031",
+        "CAP-032"
       ],
       "fictional": true
     },
@@ -2826,13 +2822,13 @@
       "name": "LumenCrew",
       "vendor": "Lumen Labs",
       "category": "HR",
-      "description": "LumenCrew is a hr platform offering Multi-Factor Authentication, SCIM Provisioning, Conditional Access.",
-      "business_purpose": "Give hr teams multi-factor authentication without the overhead.",
-      "business_value_narrative": "LumenCrew gives hr teams a dependable home for their work, leading with multi-factor authentication, scim provisioning, conditional access.",
+      "description": "LumenCrew is a hr platform offering Payroll Processing, Time & Attendance, Performance Reviews.",
+      "business_purpose": "Give hr teams payroll processing without the overhead.",
+      "business_value_narrative": "LumenCrew gives hr teams a dependable home for their work, leading with payroll processing, time & attendance, performance reviews.",
       "capabilities": [
-        "CAP-002",
-        "CAP-003",
-        "CAP-004"
+        "CAP-035",
+        "CAP-036",
+        "CAP-037"
       ],
       "fictional": true
     },
@@ -2856,13 +2852,13 @@
       "name": "LumenReach",
       "vendor": "Lumen Labs",
       "category": "Marketing",
-      "description": "LumenReach is a marketing platform offering Event Triggers, Business Rules, API Integration.",
-      "business_purpose": "Give marketing teams event triggers without the overhead.",
-      "business_value_narrative": "LumenReach gives marketing teams a dependable home for their work, leading with event triggers, business rules, api integration.",
+      "description": "LumenReach is a marketing platform offering Social Media Management, SEO Analytics, A/B Testing.",
+      "business_purpose": "Give marketing teams social media management without the overhead.",
+      "business_value_narrative": "LumenReach gives marketing teams a dependable home for their work, leading with social media management, seo analytics, a/b testing.",
       "capabilities": [
-        "CAP-017",
-        "CAP-018",
-        "CAP-019"
+        "CAP-045",
+        "CAP-046",
+        "CAP-047"
       ],
       "fictional": true
     },
@@ -2871,13 +2867,13 @@
       "name": "LumenWatch",
       "vendor": "Lumen Labs",
       "category": "DevOps",
-      "description": "LumenWatch is a devops platform offering Encryption, Workflow Automation, Data Warehousing.",
-      "business_purpose": "Give devops teams encryption without the overhead.",
-      "business_value_narrative": "LumenWatch gives devops teams a dependable home for their work, leading with encryption, workflow automation, data warehousing.",
+      "description": "LumenWatch is a devops platform offering Log Management, Incident Response, Container Orchestration.",
+      "business_purpose": "Give devops teams log management without the overhead.",
+      "business_value_narrative": "LumenWatch gives devops teams a dependable home for their work, leading with log management, incident response, container orchestration.",
       "capabilities": [
-        "CAP-011",
-        "CAP-015",
-        "CAP-055"
+        "CAP-050",
+        "CAP-051",
+        "CAP-052"
       ],
       "fictional": true
     },
@@ -2916,13 +2912,13 @@
       "name": "LumenChain",
       "vendor": "Lumen Labs",
       "category": "Workflow Automation",
-      "description": "LumenChain is a workflow automation platform offering Information Governance, Data Retention, eDiscovery.",
-      "business_purpose": "Give workflow automation teams information governance without the overhead.",
-      "business_value_narrative": "LumenChain gives workflow automation teams a dependable home for their work, leading with information governance, data retention, ediscovery.",
+      "description": "LumenChain is a workflow automation platform offering Workflow Automation, Business Rules, API Integration.",
+      "business_purpose": "Give workflow automation teams workflow automation without the overhead.",
+      "business_value_narrative": "LumenChain gives workflow automation teams a dependable home for their work, leading with workflow automation, business rules, api integration.",
       "capabilities": [
-        "CAP-012",
-        "CAP-013",
-        "CAP-014"
+        "CAP-015",
+        "CAP-018",
+        "CAP-019"
       ],
       "fictional": true
     },
@@ -2963,9 +2959,9 @@
       "name": "LumenSprint",
       "vendor": "Lumen Labs",
       "category": "Productivity",
-      "description": "LumenSprint is a productivity platform offering Marketing Automation, Social Media Management, SEO Analytics.",
+      "description": "LumenSprint is a productivity platform offering Marketing Automation, Social Media Management, SEO Analytics, Workload Management.",
       "business_purpose": "Give productivity teams marketing automation without the overhead.",
-      "business_value_narrative": "LumenSprint gives productivity teams a dependable home for their work, leading with marketing automation, social media management, seo analytics.",
+      "business_value_narrative": "LumenSprint gives productivity teams a dependable home for their work, leading with marketing automation, social media management, seo analytics, workload management.",
       "capabilities": [
         "CAP-044",
         "CAP-045",
@@ -3039,13 +3035,13 @@
       "name": "PaceWatch",
       "vendor": "Pace Labs",
       "category": "DevOps",
-      "description": "PaceWatch is a devops platform offering Integration Connectors, Event Triggers, Business Rules.",
-      "business_purpose": "Give devops teams integration connectors without the overhead.",
-      "business_value_narrative": "PaceWatch gives devops teams a dependable home for their work, leading with integration connectors, event triggers, business rules.",
+      "description": "PaceWatch is a devops platform offering CI/CD Pipelines, Incident Response, Container Orchestration.",
+      "business_purpose": "Give devops teams ci/cd pipelines without the overhead.",
+      "business_value_narrative": "PaceWatch gives devops teams a dependable home for their work, leading with ci/cd pipelines, incident response, container orchestration.",
       "capabilities": [
-        "CAP-016",
-        "CAP-017",
-        "CAP-018"
+        "CAP-048",
+        "CAP-051",
+        "CAP-052"
       ],
       "fictional": true
     },
@@ -3054,13 +3050,12 @@
       "name": "PaceInsight",
       "vendor": "Pace Labs",
       "category": "Data & Analytics",
-      "description": "PaceInsight is a data & analytics platform offering Integration Connectors, Event Triggers, Business Rules.",
-      "business_purpose": "Give data & analytics teams integration connectors without the overhead.",
-      "business_value_narrative": "PaceInsight gives data & analytics teams a dependable home for their work, leading with integration connectors, event triggers, business rules.",
+      "description": "PaceInsight is a data & analytics platform offering ETL Pipelines, Data Warehousing.",
+      "business_purpose": "Give data & analytics teams etl pipelines without the overhead.",
+      "business_value_narrative": "PaceInsight gives data & analytics teams a dependable home for their work, leading with etl pipelines, data warehousing.",
       "capabilities": [
-        "CAP-016",
-        "CAP-017",
-        "CAP-018"
+        "CAP-054",
+        "CAP-055"
       ],
       "fictional": true
     },
@@ -3129,9 +3124,9 @@
       "name": "PaceSprint",
       "vendor": "Pace Labs",
       "category": "Productivity",
-      "description": "PaceSprint is a productivity platform offering Messaging, Video Meetings, A/B Testing.",
+      "description": "PaceSprint is a productivity platform offering Messaging, Video Meetings, A/B Testing, Workload Management.",
       "business_purpose": "Give productivity teams messaging without the overhead.",
-      "business_value_narrative": "PaceSprint gives productivity teams a dependable home for their work, leading with messaging, video meetings, a/b testing.",
+      "business_value_narrative": "PaceSprint gives productivity teams a dependable home for their work, leading with messaging, video meetings, a/b testing, workload management.",
       "capabilities": [
         "CAP-005",
         "CAP-006",
@@ -3175,13 +3170,13 @@
       "name": "HarborCount",
       "vendor": "Harbor Labs",
       "category": "Finance",
-      "description": "HarborCount is a finance platform offering Integration Connectors, Event Triggers, Business Rules.",
-      "business_purpose": "Give finance teams integration connectors without the overhead.",
-      "business_value_narrative": "HarborCount gives finance teams a dependable home for their work, leading with integration connectors, event triggers, business rules.",
+      "description": "HarborCount is a finance platform offering General Ledger, Budgeting & Forecasting, Payment Processing.",
+      "business_purpose": "Give finance teams general ledger without the overhead.",
+      "business_value_narrative": "HarborCount gives finance teams a dependable home for their work, leading with general ledger, budgeting & forecasting, payment processing.",
       "capabilities": [
-        "CAP-016",
-        "CAP-017",
-        "CAP-018"
+        "CAP-040",
+        "CAP-041",
+        "CAP-042"
       ],
       "fictional": true
     },
@@ -3205,13 +3200,13 @@
       "name": "HarborWatch",
       "vendor": "Harbor Labs",
       "category": "DevOps",
-      "description": "HarborWatch is a devops platform offering API Integration, Threat Protection, Data Loss Prevention.",
-      "business_purpose": "Give devops teams api integration without the overhead.",
-      "business_value_narrative": "HarborWatch gives devops teams a dependable home for their work, leading with api integration, threat protection, data loss prevention.",
+      "description": "HarborWatch is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Container Orchestration.",
+      "business_purpose": "Give devops teams ci/cd pipelines without the overhead.",
+      "business_value_narrative": "HarborWatch gives devops teams a dependable home for their work, leading with ci/cd pipelines, infrastructure monitoring, container orchestration.",
       "capabilities": [
-        "CAP-019",
-        "CAP-025",
-        "CAP-026"
+        "CAP-048",
+        "CAP-049",
+        "CAP-052"
       ],
       "fictional": true
     },
@@ -3220,13 +3215,12 @@
       "name": "HarborInsight",
       "vendor": "Harbor Labs",
       "category": "Data & Analytics",
-      "description": "HarborInsight is a data & analytics platform offering API Integration, AI Chat, Content Generation.",
-      "business_purpose": "Give data & analytics teams api integration without the overhead.",
-      "business_value_narrative": "HarborInsight gives data & analytics teams a dependable home for their work, leading with api integration, ai chat, content generation.",
+      "description": "HarborInsight is a data & analytics platform offering Data Visualization, Data Warehousing.",
+      "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+      "business_value_narrative": "HarborInsight gives data & analytics teams a dependable home for their work, leading with data visualization, data warehousing.",
       "capabilities": [
-        "CAP-019",
-        "CAP-020",
-        "CAP-021"
+        "CAP-053",
+        "CAP-055"
       ],
       "fictional": true
     },
@@ -3235,13 +3229,13 @@
       "name": "HarborSpace",
       "vendor": "Harbor Labs",
       "category": "Collaboration",
-      "description": "HarborSpace is a collaboration platform offering Content Generation, Intelligent Search, Document Summarization.",
-      "business_purpose": "Give collaboration teams content generation without the overhead.",
-      "business_value_narrative": "HarborSpace gives collaboration teams a dependable home for their work, leading with content generation, intelligent search, document summarization.",
+      "description": "HarborSpace is a collaboration platform offering Messaging, Document Collaboration, File Sharing.",
+      "business_purpose": "Give collaboration teams messaging without the overhead.",
+      "business_value_narrative": "HarborSpace gives collaboration teams a dependable home for their work, leading with messaging, document collaboration, file sharing.",
       "capabilities": [
-        "CAP-021",
-        "CAP-022",
-        "CAP-023"
+        "CAP-005",
+        "CAP-007",
+        "CAP-009"
       ],
       "fictional": true
     },
@@ -3297,9 +3291,9 @@
       "name": "HarborSprint",
       "vendor": "Harbor Labs",
       "category": "Productivity",
-      "description": "HarborSprint is a productivity platform offering Document Collaboration, File Sharing, Workflow Automation.",
+      "description": "HarborSprint is a productivity platform offering Document Collaboration, File Sharing, Workflow Automation, Workload Management.",
       "business_purpose": "Give productivity teams document collaboration without the overhead.",
-      "business_value_narrative": "HarborSprint gives productivity teams a dependable home for their work, leading with document collaboration, file sharing, workflow automation.",
+      "business_value_narrative": "HarborSprint gives productivity teams a dependable home for their work, leading with document collaboration, file sharing, workflow automation, workload management.",
       "capabilities": [
         "CAP-007",
         "CAP-009",
@@ -3313,13 +3307,13 @@
       "name": "CinderDesk",
       "vendor": "Cinder Labs",
       "category": "CRM",
-      "description": "CinderDesk is a crm platform offering Email Campaigns, Marketing Automation, Social Media Management.",
-      "business_purpose": "Give crm teams email campaigns without the overhead.",
-      "business_value_narrative": "CinderDesk gives crm teams a dependable home for their work, leading with email campaigns, marketing automation, social media management.",
+      "description": "CinderDesk is a crm platform offering Contact Management, Customer Support Ticketing, Live Chat.",
+      "business_purpose": "Give crm teams contact management without the overhead.",
+      "business_value_narrative": "CinderDesk gives crm teams a dependable home for their work, leading with contact management, customer support ticketing, live chat.",
       "capabilities": [
-        "CAP-043",
-        "CAP-044",
-        "CAP-045"
+        "CAP-028",
+        "CAP-031",
+        "CAP-032"
       ],
       "fictional": true
     },
@@ -3328,13 +3322,13 @@
       "name": "CinderCrew",
       "vendor": "Cinder Labs",
       "category": "HR",
-      "description": "CinderCrew is a hr platform offering Invoicing, Expense Management, General Ledger.",
-      "business_purpose": "Give hr teams invoicing without the overhead.",
-      "business_value_narrative": "CinderCrew gives hr teams a dependable home for their work, leading with invoicing, expense management, general ledger.",
+      "description": "CinderCrew is a hr platform offering Applicant Tracking, Time & Attendance, Performance Reviews.",
+      "business_purpose": "Give hr teams applicant tracking without the overhead.",
+      "business_value_narrative": "CinderCrew gives hr teams a dependable home for their work, leading with applicant tracking, time & attendance, performance reviews.",
       "capabilities": [
-        "CAP-038",
-        "CAP-039",
-        "CAP-040"
+        "CAP-033",
+        "CAP-036",
+        "CAP-037"
       ],
       "fictional": true
     },
@@ -3358,13 +3352,13 @@
       "name": "CinderReach",
       "vendor": "Cinder Labs",
       "category": "Marketing",
-      "description": "CinderReach is a marketing platform offering Workflow Automation, ETL Pipelines, Data Warehousing.",
-      "business_purpose": "Give marketing teams workflow automation without the overhead.",
-      "business_value_narrative": "CinderReach gives marketing teams a dependable home for their work, leading with workflow automation, etl pipelines, data warehousing.",
+      "description": "CinderReach is a marketing platform offering Email Campaigns, SEO Analytics, A/B Testing.",
+      "business_purpose": "Give marketing teams email campaigns without the overhead.",
+      "business_value_narrative": "CinderReach gives marketing teams a dependable home for their work, leading with email campaigns, seo analytics, a/b testing.",
       "capabilities": [
-        "CAP-015",
-        "CAP-054",
-        "CAP-055"
+        "CAP-043",
+        "CAP-046",
+        "CAP-047"
       ],
       "fictional": true
     },
@@ -3388,13 +3382,12 @@
       "name": "CinderInsight",
       "vendor": "Cinder Labs",
       "category": "Data & Analytics",
-      "description": "CinderInsight is a data & analytics platform offering Intelligent Search, Document Summarization, AI Workflow Assistance.",
-      "business_purpose": "Give data & analytics teams intelligent search without the overhead.",
-      "business_value_narrative": "CinderInsight gives data & analytics teams a dependable home for their work, leading with intelligent search, document summarization, ai workflow assistance.",
+      "description": "CinderInsight is a data & analytics platform offering Data Visualization, ETL Pipelines.",
+      "business_purpose": "Give data & analytics teams data visualization without the overhead.",
+      "business_value_narrative": "CinderInsight gives data & analytics teams a dependable home for their work, leading with data visualization, etl pipelines.",
       "capabilities": [
-        "CAP-022",
-        "CAP-023",
-        "CAP-024"
+        "CAP-053",
+        "CAP-054"
       ],
       "fictional": true
     },
@@ -3418,13 +3411,13 @@
       "name": "CinderChain",
       "vendor": "Cinder Labs",
       "category": "Workflow Automation",
-      "description": "CinderChain is a workflow automation platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management.",
-      "business_purpose": "Give workflow automation teams ci/cd pipelines without the overhead.",
-      "business_value_narrative": "CinderChain gives workflow automation teams a dependable home for their work, leading with ci/cd pipelines, infrastructure monitoring, log management.",
+      "description": "CinderChain is a workflow automation platform offering Workflow Automation, Integration Connectors, API Integration.",
+      "business_purpose": "Give workflow automation teams workflow automation without the overhead.",
+      "business_value_narrative": "CinderChain gives workflow automation teams a dependable home for their work, leading with workflow automation, integration connectors, api integration.",
       "capabilities": [
-        "CAP-048",
-        "CAP-049",
-        "CAP-050"
+        "CAP-015",
+        "CAP-016",
+        "CAP-019"
       ],
       "fictional": true
     },
@@ -3464,9 +3457,9 @@
       "name": "CinderSprint",
       "vendor": "Cinder Labs",
       "category": "Productivity",
-      "description": "CinderSprint is a productivity platform offering Integration Connectors, Event Triggers, Business Rules.",
+      "description": "CinderSprint is a productivity platform offering Integration Connectors, Event Triggers, Business Rules, Workload Management.",
       "business_purpose": "Give productivity teams integration connectors without the overhead.",
-      "business_value_narrative": "CinderSprint gives productivity teams a dependable home for their work, leading with integration connectors, event triggers, business rules.",
+      "business_value_narrative": "CinderSprint gives productivity teams a dependable home for their work, leading with integration connectors, event triggers, business rules, workload management.",
       "capabilities": [
         "CAP-016",
         "CAP-017",
@@ -3480,13 +3473,13 @@
       "name": "AtlasDesk",
       "vendor": "Atlas Labs",
       "category": "CRM",
-      "description": "AtlasDesk is a crm platform offering Workflow Automation, SEO Analytics, A/B Testing.",
-      "business_purpose": "Give crm teams workflow automation without the overhead.",
-      "business_value_narrative": "AtlasDesk gives crm teams a dependable home for their work, leading with workflow automation, seo analytics, a/b testing.",
+      "description": "AtlasDesk is a crm platform offering Contact Management, Sales Pipeline, Live Chat.",
+      "business_purpose": "Give crm teams contact management without the overhead.",
+      "business_value_narrative": "AtlasDesk gives crm teams a dependable home for their work, leading with contact management, sales pipeline, live chat.",
       "capabilities": [
-        "CAP-015",
-        "CAP-046",
-        "CAP-047"
+        "CAP-028",
+        "CAP-029",
+        "CAP-032"
       ],
       "fictional": true
     },
@@ -3495,13 +3488,13 @@
       "name": "AtlasCrew",
       "vendor": "Atlas Labs",
       "category": "HR",
-      "description": "AtlasCrew is a hr platform offering Single Sign-On, Budgeting & Forecasting, Payment Processing.",
-      "business_purpose": "Give hr teams single sign-on without the overhead.",
-      "business_value_narrative": "AtlasCrew gives hr teams a dependable home for their work, leading with single sign-on, budgeting & forecasting, payment processing.",
+      "description": "AtlasCrew is a hr platform offering Applicant Tracking, Onboarding Workflows, Performance Reviews.",
+      "business_purpose": "Give hr teams applicant tracking without the overhead.",
+      "business_value_narrative": "AtlasCrew gives hr teams a dependable home for their work, leading with applicant tracking, onboarding workflows, performance reviews.",
       "capabilities": [
-        "CAP-001",
-        "CAP-041",
-        "CAP-042"
+        "CAP-033",
+        "CAP-034",
+        "CAP-037"
       ],
       "fictional": true
     },
@@ -3526,13 +3519,13 @@
       "name": "AtlasReach",
       "vendor": "Atlas Labs",
       "category": "Marketing",
-      "description": "AtlasReach is a marketing platform offering Integration Connectors, Event Triggers, Business Rules.",
-      "business_purpose": "Give marketing teams integration connectors without the overhead.",
-      "business_value_narrative": "AtlasReach gives marketing teams a dependable home for their work, leading with integration connectors, event triggers, business rules.",
+      "description": "AtlasReach is a marketing platform offering Email Campaigns, Marketing Automation, A/B Testing.",
+      "business_purpose": "Give marketing teams email campaigns without the overhead.",
+      "business_value_narrative": "AtlasReach gives marketing teams a dependable home for their work, leading with email campaigns, marketing automation, a/b testing.",
       "capabilities": [
-        "CAP-016",
-        "CAP-017",
-        "CAP-018"
+        "CAP-043",
+        "CAP-044",
+        "CAP-047"
       ],
       "fictional": true
     },
@@ -3587,13 +3580,13 @@
       "name": "AtlasChain",
       "vendor": "Atlas Labs",
       "category": "Workflow Automation",
-      "description": "AtlasChain is a workflow automation platform offering Audit Logging, Incident Response, Container Orchestration.",
-      "business_purpose": "Give workflow automation teams audit logging without the overhead.",
-      "business_value_narrative": "AtlasChain gives workflow automation teams a dependable home for their work, leading with audit logging, incident response, container orchestration.",
+      "description": "AtlasChain is a workflow automation platform offering Workflow Automation, Integration Connectors, Event Triggers.",
+      "business_purpose": "Give workflow automation teams workflow automation without the overhead.",
+      "business_value_narrative": "AtlasChain gives workflow automation teams a dependable home for their work, leading with workflow automation, integration connectors, event triggers.",
       "capabilities": [
-        "CAP-010",
-        "CAP-051",
-        "CAP-052"
+        "CAP-015",
+        "CAP-016",
+        "CAP-017"
       ],
       "fictional": true
     },
@@ -3633,9 +3626,9 @@
       "name": "AtlasSprint",
       "vendor": "Atlas Labs",
       "category": "Productivity",
-      "description": "AtlasSprint is a productivity platform offering API Integration, AI Chat, Content Generation.",
+      "description": "AtlasSprint is a productivity platform offering API Integration, AI Chat, Content Generation, Workload Management.",
       "business_purpose": "Give productivity teams api integration without the overhead.",
-      "business_value_narrative": "AtlasSprint gives productivity teams a dependable home for their work, leading with api integration, ai chat, content generation.",
+      "business_value_narrative": "AtlasSprint gives productivity teams a dependable home for their work, leading with api integration, ai chat, content generation, workload management.",
       "capabilities": [
         "CAP-019",
         "CAP-020",
@@ -3649,13 +3642,13 @@
       "name": "FableDesk",
       "vendor": "Fable Labs",
       "category": "CRM",
-      "description": "FableDesk is a crm platform offering Event Triggers, Business Rules, API Integration.",
-      "business_purpose": "Give crm teams event triggers without the overhead.",
-      "business_value_narrative": "FableDesk gives crm teams a dependable home for their work, leading with event triggers, business rules, api integration.",
+      "description": "FableDesk is a crm platform offering Contact Management, Sales Pipeline, Lead Scoring.",
+      "business_purpose": "Give crm teams contact management without the overhead.",
+      "business_value_narrative": "FableDesk gives crm teams a dependable home for their work, leading with contact management, sales pipeline, lead scoring.",
       "capabilities": [
-        "CAP-017",
-        "CAP-018",
-        "CAP-019"
+        "CAP-028",
+        "CAP-029",
+        "CAP-030"
       ],
       "fictional": true
     },
@@ -3664,13 +3657,13 @@
       "name": "FableCrew",
       "vendor": "Fable Labs",
       "category": "HR",
-      "description": "FableCrew is a hr platform offering SCIM Provisioning, Conditional Access, Identity Federation.",
-      "business_purpose": "Give hr teams scim provisioning without the overhead.",
-      "business_value_narrative": "FableCrew gives hr teams a dependable home for their work, leading with scim provisioning, conditional access, identity federation.",
+      "description": "FableCrew is a hr platform offering Applicant Tracking, Onboarding Workflows, Payroll Processing.",
+      "business_purpose": "Give hr teams applicant tracking without the overhead.",
+      "business_value_narrative": "FableCrew gives hr teams a dependable home for their work, leading with applicant tracking, onboarding workflows, payroll processing.",
       "capabilities": [
-        "CAP-003",
-        "CAP-004",
-        "CAP-008"
+        "CAP-033",
+        "CAP-034",
+        "CAP-035"
       ],
       "fictional": true
     },
@@ -3679,14 +3672,14 @@
       "name": "FableCount",
       "vendor": "Fable Labs",
       "category": "Finance",
-      "description": "FableCount is a finance platform offering Workflow Automation, Integration Connectors, Event Triggers, Business Rules.",
-      "business_purpose": "Give finance teams workflow automation without the overhead.",
-      "business_value_narrative": "FableCount gives finance teams a dependable home for their work, leading with workflow automation, integration connectors, event triggers.",
+      "description": "FableCount is a finance platform offering Invoicing, Expense Management, Budgeting & Forecasting, Payment Processing.",
+      "business_purpose": "Give finance teams invoicing without the overhead.",
+      "business_value_narrative": "FableCount gives finance teams a dependable home for their work, leading with invoicing, expense management, budgeting & forecasting, payment processing.",
       "capabilities": [
-        "CAP-015",
-        "CAP-016",
-        "CAP-017",
-        "CAP-018"
+        "CAP-038",
+        "CAP-039",
+        "CAP-041",
+        "CAP-042"
       ],
       "fictional": true
     },
@@ -3710,13 +3703,13 @@
       "name": "FableWatch",
       "vendor": "Fable Labs",
       "category": "DevOps",
-      "description": "FableWatch is a devops platform offering Encryption, ETL Pipelines, Data Warehousing.",
-      "business_purpose": "Give devops teams encryption without the overhead.",
-      "business_value_narrative": "FableWatch gives devops teams a dependable home for their work, leading with encryption, etl pipelines, data warehousing.",
+      "description": "FableWatch is a devops platform offering CI/CD Pipelines, Infrastructure Monitoring, Log Management.",
+      "business_purpose": "Give devops teams ci/cd pipelines without the overhead.",
+      "business_value_narrative": "FableWatch gives devops teams a dependable home for their work, leading with ci/cd pipelines, infrastructure monitoring, log management.",
       "capabilities": [
-        "CAP-011",
-        "CAP-054",
-        "CAP-055"
+        "CAP-048",
+        "CAP-049",
+        "CAP-050"
       ],
       "fictional": true
     },
@@ -3803,9 +3796,9 @@
       "name": "FableSprint",
       "vendor": "Fable Labs",
       "category": "Productivity",
-      "description": "FableSprint is a productivity platform offering Intelligent Search, Document Summarization, AI Workflow Assistance.",
+      "description": "FableSprint is a productivity platform offering Intelligent Search, Document Summarization, AI Workflow Assistance, Workload Management.",
       "business_purpose": "Give productivity teams intelligent search without the overhead.",
-      "business_value_narrative": "FableSprint gives productivity teams a dependable home for their work, leading with intelligent search, document summarization, ai workflow assistance.",
+      "business_value_narrative": "FableSprint gives productivity teams a dependable home for their work, leading with intelligent search, document summarization, ai workflow assistance, workload management.",
       "capabilities": [
         "CAP-022",
         "CAP-023",
@@ -3865,11 +3858,11 @@
       "name": "DriftReach",
       "vendor": "Drift Labs",
       "category": "Marketing",
-      "description": "DriftReach is a marketing platform offering Data Visualization, ETL Pipelines, Data Warehousing.",
-      "business_purpose": "Give marketing teams data visualization without the overhead.",
-      "business_value_narrative": "DriftReach gives marketing teams a dependable home for their work, leading with data visualization, etl pipelines, data warehousing.",
+      "description": "DriftReach is a marketing platform offering Email Campaigns.",
+      "business_purpose": "Give marketing teams email campaigns without the overhead.",
+      "business_value_narrative": "DriftReach gives marketing teams a dependable home for their work, leading with email campaigns.",
       "capabilities": [
-        "CAP-053"
+        "CAP-043"
       ],
       "fictional": true
     }
