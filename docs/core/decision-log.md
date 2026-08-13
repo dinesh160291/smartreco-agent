@@ -3272,3 +3272,79 @@ two clock positions and requires the later one to be lower.
 pattern. Unlike POL-BEH-002 it is Domain Pack data rather than a platform
 policy, and the pattern's Strong bar is written in qualifying events; it is
 recorded here rather than fixed silently.
+
+---
+
+# Decision #068
+
+## Title
+
+Real-product prose that still described the pre-audit product
+
+## Status
+
+Accepted
+
+## Decision
+
+Fifty-one real products whose `description`, `business_purpose` or
+`business_value_narrative` named a capability the product does not hold have
+that prose regenerated from their actual capability list.
+`test_no_product_prose_claims_a_capability_it_does_not_hold` becomes a ratchet
+over the whole catalog.
+
+## Rationale
+
+Found by opening the catalog page in a browser. The cards were self-refuting:
+"CircleCI is a devops platform offering CI/CD Pipelines, Infrastructure
+Monitoring, Log Management, Incident Response, Container Orchestration"
+directly above "3 capabilities". CircleCI holds Integration Connectors, API
+Integration and CI/CD Pipelines. Four of the five named were false.
+
+**This is the GitHub defect of Decision #060, fifty-one times over.**
+Decisions #058 and #061–#063 restated capability assignments across the real
+catalog and never regenerated the prose that is generated *from* them.
+Decision #064 caught it for the fictional half — and the entry even says the
+prose "is templated from the capability list" and that leaving it "would have
+reproduced the GitHub defect" — while the real half, which the same three
+decisions had just rewritten, went unchecked. The audit verified the data it had
+changed and not the text describing it.
+
+**It reaches retrieval, not just the reader.** `embedding_document` composes
+name, vendor, category, description and business_purpose, then one narrative
+line per capability held. A description naming a capability the product lacks
+therefore injects that capability's language with no capability line behind it:
+pure signal for a claim nothing supports. That is why three DevOps products that
+hold one relevant capability each were crowding a Candidate Set.
+
+**And it reaches the words.** The narrative is passed to Tier 1 as the
+product's grounding, so a false claim there is Law 11 — persuasive copy built on
+a capability the product does not have.
+
+**Only false claims are fixed, not omissions.** Fourteen untouched products
+name *fewer* capabilities than they hold, because #063 restored capabilities
+without extending the prose. Omission is survivable: every held capability
+reaches the vector through its own narrative line regardless of the description.
+An invented one has no such line. The generator was first required to reproduce
+untouched prose byte-for-byte and could not — the original wording follows no
+ordering this repository can regenerate — so the pass was narrowed to products
+whose prose is actually false rather than rewriting prose that is merely
+partial.
+
+## Consequences
+
+Engineering Delivery retrieval now returns GitLab at 5/5 coverage in second
+place, with the three products that had been claiming the whole delivery surface
+sitting at 1/5. All 250 products re-embedded through `save_product`, all SYNCED.
+
+The ratchet scans all three prose fields case-insensitively and subtracts the
+product's own category first: two categories share a name with a capability
+("Workflow Automation", "Compliance"), and every description states its
+category, so a naive scan fails exactly the automation products that the
+distractor constraint deliberately keeps off that capability (#058).
+
+**The lesson is about the shape of the check, not the data.** Three audit
+passes verified capability assignments against each other and never once asked
+whether the sentences describing them still held. A catalog invariant that reads
+only structured fields cannot see prose drift, and prose is half of what the
+index is built from.

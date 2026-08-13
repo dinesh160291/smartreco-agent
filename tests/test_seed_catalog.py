@@ -249,3 +249,47 @@ def test_no_stale_cross_domain_entries():
         if not any(domain_of[c] != home for c in caps):
             stale.append(req_id)
     assert not stale, f"these no longer borrow — remove them from the list: {stale}"
+
+
+# --- Prose must not claim capabilities the product does not hold (#068) ------
+
+def _named_capabilities(text: str) -> list[str]:
+    """Capability display names appearing in a product's prose."""
+    from smartreco.domain.software_buying import CAPABILITIES
+
+    low = text.lower()
+    return sorted({name for _cid, name, _dom, _narr in CAPABILITIES if name.lower() in low})
+
+
+def test_no_product_prose_claims_a_capability_it_does_not_hold(seed):
+    """The GitHub defect from Decision #060, generalised.
+
+    Every seeded product's description is generated from its capability list,
+    and that text *is* the embedded document — so prose naming a capability the
+    product lacks does not merely mislead a reader, it drags the product's
+    vector toward a neighbourhood it does not belong to. Decision #064 caught
+    this for the fictional catalog; the real products edited by #058 and
+    #061–#063 kept their pre-edit prose.
+    """
+    from smartreco.domain.software_buying import CAPABILITIES
+
+    display = {cid: name for cid, name, _dom, _narr in CAPABILITIES}
+    offenders = []
+    for product in seed["products"]:
+        held = {display[c].lower() for c in product["capabilities"]}
+        prose = " ".join(filter(None, (
+            product.get("description"),
+            product.get("business_purpose"),
+            product.get("business_value_narrative"))))
+        # Two categories share a name with a capability ("Workflow Automation",
+        # "Compliance"), and every product's prose states its own category. A
+        # naive scan reads that as a claim, which would fail exactly the
+        # products the distractor constraint deliberately keeps *off* that
+        # capability (Decision #058).
+        prose = prose.lower().replace(product["category"].lower(), " ")
+        phantom = [n for n in _named_capabilities(prose) if n.lower() not in held]
+        if phantom:
+            offenders.append(f"{product['name']}: claims {', '.join(phantom)}")
+    assert offenders == [], (
+        f"{len(offenders)} product(s) describe capabilities they do not have:\n  "
+        + "\n  ".join(offenders[:15]))
