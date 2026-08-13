@@ -3477,3 +3477,62 @@ of them stops early.
 The deprecation warning already visible in the suite — `SequentialAgent is
 deprecated in favor of Workflow` — is the same version drift seen from the other
 side, and is now recorded rather than merely printed.
+
+---
+
+# Decision #071
+
+## Title
+
+For-You follows the shopper, and reports the run that produced what it shows
+
+## Status
+
+Accepted
+
+## Decision
+
+The default journey on For-You is the one owning the shopper's most recent
+event, not the most recently created journey. The panel's `trigger` line is
+scoped to the journey being displayed. `_build_feed` returns the journey it
+chose.
+
+## Rationale
+
+Seen live: a Decision-stage journey with 83 events and a READY ranking sat under
+"Also exploring" while an Awareness stub, untouched for three hours, held the
+main panel and asked the shopper clarifying questions about a subject they had
+left.
+
+The page ordered journeys by `created_at`. That agrees with the workflow on a
+fresh fork — the journey the shopper moved to is the newest — and disagrees the
+moment a **new session resumes an older journey**, which is exactly what
+POL-JRES-001's candidate scoring is for. The workflow filed the events there and
+reasoned about it; the page kept leading with the newest one. Two components
+answering "which journey is the shopper in?" with different rules is the defect;
+using the events' own answer makes them agree by construction.
+
+The `trigger` line took the user's most recent completed run *regardless of
+journey*, so a package from one journey was labelled with another journey's
+trigger — the header contradicting the body directly beneath it.
+
+## Consequences
+
+**The first version of the test passed vacuously.** It asserted on the journey
+*label*, and both journeys in the fixture label as "Just started" — the
+assertion could not fail. `_build_feed` now returns `journey_id` and the test
+asserts on that, which is also the honest thing for the function to expose.
+
+Product order is pinned separately: `test_for_you_renders_entries_in_rank_order`
+asserts on the *built feed* rather than the stored package, so it covers the
+persistence round-trip and the view assembly — the two places a reorder could
+creep in between POL-REC-002 and the shopper. Ranks must render as a clean 1..N
+and coverage must not rise down the list. Verified against the live account:
+both journeys' packages render in rank order with coverage non-increasing.
+
+**A stale package is not a stale ranking.** The engineering journey still shows
+a pre-audit ordering because Recommendation Packages are insert-only Runtime
+Objects and that journey has not run since the catalog was corrected. The
+arithmetic was right over the data it had; the data is what changed. It will
+re-rank on that journey's next run — and against the corrected catalog the same
+requirement now returns GitLab at 5/5 where those three sit at 1/5.

@@ -363,3 +363,66 @@ def test_dwell_heartbeats_alone_never_trigger_a_run(
 
     run = _run(db, chroma, backend, policies, user, fake_gateway, DAY + timedelta(minutes=2))
     assert run.status == "SKIPPED", f"dwell heartbeats triggered a run: {run.gates}"
+
+
+# --- For-You must follow the shopper, not the clock (#071) -------------------
+
+def test_for_you_leads_with_the_journey_the_shopper_is_actually_in(
+        seeded, chroma, backend, policies, fake_gateway):
+    """A shopper who forks and then returns is back on the first journey — the
+    workflow says so, because it routes the run there. The page picked the
+    newest journey by `created_at` instead, so it kept leading with the subject
+    the shopper had left, showing its stale not-ready panel while the journey
+    they were actively researching sat under "Also exploring".
+
+    Seen live: a Decision-stage journey with 83 events relegated beneath an
+    Awareness stub that had not been touched in three hours.
+    """
+    from apps.web.pages import _build_feed
+
+    db = seeded
+    user = _user(db, "leads-with@example.com")
+    s = "lead-s1"
+
+    _insert(db, user.id, s, DAY, _analytics("n"))
+    _run(db, chroma, backend, policies, user, fake_gateway, DAY + timedelta(minutes=2))
+    analytics = _journeys(db, user)[0].journey_id
+
+    _switch_to_devops(db, chroma, backend, policies, user, fake_gateway, s, "o",
+                      DAY + timedelta(minutes=5))
+    assert len(_journeys(db, user)) == 2, "precondition: the session should have forked"
+
+    # …and later, in a *new* session, back to analytics. A new session is
+    # scored against every candidate journey, so this is the path that resumes
+    # an older one — and the path the live account took.
+    _insert(db, user.id, "lead-s2", DAY + timedelta(hours=2), _analytics("p"))
+    resumed = _run(db, chroma, backend, policies, user, fake_gateway,
+                   DAY + timedelta(hours=2, minutes=2))
+    assert resumed.journey_id == analytics, (
+        "precondition: the run should have resumed the analytics journey")
+
+    feed = _build_feed(db, user)
+    assert feed is not None
+    assert feed["journey_id"] == analytics, (
+        f"For-You led with {feed['journey_id']}, not the journey the run just used "
+        f"({analytics}). Both journeys label as 'Just started', so the label alone "
+        f"cannot tell them apart — the id is what discriminates.")
+
+
+def test_for_you_reports_the_run_that_produced_what_it_is_showing(
+        seeded, chroma, backend, policies, fake_gateway):
+    """The panel's "trigger:" line described the user's most recent completed
+    run whatever journey it belonged to, so a package from one journey was
+    stamped with another journey's trigger — the header disagreed with the
+    body it sat above.
+    """
+    from apps.web.pages import _build_feed, _journey_label
+
+    db = seeded
+    user = _user(db, "trigger-line@example.com")
+    _insert(db, user.id, "trig-s1", DAY, _analytics("q"))
+    run = _run(db, chroma, backend, policies, user, fake_gateway, DAY + timedelta(minutes=2))
+
+    feed = _build_feed(db, user)
+    assert feed["trigger"] == run.trigger_type
+    assert run.journey_id is not None

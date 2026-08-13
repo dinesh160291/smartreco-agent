@@ -399,9 +399,23 @@ def _build_feed(db, user, journey_id: str | None = None) -> dict | None:
                 models.Journey.user_id == user.id,          # never another user's journey
                 models.Journey.journey_id == journey_id)).scalars().first()
     else:
-        journey = db.execute(
-            select(models.Journey).where(models.Journey.user_id == user.id)
-            .order_by(models.Journey.created_at.desc())).scalars().first()
+        # The journey the shopper is *in*, which is the one their most recent
+        # activity was filed to — not the most recently created one (Decision
+        # #071). The two agree on a fresh fork and disagree the moment a new
+        # session resumes an older journey: the workflow files the events there
+        # and reasons about it, while the page went on leading with a stub the
+        # shopper had left hours earlier.
+        last_event = db.execute(
+            select(models.Event.journey_id)
+            .where(models.Event.user_id == user.id,
+                   models.Event.journey_id.is_not(None))
+            .order_by(models.Event.ts.desc())).scalars().first()
+        query = select(models.Journey).where(models.Journey.user_id == user.id)
+        journey = (
+            db.execute(query.where(models.Journey.journey_id == last_event)).scalars().first()
+            if last_event else None
+        ) or db.execute(
+            query.order_by(models.Journey.created_at.desc())).scalars().first()
     if journey is None:
         return None
     pkg = db.execute(
@@ -419,15 +433,21 @@ def _build_feed(db, user, journey_id: str | None = None) -> dict | None:
         return {"readiness": "NOT_READY", "entries": [], "sections": {},
                 "updated": journey.created_at.strftime("%Y-%m-%d %H:%M UTC"),
                 "trigger": "—", "label": _journey_label(db, journey.journey_id),
-                "others": others}
+                "journey_id": journey.journey_id, "others": others}
     aar = db.execute(
         select(models.AdvisoryResponse)
         .where(models.AdvisoryResponse.rpkg_id == pkg.rpkg_id,
                models.AdvisoryResponse.surface == "ONSITE")
         .order_by(models.AdvisoryResponse.created_at.desc())).scalars().first()
+    # Scoped to the journey being shown: the panel's "trigger" line sits above
+    # this package and must describe the run that produced it. Taking the
+    # user's latest completed run regardless of journey stamped one journey's
+    # package with another journey's trigger (Decision #071).
     last_run = db.execute(
-        select(models.WorkflowRun).where(models.WorkflowRun.user_id == user.id,
-                                         models.WorkflowRun.status == "COMPLETED")
+        select(models.WorkflowRun).where(
+            models.WorkflowRun.user_id == user.id,
+            models.WorkflowRun.journey_id == journey.journey_id,
+            models.WorkflowRun.status == "COMPLETED")
         .order_by(models.WorkflowRun.finished_at.desc())).scalars().first()
 
     entries = []
@@ -454,6 +474,7 @@ def _build_feed(db, user, journey_id: str | None = None) -> dict | None:
         "updated": pkg.created_at.strftime("%Y-%m-%d %H:%M UTC"),
         "trigger": last_run.trigger_type if last_run else "—",
         "label": _journey_label(db, journey.journey_id),
+        "journey_id": journey.journey_id,
         "others": others,
     }
 
