@@ -9,6 +9,7 @@ handoff.md
 problem_statement_*.md
 retrieval-explained.md
 patterns-explained.md
+test-scenarios.md
 
 # Local data (SQLite system of record + Chroma index are runtime state)
 data/

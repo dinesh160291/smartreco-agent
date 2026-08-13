@@ -18,12 +18,13 @@ def policies():
     return load_policies()
 
 
-def ev(pattern, strength, composition, relation="SUPPORTING"):
+def ev(pattern, strength, composition, relation="SUPPORTING", age_days=0.0):
     return EvidenceInput(
         pattern_id=pattern,
         strength=strength,
         event_type_composition=tuple(sorted(composition)),
         relation=relation,
+        age_days=age_days,
     )
 
 
@@ -187,3 +188,85 @@ def test_explanation_is_deterministic_and_references_evidence(policies):
     r2 = compute_confidence(seq, policies)
     assert r1.explanation == r2.explanation
     assert "BP-001" in r1.explanation
+
+
+# --- POL-BEH-002: evidence older than 30 days contributes at half weight -----
+# (Decision #067 — the policy was published and unread)
+
+def test_aged_evidence_contributes_at_half_weight(policies):
+    """A Strong finding is +0.20 fresh; the same finding a month later is worth
+    half that. Journeys survive dormancy for weeks, so without this a belief
+    formed in July still counted in full in September."""
+    fresh = compute_confidence(
+        [ev("BP-001", "STRONG", ["SECURITY_VIEWED"])], policies)
+    aged = compute_confidence(
+        [ev("BP-001", "STRONG", ["SECURITY_VIEWED"], age_days=31)], policies)
+    assert fresh.confidence == 0.20
+    assert aged.confidence == 0.10
+
+
+def test_the_age_boundary_is_the_policy_value_not_a_guess(policies):
+    """30 days exactly is not yet "older than 30 days"."""
+    at = compute_confidence(
+        [ev("BP-001", "STRONG", ["SECURITY_VIEWED"], age_days=30)], policies)
+    past = compute_confidence(
+        [ev("BP-001", "STRONG", ["SECURITY_VIEWED"], age_days=30.5)], policies)
+    assert at.confidence == 0.20
+    assert past.confidence == 0.10
+
+
+def test_age_and_diminishing_returns_do_not_compound_each_other(policies):
+    """POL-CONF-002 damps repetition, POL-BEH-002 damps age. A repeat of aged
+    evidence damps from what the finding was worth, not from what age had
+    already taken off it — otherwise the second reading of a month-old finding
+    would be quartered by a rule about saying the same thing twice."""
+    seq = [ev("BP-001", "STRONG", ["SECURITY_VIEWED"], age_days=31),
+           ev("BP-001", "STRONG", ["SECURITY_VIEWED"], age_days=31)]
+    # 0.20 -> aged 0.10; repeat damps 0.20 to 0.10 -> aged 0.05
+    assert compute_confidence(seq, policies).confidence == 0.15
+
+
+def test_contradicting_evidence_also_ages(policies):
+    """A month-old objection is no more binding than a month-old endorsement."""
+    seq = [ev("BP-001", "STRONG", ["SECURITY_VIEWED"]),
+           ev("BP-002", "MEDIUM", ["PRICING_VIEWED"], relation="CONTRADICTING",
+              age_days=31)]
+    fresh_objection = [ev("BP-001", "STRONG", ["SECURITY_VIEWED"]),
+                       ev("BP-002", "MEDIUM", ["PRICING_VIEWED"], relation="CONTRADICTING")]
+    assert (compute_confidence(seq, policies).confidence
+            > compute_confidence(fresh_objection, policies).confidence)
+
+
+def test_the_pipeline_measures_evidence_age_at_scoring_time(
+        seeded, policies):
+    """The wiring, not the arithmetic: `_update_hypotheses` must hand the engine
+    a real age. Sabotaging it to a constant 0.0 left every other test green,
+    which is the whole reason this one exists.
+
+    Scoring the same journey twice — once the day its evidence was written, once
+    two months later — must yield a lower confidence the second time, with no
+    new evidence in between.
+    """
+    from datetime import datetime, timedelta
+
+    from smartreco import models
+    from smartreco.pipeline import _update_hypotheses
+    from tests.test_stories_6_to_9 import _user
+
+    db = seeded
+    user = _user(db, "aging@example.com")
+    written = datetime(2026, 6, 1, 9, 0)
+    db.add(models.Journey(journey_id="J-age", user_id=user.id, lifecycle="ACTIVE",
+                          created_at=written))
+    db.commit()
+    for i, strength in enumerate(("STRONG", "MEDIUM")):
+        db.add(models.Evidence(
+            evidence_id=f"BE-age-{i}", journey_id="J-age", pattern_id=f"BP-00{i + 1}",
+            strength=strength, concept_ids=["BC-001"], contradicts_concept_ids=[],
+            supporting_event_ids=[], explanation="fixture", created_at=written))
+    db.commit()
+
+    same_day = _update_hypotheses(db, policies, "J-age", written + timedelta(hours=1))
+    two_months = _update_hypotheses(db, policies, "J-age", written + timedelta(days=60))
+    assert same_day["BC-001"] > two_months["BC-001"], (
+        f"month-old evidence scored the same as fresh: {same_day} vs {two_months}")

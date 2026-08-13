@@ -3211,3 +3211,64 @@ newest journey, which the accumulation runs already keep current.
 distinction nothing was guarding — six heartbeats, twice POL-TRIG-001's
 threshold, must not start a run. It was written because sabotaging the gate to
 count every pending event left all 363 tests green.
+
+---
+
+# Decision #067
+
+## Title
+
+POL-BEH-002 acquires a consumer: evidence ages out of full weight
+
+## Status
+
+Accepted
+
+## Decision
+
+The Confidence Engine applies POL-BEH-002 — evidence older than the policy's
+window contributes at half weight. `EvidenceInput` carries `age_days`, measured
+by the orchestration at scoring time against `evidence.created_at`.
+
+## Rationale
+
+POL-BEH-002 has been in the Policy Catalog and in `config/policies.yaml` since
+v1 with both its numbers, and nothing read either of them. A published policy
+that no code consumes is worse than an absent one: it is a promise the system
+does not keep, and Law 4 exists to make the catalog the single place a
+behavioural number lives — which only holds if the engines actually read it.
+
+The behaviour it was written for is real here. Journeys survive dormancy for
+weeks (POL-JRES-002), and a returning shopper resumes the journey they left
+rather than starting a new one (#057). Without ageing, a belief formed in one
+session counts at full strength however long ago that session was, so a
+requirement derived from a month-old security evaluation outranks one derived
+from yesterday's.
+
+**Age and repetition are kept independent.** POL-CONF-002 damps a finding
+restated; POL-BEH-002 damps a finding grown old. The damping chain records what
+the finding was worth before ageing, so the second reading of a month-old
+finding is halved once for each rule rather than quartered by either standing in
+for the other.
+
+**Measured at scoring time, not at insert.** Ageing is a property of the
+question "what is this worth now", so a dormant journey is re-scored on its
+evidence's present value every time it runs. Stamping a weight at insert would
+freeze it at the moment the evidence was written, which is the one moment the
+policy is never asking about.
+
+## Consequences
+
+Nothing changes for a journey scored within the window — the acceptance
+derivations in `docs/domains/software-buying/09` all sit inside one session, and
+Story 1's 0.80 / 0.70 are untouched.
+
+The wiring is pinned separately from the arithmetic. Sabotaging the orchestration
+to hand the engine a constant age left all 368 tests green, so
+`test_the_pipeline_measures_evidence_age_at_scoring_time` scores one journey at
+two clock positions and requires the later one to be lower.
+
+**One knob is still unread**: `cumulative_dwell_seconds` on the Product Affinity
+pattern. Unlike POL-BEH-002 it is Domain Pack data rather than a platform
+policy, and the pattern's Strong bar is written in qualifying events; it is
+recorded here rather than fixed silently.

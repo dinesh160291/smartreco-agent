@@ -1,6 +1,7 @@
 """Confidence Engine — deterministic evidence → hypothesis confidence (docs/core/05).
 
 Arithmetic is entirely policy-driven:
+  POL-BEH-002 evidence older than the policy's window contributes at half weight
   POL-CONF-001 class contributions + diversity increment
   POL-CONF-002 diminishing returns (identity per Decision #054:
                pattern + strength + the *set* of supporting event types)
@@ -25,6 +26,7 @@ class EvidenceInput:
     strength: str  # EvidenceStrength code
     event_type_composition: tuple[str, ...]  # sorted multiset of supporting event types
     relation: str = "SUPPORTING"  # SUPPORTING | CONTRADICTING
+    age_days: float = 0.0  # at scoring time; POL-BEH-002
 
 
 @dataclass(frozen=True)
@@ -40,6 +42,11 @@ def compute_confidence(evidence: list[EvidenceInput], policies: PolicyCatalog) -
     contradiction_factor = policies.param("POL-CONF-003", "contradiction_factor")
     cap = policies.param("POL-CONF-004", "cap")
     floor = policies.param("POL-CONF-004", "floor")
+    aged_after_days = policies.param("POL-BEH-002", "age_days")
+    aged_weight = policies.param("POL-BEH-002", "aged_weight")
+
+    def age_factor(item: EvidenceInput) -> float:
+        return aged_weight if item.age_days > aged_after_days else 1.0
 
     total = 0.0
     last_contribution: dict[tuple, float] = {}  # identity key → prior contribution
@@ -49,7 +56,7 @@ def compute_confidence(evidence: list[EvidenceInput], policies: PolicyCatalog) -
     for item in evidence:
         class_value = contributions[_STRENGTH_KEY[item.strength]]
         if item.relation == "CONTRADICTING":
-            delta = -contradiction_factor * class_value
+            delta = -contradiction_factor * class_value * age_factor(item)
             total += delta
             steps.append(f"{item.pattern_id} {item.strength} contradicting {delta:+.4f}")
             continue
@@ -64,7 +71,13 @@ def compute_confidence(evidence: list[EvidenceInput], policies: PolicyCatalog) -
             delta = last_contribution[identity] * repeat_factor
         else:
             delta = class_value
+        # The damping chain records what the *finding* was worth, so age and
+        # repetition stay independent (POL-BEH-002 alongside POL-CONF-002): the
+        # second reading of a month-old finding is halved once for being said
+        # twice and once for being a month old, never quartered by either rule
+        # standing in for the other.
         last_contribution[identity] = delta
+        delta *= age_factor(item)
         total += delta
         steps.append(f"{item.pattern_id} {item.strength} {delta:+.4f}")
 

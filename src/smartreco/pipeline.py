@@ -497,6 +497,10 @@ def _update_hypotheses(db: OrmSession, policies: PolicyCatalog, journey_id: str,
                     events_by_id[eid].event_type for eid in ev.supporting_event_ids
                     if eid in events_by_id)),
                 relation=relation,
+                # POL-BEH-002 — measured at scoring time, not at insert, so a
+                # journey that lay dormant for a month is re-scored on what its
+                # evidence is worth *now* (Decision #067).
+                age_days=max(0.0, (now - ev.created_at).total_seconds() / 86400),
             )
             for ev, relation in concept_evidence
         ]
