@@ -3418,3 +3418,62 @@ wrong is that verification depended on remembering to run a script, and a
 correctness property that depends on remembering is not a property. The audit
 kept finding drift because the mechanism that was supposed to prevent it had
 been switched off since the first boot.
+
+---
+
+# Decision #070
+
+## Title
+
+The ADK wrapper enforces the halt itself instead of asking the framework to
+
+## Status
+
+Accepted
+
+## Decision
+
+`StageAgent` records a halt in the workflow state it owns and checks that state
+before running any node. `ctx.end_invocation` is still set, as the
+framework-native signal, but nothing depends on it.
+
+## Rationale
+
+Found by watching a live browser session: a `FAILED` workflow run 0.4 seconds
+before a healthy one, with `KeyError: 'journey_id'` at the node *after*
+`resolve_journey`.
+
+`resolve_journey` returns False when there is no journey to reason about, and
+the graph must stop. The plain executor obeys the return value. The ADK wrapper
+set `ctx.end_invocation = True` and trusted `SequentialAgent` to act on it —
+which this version does not do between sub-agents, so the next node ran anyway
+and dereferenced the journey id it had just been told did not exist.
+
+**The state it fails in is routine, not rare.** POL-TRIG-001 fires a run at 3
+unprocessed events; POL-JRES-001 does not settle a session's ownership until 5.
+Every new session of a shopper who already owns a journey passes through that
+window. What should be an ordinary SKIP was a FAILED run each time.
+
+**This is the framework seam failing at the one thing it exists to guarantee.**
+Core 21 and `stack-decisions.md` both say the wrapper only supplies sequencing —
+swapping ADK for LangGraph changes no engine, contract, or Runtime Object. A
+wrapper that can only *request* a halt does not bind the graph contract; it
+delegates it to a third party whose behaviour is a version detail. Enforcing it
+in state we own makes the contract ours again, and the same three lines will
+carry to LangGraph unchanged.
+
+## Consequences
+
+`test_adk_halts_the_graph_when_there_is_no_journey_to_reason_about` reproduces
+the live failure exactly — the same KeyError, at the same node — and now passes
+as a SKIP.
+
+**The existing ADK test only ever walked the happy path**, which is why a
+framework divergence survived: it asserted that a *completed* run through ADK
+matches the plain executor and never asked what an incomplete one does. Where
+two implementations must agree, the cases worth pinning are the ones where one
+of them stops early.
+
+The deprecation warning already visible in the suite — `SequentialAgent is
+deprecated in favor of Workflow` — is the same version drift seen from the other
+side, and is now recorded rather than merely printed.

@@ -29,6 +29,9 @@ _CURRENT: contextvars.ContextVar[tuple[WorkflowContext, dict]] = contextvars.Con
 _STAGE_FNS = dict(WORKFLOW_GRAPH)
 
 
+_HALTED = "_halted"
+
+
 class StageAgent(BaseAgent):
     """One deterministic (or Tier-classified) workflow node as an ADK agent.
     Delegates to the stage function; emits one trace event."""
@@ -37,8 +40,19 @@ class StageAgent(BaseAgent):
         self, ctx: InvocationContext
     ) -> AsyncGenerator[Event, None]:
         workflow_ctx, state = _CURRENT.get()
+        # The halt is enforced here, in state we own, and only *then* signalled
+        # to the framework. Setting `end_invocation` alone was a request this
+        # version of SequentialAgent does not honour between sub-agents: the
+        # node after `resolve_journey` ran anyway and died on the journey_id it
+        # had just been told did not exist, so a routine SKIP surfaced as a
+        # FAILED run. The graph contract is core 21's, not the framework's —
+        # a wrapper that can only ask politely is not binding it.
+        if state.get(_HALTED):
+            yield Event(author=self.name, invocation_id=ctx.invocation_id)
+            return
         proceed = _STAGE_FNS[self.name](workflow_ctx, state)
         if not proceed:
+            state[_HALTED] = True
             ctx.end_invocation = True  # halt the sequential chain (no work)
         yield Event(author=self.name, invocation_id=ctx.invocation_id)
 
