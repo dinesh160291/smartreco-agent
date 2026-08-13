@@ -1,9 +1,12 @@
 # Policy Catalog v1 — transcription of docs/core/10-decision-policies.md ("Policy Catalog v1 — Initial Values").
 # This file is the single source of business thresholds (Law: no business thresholds in code).
 # Engines consume it only through the policy loader; every workflow run records policy_version.
-# Every value change produces a new catalog version.
+# Every change to what these rules *do* produces a new catalog version — not
+# only a changed number. A rule whose wording, scope, or set of consumers moves
+# changes the decisions a run produces, and policy_version is how that run says
+# which build of the rules produced it.
 
-catalog_version: "1.5"
+catalog_version: "1.6"
 
 policies:
 
