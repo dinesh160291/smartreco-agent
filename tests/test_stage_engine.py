@@ -6,7 +6,7 @@ confidence, threshold ≥ 0.6). Story 1 expects Technical Validation."""
 
 import pytest
 
-from smartreco.engines.stages import determine_stage
+from smartreco.engines.stages import apply_regression, determine_stage
 from smartreco.policies import load_policies
 
 
@@ -125,3 +125,46 @@ def test_adoption_falls_back_to_topic_alone_when_no_product_is_identifiable(poli
                 _ev("DOCUMENTATION_VIEWED", product_id="PROD-003", topic="onboarding")],
         policies=policies)
     assert stage == "Adoption"
+
+
+# --- Stage flapping: two replays of one real journey (Decision #065) ---
+
+def test_arriving_evidence_never_demotes_a_milestone_the_events_satisfy(policies):
+    """Replay: a live journey went Comparison → Awareness, five stages back.
+
+    The Comparison milestone is satisfied by a COMPARISON_STARTED event *or* by
+    comparison-pattern evidence. Once that evidence arrived the engine preferred
+    it, failed the ≥ 0.6 stage-confidence gate, and skipped the milestone
+    outright — never reaching the event arm that had been satisfying it all
+    along. Acquiring evidence made the journey look younger.
+    """
+    events = [{"event_type": "COMPARISON_STARTED", "metadata": {}}]
+    before, _, _ = determine_stage([], {}, events, policies)
+    after, _, _ = determine_stage(
+        evidence=[evid("BP-009", "MEDIUM", "BE-9", ("BC-009",))],
+        hypotheses_by_concept={"BC-009": 0.4},   # below POL-STAGE-001
+        events=events, policies=policies)
+    assert before == "Comparison"
+    assert after == "Comparison"                 # was "Awareness"
+
+
+def test_regression_may_only_lower_the_recorded_stage(policies):
+    """Replay: a journey sitting at Decision wrote four stage versions in nine
+    minutes — Commercial Evaluation, Technical Validation, Commercial
+    Evaluation, Technical Validation — each explained as "regressed from
+    Decision". Its evidence never changed; only which three high-signal events
+    happened to be last. Stage gates the Critical priority band, so the
+    requirement profile and the ranking churned with it.
+    """
+    docs = ["DOCUMENTATION_VIEWED"] * 3
+    pricing = ["PRICING_VIEWED"] * 3
+    assert apply_regression("Decision", "Decision", docs, policies) == "Technical Validation"
+    # Once there, pricing views must not carry it back up: advancement is
+    # POL-STAGE-001's alone.
+    assert apply_regression("Decision", "Technical Validation", pricing, policies) is None
+
+
+def test_regression_still_fires_on_a_genuine_step_back(policies):
+    """The counterpart, so the fix cannot be "regression never fires"."""
+    browsing = ["SEARCH", "PRODUCT_VIEWED", "CATEGORY_VIEWED"]
+    assert apply_regression("Decision", "Decision", browsing, policies) == "Discovery"

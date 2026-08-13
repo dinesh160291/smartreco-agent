@@ -77,6 +77,21 @@ def _milestone_evidence(milestone: dict, evidence: list[dict],
     raise ValueError(f"Unknown milestone kind {kind!r}")
 
 
+def _satisfied_by_events_alone(milestone: dict, events: list[dict]) -> bool:
+    """Whether the milestone has an evidence-free arm these events satisfy.
+
+    Asked separately from `_milestone_evidence` because the two arms are not
+    alternatives (Decision #065): a milestone whose pattern evidence fails the
+    stage-confidence gate may still be satisfied outright by its events, and
+    preferring the evidence meant acquiring it *demoted* the journey.
+    """
+    if milestone["kind"] == "events_no_evidence":
+        return bool(events)
+    if milestone["kind"] == "pattern_evidence_or_event":
+        return any(e["event_type"] in milestone["event_types"] for e in events)
+    return False
+
+
 def determine_stage(
     evidence: list[dict],  # [{evidence_id, pattern_id, strength, concept_ids}]
     hypotheses_by_concept: dict[str, float],  # active hypotheses only
@@ -106,16 +121,28 @@ def determine_stage(
                 f"stage confidence {confidence} >= {min_confidence} (POL-STAGE-001)"
             )
             return milestone["stage"], confidence, explanation
+        if _satisfied_by_events_alone(milestone, events):
+            return milestone["stage"], 0.0, f"{milestone['stage']}: milestone satisfied by events"
 
     return "Awareness", 0.0, "Awareness: no milestone satisfied"
 
 
-def apply_regression(current_stage: str, recent_high_signal_types: list[str],
+def apply_regression(current_stage: str, recorded_stage: str | None,
+                     recent_high_signal_types: list[str],
                      policies: PolicyCatalog) -> str | None:
     """POL-STAGE-002: regress when the last N consecutive high-signal events are
     all characteristic of stages strictly earlier than the current stage.
     Returns the regressed stage (the highest stage those events characterize),
-    or None when no regression applies."""
+    or None when no regression applies.
+
+    A regression may only *lower* the stage the journey has already recorded
+    (Decision #065). Without that floor the milestone stage is recomputed from
+    cumulative evidence on every run and regressed afresh, so the same trailing
+    window regresses the journey again and again — and as the window slides the
+    target changes, which is how a journey settled at Decision ping-ponged
+    between Technical Validation and Commercial Evaluation four times without
+    its evidence moving at all. Climbing back is POL-STAGE-001's alone.
+    """
     needed = policies.param("POL-STAGE-002", "consecutive_earlier_stage_events")
     if len(recent_high_signal_types) < needed:
         return None
@@ -127,4 +154,6 @@ def apply_regression(current_stage: str, recent_high_signal_types: list[str],
         if stage is None or domain.JOURNEY_STAGES.index(stage) >= current_index:
             return None
         characters.append(domain.JOURNEY_STAGES.index(stage))
+    if recorded_stage is not None and max(characters) >= domain.JOURNEY_STAGES.index(recorded_stage):
+        return None
     return domain.JOURNEY_STAGES[max(characters)]

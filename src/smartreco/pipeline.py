@@ -647,15 +647,16 @@ def stage_resolve_stage(ctx: WorkflowContext, state: dict) -> bool:
         evidence_dicts, state["active"], stage_events, ctx.policies)
     recent_high = [e.event_type for e in state["journey_events"]
                    if e.signal_class == "HIGH"]
-    regressed = apply_regression(stage, recent_high, ctx.policies)
-    if regressed is not None:
-        stage_explanation = (f"{regressed}: regressed from {stage} — last high-signal "
-                             f"events characteristic of an earlier stage (POL-STAGE-002)")
-        stage, stage_conf = regressed, 0.0
     latest_stage = ctx.db.execute(
         select(models.JourneyStage).where(models.JourneyStage.journey_id == journey_id)
         .order_by(models.JourneyStage.version.desc())
     ).scalars().first()
+    regressed = apply_regression(
+        stage, latest_stage.stage if latest_stage else None, recent_high, ctx.policies)
+    if regressed is not None:
+        stage_explanation = (f"{regressed}: regressed from {stage} — last high-signal "
+                             f"events characteristic of an earlier stage (POL-STAGE-002)")
+        stage, stage_conf = regressed, 0.0
     if latest_stage is None or latest_stage.stage != stage:
         repos.insert_journey_stage(ctx.db, models.JourneyStage(
             journey_id=journey_id,

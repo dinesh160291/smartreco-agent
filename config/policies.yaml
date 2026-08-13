@@ -112,13 +112,19 @@ policies:
       Current stage = highest stage whose Domain Pack milestone is satisfied
       (Software Buying: 00 — section 4.1 Stage Qualification Milestones) with stage confidence >= 0.6,
       where stage confidence = max confidence among hypotheses supported by the milestone-satisfying Evidence.
+      A milestone offering an evidence-free arm is satisfied by that arm at stage confidence 0.0
+      whenever its Evidence arm fails the threshold — acquiring Evidence never lowers a stage.
     params:
       min_stage_confidence: 0.6
 
   POL-STAGE-002:
     name: Stage regression
     category: stage
-    rule: "Regress on 3 consecutive high-signal events characteristic of an earlier stage"
+    rule: >-
+      Regress on 3 consecutive high-signal events characteristic of an earlier stage.
+      A regression may only lower the journey's recorded stage; where the regressed stage
+      is not strictly earlier than the recorded one, no regression applies.
+      Advancement is POL-STAGE-001's alone.
     params:
       consecutive_earlier_stage_events: 3
 

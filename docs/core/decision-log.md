@@ -3085,3 +3085,71 @@ SYNCED.
 untouched by design: fictional capability *depth*, for the reasons above, and
 the eleven real-product pairs that share a profile, where forcing difference
 would mean inventing capabilities — the fault the audit existed to remove.
+
+---
+
+# Decision #065
+
+## Title
+
+Stage flapping: an evidence-free milestone arm, and a floor under regression
+
+## Status
+
+Accepted
+
+## Decision
+
+Two independent fixes to the Journey Stage Engine, both found by replaying one
+live journey:
+
+1. A milestone that offers an evidence-free arm is satisfied by that arm when
+   its Evidence arm fails the POL-STAGE-001 threshold. Acquiring Evidence can
+   no longer lower a stage.
+2. A POL-STAGE-002 regression may only lower the journey's **recorded** stage.
+   Where the regressed stage is not strictly earlier than the recorded one, no
+   regression applies.
+
+## Rationale
+
+Journey `J-3` wrote eight stage versions in twelve minutes and moved backwards
+in five of them. Its evidence only ever grew.
+
+**The first fault is non-monotone by construction.** The Comparison milestone is
+satisfied by a comparison-started event *or* by comparison-pattern evidence.
+`_milestone_evidence` returned the pattern evidence whenever any existed, and
+`determine_stage` then held that evidence to the ≥ 0.6 stage-confidence gate and
+skipped the milestone when it failed — never reaching the event arm that had
+been satisfying it a minute earlier. The journey fell from Comparison to
+Awareness, five stages, *because it had learned something*. The two arms are not
+alternatives and the engine was treating them as one.
+
+**The second fault is a sliding window with no anchor.** POL-STAGE-002 reads the
+journey's last three high-signal events. The milestone stage is recomputed from
+cumulative evidence on every run, so a journey settled at Decision was regressed
+afresh each time — and because the window slides, the target moved with it:
+three documentation views regressed it to Technical Validation, three pricing
+views to Commercial Evaluation, and it ping-ponged between the two four times in
+nine minutes while its evidence never changed. Neither move was a shopper
+backing off; documentation and pricing are what Decision-stage shoppers read.
+
+The floor states what "regress" already means: you can only go back from
+somewhere you have been. Recovery is unaffected — on the first run where the
+trailing window is not uniformly earlier-stage, POL-STAGE-001 records the
+milestone stage, which is exactly how `J-3` reached Decision at version 8.
+
+**This was not cosmetic.** Stage gates the Critical priority band (POL-REQ-002),
+which carries triple weight in coverage ranking (POL-REC-002), so the
+requirement profile and the product order churned on every flap.
+
+## Consequences
+
+`J-3`'s history becomes four monotone records instead of eight with five
+backwards moves. Genuine regression is untouched and still pinned by Story 8:
+three consecutive Discovery-characteristic events after an evaluation stage
+regress the journey, and `test_regression_still_fires_on_a_genuine_step_back`
+exists so the fix cannot degrade into "regression never fires".
+
+`apply_regression` takes the recorded stage as a second argument — the engine
+stays pure, and the orchestration reads the stored stage before deciding rather
+than after.

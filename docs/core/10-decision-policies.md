@@ -670,8 +670,8 @@ The following are the platform's initial published policy values. They are confi
 | POL-REQ-001 | Requirement publication | Include a Requirement when derived confidence ≥ 0.5 |
 | POL-REQ-002 | Priority bands | Critical ≥ 0.8 with stage ≥ Technical Validation; High ≥ 0.65; Medium ≥ 0.5; else Low |
 | POL-REQ-003 | Requirement confidence derivation | Each active Hypothesis contributes (association weight × hypothesis confidence) to its mapped Requirements — weights: Primary 1.0, Secondary 0.6, Supporting 0.3. Contributions combine via noisy-OR: confidence = 1 − ∏(1 − wᵢ·cᵢ). Retired hypotheses contribute nothing |
-| POL-STAGE-001 | Stage advancement | Current stage = highest stage whose Domain Pack milestone is satisfied (Software Buying: 00 — §4.1 Stage Qualification Milestones) with stage confidence ≥ 0.6, where stage confidence = max confidence among hypotheses supported by the milestone-satisfying Evidence |
-| POL-STAGE-002 | Stage regression | Regress on 3 consecutive high-signal events characteristic of an earlier stage |
+| POL-STAGE-001 | Stage advancement | Current stage = highest stage whose Domain Pack milestone is satisfied (Software Buying: 00 — §4.1 Stage Qualification Milestones) with stage confidence ≥ 0.6, where stage confidence = max confidence among hypotheses supported by the milestone-satisfying Evidence. A milestone offering an evidence-free arm is satisfied by that arm at stage confidence 0.0 whenever its Evidence arm fails the threshold — acquiring Evidence never lowers a stage |
+| POL-STAGE-002 | Stage regression | Regress on 3 consecutive high-signal events characteristic of an earlier stage. A regression may only lower the journey's recorded stage; where the regressed stage is not strictly earlier than the recorded one, no regression applies. Advancement is POL-STAGE-001's alone |
 
 ## Recommendation & Readiness Policies
 
