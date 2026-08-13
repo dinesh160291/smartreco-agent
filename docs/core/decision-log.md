@@ -2835,3 +2835,98 @@ This is the third catalog-plausibility finding (#053 Work Management, #058
 Splunk/Linear/n8n, this one). All three were found because a ranking made them
 visible, never by inspection. The systematic audit is still outstanding and is
 now clearly the highest-value remaining work on the catalog.
+
+---
+
+# Decision #062
+
+## Title
+
+Catalog audit, first pass: the DevOps domain, and a ratchet on cross-domain requirements
+
+## Status
+
+Accepted (audit continuing — see Consequences)
+
+## Decision
+
+Every DevOps capability assignment is restated by what the product actually is.
+Seventeen products changed. `Shortcut` moves to Work Management capabilities,
+`JumpCloud` and `Retool` stop claiming delivery infrastructure.
+
+`test_no_requirement_quietly_borrows_another_domain` is added as a ratchet:
+a requirement may draw on another capability domain only with a stated reason
+in `CROSS_DOMAIN_REQUIREMENTS`. Entries may be removed, never added.
+
+## Rationale
+
+The audit began by looking for signatures rather than reading 250 products.
+Two found every previous defect: capabilities from a domain unrelated to the
+product's category, and identical profiles across products that are not alike.
+
+**No capability domain is assigned as a block any more** — the worst remaining
+is Security at 41%, and Data & Analytics fell to 6% after Decision #061. That
+was the systemic fault and it is gone.
+
+**Identical profiles are what remains.** Six clusters of real products share
+byte-identical capability sets. The most damaging was in DevOps:
+
+> CircleCI, Docker Hub, New Relic, PagerDuty — identical, all 5/5.
+
+A CI service, a container registry, an observability platform and an on-call
+tool, indistinguishable. Meanwhile **GitLab, the one product that genuinely is
+an end-to-end DevOps platform, had no CI/CD at all**, JumpCloud (identity)
+claimed CI/CD and monitoring, and Opsgenie (alerting) claimed CI/CD but not
+Incident Response. The assignments were not merely optimistic; they were
+unrelated to the products.
+
+Restated: GitLab covers all five. Source-and-build tools hold CI/CD, runtimes
+hold Container Orchestration, observability tools hold monitoring and logs,
+on-call tools hold Incident Response. Each also keeps the connective surface it
+genuinely ships — Jenkins' plugin ecosystem and CircleCI's orbs are real
+integration marketplaces, and PagerDuty is event-driven by definition.
+
+**Removing alone is not the fix, twice over.** The first pass here left
+CircleCI, PagerDuty and Docker Hub holding one capability each — the same
+mistake made in Decision #061 and repeated within an hour. Worse,
+`test_every_capability_in_the_catalog_can_be_covered` then caught that Shortcut
+had become unrecommendable: stripping its false DevOps claims left it with
+nothing any requirement reaches. Accuracy that impoverishes the catalog is not
+accuracy.
+
+**The ratchet exists because the user identified a failure mode I had not
+named.** Borrowing a capability from another domain to break a tie corrupts
+retrieval as well as coverage: capability narratives enter the Behavioral Query
+Document verbatim, so an automation sentence inside an analytics query pulls the
+vector toward automation products. That is why a Marketing product once ranked
+fifth in an analytics Candidate Set. Measured on REQ-012, whose borrowing is
+principled, the effect is still visible — 4 of 8 retrieved products are
+off-domain versus 2 with the Security capabilities alone — but its borrowing is
+load-bearing and mild, so it is recorded rather than removed.
+
+## Consequences
+
+A DevOps journey now ranks GitLab 100%, Datadog 60%, New Relic 40%, PagerDuty
+20% — differentiated, and in the order a person would give. Before, four
+products tied at 100% and the winner was decided by Product ID.
+
+**The coverage guarantee earned its place again.** Retrieval missed GitLab, and
+POL-RETR-005 supplied it. Without Decision #060 this correction would have made
+the catalog more honest and the recommendation no better.
+
+**Five identical-profile clusters remain**, all lower-impact than DevOps:
+
+| Cluster | Why it is wrong |
+|---|---|
+| Figma, Miro, GoTo Meeting, Webex | whiteboards and video conferencing are not the same product |
+| Help Scout, Zendesk, Pipedrive | two support desks and a sales CRM |
+| Brex, FreshBooks, QuickBooks Online | spend management and accounting |
+| Make, n8n, PandaDoc | two automation platforms and a document-signature tool |
+| Amplitude, Mixpanel, Looker Studio, Mode | product analytics and BI — mildest of the five |
+
+Bitbucket, CircleCI and Jenkins now share a profile too, and that one is
+allowed to stand: three hosted CI services with a public API and an integration
+ecosystem genuinely are alike.
+
+The audit is a pass per domain, not a single change. This entry covers DevOps;
+the clusters above are the remaining work, in roughly that order of impact.

@@ -190,3 +190,62 @@ def test_every_requirement_is_coverable(seed):
     assert not uncoverable, (
         f"no product can fully cover these requirements: {uncoverable} — "
         "their true winner is capped below 100% and loses to any satisfiable one")
+
+
+# A requirement may draw on another capability domain when the *need* genuinely
+# spans domains — "Secure Collaboration" is collaboration and security, and
+# identity governance really does rest on audit logging. It may never do so to
+# make a test pass.
+#
+# REQ-011 did exactly that: a 21-way tie failed the discrimination guard, so two
+# capabilities were borrowed from Automation and Artificial Intelligence to
+# break it. That made the requirement unsatisfiable (Decision #061) *and*
+# corrupted retrieval, because capability narratives go into the Behavioral
+# Query Document verbatim — an automation sentence inside an analytics query
+# pulls the vector toward automation products.
+#
+# A ratchet, not an excuse: entries may be removed, never added. A new one means
+# arguing that the need itself spans domains.
+CROSS_DOMAIN_REQUIREMENTS = {
+    "REQ-001": "Secure Collaboration is collaboration plus the security that makes it safe",
+    "REQ-002": "identity governance rests on audit logging",
+    "REQ-005": "AI Assistance includes automating what the AI drafts",
+    "REQ-012": "houses Compliance Reporting and Identity Federation, which are "
+               "otherwise stranded in frozen requirements' domains",
+}
+
+
+def test_no_requirement_quietly_borrows_another_domain():
+    from collections import Counter
+
+    from smartreco.domain.software_buying import CAPABILITIES
+
+    domain_of = {cap_id: domain for cap_id, _name, domain, _n in CAPABILITIES}
+    borrowers = {}
+    for req_id, caps in REQ_TO_CAP.items():
+        home, _ = Counter(domain_of[c] for c in caps).most_common(1)[0]
+        foreign = sorted({domain_of[c] for c in caps if domain_of[c] != home})
+        if foreign and req_id not in CROSS_DOMAIN_REQUIREMENTS:
+            borrowers[req_id] = foreign
+    assert not borrowers, (
+        f"these requirements draw on another capability domain without a stated "
+        f"reason: {borrowers}. Borrowing corrupts coverage and retrieval alike — "
+        "if the need genuinely spans domains, say so in CROSS_DOMAIN_REQUIREMENTS")
+
+
+def test_no_stale_cross_domain_entries():
+    """An entry that stops borrowing must be deleted, so the list only shrinks."""
+    from collections import Counter
+
+    from smartreco.domain.software_buying import CAPABILITIES
+
+    domain_of = {cap_id: domain for cap_id, _name, domain, _n in CAPABILITIES}
+    stale = []
+    for req_id in CROSS_DOMAIN_REQUIREMENTS:
+        caps = REQ_TO_CAP.get(req_id, {})
+        if not caps:
+            continue
+        home, _ = Counter(domain_of[c] for c in caps).most_common(1)[0]
+        if not any(domain_of[c] != home for c in caps):
+            stale.append(req_id)
+    assert not stale, f"these no longer borrow — remove them from the list: {stale}"

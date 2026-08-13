@@ -611,13 +611,9 @@
       "business_value_narrative": "GitHub enables developers to integrate applications seamlessly with efficient event triggers and business rules.",
       "capabilities": [
         "CAP-016",
-        "CAP-017",
         "CAP-018",
         "CAP-019",
         "CAP-048",
-        "CAP-049",
-        "CAP-050",
-        "CAP-051",
         "CAP-052"
       ],
       "fictional": false
@@ -633,13 +629,15 @@
       "capabilities": [
         "CAP-011",
         "CAP-016",
-        "CAP-017",
         "CAP-018",
+        "CAP-019",
         "CAP-025",
         "CAP-026",
+        "CAP-048",
         "CAP-049",
         "CAP-050",
-        "CAP-051"
+        "CAP-051",
+        "CAP-052"
       ],
       "fictional": false
     },
@@ -652,10 +650,9 @@
       "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
       "business_value_narrative": "Bitbucket provides powerful CI/CD pipelines and log management for improved software delivery and operations.",
       "capabilities": [
-        "CAP-048",
-        "CAP-050",
-        "CAP-051",
-        "CAP-052"
+        "CAP-016",
+        "CAP-019",
+        "CAP-048"
       ],
       "fictional": false
     },
@@ -668,11 +665,9 @@
       "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
       "business_value_narrative": "CircleCI supports effective CI/CD pipelines and infrastructure monitoring for enhanced software development processes.",
       "capabilities": [
-        "CAP-048",
-        "CAP-049",
-        "CAP-050",
-        "CAP-051",
-        "CAP-052"
+        "CAP-016",
+        "CAP-019",
+        "CAP-048"
       ],
       "fictional": false
     },
@@ -685,9 +680,9 @@
       "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
       "business_value_narrative": "Jenkins facilitates container orchestration and infrastructure monitoring, optimizing development workflows.",
       "capabilities": [
-        "CAP-048",
-        "CAP-049",
-        "CAP-052"
+        "CAP-016",
+        "CAP-019",
+        "CAP-048"
       ],
       "fictional": false
     },
@@ -700,8 +695,9 @@
       "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
       "business_value_narrative": "Datadog enhances infrastructure monitoring and incident response capabilities for more reliable software applications.",
       "capabilities": [
+        "CAP-016",
+        "CAP-017",
         "CAP-019",
-        "CAP-048",
         "CAP-049",
         "CAP-050",
         "CAP-051",
@@ -718,11 +714,10 @@
       "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
       "business_value_narrative": "New Relic provides tools for infrastructure monitoring and incident management, supporting improved application performance.",
       "capabilities": [
-        "CAP-048",
+        "CAP-017",
+        "CAP-019",
         "CAP-049",
-        "CAP-050",
-        "CAP-051",
-        "CAP-052"
+        "CAP-050"
       ],
       "fictional": false
     },
@@ -735,10 +730,9 @@
       "business_purpose": "Help devops teams work faster with log management at the core.",
       "business_value_narrative": "Grafana Cloud enables data visualization and log management, assisting teams in monitoring application performance effectively.",
       "capabilities": [
+        "CAP-016",
         "CAP-019",
-        "CAP-050",
-        "CAP-051",
-        "CAP-052",
+        "CAP-049",
         "CAP-053"
       ],
       "fictional": false
@@ -753,14 +747,12 @@
       "business_value_narrative": "Splunk enhances security through encryption and threat protection while providing robust CI/CD pipeline capabilities.",
       "capabilities": [
         "CAP-011",
+        "CAP-017",
+        "CAP-019",
         "CAP-022",
         "CAP-025",
         "CAP-026",
-        "CAP-048",
-        "CAP-049",
         "CAP-050",
-        "CAP-051",
-        "CAP-052",
         "CAP-053"
       ],
       "fictional": false
@@ -774,11 +766,10 @@
       "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
       "business_value_narrative": "PagerDuty improves incident response and infrastructure monitoring, ensuring software reliability during development and production.",
       "capabilities": [
-        "CAP-048",
-        "CAP-049",
-        "CAP-050",
-        "CAP-051",
-        "CAP-052"
+        "CAP-016",
+        "CAP-017",
+        "CAP-019",
+        "CAP-051"
       ],
       "fictional": false
     },
@@ -791,9 +782,10 @@
       "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
       "business_value_narrative": "Opsgenie streamlines CI/CD pipelines and infrastructure monitoring, enhancing incident management for development teams.",
       "capabilities": [
-        "CAP-048",
-        "CAP-049",
-        "CAP-050"
+        "CAP-016",
+        "CAP-017",
+        "CAP-019",
+        "CAP-051"
       ],
       "fictional": false
     },
@@ -806,10 +798,10 @@
       "business_purpose": "Help devops teams work faster with infrastructure monitoring at the core.",
       "business_value_narrative": "Sentry provides developers with infrastructure monitoring and incident response tools to improve application performance.",
       "capabilities": [
-        "CAP-049",
+        "CAP-017",
+        "CAP-019",
         "CAP-050",
-        "CAP-051",
-        "CAP-052"
+        "CAP-051"
       ],
       "fictional": false
     },
@@ -822,10 +814,7 @@
       "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
       "business_value_narrative": "Docker Hub streamlines CI/CD pipelines and incident response processes for efficient application management.",
       "capabilities": [
-        "CAP-048",
-        "CAP-049",
-        "CAP-050",
-        "CAP-051",
+        "CAP-019",
         "CAP-052"
       ],
       "fictional": false
@@ -839,8 +828,7 @@
       "business_purpose": "Help devops teams work faster with ci/cd pipelines at the core.",
       "business_value_narrative": "Kubernetes Engine simplifies CI/CD pipelines and incident response, enhancing container orchestration for development teams.",
       "capabilities": [
-        "CAP-048",
-        "CAP-051",
+        "CAP-019",
         "CAP-052"
       ],
       "fictional": false
@@ -1484,11 +1472,7 @@
         "CAP-001",
         "CAP-002",
         "CAP-003",
-        "CAP-004",
-        "CAP-048",
-        "CAP-049",
-        "CAP-050",
-        "CAP-051"
+        "CAP-004"
       ],
       "fictional": false
     },
@@ -1894,10 +1878,9 @@
       "business_purpose": "Help work management teams work faster with ci/cd pipelines at the core.",
       "business_value_narrative": "Shortcut supports agile workflows with tools for incident response and container orchestration.",
       "capabilities": [
-        "CAP-048",
-        "CAP-051",
-        "CAP-052",
-        "CAP-056"
+        "CAP-019",
+        "CAP-056",
+        "CAP-058"
       ],
       "fictional": false
     },
@@ -1912,12 +1895,7 @@
       "capabilities": [
         "CAP-015",
         "CAP-016",
-        "CAP-017",
-        "CAP-019",
-        "CAP-048",
-        "CAP-049",
-        "CAP-050",
-        "CAP-052"
+        "CAP-019"
       ],
       "fictional": false
     },
