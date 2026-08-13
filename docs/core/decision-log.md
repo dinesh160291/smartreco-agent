@@ -2492,3 +2492,76 @@ triggers it — correctly. The earlier fixtures were small enough to pass under 
 rule that could not work in production, which is the lesson of this entry: a
 synthetic clickstream validates the code against itself; only a replayed one
 validates it against the world.
+
+---
+
+# Decision #058
+
+## Title
+
+Catalog capability profiles must describe the product — and the discrimination guard was off by one
+
+## Status
+
+Accepted
+
+## Decision
+
+Three seed corrections and one guard correction:
+
+| Product | Change | Why |
+|---|---|---|
+| Splunk | **+ Log Management** | it is a log management product |
+| Linear | **− the five infrastructure capabilities** | an issue tracker runs no infrastructure |
+| n8n | **− the five infrastructure capabilities** | a workflow tool runs no infrastructure |
+
+`test_every_requirement_discriminates` now fails at `full >= top_k` rather than
+`full > top_k`.
+
+## Rationale
+
+Noticed from a live ranking, not from review. A shopper on a DevOps journey got
+CircleCI, New Relic and PagerDuty at 100% while Splunk sat at 80% — because the
+catalog said Splunk has no Log Management. Splunk is the log management
+product; the profile was simply wrong.
+
+Correcting it exposed the same defect running the other way. **Linear and n8n
+both fully covered Engineering Delivery**, claiming CI/CD Pipelines,
+Infrastructure Monitoring, Log Management, Incident Response and Container
+Orchestration. An issue tracker and a workflow automation tool run no
+infrastructure between them. That is how a project-management product could
+have out-ranked Datadog on a DevOps recommendation.
+
+**The guard was off by one, and the Splunk fix walked straight into the gap.**
+`test_every_requirement_discriminates` exists because a requirement covered
+fully by more products than a Candidate Set can hold produces a list that is
+entirely ties — "correct and useless". It compared `full > top_k`. Adding
+Splunk took REQ-010 to exactly 8 against a Candidate Set of 8, where every
+retrieved candidate can be a perfect-coverage tie: precisely the failure the
+test names, and it stayed quiet. The boundary is `>=`.
+
+With Linear and n8n corrected, REQ-010 is fully covered by 6 — GitHub,
+CircleCI, New Relic, Splunk, PagerDuty, Docker Hub, all of them genuinely
+DevOps products — which leaves the ranking something to discriminate on.
+
+## Consequences
+
+The demo database was updated through `save_product`, the sanctioned dual-write
+path, so the vector index was re-embedded alongside the relational rows rather
+than drifting from them (Core 20). All 250 products remain SYNCED.
+
+**n8n now holds no Workflow Automation capability**, which is its own absurdity
+and is left alone deliberately. Adding CAP-015 would give it all five of
+REQ-003's capabilities, and `test_distractor_constraint_holds_for_scenario_requirements`
+forbids a non-canonical product from fully covering a scenario requirement —
+that rule protects ServiceNow as the canonical Workflow Automation winner in
+Validation Scenario 3. The catalog cannot describe n8n honestly without moving
+that scenario, so the tension is recorded rather than resolved.
+
+**This is the second finding of the same kind** (Decision #053 added Work
+Management capabilities so a task tool could say it was about tasks). The
+generator drew capability sets from per-domain pools without checking them
+against the product, so plausibility is not guaranteed anywhere in the catalog.
+Three profiles are now known-correct; the rest have been checked only where a
+ranking made them visible. A systematic pass is worth doing before the catalog
+is treated as ground truth.

@@ -78,12 +78,16 @@ def test_every_requirement_discriminates(seed):
     from the three Data & Analytics capabilities alone, and 21 catalog products
     hold all three.
     """
+    # `>=`, not `>`: if *exactly* top_k products cover a requirement fully, the
+    # Candidate Set can still be composed entirely of them, which is the failure
+    # this test exists to prevent. Corrected when the Splunk repair pushed
+    # REQ-010 to exactly 8 and the guard stayed quiet (Decision #058).
     top_k = load_policies().param("POL-RETR-001", "top_k")
     saturating: dict[str, int] = {}
     for req_id, required in REQ_TO_CAP.items():
         full = sum(1 for p in seed["products"]
                    if set(required) <= set(p["capabilities"]))
-        if full > top_k:
+        if full >= top_k:
             saturating[req_id] = full
     assert not saturating, (
         f"requirements saturated beyond a Candidate Set ({top_k}): {saturating} — "
