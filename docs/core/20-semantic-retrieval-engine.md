@@ -122,12 +122,25 @@ Retrieval queries are constructed **deterministically** — no AI required for t
 
 The Behavioral Query Document is composed from:
 
-- The current Requirement Profile (requirement names, priorities)
-- Active Behavioral Hypotheses (concept names, from Behavioral Memory)
-- Current Journey Stage
+- The current Requirement Profile — requirement names, priorities, and the
+  capabilities each requirement maps to
 - Recent high-signal activity summary (search terms, viewed categories)
 
-The query document template is versioned. Identical inputs produce identical query documents.
+**It describes the need, not the shopper (Decision #059).** The document is
+embedded and matched against Embedding Documents, which contain a product's
+name, vendor, category, description, purpose and capabilities — nothing about
+anyone's state. Active concept names and the Journey Stage were composed into
+it until they were measured: they have nothing to match against, and they
+diluted the lines that do. On a live index, removing them took a DevOps
+journey's Candidate Set from 60% mean coverage with two products covering
+nothing, to 87.5% with none.
+
+The same applies to the template marker. The version is **recorded on the
+Candidate Set's params**, not embedded in the text — one line of bookkeeping
+inside the document cost a further 20 points of mean coverage on its own.
+
+The query document template is versioned. Identical inputs produce identical
+query documents.
 
 ---
 

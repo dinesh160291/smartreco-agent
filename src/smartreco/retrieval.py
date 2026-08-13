@@ -146,7 +146,10 @@ def reconcile_pending(db: OrmSession, chroma_client, backend: EmbeddingBackend) 
     return repaired
 
 
-QUERY_TEMPLATE_VERSION = "qd-v1"
+# qd-v2 (Decision #059): shopper-state lines removed from the embedded
+# document. Bumped because cached Candidate Sets key on it, so sets built
+# from the old composition must not be served against the new one.
+QUERY_TEMPLATE_VERSION = "qd-v2"
 PROMPT_VERSION_EVALUATE = "retrieval-evaluate-v1"
 PROMPT_VERSION_REFINE = "retrieval-refine-v1"
 
@@ -164,18 +167,35 @@ def compose_query_document(
     requirement_names: dict[str, str],
 ) -> str:
     """Deterministic Behavioral Query Document (core 20): requirement names +
-    priorities, active concept names, journey stage, recent high-signal terms.
-    Versioned template — identical inputs produce identical documents."""
-    lines = [f"query-template {QUERY_TEMPLATE_VERSION}"]
+    priorities with their capabilities, and recent high-signal terms.
+    Versioned template — identical inputs produce identical documents.
+
+    **It describes the need, not the shopper (Decision #059).** This document is
+    embedded and matched against product Embedding Documents, which hold a
+    product's name, vendor, category, description, purpose and capabilities —
+    nothing about anyone's state. Lines naming behavioral concepts and the
+    journey stage therefore had nothing to match against and diluted the lines
+    that did: on a live index, a DevOps journey's candidates went from 60% mean
+    coverage with two useless products to 87.5% with none, purely by removing
+    them.
+
+    `concept_names` and `stage` remain in the signature because callers derive
+    them anyway and both belong in the Reasoning Panel; they are simply not
+    part of what gets embedded. Recent activity stays — measured as genuine
+    signal, being the shopper's own words about what they are looking for.
+
+    The template version is **not** in the document either, for the same reason:
+    it is bookkeeping, and embedding it cost 20 points of mean coverage on a
+    live index all by itself. It is recorded on the Candidate Set's params,
+    where it can key the cache without competing for meaning.
+    """
+    lines = []
     for entry in requirements:
         name = requirement_names.get(entry["req_id"], entry["req_id"])
         lines.append(f"requirement: {name} (priority {entry['priority']})")
         for cap_id in sorted(_REQ_CAPS.get(entry["req_id"], ())):
             cap_name, _domain, narrative = _CAP_BY_ID[cap_id]
             lines.append(f"capability: {cap_name}. {narrative}")
-    for concept in concept_names:
-        lines.append(f"interest: {concept}")
-    lines.append(f"journey stage: {stage}")
     if recent_terms:
         lines.append("recent activity: " + ", ".join(recent_terms))
     return "\n".join(lines)

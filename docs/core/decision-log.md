@@ -2565,3 +2565,98 @@ against the product, so plausibility is not guaranteed anywhere in the catalog.
 Three profiles are now known-correct; the rest have been checked only where a
 ranking made them visible. A systematic pass is worth doing before the catalog
 is treated as ground truth.
+
+---
+
+# Decision #059
+
+## Title
+
+The Behavioral Query Document describes the need, not the shopper — Finding 4, first half
+
+## Status
+
+Accepted
+
+## Decision
+
+Removed from the embedded query document: the `interest:` lines naming active
+behavioral concepts, the `journey stage:` line, and the `query-template`
+version marker. What remains is requirements with their capabilities, and the
+shopper's recent search terms.
+
+The template version moves to the Candidate Set's `params`, where it already
+keyed the cache. Bumped to `qd-v2`, and the pipeline now references the
+constant instead of repeating the literal.
+
+## Rationale
+
+Finding 4 of the trace review: a requirement at Critical 0.90 with seven
+products covering it completely, and retrieval returned none of them. The
+assumed cause was cross-requirement dilution — one embedding averaging five
+requirements. Measurement said otherwise.
+
+A journey that published a **single** requirement still retrieved badly:
+distances across the whole 250-product catalog spanned 0.937 to 1.167, near
+orthogonal to everything, with a Marketing product covering 0% ranking above
+two products covering 100%. With one requirement there is nothing to dilute
+across, so the dilution had to be *within* the document.
+
+It was. The document carried eight `interest:` lines — Pricing Sensitivity,
+Product Affinity, Decision Confidence, Adoption Readiness and so on — plus a
+journey stage and a version marker. **A product Embedding Document contains
+nothing any of those can match against.** They were pure noise competing with
+the five capability lines that carried the meaning.
+
+Measured on the live index, one requirement, same shopper:
+
+| Query | Mean coverage | Perfect | Useless (0%) |
+|---|---|---|---|
+| As shipped | 60.0% | 3 | 2 |
+| Without concepts + stage | 87.5% | 5 | 0 |
+| Also without the version marker | 87.5% | 5 | 0 |
+
+The marker deserves its own line in that story: reintroducing it alone dropped
+the same query back to 67.5% with three perfect and one useless. **One line of
+bookkeeping inside the embedded text cost twenty points of mean coverage.**
+
+Keeping only the *subject-bearing* concepts was tested and made no difference —
+the requirement they produced is already in the document, so they are a
+restatement. The simpler document wins.
+
+Recent activity stays: removing it was measured as slightly worse. It is the
+shopper's own words about what they are looking for, which is exactly the kind
+of thing product prose contains.
+
+## Consequences
+
+Both of the reported journeys now retrieve entirely on-category:
+
+| Journey | Before | After |
+|---|---|---|
+| Engineering Delivery | 60.0% mean, 2 useless, a Marketing product at rank 5 | **87.5% mean, 5 perfect, 0 useless, all 8 DevOps** |
+| Data & Insight | 42.5% mean, 1 useless | **47.5% mean, 0 useless, all 8 Data & Analytics** |
+
+Data & Insight looks weak only because its ceiling is 60% — no product in the
+catalog covers it (Finding 5, still open). It now returns five products *at*
+that ceiling instead of Marketing and Productivity tools.
+
+**The second half of Finding 4 is deliberately not built.** Per-requirement
+retrieval — one query per requirement, merged — was measured and would lift
+Engineering Delivery from 80% to 100% and Identity Management from 60% to 100%
+on the old five-requirement journey. It costs one embedding call per
+requirement instead of one per retrieval, a Candidate Set of 15 against a
+policy that says 8, and a change to the POL-RETR-001 contract.
+
+It is not built because **intent forking has largely dissolved the case for
+it.** Since Decisions #056 and #057, journeys carry one subject and therefore
+one or two requirements — both reported journeys published exactly one. The
+five-requirement blend that motivated the idea was itself a symptom of merging
+two buying efforts into one journey, and that is fixed at the source. Recorded
+here so the measurement is not lost if multi-requirement journeys become common.
+
+**GitHub is still not retrieved** despite covering Engineering Delivery
+completely; it sits around rank 13. Its own Embedding Document spans nine
+capabilities across DevOps and collaboration, so the dilution is now on the
+*product* side rather than the query side. That is a different problem from
+this one and is left open.

@@ -41,6 +41,7 @@ from smartreco.gateway import GatewayUnavailable
 from smartreco.models import utcnow
 from smartreco.policies import PolicyCatalog
 from smartreco.retrieval import (
+    QUERY_TEMPLATE_VERSION,
     EmbeddingBackend,
     catalog_index_version,
     compose_query_document,
@@ -697,7 +698,8 @@ def stage_retrieval(ctx: WorkflowContext, state: dict) -> bool:
             cs_id=f"CS-{uuid.uuid4().hex[:10]}", journey_id=journey_id,
             rp_id=latest_rp.rp_id, query_document=final_query,
             params={"top_k": ctx.policies.param("POL-RETR-001", "top_k"),
-                    "query_template": "qd-v1", "index_version": index_version},
+                    "query_template": QUERY_TEMPLATE_VERSION,
+                    "index_version": index_version},
             candidates=candidates, refinement_history=history, created_at=ctx.now)
         repos.insert_candidate_set(db, cs)
         db.flush()
