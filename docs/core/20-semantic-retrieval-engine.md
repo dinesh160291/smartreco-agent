@@ -142,6 +142,24 @@ inside the document cost a further 20 points of mean coverage on its own.
 The query document template is versioned. Identical inputs produce identical
 query documents.
 
+## Guaranteed coverage candidates (Decision #060)
+
+A Candidate Set is a top_k drawn by similarity **plus** a bounded set drawn by
+exact coverage. After the evaluate/refine loop, any product whose capabilities
+fully cover a published Requirement is added if retrieval did not return it, up
+to POL-RETR-005 max_guaranteed.
+
+Coverage is a set comparison over the Requirement→Capability map — exact, total
+over the catalog, and cheap. Semantic retrieval answers the harder question of
+fuzzy fit, and a broad product loses it: one vector averaged over capabilities
+from two domains sits further from a single-domain query than a narrow
+product's does, however completely it covers the requirement.
+
+Guaranteed members carry similarity null and source "guaranteed", and the
+addition is recorded in the refinement history. They are drawn from **SYNCED,
+undeleted** products only — the same visibility retrieval enforces, so the
+guarantee cannot become a side door around the dual-write contract.
+
 ---
 
 # Candidate Set

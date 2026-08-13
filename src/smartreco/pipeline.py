@@ -32,7 +32,8 @@ from smartreco.engines.confidence import EvidenceInput, compute_confidence
 from smartreco.engines.journey_resolution import resolve, subject_abandoned
 from smartreco.engines.learning import derive_traits, reinforced_strength
 from smartreco.engines.lifecycle import evaluate_closure, should_go_dormant
-from smartreco.engines.matching import evaluate_readiness, rank_products
+from smartreco.engines.matching import (
+    evaluate_readiness, guaranteed_candidates, rank_products)
 from smartreco.engines.patterns import EventView, evaluate_patterns
 from smartreco.engines.requirements import derive_requirements
 from smartreco.engines.stages import apply_regression, determine_stage
@@ -117,6 +118,28 @@ def _entities(events: list[models.Event]) -> set[str]:
                 out.add(str(md[key]).lower())
         if md.get("query"):
             out.update(str(md["query"]).lower().split())
+    return out
+
+
+def _all_product_capabilities(db: OrmSession) -> dict[str, set[str]]:
+    """Capability sets for the *recommendable* catalog (Decision #060).
+
+    SYNCED and not deleted — the same visibility `retrieve_candidates` enforces.
+    Reading the relational store is what makes the coverage guarantee exact, but
+    it must not become a side door around the dual-write contract: a product
+    whose vector write failed is PENDING, is absent from the index, and must not
+    surface in a recommendation just because its rows exist (Core 20).
+    """
+    out: dict[str, set[str]] = {}
+    rows = db.execute(
+        select(models.ProductCapability.product_id, models.ProductCapability.capability_id)
+        .join(models.Product,
+              models.Product.product_id == models.ProductCapability.product_id)
+        .where(models.Product.deleted_at.is_(None),
+               models.Product.sync_status == "SYNCED")
+    ).all()
+    for product_id, capability_id in rows:
+        out.setdefault(product_id, set()).add(capability_id)
     return out
 
 
@@ -694,11 +717,34 @@ def stage_retrieval(ctx: WorkflowContext, state: dict) -> bool:
                 ctx.tier2_allowed
                 and _usage_calls(db, ctx.user_id, _today(ctx.now), "tier2") < tier2_budget),
             record_tier2_call=_tier2_call)
+
+        # Whatever retrieval read like, a product that *fully covers* a
+        # published requirement must be considered (POL-RETR-005, Decision
+        # #060). Applied after the evaluate/refine loop so Tier 2 still judges
+        # its own output, and recorded in the history so the Candidate Set says
+        # where each member came from.
+        guaranteed_limit = ctx.policies.param("POL-RETR-005", "max_guaranteed")
+        guaranteed = guaranteed_candidates(
+            state["requirements"], _all_product_capabilities(db), REQ_TO_CAP,
+            existing=[c["product_id"] for c in candidates], limit=guaranteed_limit)
+        if guaranteed:
+            # `similarity: None` is the honest value — these were not retrieved
+            # by similarity at all, and a fabricated score would misreport how
+            # they got here. `source` says so explicitly.
+            candidates = list(candidates) + [
+                {"product_id": product_id, "similarity": None, "source": "guaranteed",
+                 "record_version": db.get(models.Product, product_id).record_version}
+                for product_id in guaranteed]
+            history = list(history) + [{
+                "action": "guarantee", "added": guaranteed,
+                "reason": "fully covers a published requirement; retrieval did not return it"}]
+
         cs = models.CandidateSet(
             cs_id=f"CS-{uuid.uuid4().hex[:10]}", journey_id=journey_id,
             rp_id=latest_rp.rp_id, query_document=final_query,
             params={"top_k": ctx.policies.param("POL-RETR-001", "top_k"),
                     "query_template": QUERY_TEMPLATE_VERSION,
+                    "max_guaranteed": guaranteed_limit,
                     "index_version": index_version},
             candidates=candidates, refinement_history=history, created_at=ctx.now)
         repos.insert_candidate_set(db, cs)

@@ -199,6 +199,18 @@ policies:
       max_automatic_attempts: 5
       backoff: exponential
 
+  POL-RETR-005:
+    name: Guaranteed coverage candidates
+    category: retrieval
+    rule: >-
+      A product whose capabilities fully cover a published Requirement is added to the Candidate
+      Set even when semantic retrieval did not return it; at most max_guaranteed per retrieval,
+      ordered by requirements covered, then capability count, then Product ID (Decision #060).
+      Coverage is exact and cheap to compute; retrieval answers the harder question of fuzzy fit
+      and a broad product's single averaged vector loses it.
+    params:
+      max_guaranteed: 4
+
   POL-GATE-001:
     name: Gateway call bounds
     category: retrieval

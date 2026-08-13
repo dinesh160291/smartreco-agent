@@ -12,6 +12,46 @@ from fractions import Fraction
 from smartreco.policies import PolicyCatalog
 
 
+def guaranteed_candidates(
+    requirements: list[dict],  # published Requirement Profile entries
+    product_capabilities: dict[str, set[str]],
+    req_to_cap: dict[str, dict[str, str]],
+    existing: list[str],
+    limit: int,
+) -> list[str]:
+    """Products that fully cover a published Requirement and retrieval missed.
+
+    Coverage is a set comparison over the Requirement→Capability map, exact and
+    cheap for the whole catalog. Semantic retrieval answers a different and
+    harder question — which products *read* like a fit — and a broad product
+    loses it: one vector averaged over capabilities from two domains sits
+    further from a single-domain query than a narrow product does, however
+    completely it covers the requirement. GitHub covered Engineering Delivery
+    5/5 and sat outside a Candidate Set of 8 for exactly that reason
+    (Decision #060).
+
+    So this does not second-guess retrieval; it supplies the answer retrieval
+    was never the right instrument for, and leaves fuzzy fit to it. Only *full*
+    coverage qualifies — judging partial fit is retrieval's job.
+
+    Ordered by requirements covered, then total capabilities held, then id —
+    the same tie-break POL-REC-002 ranks with, so the guarantee cannot reorder
+    what the ranker would have done. Bounded by `limit`: an unbounded top-up
+    would swamp the Candidate Set on a requirement many products satisfy.
+    """
+    published = [entry["req_id"] for entry in requirements if entry["req_id"] in req_to_cap]
+    already = set(existing)
+    scored: list[tuple[int, int, str]] = []
+    for product_id, held in product_capabilities.items():
+        if product_id in already:
+            continue
+        covered = sum(1 for req_id in published if set(req_to_cap[req_id]) <= held)
+        if covered:
+            scored.append((covered, len(held), product_id))
+    scored.sort(key=lambda row: (-row[0], -row[1], row[2]))
+    return [product_id for _covered, _breadth, product_id in scored[:limit]]
+
+
 def rank_products(
     requirements: list[dict],  # published Requirement Profile entries
     candidate_ids: list[str],

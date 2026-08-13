@@ -2660,3 +2660,86 @@ completely; it sits around rank 13. Its own Embedding Document spans nine
 capabilities across DevOps and collaboration, so the dilution is now on the
 *product* side rather than the query side. That is a different problem from
 this one and is left open.
+
+---
+
+# Decision #060
+
+## Title
+
+Full coverage is computed, not retrieved — guaranteed candidates (POL-RETR-005)
+
+## Status
+
+Accepted
+
+## Decision
+
+After the bounded evaluate/refine loop, any product whose capabilities **fully
+cover a published Requirement** is added to the Candidate Set if semantic
+retrieval did not return it. At most `max_guaranteed` (4) per retrieval,
+ordered by requirements covered, then capability count, then Product ID.
+
+Guaranteed members carry `similarity: null` and `source: "guaranteed"`, and the
+addition is recorded in the Candidate Set's refinement history as an explicit
+`guarantee` action.
+
+## Rationale
+
+The product-side half of Finding 4. GitHub covers Engineering Delivery 5/5 and
+sat around rank 13, outside a Candidate Set of 8, so it could not be
+recommended however well it fit.
+
+The cause is structural, not textual. GitHub's Embedding Document spans nine
+capabilities across DevOps and Workflow Automation; its single vector is the
+average of both, and averages sit further from a single-domain query than a
+narrow product's vector does. Three document compositions were measured —
+current, prose removed, capabilities only — and GitHub held rank 9 of 13 in all
+three. Rewriting the document cannot fix it.
+
+**The insight that settled the design is that we never needed retrieval for
+this.** Coverage is a set comparison over the Requirement→Capability map: exact,
+total over the catalog, and computable in microseconds. Semantic retrieval
+answers a different and much harder question — which products *read* like a fit
+— and it is the right instrument for that. Asking an embedding to rediscover
+something already known exactly is strictly worse than looking it up.
+
+So this is not a correction applied to retrieval's output, and not a fallback.
+It supplies the answer retrieval was never the right instrument for, and leaves
+fuzzy fit entirely to it. Only *full* coverage qualifies: judging partial fit is
+retrieval's job and this does not encroach on it.
+
+**Facet indexing was measured and rejected for now.** Indexing each product once
+per capability domain lifts GitHub from rank 9 to 5 and separates off-domain
+products cleanly (0.37–0.48 versus 0.67+). It is the better general answer and
+remains the right eventual fix. It also changes Core 20's contract from one
+Embedding Document per product to one per product-domain and requires
+re-embedding the whole catalog — roughly 430 provider calls — which is not a
+change to make late in a project when a smaller one is available. The
+measurement is recorded so the option is not lost.
+
+## Consequences
+
+Verified against the live catalog. Engineering Delivery retrieves eight DevOps
+products and GitHub is added, completing the set of six products that fully
+cover it. Data & Insight adds nothing, correctly: no product covers it at all
+(Finding 5, still open), so there is nothing to guarantee.
+
+**It respects the dual-write contract, and did not at first.** The initial
+implementation read capability rows straight from the relational store and
+surfaced a product whose vector write had FAILED —
+`test_story11_pending_product_never_surfaces` caught it. Reading the relational
+store is what makes the guarantee exact, but it must not become a side door
+around Core 20: the query now filters to SYNCED and undeleted products, the same
+visibility `retrieve_candidates` enforces. Worth recording because the failure
+mode is generic — any deterministic shortcut past the vector store inherits that
+obligation.
+
+**Guaranteed members are marked rather than disguised.** Giving them a
+fabricated similarity would have misreported how they reached the Candidate Set,
+and the Candidate Set is a Runtime Object that has to explain itself.
+
+**The Candidate Set can now exceed POL-RETR-001's top_k**, by up to
+`max_guaranteed`. That is a deliberate widening of what the Candidate Set is: a
+top_k drawn by similarity, plus a bounded set drawn by exact coverage. Ranking
+is unchanged and still decides the order.
