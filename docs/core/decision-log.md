@@ -4026,3 +4026,91 @@ Splitting the fields first is what makes that safe to try: with coverage
 restored to pure capability arithmetic, widening or narrowing the category set
 can only reorder a package. It can no longer move a published percentage, so
 Decision #076's exact-number contract is out of its way.
+
+---
+
+# Decision #079
+
+## One Work Management requirement, and no Productivity requirement beside it
+
+Task Management, Template Library and Workload Management were the last three
+capabilities in the catalog reaching no requirement at all — a product holding
+only them could be searched, viewed and carted, but never recommended. They are
+not three strays: the Capability Catalog already files them together under a
+**Work Management** domain, which is the argument for one requirement rather
+than three rehomings.
+
+**REQ-013 Work Management** — Task Management (Primary), Workload Management
+(Secondary), Template Library (Supporting). `UNMAPPED_CAPABILITIES` drops to two
+entries, both of which belong to requirements that already exist.
+
+## Productivity is a shelf, not a subject
+
+The obvious second requirement was Productivity — the catalog carries a
+Productivity category of 17 products. Measured, it is not a thing anyone shops
+for. Sixteen of the seventeen hold Workload Management, and they hold it because
+the seed generator stamped it on them indiscriminately. Strip that one
+capability and the shelf reads:
+
+- Loom, Grammarly Business, Otter.ai, Jasper and four fictional distractors — AI
+- BrightSprint, CinderSprint, NovaSprint, HarborSprint — automation
+- FlowSprint, PaceSprint — collaboration · LumenSprint — marketing
+- Calendly, Todoist — work management
+
+Not one is a productivity product, and only Todoist holds Task Management. A
+requirement built on that shelf would answer a question nobody asks. The
+category is dissolved instead, and its members redistributed by what they hold —
+that is the next commit, kept separate so its effect on Story 2 is attributable
+independently of this one.
+
+## BC-006 Productivity Evaluation was Primary to AI Assistance
+
+That is the mis-anchoring this phase exists to remove. BP-006 fires on
+documentation about productivity, templates and tasks, and on searches for the
+same. None of that is evidence that a shopper wants an AI assistant; the
+association was a proxy standing in for a requirement the pack could not
+express. REQ-013 is that requirement — Template Library and Task Management are
+literally its capabilities — so BC-006 moves there as Primary, and joins
+BC-005/BC-007 as a subject with an evaluator it already had.
+
+The AI link is **removed, not demoted**. Secondary or Supporting would say the
+evidence is weak evidence of an AI need. It is not weak evidence; it is the
+wrong evidence.
+
+## The canonical roster had to be corrected
+
+`test_every_requirement_is_coverable` failed the moment REQ-013 existed: no
+product could satisfy it. **Atlassian Jira — the canonical Work Management
+product — held none of the three capabilities.** Its profile listed Integration
+Connectors, Event Triggers, API Integration and Intelligent Search, the platform
+underneath, while its own description read "planning, tracking, and shipping
+team work". The three capabilities were added for the wide demo roster and this
+roster was never revisited. Fixed here, and the ratchet is why it surfaced
+rather than shipping.
+
+## What moved, and the one part that is a genuine loss
+
+**Scenario 2 / Story 2.** AI Assistance falls 0.75 High → 0.50 Medium, because
+its High band was carried by the proxy rather than by that shopper's AI
+research. REQ-013 publishes at 0.50 Medium. Three requirements now share the
+priority-weighted average where two did, and none of the three products the
+scenario evaluates holds a work-management capability, so every percentage
+falls: Google Workspace 97% → 78%, Zoom 33% → 24%, Notion 49% → 31%. Google
+Workspace is not thought less of; it answers two of three stated needs instead
+of two of two.
+
+**Notion drops out of the published list entirely, and that is the real cost.**
+Jira enters as a guaranteed candidate (it covers REQ-013 in full, Decision #060)
+and is on subject, since BC-006 at 0.50 puts Work Management into this shopper's
+subject categories. Notion's coverage is 31% against Jira's 23% — higher — and
+this shopper searched for it by name. It is absent because Knowledge & Docs is a
+category with no subject, so POL-REC-002's off-subject factor takes its match to
+18 and Jira's arrival pushes it past the publication cut.
+
+This is Decision #078's recorded limitation at its sharpest: the factor cannot
+tell a product the shopper studied from one retrieval dragged in, and here it
+removes a studied product from a recommendation. Two outstanding changes would
+each resolve it — a Content & Knowledge requirement, which would give that
+category a subject, and a lower confidence floor for POL-REC-002's category set
+than POL-REQ-004 uses for anchoring. Neither is made here, and the cost is
+recorded rather than absorbed quietly.

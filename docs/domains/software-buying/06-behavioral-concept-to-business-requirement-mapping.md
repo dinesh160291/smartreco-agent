@@ -528,7 +528,7 @@ Regulatory Compliance
 
 Association level says how strongly a Behavioral Concept implies a Business Requirement. It does not say whether the Concept describes **what the shopper is shopping for** or **how they are vetting a candidate**. Those are different claims, and conflating them made the platform answer a question nobody asked.
 
-A **subject** Concept states the object of the search: BC-019 through BC-027 (CRM, People Operations, Financial, Marketing, Engineering Delivery, Data & Insight, Security Operations, Identity Platform, Compliance Programme), together with BC-005 Collaboration Evaluation and BC-007 Automation Evaluation, which state a subject just as plainly but already had evaluators of their own (Decision #077, doc 02 — *Subjects that already had an evaluator*).
+A **subject** Concept states the object of the search: BC-019 through BC-027 (CRM, People Operations, Financial, Marketing, Engineering Delivery, Data & Insight, Security Operations, Identity Platform, Compliance Programme), together with BC-005 Collaboration Evaluation, BC-006 Productivity Evaluation and BC-007 Automation Evaluation, which state a subject just as plainly but already had evaluators of their own (Decisions #077 and #079, doc 02 — *Subjects that already had an evaluator*).
 
 An **evaluation lens** Concept states diligence applied to any candidate, in any category — BC-001 Security Evaluation, BC-002 Enterprise Evaluation, BC-004 Compliance Evaluation, BC-008 Integration Evaluation. An HR buyer reads the security page of an HR product; that is not a request for identity software.
 
@@ -1045,6 +1045,30 @@ a single concept can rarely publish a requirement through them alone: at 0.6
 confidence a Secondary link derives 0.36, below POL-REQ-001's 0.5 bar. Those
 links strengthen requirements other evidence already supports; they do not
 invent needs.
+
+---
+
+# v1.5 Amendment — BC-006 Productivity Evaluation
+
+| Concept | Primary | Secondary | Supporting |
+|---|---|---|---|
+| BC-006 Productivity Evaluation | REQ-013 Work Management | — | REQ-003 Workflow Automation |
+
+It was Primary to **REQ-005 AI Assistance**, and that is the mis-anchoring this
+phase exists to remove. BP-006 fires on documentation about productivity,
+templates and tasks, and on searches for the same. None of that is evidence
+that a shopper wants an AI assistant; the association was a proxy standing in
+for a requirement the pack could not express. REQ-013 is that requirement —
+Template Library and Task Management are literally its capabilities.
+
+The AI link is **removed rather than demoted**. A Secondary or Supporting link
+would say the evidence is weak evidence of an AI need, and it is not weak
+evidence, it is the wrong evidence. The Workflow Automation link survives on its
+own merits: a shopper organising tasks plausibly wants them to trigger something.
+
+Consequence, and it is a large one: doc 09 Scenario 2's AI Assistance falls from
+0.75 High to 0.50 Medium, because its High band was carried by this proxy rather
+than by that shopper's AI research. See Decision #079.
 
 ---
 

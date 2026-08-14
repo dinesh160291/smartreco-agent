@@ -309,9 +309,6 @@ def test_no_product_prose_claims_a_capability_it_does_not_hold(seed):
 UNMAPPED_CAPABILITIES = {
     "CAP-009": "File Sharing — belongs to an existing requirement's domain (doc 07)",
     "CAP-024": "AI Workflow Assistance — same",
-    "CAP-056": "Task Management — awaiting the Work Management requirement",
-    "CAP-057": "Template Library — same",
-    "CAP-058": "Workload Management — awaiting the Productivity requirement",
 }
 
 

@@ -400,8 +400,8 @@ It was a rule nothing could ever satisfy.
 
 # Subjects that already had an evaluator — BC-005, BC-007
 
-Collaboration Evaluation and Automation Evaluation state a subject as plainly as
-any row above: a shopper reading Zapier's workflow documentation is shopping for
+Collaboration, Productivity and Automation Evaluation state a subject as plainly
+as any row above: a shopper reading Zapier's workflow documentation is shopping for
 automation. They predate the domain-research table and already have evaluators
 (BP-005, BP-007), so giving them rows would hand each concept a *second*
 evaluator and count its evidence twice — the same defect described above,
@@ -414,6 +414,7 @@ from the table, each with the categories it is shopped in:
 |---|---|---|---|
 | BC-005 Collaboration Evaluation | BP-005 | Collaboration | REQ-001 Secure Collaboration |
 | BC-007 Automation Evaluation | BP-007 | Workflow Automation | REQ-003 Workflow Automation |
+| BC-006 Productivity Evaluation | BP-006 | Work Management · Productivity | REQ-013 Work Management |
 
 Consequences, both intended and both visible in the acceptance suite: a shopper
 who moves onto collaboration or automation products can now abandon a journey

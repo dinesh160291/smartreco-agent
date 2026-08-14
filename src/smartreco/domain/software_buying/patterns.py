@@ -705,6 +705,12 @@ def _evaluate_domain_research(session_events: list[EventView],
 SUBJECTS_WITH_OWN_EVALUATOR = {
     "BC-005": frozenset({"collaboration"}),        # BP-005 -> REQ-001
     "BC-007": frozenset({"workflow automation"}),  # BP-007 -> REQ-003
+    # BP-006 -> REQ-013 (Decision #079). Two categories, because the catalog
+    # splits into "Work Management" and "Productivity" what is one buying
+    # subject: the Productivity shelf is held together by a single capability
+    # the seed generator stamped on 16 of its 17 products, and none of its
+    # members is a productivity tool once that stamp is removed.
+    "BC-006": frozenset({"work management", "productivity"}),
 }
 
 INTENT_CONCEPTS = frozenset(

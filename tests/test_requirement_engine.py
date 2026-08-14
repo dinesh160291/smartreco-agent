@@ -64,11 +64,19 @@ def test_scenario_2_collaboration_productivity(policies):
     hypotheses = {"BC-005": 0.80, "BC-006": 0.50, "BC-003": 0.50}
     profile = derive_requirements(hypotheses, BC_TO_REQ, "Technical Validation", policies)
     reqs = by_req(profile)
-    assert set(reqs) == {"REQ-001", "REQ-005"}  # REQ-003 0.41 and REQ-002 0.24 held
+    # REQ-013 joins and REQ-005 falls a band, both for the same reason
+    # (Decision #079): Productivity Evaluation used to be Primary evidence of
+    # wanting an AI assistant, which it never was. This shopper read
+    # documentation about templates and tasks — that is a work-management need,
+    # and their AI interest now rests on their AI research alone, where it
+    # belongs. REQ-003 0.41 and REQ-002 0.24 still held.
+    assert set(reqs) == {"REQ-001", "REQ-005", "REQ-013"}
     assert reqs["REQ-001"]["confidence"] == 0.83
     assert reqs["REQ-001"]["priority"] == "CRITICAL"
-    assert reqs["REQ-005"]["confidence"] == 0.75
-    assert reqs["REQ-005"]["priority"] == "HIGH"
+    assert reqs["REQ-005"]["confidence"] == 0.50
+    assert reqs["REQ-005"]["priority"] == "MEDIUM"
+    assert reqs["REQ-013"]["confidence"] == 0.50
+    assert reqs["REQ-013"]["priority"] == "MEDIUM"
 
 
 def test_scenario_3_process_automation(policies):

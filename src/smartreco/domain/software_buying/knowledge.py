@@ -15,8 +15,8 @@ from smartreco.domain.software_buying.patterns import (
     ADOPTION_DOC_TOPICS, BP011_TRIGGERS, DOMAIN_RESEARCH_PATTERNS, INTENT_CONCEPTS,
     SUBJECTS_WITH_OWN_EVALUATOR)
 
-DOMAIN_PACK_VERSION = "1.4"   # v1.4 gives identity, compliance, collaboration and
-                              # automation a subject of their own (Decision #077)
+DOMAIN_PACK_VERSION = "1.5"   # v1.5 adds REQ-013 Work Management and rehomes
+                              # Productivity Evaluation onto it (Decision #079)
 
 # ---- Behavioral Concept Registry (doc 01) ----
 
@@ -80,6 +80,12 @@ REQUIREMENTS: dict[str, str] = {
     "REQ-010": "Engineering Delivery",
     "REQ-011": "Data & Insight",
     "REQ-012": "Security Operations",
+    # v1.5 (Decision #079). The last three capabilities that reached no
+    # requirement — Task Management, Template Library, Workload Management —
+    # are one coherent group, and the capability catalog already said so by
+    # filing them under a "Work Management" domain of their own. This is that
+    # domain's requirement.
+    "REQ-013": "Work Management",
 }
 
 # ---- Capability Catalog (doc 10 — 27 capabilities, 6 domains) ----
@@ -283,7 +289,16 @@ BC_TO_REQ: dict[str, dict[str, str]] = {
     "BC-003": {"REQ-005": "Primary", "REQ-003": "Secondary", "REQ-001": "Supporting"},
     "BC-004": {"REQ-004": "Primary", "REQ-002": "Secondary", "REQ-001": "Supporting"},
     "BC-005": {"REQ-001": "Primary", "REQ-002": "Supporting"},
-    "BC-006": {"REQ-005": "Primary", "REQ-003": "Supporting"},
+    # v1.5 (Decision #079). Productivity Evaluation was Primary to AI Assistance,
+    # which is the mis-anchoring this phase exists to remove: BP-006 fires on
+    # documentation about templates and tasks and on searches for the same, and
+    # none of that is evidence that a shopper wants an AI assistant. It was a
+    # proxy standing in for a requirement the pack could not express. REQ-013
+    # is that requirement — Template Library and Task Management are literally
+    # its capabilities — so the association moves there and the AI link goes
+    # rather than being demoted, because it was never weak evidence, it was the
+    # wrong evidence. The Workflow Automation link survives on its own merits.
+    "BC-006": {"REQ-013": "Primary", "REQ-003": "Supporting"},
     "BC-007": {"REQ-003": "Primary", "REQ-005": "Secondary"},
     "BC-008": {"REQ-003": "Primary", "REQ-002": "Secondary"},
     # BC-009…BC-018 deliberately unmapped (doc 06): they inform stage,
@@ -412,6 +427,16 @@ REQ_TO_CAP: dict[str, dict[str, str]] = {
         "CAP-048": "Primary", "CAP-049": "Primary",
         "CAP-050": "Secondary", "CAP-051": "Secondary",
         "CAP-052": "Supporting",
+    },
+    # v1.5 (Decision #079). Task Management is what a shopper means by work
+    # management; Workload Management is the capacity view a team reaches for
+    # once the tasks exist; Template Library is how repeated work stops being
+    # retyped. All three are the capability catalog's own "Work Management"
+    # domain, and all three previously reached no requirement at all.
+    "REQ-013": {
+        "CAP-056": "Primary",
+        "CAP-058": "Secondary",
+        "CAP-057": "Supporting",
     },
     # Move the data, store it, show it — the three things a shopper means by
     # "data and insight", and nothing borrowed from another domain.
@@ -702,7 +727,15 @@ CANONICAL_PRODUCTS: list[dict] = [
         "category": "Work Management",
         "description": "Work and project management platform for planning, tracking, and shipping team work.",
         "business_purpose": "Give teams a structured, integrated system of record for work execution.",
-        "capabilities": ["CAP-016", "CAP-017", "CAP-019", "CAP-022"],
+        # v1.5 (Decision #079). The canonical Work Management product held no
+        # work-management capability: its profile described the integration
+        # platform underneath while its own description said "planning,
+        # tracking, and shipping team work". The three capabilities were added
+        # to the catalog for the wide demo roster and this roster was never
+        # revisited, so REQ-013 had no product that could cover it and the
+        # coverability ratchet said so the moment the requirement existed.
+        "capabilities": ["CAP-016", "CAP-017", "CAP-019", "CAP-022",
+                         "CAP-056", "CAP-057", "CAP-058"],
     },
     {
         "product_id": "PROD-007", "name": "ServiceNow", "vendor": "ServiceNow",

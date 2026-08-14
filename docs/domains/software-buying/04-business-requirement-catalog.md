@@ -1094,6 +1094,30 @@ capabilities join new requirements only.
 | REQ-011 | **Data & Insight** | Consolidate data and get answers out of it | Data Warehousing · ETL *(Primary)* · Visualization · Intelligent Search *(Secondary)* · API Integration *(Supporting)* |
 | REQ-012 | **Security Operations** | Detect threats and stop information leaving | Threat Protection · Data Loss Prevention *(Primary)* · Compliance Reporting *(Secondary)* · Identity Federation *(Supporting)* |
 
+---
+
+# v1.5 Extension — REQ-013
+
+| ID | Requirement | What the buyer is trying to do | Capabilities |
+|---|---|---|---|
+| REQ-013 | **Work Management** | Plan, assign and track a team's work, and see who has capacity for more | Task Management *(Primary)* · Workload Management *(Secondary)* · Template Library *(Supporting)* |
+
+**Why REQ-013 exists.** Task Management, Workload Management and Template
+Library were the last three capabilities in the catalog that reached no
+requirement at all, so a product holding only them could be searched, viewed and
+added to a cart but never recommended. They are not three strays from three
+different domains — the Capability Catalog already files them together under a
+**Work Management** domain of its own, which is the whole argument for one
+requirement rather than three rehomings (Decision #079).
+
+**Why there is no Productivity requirement beside it.** The obvious second
+candidate was Productivity, since the catalog carries a Productivity category of
+17 products. It is not a subject anybody shops for: 16 of those 17 hold Workload
+Management, and they hold it because the seed generator stamped it on them
+indiscriminately. Strip that one capability and the shelf is automation,
+collaboration, marketing and AI products with nothing in common. A requirement
+built on it would answer a question no shopper asks.
+
 **Why REQ-012 exists.** Four capabilities were stranded inside the *original*
 domains — Threat Protection, Data Loss Prevention, Compliance Reporting and
 Identity Federation belong to Security, Compliance and Identity, but no

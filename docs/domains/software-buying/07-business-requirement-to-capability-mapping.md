@@ -1103,6 +1103,30 @@ REQ-012  Security Operations
   Supporting  CAP-062 Vulnerability Management / CAP-026 Data Loss Prevention
 ```
 
+# v1.5 Extension — REQ-013 Mapping
+
+```text
+REQ-013  Work Management
+  Primary     CAP-056 Task Management
+  Secondary   CAP-058 Workload Management
+  Supporting  CAP-057 Template Library
+```
+
+Task Management is what a shopper means by work management, so it carries the
+requirement alone at Primary. Workload Management is the capacity view a team
+reaches for once the tasks exist, and Template Library is how repeated work
+stops being retyped — real, and secondary to the thing itself.
+
+**The canonical roster had to be corrected for this to be coverable**
+(Decision #079). Atlassian Jira is the canonical Work Management product and
+held none of these three: its profile listed Integration Connectors, Event
+Triggers, API Integration and Intelligent Search — the platform underneath —
+while its own description read "planning, tracking, and shipping team work".
+The three capabilities were added to the catalog for the wide demo roster and
+this roster was never revisited, so REQ-013 had no product that could satisfy
+it. `test_every_requirement_is_coverable` failed the moment the requirement
+existed, which is what that ratchet is for.
+
 **Rehomed with it (Decision #075).** REQ-012's two borrowed capabilities were removed
 without being given a home, so both reached no requirement at all and any product
 holding only them became unrecommendable. **CAP-008 Identity Federation** now sits in

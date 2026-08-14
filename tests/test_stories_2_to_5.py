@@ -127,11 +127,18 @@ def test_story2_collaboration_modernizer(seeded, chroma, backend, policies, fake
                     .where(models.RequirementProfile.journey_id == journey_id)
                     .order_by(models.RequirementProfile.version.desc())).scalars().first()
     reqs = {e["req_id"]: e for e in rp.requirements}
-    assert set(reqs) == {"REQ-001", "REQ-005"}  # REQ-003 (0.41) and REQ-002 held
+    # Three requirements since Decision #079. This shopper read documentation
+    # about templates and tasks, which is a work-management need and now says
+    # so; it used to be counted as Primary evidence that they wanted an AI
+    # assistant, which inflated AI Assistance to High. Their AI interest now
+    # rests on their AI research alone. REQ-003 (0.41) and REQ-002 still held.
+    assert set(reqs) == {"REQ-001", "REQ-005", "REQ-013"}
     assert reqs["REQ-001"]["confidence"] == 0.83
     assert reqs["REQ-001"]["priority"] == "CRITICAL"
-    assert reqs["REQ-005"]["confidence"] == 0.75
-    assert reqs["REQ-005"]["priority"] == "HIGH"
+    assert reqs["REQ-005"]["confidence"] == 0.50
+    assert reqs["REQ-005"]["priority"] == "MEDIUM"
+    assert reqs["REQ-013"]["confidence"] == 0.50
+    assert reqs["REQ-013"]["priority"] == "MEDIUM"
 
     pkg = db.execute(select(models.RecommendationPackage)
                      .where(models.RecommendationPackage.journey_id == journey_id)
@@ -144,19 +151,36 @@ def test_story2_collaboration_modernizer(seeded, chroma, backend, policies, fake
     # Scenario 2 exact coverages (Decision #037: exact numbers + relative order;
     # full-coverage products may rank above).
     #
-    # Notion covers 49% and is ranked last of the three. Both halves matter and
-    # they are now different fields (Decision #078): coverage is what its
-    # capabilities earn, and the ranking is on match_score, where Collaboration
-    # being a declared subject (Decision #077) puts Notion — catalogued under
-    # Knowledge & Docs — at 49 × 0.6 = 29. So it ranks below Zoom, which covers
-    # less but is the kind of product being shopped for, while still telling the
-    # shopper honestly how much of their requirement it covers.
-    assert coverage["PROD-004"] == 97
-    assert coverage["PROD-009"] == 49
-    assert coverage["PROD-005"] == 33
-    assert match["PROD-009"] == 29
-    assert match["PROD-005"] == 33
-    assert rank["PROD-004"] < rank["PROD-005"] < rank["PROD-009"]
+    # Every figure fell when REQ-013 Work Management joined the profile
+    # (Decision #079): three requirements share the weighted average where two
+    # did, and none of these three products holds a work-management capability.
+    # Google Workspace 97 -> 78 is that arithmetic, not a change of opinion
+    # about Google Workspace — it still covers Secure Collaboration in full.
+    #
+    # Coverage and ranking remain separate fields (Decision #078): Notion's
+    # coverage is what its capabilities earn, while its match applies the
+    # off-subject factor because Collaboration is the anchored subject and
+    # Notion is catalogued under Knowledge & Docs. It therefore still ranks
+    # below Zoom, which covers less but is the kind of product being shopped for.
+    assert coverage["PROD-004"] == 78
+    assert coverage["PROD-005"] == 24
+    assert match["PROD-005"] == 24
+    assert rank["PROD-001"] < rank["PROD-004"] < rank["PROD-005"]
+
+    # Atlassian Jira is published because it covers the new requirement in full,
+    # and it is on subject: BC-006 is held at 0.50, so Work Management joins
+    # Collaboration in the shopper's subject categories.
+    assert coverage["PROD-006"] == 23
+    assert pkg.entries[-1]["per_requirement"]["REQ-013"]["coverage"] == 100
+
+    # Notion is no longer published at all, and this is the cost of the change
+    # rather than a detail of it. Its coverage (31) beats Jira's (23), and this
+    # shopper searched for it by name — but Knowledge & Docs is a category with
+    # no subject, so the off-subject factor takes it to 18 and Jira's arrival
+    # pushes it past the publication cut. The factor cannot tell a product the
+    # shopper studied from one retrieval dragged in (Decision #078's recorded
+    # limitation), and here that removes a studied product from the list.
+    assert "PROD-009" not in coverage
     top3 = [e["product_id"] for e in pkg.entries[:3]]
     assert "PROD-007" not in top3 and "PROD-008" not in top3  # automation absent
 

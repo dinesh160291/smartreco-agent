@@ -991,8 +991,11 @@ Journey Stage: Technical Validation
 REQ-001:  BC-005 Primary (1.0×0.80) + BC-003 Supporting (0.3×0.50=0.15)
           = 1 − (0.20)(0.85) = 0.83  → publish, Critical
 
-REQ-005:  BC-006 Primary (1.0×0.50) + BC-003 Primary (1.0×0.50)
-          = 1 − (0.50)(0.50) = 0.75  → publish, High
+REQ-013:  BC-006 Primary (1.0×0.50)
+          = 0.50  → publish, Medium
+
+REQ-005:  BC-003 Primary (1.0×0.50)
+          = 0.50  → publish, Medium
 
 REQ-003:  BC-006 Supporting (0.3×0.50=0.15) + BC-003 Secondary (0.6×0.50=0.30)
           = 1 − (0.85)(0.70) = 0.41  → below 0.5, not published
@@ -1000,6 +1003,22 @@ REQ-003:  BC-006 Supporting (0.3×0.50=0.15) + BC-003 Secondary (0.6×0.50=0.30)
 REQ-002:  BC-005 Supporting (0.3×0.80=0.24)
           = 0.24  → not published
 ```
+
+**Why AI Assistance fell from High to Medium, and why a third requirement
+appeared** (Decision #079). Both are the same amendment. Productivity Evaluation
+used to be Primary to AI Assistance, so this shopper's reading about templates
+and tasks was counted as evidence that they wanted an AI assistant — it carried
+REQ-005 to 0.75 High. It was a proxy for a requirement the pack could not
+express. REQ-013 Work Management is that requirement, so the evidence goes
+there, and REQ-005 now rests on this shopper's actual AI research alone.
+
+The published percentages below all fall as a result, and the arithmetic is
+worth stating plainly: three requirements now share the priority-weighted
+average where two did (Critical ×3 + Medium ×1 + Medium ×1 = 5, the same total
+weight as Critical ×3 + High ×2), and none of the three products originally
+evaluated here holds a work-management capability. Google Workspace is not
+thought less of than it was; it answers two of three stated needs instead of
+two of two.
 
 ---
 
@@ -1012,9 +1031,13 @@ REQ-001
 
 Secure Collaboration — Priority: Critical
 
+REQ-013
+
+Work Management — Priority: Medium
+
 REQ-005
 
-AI Assistance — Priority: High
+AI Assistance — Priority: Medium
 ```
 
 ---
@@ -1039,6 +1062,12 @@ CAP-021   Content Generation
 CAP-022   Intelligent Search
 CAP-023   Document Summarization
 CAP-015   Workflow Automation
+
+From REQ-013 (07 — mapping):
+
+CAP-056   Task Management
+CAP-058   Workload Management
+CAP-057   Template Library
 ```
 
 ---
@@ -1062,8 +1091,10 @@ PROD-004  (Google Workspace)
 
 REQ-001 coverage: 7/7 = 100%
 REQ-005 coverage: 3.2/3.5 = 91%   (missing CAP-015)
+REQ-013 coverage: 0/1.9 = 0%      (missing CAP-056, CAP-057, CAP-058)
 
-Overall (3×1.00 + 2×0.914) ÷ 5 = 97%
+Overall (3×1.00 + 1×0.914 + 1×0.00) ÷ 5 = 78%
+Match score: on subject (Collaboration), so 78%
 
 Satisfied Requirements
 
@@ -1083,9 +1114,11 @@ PROD-009  (Notion)
 
 REQ-001 coverage: 1.0/4.8 = 21%   (has CAP-007 only)
 REQ-005 coverage: 3.2/3.5 = 91%   (missing CAP-015)
+REQ-013 coverage: 0/1.9 = 0%      (missing CAP-056, CAP-057, CAP-058)
 
-Overall (3×0.208 + 2×0.914) ÷ 5 = 49%
-Match score: off subject (Knowledge & Docs, not Collaboration) 49% × 0.6 = 29%
+Overall (3×0.208 + 1×0.914 + 1×0.00) ÷ 5 = 31%
+Match score: off subject (Knowledge & Docs, not Collaboration) 31% × 0.6 = 18%
+             — below the publication cut once Jira enters; see below
 
 Partially Satisfied Requirements
 
@@ -1103,9 +1136,10 @@ PROD-005  (Zoom Workplace)
 
 REQ-001 coverage: 1.2/4.8 = 25%   (has CAP-005, CAP-006)
 REQ-005 coverage: 1.6/3.5 = 46%   (has CAP-020, CAP-023)
+REQ-013 coverage: 0/1.9 = 0%      (missing CAP-056, CAP-057, CAP-058)
 
-Overall (3×0.25 + 2×0.457) ÷ 5 = 33%
-Match score: on subject (Collaboration), so 33%
+Overall (3×0.25 + 1×0.457 + 1×0.00) ÷ 5 = 24%
+Match score: on subject (Collaboration), so 24%
 
 Partially Satisfied Requirements
 
@@ -1173,8 +1207,26 @@ PROD-005
 
 Rank 3
 
-PROD-009
+PROD-006
 ```
+
+**Atlassian Jira replaces Notion in the published list, and that is the cost of
+Decision #079 rather than a detail of it.** Jira enters because it covers the
+new requirement in full, which makes it a guaranteed candidate (Decision #060),
+and it is on subject because BC-006 is held at 0.50 so Work Management joins
+Collaboration in this shopper's subject categories. Its overall coverage is 23%.
+
+Notion's is 31% — higher — and this shopper searched for it by name. It is
+absent because Knowledge & Docs is a category with no subject, so the
+off-subject factor takes it to a match of 18 and Jira's arrival pushes it past
+the top-three-plus-two publication cut.
+
+This is Decision #078's recorded limitation reaching its sharpest form: the
+factor keys on the candidate's catalog category alone and cannot tell a product
+the shopper studied from one retrieval dragged in. Two things would each
+resolve it, and both are outstanding — a Content & Knowledge requirement, which
+would give Notion's category a subject, and a lower confidence floor for
+POL-REC-002's category set than POL-REQ-004 uses for anchoring.
 
 ---
 

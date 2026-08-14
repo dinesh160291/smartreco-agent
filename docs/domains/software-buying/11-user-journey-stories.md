@@ -49,13 +49,11 @@ deliberately a repeat, and contributes half.
 
 **Clickstream:** collaboration category → Google Workspace, Notion, Zoom product views → search "AI meeting summaries" → AI feature pages → *(second session)* the same platforms again, then meetings/template/task docs.
 
-**Expected pipeline:** BP-005 (0.8), BP-006 (0.5), BP-003 (0.5) → REQ-001 0.83 Critical, REQ-005 0.75 High, REQ-003 0.41 held.
+**Expected pipeline:** BP-005 (0.8), BP-006 (0.5), BP-003 (0.5) → REQ-001 0.83 Critical, REQ-013 0.50 Medium, REQ-005 0.50 Medium, REQ-003 0.41 held.
 
-**Expected outcome:** coverage **Google Workspace 97%**, Notion 49%, Zoom 33% (exact, per Scenario 2), ranked **Google Workspace, Zoom, Notion**. Broad-suite products whose profiles fully cover both requirements (Microsoft 365 at 100%) may legitimately rank above Google Workspace over the full catalog — the Scenario 2 derivation evaluated only the three products above, and the deterministic ranker must not be bent to exclude a product that honestly covers more (Decision #037). Notion ranks last on **match score**: Collaboration is a declared subject and Notion is catalogued under Knowledge & Docs, so POL-REC-002's off-subject factor puts it at 49 × 0.6 = 29 (Decisions #077, #078). Its *coverage* still reads 49% — the list is not ordered by the figure beside it, and the page says why. Narrative connects collaboration consolidation + AI curiosity. Workflow-automation products (ServiceNow, Zapier) absent from the top 3.
+**Expected outcome:** coverage **Google Workspace 78%**, Zoom 24%, ranked in that relative order, with **Atlassian Jira** published (23%, and the only candidate that covers Work Management at all). Broad-suite products whose profiles fully cover the collaboration and AI requirements (Microsoft 365 at 80%) may legitimately rank above Google Workspace over the full catalog — the Scenario 2 derivation evaluated only three products, and the deterministic ranker must not be bent to exclude a product that honestly covers more (Decision #037). Every percentage is lower than it was before Decision #079 because a third requirement now shares the weighted average and none of the original three products holds a work-management capability. **Notion is no longer published**: its coverage (31%) beats Jira's, but Knowledge & Docs is a category with no subject, so the off-subject factor takes its match to 18 and Jira's arrival pushes it past the publication cut. Narrative connects collaboration consolidation + AI curiosity. Workflow-automation products (ServiceNow, Zapier) absent from the top 3.
 
-**Failure also looks like:** a published coverage figure that disagrees with the per-requirement figures it is the average of · an off-subject product ranked below a lower-covering one with no reason given on the surface or in the narrative facts.
-
-**Failure looks like:** REQ-003 published from secondary/supporting signals alone · automation products recommended.
+**Failure looks like:** REQ-003 published from secondary/supporting signals alone · automation products recommended · a published coverage figure that disagrees with the per-requirement figures it is the average of · an off-subject product ranked below a lower-covering one with no reason given on the surface.
 
 ---
 
