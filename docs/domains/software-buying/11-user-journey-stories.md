@@ -35,9 +35,9 @@ time, then a cross-product sweep, then documentation — which is what earns the
 confidences below under POL-CONF-002 (Decision #054). The final run is
 deliberately a repeat, and contributes half.
 
-**Expected pipeline:** BP-001 fires (Medium→Strong with dwell), BP-002 fires (enterprise tier + admin docs) → BC-001 0.80, BC-002 0.70 → REQ-002 0.80 Critical, REQ-004 0.56 Medium, REQ-001 0.48 **held** → stage Technical Validation → retrieval + match.
+**Expected pipeline:** BP-001 fires (Medium→Strong with dwell), BP-002 fires (enterprise tier + admin docs), BP-020 fires on the identity searches → BC-001 0.80, BC-002 0.70, BC-026 0.20 → REQ-002 0.84 Critical, REQ-004 0.56 Medium, REQ-001 0.48 **held** → stage Technical Validation → retrieval + match.
 
-**Expected outcome:** For-you page READY. **Okta rank 1 (82%)**, Microsoft 365 rank 2 (78%), Google Workspace rank 3 (53%). Persuasive narrative references *this user's* security/SSO research and names the SCIM/provisioning advantage; plain language only. Reasoning Panel (admin) shows both hypotheses, the held REQ-001 at 0.48, stage chip on Technical Validation.
+**Expected outcome:** For-you page READY. **Okta rank 1 (82%)**, Microsoft 365 rank 2 (78%), Google Workspace rank 3 (53%). Persuasive narrative references *this user's* security/SSO research and names the SCIM/provisioning advantage; plain language only. Reasoning Panel (admin) shows the hypotheses, the held REQ-001 at 0.48, stage chip on Technical Validation.
 
 **Failure looks like:** M365 ranked first (priority weighting broken) · narrative cites facts not in Runtime Objects · REQ-001 published · CAP codes visible on For-you.
 
@@ -51,7 +51,7 @@ deliberately a repeat, and contributes half.
 
 **Expected pipeline:** BP-005 (0.8), BP-006 (0.5), BP-003 (0.5) → REQ-001 0.83 Critical, REQ-005 0.75 High, REQ-003 0.41 held.
 
-**Expected outcome:** **Google Workspace 97%**, Notion 49%, Zoom 33% (exact, per Scenario 2), ranked in that relative order. Broad-suite products whose profiles fully cover both requirements (Microsoft 365 at 100%) may legitimately rank above Google Workspace over the full catalog — the Scenario 2 derivation evaluated only the three products above, and the deterministic ranker must not be bent to exclude a product that honestly covers more (Decision #037). Narrative connects collaboration consolidation + AI curiosity. Workflow-automation products (ServiceNow, Zapier) absent from the top 3.
+**Expected outcome:** **Google Workspace 97%**, Zoom 33%, Notion 29% (exact, per Scenario 2), ranked in that relative order. Broad-suite products whose profiles fully cover both requirements (Microsoft 365 at 100%) may legitimately rank above Google Workspace over the full catalog — the Scenario 2 derivation evaluated only the three products above, and the deterministic ranker must not be bent to exclude a product that honestly covers more (Decision #037). Notion sits last because Collaboration is a declared subject and Notion is catalogued under Knowledge & Docs, so POL-REC-002's off-subject factor takes its 49% to 29% (Decision #077); a shopper consolidating collaboration tools is shown collaboration tools first, even where one covers less of the requirement. Narrative connects collaboration consolidation + AI curiosity. Workflow-automation products (ServiceNow, Zapier) absent from the top 3.
 
 **Failure looks like:** REQ-003 published from secondary/supporting signals alone · automation products recommended.
 
@@ -128,6 +128,8 @@ deliberately a repeat, and contributes half.
 ### Story 8 — The Mind-Changer (contradiction & reversal)
 
 **Persona:** Starts as an enterprise identity evaluator (Story 1, sessions 1–2), then pivots: repeatedly views **individual/free tiers** and small-team products across the next two sessions.
+
+**Where this story ends and journey resolution begins** (Decision #077). The pivot here is one of *scale*, and it stays on one journey. A shopper whose recent activity establishes a *different subject* has abandoned the journey instead, and resolution forks — carrying BP-002's contradicting evidence to a journey that holds no BC-002 to contradict, so the enterprise hypothesis stops moving. Both behaviours are correct; a contradiction can only be observed where the hypothesis lives. What no single block can do is express both and have the platform honour each. The forking case belongs to Decisions #056, #057 and #072, not to this story.
 
 **Expected pipeline:** BP-002's contradicting evidence rule fires (repeated individual-tier pricing) → Confidence Engine applies the contradiction penalty (POL-CONF-003, 75% of class contribution, gradual) → BC-002 weakens over successive runs → REQ-002/REQ-004 confidence recomputes downward (noisy-OR with lower inputs); priority bands shift; possible stage regression on 3 consecutive earlier-stage events (POL-STAGE-002). Material change → slow path re-runs.
 

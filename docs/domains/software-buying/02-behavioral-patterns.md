@@ -317,9 +317,11 @@ pack without the clause, so coming back the next day counted for nothing beyond
 the clicks themselves — and a resumed journey is exactly what the intra-session
 fork makes possible.
 
-These are also the patterns that define `INTENT_CONCEPTS`: their concepts are
-what journey resolution reads to tell one buying effort from another
-(core 12 — Changing subject mid-session).
+These are also the patterns that define most of `INTENT_CONCEPTS`: their
+concepts are what journey resolution reads to tell one buying effort from
+another (core 12 — Changing subject mid-session). Two further concepts join
+that set without a row of their own — see *Subjects that already had an
+evaluator* below.
 
 **Required Evidence (all seven):** ≥ 2 events among —
 DOCUMENTATION_VIEWED on a topic of that domain · PRODUCT_VIEWED or
@@ -356,6 +358,68 @@ cannot drift; `test_ui_tracking_contract` checks both directions — no pattern
 reads a topic nothing emits, and no surface emits a topic no pattern reads.
 Before that vocabulary existed, a CRM's Docs tab reported its topic as
 `workflows`, which is how a CRM journey was read as automation research.
+
+---
+
+# v1.4 Domain Research Patterns — BP-020 … BP-021
+
+Two more subjects, on the same ladder as BP-013 … BP-019 (Decision #077).
+
+| Pattern | Concept | Doc topics | Categories | Search terms |
+|---|---|---|---|---|
+| BP-020 Identity Platform | BC-026 | *(none — see below)* | Identity & Access | sso, mfa, iam, identity, provisioning, passwordless |
+| BP-021 Compliance Programme | BC-027 | *(none — see below)* | Compliance | grc, compliance, soc2, iso27001, gdpr, hipaa |
+
+**Why both carry an empty documentation-topic set.** These two are the only
+subjects whose catalog domain already had a *lens* pattern of the same name:
+BP-001 Security Evaluation reads `sso` and `mfa`, BP-004 Compliance Evaluation
+reads `retention` and `ediscovery`. BC-026 sits Primary on REQ-002 exactly as
+BC-001 does, and BC-027 sits Primary on REQ-004 exactly as BC-004 does — so a
+shared topic would put one documentation page into two Primary contributions and
+noisy-OR would compound them. That is the failure this document already names
+one section above: handing one page to two patterns is how one journey's
+evidence publishes another journey's need (Decisions #049, #050).
+
+Measured on the Scenario 1 clickstream before the topics were removed: five of
+BP-020's eight supporting events were already BP-001's, and REQ-002 rose from
+0.80 to 0.88 on no new evidence. With the topics removed it rests on three
+searches BP-001 never sees, and REQ-002 is 0.84.
+
+**What is left is what only a shopper does** — opening products in the category,
+and searching for the thing itself. A lens is read *on somebody else's product*;
+a subject is the product you went looking for. Both patterns still meet the
+family's ladder: two qualifying signals activate at Medium, four (or two
+sessions) reach Strong, pinned by `test_patterns_domain_coverage`.
+
+`certifications` was a third casualty and is worth recording, because it was
+wrong in a second way: no surface emits it as a documentation topic at all —
+the Security pane emits it as a `SECURITY_VIEWED` topic, which is BP-004's.
+It was a rule nothing could ever satisfy.
+
+---
+
+# Subjects that already had an evaluator — BC-005, BC-007
+
+Collaboration Evaluation and Automation Evaluation state a subject as plainly as
+any row above: a shopper reading Zapier's workflow documentation is shopping for
+automation. They predate the domain-research table and already have evaluators
+(BP-005, BP-007), so giving them rows would hand each concept a *second*
+evaluator and count its evidence twice — the same defect described above,
+arrived at from the other direction.
+
+They are therefore **declared** members of `INTENT_CONCEPTS` rather than derived
+from the table, each with the categories it is shopped in:
+
+| Concept | Evaluator | Categories | Primary requirement |
+|---|---|---|---|
+| BC-005 Collaboration Evaluation | BP-005 | Collaboration | REQ-001 Secure Collaboration |
+| BC-007 Automation Evaluation | BP-007 | Workflow Automation | REQ-003 Workflow Automation |
+
+Consequences, both intended and both visible in the acceptance suite: a shopper
+who moves onto collaboration or automation products can now abandon a journey
+and fork a new one, and a candidate outside the shopped category is multiplied
+by POL-REC-002's `off_subject_factor` — which is why Scenario 2 now ranks Zoom
+above Notion.
 
 ---
 

@@ -56,7 +56,15 @@ def derive_requirements(
     contributions: dict[str, list[tuple[str, str, float, float]]] = {}
     for bc_id, confidence in active_hypotheses.items():
         for req_id, association in bc_to_req.get(bc_id, {}).items():
-            if subjects and bc_id in domain.EVALUATION_LENS_CONCEPTS:
+            # Demote a lens only where it feeds a requirement *other* than the
+            # anchor. The rule exists to stop lenses manufacturing a competing
+            # subject; weakening their contribution to the declared subject is
+            # self-defeating. Integration Evaluation feeds Workflow Automation at
+            # Primary, so an automation shopper who checks integrations is
+            # evidencing the thing they are shopping for, not a rival need
+            # (doc 09 Scenario 3, Decision #077).
+            if (subjects and bc_id in domain.EVALUATION_LENS_CONCEPTS
+                    and req_id not in anchored):
                 association = demotion[association]
             weight = weights[association]
             contributions.setdefault(req_id, []).append((bc_id, association, weight, confidence))

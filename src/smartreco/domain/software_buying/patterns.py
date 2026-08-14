@@ -514,6 +514,33 @@ DOMAIN_RESEARCH_PATTERNS = (
      {"threat", "dlp"},
      {"security"},
      {"edr", "xdr", "siem", "dlp", "threat", "endpoint", "antivirus", "vulnerability"}),
+    # v1.4 (Decision #077). Identity and compliance had lens concepts (BC-001,
+    # BC-004) and no subject, so eighteen identity products and two compliance
+    # products could be browsed without the platform forming any idea of what was
+    # being shopped for — and a shopper who moved onto them from another subject
+    # could not fork a journey, because abandonment needs a *named* new subject.
+    #
+    # **Both carry an empty documentation-topic set, deliberately.** Every topic
+    # that would belong here is already owned by the lens pattern of the same
+    # name — `sso`/`mfa` by BP-001, `retention`/`ediscovery` by BP-004 — and
+    # BC-026/BC-001 both sit Primary on REQ-002, as BC-027/BC-004 both do on
+    # REQ-004. Reading one SSO page would therefore contribute twice to the same
+    # requirement under noisy-OR, which is the failure this pack already names:
+    # handing one page to two patterns is how one journey's evidence publishes
+    # another journey's need (Decisions #049, #050). It is the same reason
+    # BC-005 and BC-007 were declared subjects rather than given rows here.
+    #
+    # What is left is what only a *shopper* does: opening products in the
+    # category, and searching for the thing itself. A lens is read on somebody
+    # else's product; a subject is the product you went looking for.
+    ("BP-020", "BC-026",
+     frozenset(),
+     {"identity & access"},
+     {"sso", "mfa", "iam", "identity", "provisioning", "passwordless"}),
+    ("BP-021", "BC-027",
+     frozenset(),
+     {"compliance"},
+     {"grc", "compliance", "soc2", "iso27001", "gdpr", "hipaa"}),
 )
 
 
@@ -668,7 +695,21 @@ def _evaluate_domain_research(session_events: list[EventView],
 # buying effort, whereas Commercial Evaluation appearing beside either is the
 # same effort maturing. Only these concepts carry that meaning, which is why
 # the platform is handed a set rather than left to guess from entity overlap.
-INTENT_CONCEPTS = frozenset(concept_id for _p, concept_id, *_rest in DOMAIN_RESEARCH_PATTERNS)
+#
+# Two concepts join them without a row of their own. Collaboration and Automation
+# Evaluation state a subject as plainly as any of the rows above — a shopper
+# reading Zapier's workflow docs is shopping for automation — but they predate
+# this table and already have evaluators (BP-005, BP-007). Adding rows would give
+# each concept a *second* evaluator and count its evidence twice, so the subject
+# set is declared here rather than derived only from the table (Decision #077).
+SUBJECTS_WITH_OWN_EVALUATOR = {
+    "BC-005": frozenset({"collaboration"}),        # BP-005 -> REQ-001
+    "BC-007": frozenset({"workflow automation"}),  # BP-007 -> REQ-003
+}
+
+INTENT_CONCEPTS = frozenset(
+    [concept_id for _p, concept_id, *_rest in DOMAIN_RESEARCH_PATTERNS]
+    + list(SUBJECTS_WITH_OWN_EVALUATOR))
 
 
 def _domain_research_evaluator(row):

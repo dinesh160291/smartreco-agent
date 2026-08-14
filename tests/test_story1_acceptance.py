@@ -175,12 +175,21 @@ def test_story1_security_evaluator(seeded, chroma, backend, policies, user, fake
                     .order_by(models.RequirementProfile.version.desc())).scalars().first()
     reqs = {entry["req_id"]: entry for entry in rp.requirements}
     assert set(reqs) == {"REQ-002", "REQ-004"}          # REQ-001 held below 0.5
-    # 0.80, not 0.94: Enterprise Evaluation no longer contributes to Identity
-    # Management (Decision #050) — this shopper's identity need rests on their
-    # security research alone. Everything downstream is unchanged, which is the
-    # evidence the demotion was surgical: same requirement set, same priority
-    # bands, same coverage percentages asserted below.
-    assert reqs["REQ-002"]["confidence"] == 0.80
+    # 0.84 = noisy-OR of BC-001 Primary (1.0×0.80) and BC-026 Primary (1.0×0.20).
+    # Enterprise Evaluation still contributes nothing here (Decision #050):
+    # organizational scale is a fact about the buyer, not a statement of need.
+    # What is new is BC-026 Identity Platform Evaluation (Decision #077) — this
+    # shopper searched "okta scim provisioning", "single sign-on scim
+    # provisioning okta" and "okta sso audit logging" across two sessions, which
+    # says what they are shopping for rather than how they vet it.
+    #
+    # BC-026 is 0.20 and rests on those three searches *alone*. It draws nothing
+    # from the SSO and MFA documentation pages, because BP-001 already reads
+    # those and BC-001 is also Primary here — sharing them would count one page
+    # twice under noisy-OR and inflate REQ-002 to 0.88 on no new evidence.
+    # Downstream is unmoved: same requirement set, same priority bands, same
+    # coverage percentages asserted below.
+    assert reqs["REQ-002"]["confidence"] == 0.84
     assert reqs["REQ-002"]["priority"] == "CRITICAL"
     assert reqs["REQ-004"]["confidence"] == 0.56
     assert reqs["REQ-004"]["priority"] == "MEDIUM"

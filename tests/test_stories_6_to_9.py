@@ -264,7 +264,22 @@ def test_story8_mind_changer_gradual_reversal(seeded, chroma, backend, policies,
     assert after_one == enterprise_before          # no instant flip
 
     # Sustained contradiction: repeated individual/free-tier pricing across
-    # two sessions → gradual weakening (POL-CONF-003), never a cliff
+    # two sessions → gradual weakening (POL-CONF-003), never a cliff.
+    #
+    # This block names collaboration, which is a subject since Decision #077,
+    # and the journey stays whole only because it never established a subject
+    # of its own: BP-020 Identity Platform needs two qualifying signals and
+    # this shopper produces one search. `subject_abandoned` requires an
+    # established subject, so there is nothing here to abandon.
+    #
+    # It is worth knowing which way that cuts. Were the identity intent one
+    # signal stronger, this block would abandon the journey and fork — and the
+    # fork would carry BP-002's contradicting evidence to a journey holding no
+    # BC-002 to contradict, so the enterprise hypothesis would never weaken and
+    # this story would fail on its own stated failure mode. That is not a bug
+    # in either rule: a contradiction can only be observed where the hypothesis
+    # lives. It is a genuine limit on how much subject-change a *contradiction*
+    # story can carry, and the fixture stays on the near side of it.
     _insert(db, user.id, "mind-s1", day + timedelta(hours=1, minutes=20), [
         ("c6", "PRICING_VIEWED", "HIGH", {"product_id": "PROD-009", "tier": "individual"}),
         ("c7", "PRICING_VIEWED", "HIGH", {"product_id": "PROD-005", "tier": "free"}),

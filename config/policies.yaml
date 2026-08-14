@@ -6,7 +6,7 @@
 # changes the decisions a run produces, and policy_version is how that run says
 # which build of the rules produced it.
 
-catalog_version: "1.8"
+catalog_version: "1.9"
 
 policies:
 
@@ -116,7 +116,10 @@ policies:
       states how they vet a candidate (security posture, enterprise readiness, regulatory fit,
       integration fit) is an *evaluation lens*. While no subject is held above
       subject_min_confidence, both contribute at their mapped association. Once any subject is
-      held, every lens association is demoted one band by lens_demotion. The Primary Requirement
+      held, a lens association is demoted one band by lens_demotion wherever it feeds a
+      Requirement *other than an anchored one* — a lens contributing to the anchor is evidencing
+      the thing being shopped for, and demoting it there weakened the Requirement the rule exists
+      to protect (Decision #077). The Primary Requirement
       of the *most strongly held* subject (all of them, on a tie) is banded subject_priority
       regardless of its derived confidence and sorts first — the shopper told us why they are
       here, so that Requirement anchors the ranking. A more weakly held second subject bands by

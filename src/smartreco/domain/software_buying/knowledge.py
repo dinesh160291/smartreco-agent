@@ -11,9 +11,12 @@ Runtime Objects (doc 09, Principles 4-5). Pattern activation thresholds are
 Domain Pack v1 values (doc 02: "the numbers are their v1 defaults").
 """
 
-from smartreco.domain.software_buying.patterns import ADOPTION_DOC_TOPICS, BP011_TRIGGERS, DOMAIN_RESEARCH_PATTERNS
+from smartreco.domain.software_buying.patterns import (
+    ADOPTION_DOC_TOPICS, BP011_TRIGGERS, DOMAIN_RESEARCH_PATTERNS, INTENT_CONCEPTS,
+    SUBJECTS_WITH_OWN_EVALUATOR)
 
-DOMAIN_PACK_VERSION = "1.3"   # v1.3 adds the security-operations vocabulary (Decision #074)
+DOMAIN_PACK_VERSION = "1.4"   # v1.4 gives identity, compliance, collaboration and
+                              # automation a subject of their own (Decision #077)
 
 # ---- Behavioral Concept Registry (doc 01) ----
 
@@ -47,6 +50,14 @@ BEHAVIORAL_CONCEPTS: dict[str, str] = {
     "BC-023": "Engineering Delivery Evaluation",
     "BC-024": "Data & Insight Evaluation",
     "BC-025": "Security Operations Evaluation",
+    # v1.4 subjects (Decision #077). Identity and compliance products were two of
+    # the ten categories a shopper could browse without the platform forming any
+    # idea of what they were shopping for. Distinct from BC-001 and BC-004, which
+    # are the *lenses* of the same names: checking a candidate's security posture
+    # is not the same act as shopping for an identity platform, and conflating
+    # them is what POL-REQ-004 exists to separate.
+    "BC-026": "Identity Platform Evaluation",
+    "BC-027": "Compliance Programme Evaluation",
 }
 
 # ---- Business Requirement Catalog (doc 04) ----
@@ -291,6 +302,14 @@ BC_TO_REQ: dict[str, dict[str, str]] = {
     "BC-023": {"REQ-010": "Primary", "REQ-011": "Secondary", "REQ-003": "Supporting"},
     "BC-024": {"REQ-011": "Primary", "REQ-005": "Secondary"},
     "BC-025": {"REQ-012": "Primary", "REQ-004": "Secondary", "REQ-002": "Supporting"},
+    # v1.4 (Decision #077): the subject forms of two needs the pack could already
+    # express but only ever inferred from vetting behaviour.
+    # No Supporting link to Secure Collaboration: shopping for an identity
+    # platform says nothing about wanting collaboration software, and inventing
+    # the association published a requirement doc 09 Scenario 1 holds below the
+    # publication floor.
+    "BC-026": {"REQ-002": "Primary"},
+    "BC-027": {"REQ-004": "Primary", "REQ-002": "Supporting"},
 }
 
 # ---- Subjects and evaluation lenses (POL-REQ-004; doc 06 §Association classes) ----
@@ -320,15 +339,16 @@ EVALUATION_LENS_CONCEPTS = frozenset({"BC-001", "BC-002", "BC-004", "BC-008"})
 # an anchor that disagrees with the mapping it was declared in.
 SUBJECT_REQUIREMENT: dict[str, str] = {
     bc: next(req for req, assoc in BC_TO_REQ[bc].items() if assoc == "Primary")
-    for _pattern, bc, *_rest in DOMAIN_RESEARCH_PATTERNS
+    for bc in INTENT_CONCEPTS
 }
 
 # {subject concept: product categories that subject is shopped in} — the same
 # categories the pattern activates on, so "what the shopper researched" and
 # "what counts as on-subject when ranking" cannot drift apart.
 SUBJECT_CATEGORIES: dict[str, frozenset[str]] = {
-    bc: frozenset(categories)
-    for _pattern, bc, _topics, categories, _terms in DOMAIN_RESEARCH_PATTERNS
+    **{bc: frozenset(categories)
+       for _pattern, bc, _topics, categories, _terms in DOMAIN_RESEARCH_PATTERNS},
+    **SUBJECTS_WITH_OWN_EVALUATOR,
 }
 
 # ---- REQ → CAP Mapping (doc 07 — all associations are "required") ----

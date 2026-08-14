@@ -265,6 +265,28 @@ Enterprise Evaluation joined them for its identity association in Decision #050.
 
 ---
 
+# v1.4 Extension — BC-026 … BC-027
+
+Two more catalog domains had a *lens* of the right name and no subject, which is
+not the same thing (Decision #077).
+
+| ID | Concept | Activated by | Primary requirement |
+|---|---|---|---|
+| BC-026 | Identity Platform Evaluation | BP-020 | REQ-002 Identity Management |
+| BC-027 | Compliance Programme Evaluation | BP-021 | REQ-004 Regulatory Compliance |
+
+**Why these are not BC-001 and BC-004 under another name.** BC-001 Security
+Evaluation and BC-004 Compliance Evaluation describe how a shopper *vets a
+candidate*: reading a security page, checking certifications. BC-026 and BC-027
+describe what the shopper is *shopping for*. An HR buyer reads a provisioning
+page while buying HR software; a shopper comparing SSO products is buying
+identity. Conflating the two is exactly what POL-REQ-004 exists to separate,
+and until v1.4 the pack had no vocabulary for the second reading — so eighteen
+identity products and two compliance products could be browsed at length
+without the platform forming any idea of what was being shopped for.
+
+---
+
 # Ontology Invariants
 
 The following rules must always hold.

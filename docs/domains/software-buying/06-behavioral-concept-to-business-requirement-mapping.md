@@ -528,13 +528,17 @@ Regulatory Compliance
 
 Association level says how strongly a Behavioral Concept implies a Business Requirement. It does not say whether the Concept describes **what the shopper is shopping for** or **how they are vetting a candidate**. Those are different claims, and conflating them made the platform answer a question nobody asked.
 
-A **subject** Concept states the object of the search: BC-019 through BC-025 (CRM, People Operations, Financial, Marketing, Engineering Delivery, Data & Insight, Security Operations).
+A **subject** Concept states the object of the search: BC-019 through BC-027 (CRM, People Operations, Financial, Marketing, Engineering Delivery, Data & Insight, Security Operations, Identity Platform, Compliance Programme), together with BC-005 Collaboration Evaluation and BC-007 Automation Evaluation, which state a subject just as plainly but already had evaluators of their own (Decision #077, doc 02 — *Subjects that already had an evaluator*).
 
 An **evaluation lens** Concept states diligence applied to any candidate, in any category — BC-001 Security Evaluation, BC-002 Enterprise Evaluation, BC-004 Compliance Evaluation, BC-008 Integration Evaluation. An HR buyer reads the security page of an HR product; that is not a request for identity software.
 
 Mapped at full strength, the lenses out-derived every subject. The Requirements they feed are fed by many Concepts — Identity Management by five, Workflow Automation by seven, Regulatory Compliance by six — while each subject Requirement is fed by one or two. Under noisy-OR (POL-REQ-003) feeder count alone decided the top Requirement, and in all seven research areas the answer was Identity Management, whether the shopper was researching payroll, dashboards or endpoint security.
 
-POL-REQ-004 resolves this without unmapping anything. While no subject is held, lenses derive Requirements exactly as this document has always specified — that is Scenario 1, where Security Evaluation genuinely *is* the subject and must keep publishing Identity Management at Critical. Once a subject is held, every lens association is demoted one band, and the Primary Requirement of the most strongly held subject anchors the profile. See Decision #073.
+POL-REQ-004 resolves this without unmapping anything. While no subject is held, lenses derive Requirements exactly as this document has always specified — that is Scenario 1, where Security Evaluation genuinely *is* the subject and must keep publishing Identity Management at Critical. Once a subject is held, the Primary Requirement of the most strongly held subject anchors the profile, and lens associations are demoted one band **everywhere except on the anchor itself**. See Decision #073.
+
+The exception is not a softening; without it the rule undermined what it was built to protect. Integration Evaluation is Primary to Workflow Automation, so demoting it on an automation shopper's profile weakened the very Requirement being anchored — the shopper checked integrations *because* that is what they are buying. Scenario 3 caught it (Decision #077). Demotion still applies in full wherever a lens feeds some other Requirement, which is the case the rule exists for.
+
+BC-026 Identity Platform Evaluation and BC-027 Compliance Programme Evaluation are subjects that share a name with a lens, and the distinction is the whole point rather than an awkwardness: reading Okta's security page is BC-001, going looking for an identity platform is BC-026. Because each pair sits Primary on the same Requirement, their patterns are kept off each other's evidence — see doc 02.
 
 ---
 
@@ -1041,6 +1045,28 @@ a single concept can rarely publish a requirement through them alone: at 0.6
 confidence a Secondary link derives 0.36, below POL-REQ-001's 0.5 bar. Those
 links strengthen requirements other evidence already supports; they do not
 invent needs.
+
+---
+
+# v1.4 Extension — BC-026 … BC-027 Mappings
+
+| Concept | Primary | Secondary | Supporting |
+|---|---|---|---|
+| BC-026 Identity Platform Evaluation | REQ-002 Identity Management | — | — |
+| BC-027 Compliance Programme Evaluation | REQ-004 Regulatory Compliance | — | REQ-002 Identity Management |
+
+BC-026 carries a single association on purpose. The obvious candidate for a
+Supporting link was REQ-001 Secure Collaboration, on the reasoning that identity
+platforms are bought to give teams access to shared tools. That reasoning is
+about what identity software *does*, not about what its buyer asked for:
+shopping for an identity platform says nothing about wanting collaboration
+software. It also had a measurable cost — the link published a Requirement that
+Scenario 1 holds deliberately below the publication floor.
+
+BC-027's Supporting link to Identity Management is the reverse case and does
+survive: a compliance programme is enforced through who can reach what, so the
+governance buyer genuinely does acquire an access question. It is Supporting
+(0.3), which by the note above cannot publish REQ-002 on its own.
 
 ---
 

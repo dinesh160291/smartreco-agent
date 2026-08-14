@@ -14,6 +14,7 @@ product first.
 """
 
 import json
+from itertools import zip_longest
 from pathlib import Path
 
 import pytest
@@ -52,15 +53,43 @@ def fired(events, policies):
     return {d.pattern_id: d for d in evaluate_patterns(events, policies)}
 
 
+def qualifying(doc_topics, categories, terms, n):
+    """`n` distinct qualifying events built from the routes a pattern declares.
+
+    These tests used to reach for `sorted(doc_topics)[0]`, which silently
+    assumed every domain research pattern owns at least one documentation
+    topic. BP-020 and BP-021 own none on purpose — every topic that would
+    belong to them is already read by the lens pattern of the same name, and
+    both concepts sit Primary on the same requirement as that lens, so sharing
+    a topic would count one page twice (Decision #077). The assumption would
+    have made the two new patterns untestable instead of making itself visible.
+
+    Routes are interleaved rather than concatenated so a small `n` still draws
+    on more than one kind of signal — which is the point of the
+    cross-contamination test below.
+    """
+    docs = [("DOCUMENTATION_VIEWED", {"topic": t}) for t in sorted(doc_topics)]
+    searches = [("SEARCH", {"query": t}) for t in sorted(terms)]
+    cats = []
+    for category in sorted(categories):
+        cats += [("PRODUCT_VIEWED", {"category": category}),
+                 ("CATEGORY_VIEWED", {"category": category})]
+    routes = []
+    for group in zip_longest(docs, searches, cats):
+        routes += [route for route in group if route is not None]
+    assert len(routes) >= n, f"pattern declares only {len(routes)} routes, needed {n}"
+    return [E(i + 1, etype, **metadata)
+            for i, (etype, metadata) in enumerate(routes[:n])]
+
+
 # --- Activation --------------------------------------------------------------
 
 def test_every_domain_pattern_activates_on_two_signals(policies):
     """One ladder for all seven, matching BP-003 and BP-007: two qualifying
     signals activate at Medium. Shopping for payroll must be no harder to
     recognise than shopping for AI."""
-    for pattern_id, concept_id, doc_topics, categories, _terms in DOMAIN_RESEARCH_PATTERNS:
-        events = [E(1, "DOCUMENTATION_VIEWED", topic=sorted(doc_topics)[0]),
-                  E(2, "PRODUCT_VIEWED", category=sorted(categories)[0])]
+    for pattern_id, concept_id, doc_topics, categories, terms in DOMAIN_RESEARCH_PATTERNS:
+        events = qualifying(doc_topics, categories, terms, 2)
         draft = fired(events, policies).get(pattern_id)
         assert draft is not None, f"{pattern_id} did not activate on two signals"
         assert draft.strength == "MEDIUM"
@@ -71,18 +100,14 @@ def test_one_signal_is_never_enough(policies):
     """A single glance is not research. Without this the patterns would fire on
     any product view in the category, and every casual visit would publish a
     need."""
-    for pattern_id, _concept, doc_topics, _categories, _terms in DOMAIN_RESEARCH_PATTERNS:
-        events = [E(1, "DOCUMENTATION_VIEWED", topic=sorted(doc_topics)[0])]
+    for pattern_id, _concept, doc_topics, categories, terms in DOMAIN_RESEARCH_PATTERNS:
+        events = qualifying(doc_topics, categories, terms, 1)
         assert pattern_id not in fired(events, policies)
 
 
 def test_four_signals_reach_strong(policies):
     for pattern_id, _concept, doc_topics, categories, terms in DOMAIN_RESEARCH_PATTERNS:
-        topics = sorted(doc_topics)
-        events = [E(1, "SEARCH", query=sorted(terms)[0]),
-                  E(2, "PRODUCT_VIEWED", category=sorted(categories)[0]),
-                  E(3, "CATEGORY_VIEWED", category=sorted(categories)[0]),
-                  E(4, "DOCUMENTATION_VIEWED", topic=topics[0])]
+        events = qualifying(doc_topics, categories, terms, 4)
         draft = fired(events, policies)[pattern_id]
         assert draft.strength == "STRONG", f"{pattern_id} stalled at {draft.strength}"
 
@@ -92,10 +117,8 @@ def test_domain_patterns_do_not_fire_on_each_others_vocabulary(policies):
     (doc 14). Each domain's own signals must activate its own pattern and
     nothing else in the family."""
     family = {row[0] for row in DOMAIN_RESEARCH_PATTERNS}
-    for pattern_id, _concept, doc_topics, categories, _terms in DOMAIN_RESEARCH_PATTERNS:
-        events = [E(1, "DOCUMENTATION_VIEWED", topic=sorted(doc_topics)[0]),
-                  E(2, "PRODUCT_VIEWED", category=sorted(categories)[0]),
-                  E(3, "DOCUMENTATION_VIEWED", topic=sorted(doc_topics)[-1])]
+    for pattern_id, _concept, doc_topics, categories, terms in DOMAIN_RESEARCH_PATTERNS:
+        events = qualifying(doc_topics, categories, terms, 3)
         others = (family & set(fired(events, policies))) - {pattern_id}
         assert not others, f"{pattern_id}'s evidence also fired {sorted(others)}"
 

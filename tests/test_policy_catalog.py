@@ -30,6 +30,11 @@ def catalog():
 
 
 def test_catalog_version_is_recorded(catalog):
+    # v1.9: POL-REQ-004's demotion narrowed — a lens is demoted only where it
+    # feeds a Requirement other than an anchored one (#077). No parameter moved,
+    # and the rule's scope did: an automation shopper who checks integrations
+    # now keeps that contribution to the Requirement being anchored, so a run
+    # under 1.9 publishes a different confidence than the same events under 1.8.
     # v1.8: POL-REQ-004 is new (subject anchoring) and POL-REC-002 gained
     # capability_weights + off_subject_factor (#073). Both change what a run
     # concludes, not merely how fast it gets there — the four doc 09 derivations
@@ -49,7 +54,7 @@ def test_catalog_version_is_recorded(catalog):
     # produced it — #056 shipped without bumping it and the omission cost a
     # debugging round, because policy_version 1.4 could not distinguish a
     # server running the fork from one that was not.
-    assert catalog.version == "1.8"
+    assert catalog.version == "1.9"
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
     assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 45
     assert catalog.param("POL-TRIG-001", "unprocessed_event_threshold") == 3

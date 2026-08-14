@@ -3836,3 +3836,110 @@ order for a *different* reason, which is why it survived so long.
 The maintenance cost is the intended cost. A change that moves a published
 percentage is a change to what the platform tells a shopper, and it should
 require amending the document that promises it.
+
+---
+
+# Decision #077
+
+## Four categories get a subject, and two of them nearly counted their evidence twice
+
+Ten of the catalog's categories could be browsed at length without the platform
+forming any idea of what was being shopped for; 110 of 250 products sat in one.
+Identity and Compliance had a *lens* concept of the right name and no subject,
+which is not the same thing. Collaboration and Automation had neither.
+
+**BC-026 Identity Platform Evaluation** and **BC-027 Compliance Programme
+Evaluation** join the ontology (v1.4), evaluated by **BP-020** and **BP-021** on
+the BP-013…BP-019 ladder. **BC-005 Collaboration Evaluation** and **BC-007
+Automation Evaluation** are promoted to subjects without patterns of their own —
+they already have evaluators, and a second one would count their evidence twice.
+
+## The defect that promotion nearly shipped
+
+BP-020 was first written reading `sso` and `mfa`; BP-021 read `retention` and
+`ediscovery`. Every one of those topics is already owned by the lens pattern of
+the same domain — BP-001 and BP-004 — and BC-026 sits Primary on REQ-002 exactly
+as BC-001 does, BC-027 Primary on REQ-004 exactly as BC-004 does. One
+documentation page therefore became two Primary contributions to the same
+Requirement, compounded by noisy-OR.
+
+This is the failure doc 02 already names one section above the offending table:
+*handing one page to two patterns is precisely how one journey's evidence
+publishes another journey's need* (Decisions #049, #050). It was written down,
+and then walked into from the other side.
+
+Measured rather than argued. On the Scenario 1 clickstream, five of BP-020's
+eight supporting events were already BP-001's, and REQ-002 derived **0.88 where
+the evidence justified 0.84**. Three compliance documentation views produced
+both BC-004 and BC-027 from the same two events.
+
+**Both patterns now carry an empty documentation-topic set.** What remains is
+what only a shopper does: opening products in the category, and searching for
+the thing itself. A lens is read on somebody else's product; a subject is the
+product you went looking for. BC-026 in Scenario 1 now rests on three searches
+BP-001 never sees, and REQ-002 derives 0.84 — the only number in that scenario
+that moves.
+
+`certifications`, BP-021's third topic, was wrong twice over: no surface emits
+it as a documentation topic at all. The Security pane emits it as a
+`SECURITY_VIEWED` topic, which is BP-004's. It was a rule nothing could satisfy.
+
+## POL-REQ-004 refined: a lens is not demoted on the anchor itself
+
+Demoting every lens association once a subject is held weakened the very
+Requirement being anchored. Integration Evaluation is Primary to Workflow
+Automation, so an automation shopper who checks integrations was penalised for
+evidencing the thing they are shopping for. Scenario 3 caught it. Demotion now
+applies wherever a lens feeds a Requirement *other* than the anchor, which is
+the case the rule was written for.
+
+## What moved downstream, and what did not
+
+**Scenario 1 — REQ-002 0.80 → 0.84.** Priority band, requirement set, stage and
+every coverage percentage unchanged.
+
+**Scenario 2 — Notion 49% → 29%, and it drops from rank 2 to below Zoom.**
+Collaboration is now a declared subject, so POL-REC-002's `off_subject_factor`
+applies for the first time on this journey; Notion is catalogued under Knowledge
+& Docs. A product covering less of the requirement now ranks above one covering
+more, which is the intended reading — Notion's 49% was carried almost entirely
+by REQ-005 at 91%, while on the Critical REQ-001 it holds one capability of
+seven. Per Decision #076 this is a change to what the platform tells a shopper,
+so doc 09, doc 11 and the acceptance assertions move with it.
+
+**A limitation, recorded rather than papered over.** The off-subject factor keys
+on the candidate's catalog category alone and cannot distinguish a product the
+retrieval surfaced from one the shopper studied. Story 2's shopper opened Notion
+repeatedly and searched for it by name, and is still shown it demoted. POL-REC-002
+says *outside every category the shopper has been researching*, and Notion's
+category is outside it; changing that reading is a policy change and is
+deliberately not made here.
+
+## Story 8, and a fix that turned out to be the same fix
+
+The Mind-Changer's contradiction block views knowledge and collaboration
+products at individual tier. Once Collaboration was a subject, that block named
+a subject the journey was not about, so journey resolution forked — correctly —
+and carried BP-002's contradicting evidence to a journey holding no BC-002 to
+contradict. The enterprise hypothesis then never weakened, which is the failure
+mode the story itself names.
+
+The obvious remedy was to move the block onto identity products, so the reversal
+was of scale rather than of subject. It worked, and it was not needed: removing
+BP-020's borrowed documentation topics had already dissolved the fork at its
+root. Without `sso` and `mfa`, this shopper produces a single identity search —
+below BP-020's two-signal bar — so the journey never establishes a subject, and
+`subject_abandoned` has nothing to abandon. **The fixture is therefore
+unchanged.** The clickstream edit was reverted once the measurement showed it
+redundant; what remains is a comment recording which way the interaction cuts.
+
+That the double-count fix and the fork fix were one fix is not a coincidence.
+Both symptoms came from BP-020 claiming evidence that belonged to BP-001: as
+confidence it inflated REQ-002, and as *subject* it made a security-vetting
+journey look like an identity-shopping one.
+
+The limit is real and worth stating plainly: were this shopper's identity intent
+one signal stronger, the block would fork and the story would fail on its own
+stated failure mode. A contradiction can only be observed where the hypothesis
+lives. Both behaviours are correct; what no single block can do is express both
+and have the platform honour each.

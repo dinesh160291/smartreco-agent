@@ -579,6 +579,12 @@ BE-009
 Customer evaluates identity governance features.
 
 Produced by BP-002 Enterprise Evaluation
+
+BE-011
+
+Customer searches for identity platforms by name and capability.
+
+Produced by BP-020 Identity Platform Evaluation
 ```
 
 ---
@@ -605,6 +611,10 @@ Security Evaluation — hypothesis confidence 0.80
 BC-002
 
 Enterprise Evaluation — hypothesis confidence 0.70
+
+BC-026
+
+Identity Platform Evaluation — hypothesis confidence 0.20
 ```
 
 Journey Stage: Technical Validation
@@ -630,13 +640,29 @@ episodes rather than one summary: under POL-CONF-002 the *shape* of the
 research, not merely its volume, is what produces the confidences. A shopper
 who performed the fifth episode ten more times would still reach 0.80.
 
+**BC-026 Identity Platform Evaluation — 0.20** (added in v1.4, Decision #077).
+This shopper is not only vetting candidates on security grounds; they are
+shopping for an identity platform, and now the pack has a concept that says so.
+BP-020 reaches Strong across two sessions on three searches —
+`okta scim provisioning`, `single sign-on scim provisioning okta` and
+`okta sso audit logging` — contributing **+0.20** once.
+
+It draws on **nothing else in the clickstream**, and that restraint is the
+substance of the entry rather than a detail of it. The SSO and MFA
+documentation pages this shopper read are BP-001's evidence, and BC-001 is
+already Primary to REQ-002; letting BP-020 read them too would put one page
+into two Primary contributions of the same Requirement. Measured before the
+overlap was removed: five of BP-020's eight supporting events were BP-001's,
+and REQ-002 derived 0.88 instead of 0.84 on no new evidence.
+
 ---
 
 ## Requirement Derivation (POL-REQ-003)
 
 ```text
-REQ-002:  BC-001 Primary (1.0×0.80)
-          = 0.80  → publish, Critical (≥0.8, stage ≥ Technical Validation)
+REQ-002:  BC-001 Primary (1.0×0.80) + BC-026 Primary (1.0×0.20)
+          = 1 − (0.20)(0.80) = 0.84
+          → publish, Critical (≥0.8, stage ≥ Technical Validation)
 
 REQ-004:  BC-001 Supporting (0.3×0.80=0.24) + BC-002 Secondary (0.6×0.70=0.42)
           = 1 − (0.76)(0.58) = 0.56  → publish, Medium
@@ -654,6 +680,13 @@ survives, because governance obligations genuinely do follow from
 organizational adoption. Nothing downstream moves: the same two requirements
 publish, in the same priority bands, producing the same coverage percentages
 below. That invariance is the evidence the change was surgical.
+
+**And why BC-026 does (Decision #077).** The distinction #050 drew is precisely
+the one BC-026 sits on the other side of. Enterprise Evaluation is an attribute
+of the buyer; Identity Platform Evaluation is a statement of what they are
+buying, which is what a Primary association is for. REQ-002 accordingly moves
+0.80 → 0.84 — the only number in this scenario that does. Priority band,
+requirement set, stage and every coverage percentage below are unchanged.
 
 ---
 
@@ -816,13 +849,15 @@ Observed Behavior
 
 ↓
 
-Behavioral Evidence (BP-001, BP-002)
+Behavioral Evidence (BP-001, BP-002, BP-020)
 
 ↓
 
 BC-001
 
 BC-002
+
+BC-026
 
 ↓
 
@@ -1049,6 +1084,7 @@ REQ-001 coverage: 1.0/4.8 = 21%   (has CAP-007 only)
 REQ-005 coverage: 3.2/3.5 = 91%   (missing CAP-015)
 
 Overall (3×0.208 + 2×0.914) ÷ 5 = 49%
+Off subject (Knowledge & Docs, not Collaboration): 49% × 0.6 = 29%
 
 Partially Satisfied Requirements
 
@@ -1068,6 +1104,7 @@ REQ-001 coverage: 1.2/4.8 = 25%   (has CAP-005, CAP-006)
 REQ-005 coverage: 1.6/3.5 = 46%   (has CAP-020, CAP-023)
 
 Overall (3×0.25 + 2×0.457) ÷ 5 = 33%
+On subject (Collaboration): no adjustment
 
 Partially Satisfied Requirements
 
@@ -1079,6 +1116,28 @@ Missing Capabilities
 
 CAP-001, CAP-002, CAP-007, CAP-010, CAP-011, CAP-015, CAP-021, CAP-022
 ```
+
+**The off-subject term, and why it reorders this scenario (Decision #077).**
+Collaboration became a declared subject in v1.4, so POL-REC-002's
+`off_subject_factor` — dormant here until now, because this journey held no
+subject the platform could name — applies to any candidate outside the category
+being shopped. Notion is catalogued under Knowledge & Docs, so its 49% becomes
+29% and it falls below Zoom Workplace at 33%.
+
+That is a product covering *less* of the requirement ranked above one covering
+more, and it is the intended reading: Notion's 49% is carried almost entirely by
+REQ-005 AI Assistance at 91%, while on REQ-001 Secure Collaboration — the
+Critical requirement, and the one the shopper's behaviour anchored — it holds
+one capability of seven. A shopper consolidating collaboration tools is shown
+collaboration tools first.
+
+**The known limitation, recorded rather than papered over.** The factor keys on
+the candidate's catalog category alone, so it cannot tell a product the
+retrieval surfaced from one the shopper studied. This shopper opened Notion
+repeatedly and searched for it by name, and is still shown it demoted. The rule
+as specified in POL-REC-002 says *outside every category the shopper has been
+researching*, and Notion's category is outside it; changing that reading is a
+policy change, not an implementation detail, and is deliberately not made here.
 
 ---
 
@@ -1099,11 +1158,11 @@ PROD-004
 
 Rank 2
 
-PROD-009
+PROD-005
 
 Rank 3
 
-PROD-005
+PROD-009
 ```
 
 ---
@@ -1254,14 +1313,23 @@ Journey Stage: Technical Validation
 
 ```text
 REQ-003:  BC-007 Primary (1.0×0.80) + BC-008 Primary (1.0×0.70)
-          = 1 − (0.20)(0.30) = 0.94  → publish, Critical
+          = 1 − (0.20)(0.30) = 0.94  → publish, Critical, anchored
 
 REQ-005:  BC-007 Secondary (0.6×0.80=0.48)
           = 0.48  → below 0.5, not published
 
-REQ-002:  BC-008 Secondary (0.6×0.70=0.42)
-          = 0.42  → not published
+REQ-002:  BC-008 Supporting (0.3×0.70=0.21), demoted from Secondary
+          = 0.21  → not published
 ```
+
+**Automation Evaluation is the subject here** (BC-007, held at 0.80), so
+POL-REQ-004 anchors REQ-003 and demotes the lens BC-008 Integration Evaluation
+one band — but **only where it feeds something other than the anchor**. On
+REQ-002 it drops Secondary → Supporting, 0.42 → 0.21. On REQ-003 it keeps its
+Primary association, because an automation shopper checking integrations is
+evidencing the very thing they are shopping for. Demoting it there took REQ-003
+below its own Critical band, which is how the exception was found (Decision
+#077).
 
 ---
 
