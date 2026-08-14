@@ -814,7 +814,14 @@ def stage_match(ctx: WorkflowContext, state: dict) -> bool:
         ).all())
         # The categories the shopper's held subjects are shopped in (POL-REC-002).
         # Empty while no subject is held, which switches the term off entirely.
-        subject_min = ctx.policies.param("POL-REQ-004", "subject_min_confidence")
+        #
+        # Its own floor, lower than POL-REQ-004's (Decision #082). Anchoring a
+        # profile is a strong claim and keeps the 0.5 bar; "what kinds of product
+        # is this shopper looking at" is a weak one, and holding it to the same
+        # bar meant a shopper who had opened nothing but identity products was
+        # still shown a password manager as though it were on subject, because
+        # their identity subject sat at 0.40.
+        subject_min = ctx.policies.param("POL-REC-002", "subject_category_min_confidence")
         subject_categories: set[str] = set()
         for bc_id, confidence in state["active"].items():
             if confidence >= subject_min:

@@ -4271,3 +4271,54 @@ subject.
 **Categories with no subject: 8 products, all of them AI** — down from 110 when
 this sweep began. That one needs a concept of its own and is not a free change
 (Decision #080).
+
+---
+
+# Decision #082
+
+## The ranking's category set gets its own floor
+
+`subject_categories` — the set POL-REC-002 measures a candidate's category
+against — was built from subjects held above **POL-REQ-004's**
+`subject_min_confidence` of 0.5. That is the bar for *anchoring a profile*, and
+it was never the right bar for this.
+
+The two are different claims. "What is this journey about" decides which
+Requirement is banded Critical and sorts first; it should be confident. "What
+kinds of product is this shopper looking at" only decides whether a candidate is
+the sort of thing they have been opening, and a subject the platform holds at
+0.20 already answers it — the concept exists at all because a pattern activated,
+which takes two qualifying signals.
+
+**POL-REC-002 now carries `subject_category_min_confidence` (0.2)**, separate
+from the anchoring bar. Policy Catalog 1.11.
+
+## What it fixes, measured
+
+The live verification of #077/#078 found an identity shopper — four identity
+products opened, SSO and provisioning searched — whose package ranked **LastPass,
+a Security product, alongside the identity platforms, undemoted**. Correct under
+the old rule: BC-026 sat at 0.40, under 0.5, so the category set was empty and
+*nothing* was off-subject. The shopper had plainly told the platform what they
+were looking at and the ranking could not use it.
+
+Story 1 shows the same shape and now pins it. BC-026 is held at 0.20 there:
+
+| | coverage | match | on subject |
+|---|---|---|---|
+| Okta | 82 | 82 | yes |
+| Microsoft 365 | 78 | **47** | no |
+| Google Workspace | 53 | **32** | no |
+
+Microsoft 365 covers 78% of what this shopper needs and is still not the kind of
+product they have been opening. Coverage says the first thing honestly and the
+match score says the second — which is exactly what #078's split was for, and
+the order is unchanged.
+
+## Why 0.2
+
+It is one Strong evidence, or two Medium (POL-CONF-001). Below that a concept
+has not formed at all, since POL-BEH-001 promotes on two evidence objects or one
+Strong. So the floor is "the shopper did this at least twice, or did it
+convincingly once" — which is the weakest honest reading of *has been
+researching*, and POL-REC-002's own wording is exactly that.

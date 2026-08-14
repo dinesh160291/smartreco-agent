@@ -30,6 +30,11 @@ def catalog():
 
 
 def test_catalog_version_is_recorded(catalog):
+    # v1.11: POL-REC-002 gained subject_category_min_confidence (#082) — the
+    # categories a candidate is measured against now come from a lower bar than
+    # POL-REQ-004's anchoring one. Same events, different match scores: a
+    # shopper whose subject sits at 0.20 now has a subject *category*, so
+    # Story 1 marks Microsoft 365 off-subject where 1.10 did not.
     # v1.10: POL-REC-002 split the published figure from the ranking one (#078).
     # `off_subject_factor` no longer multiplies coverage, so the same events
     # under 1.10 publish a *different percentage* than under 1.9 with the same
@@ -58,7 +63,7 @@ def test_catalog_version_is_recorded(catalog):
     # produced it — #056 shipped without bumping it and the omission cost a
     # debugging round, because policy_version 1.4 could not distinguish a
     # server running the fork from one that was not.
-    assert catalog.version == "1.10"
+    assert catalog.version == "1.11"
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
     assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 45
     assert catalog.param("POL-TRIG-001", "unprocessed_event_threshold") == 3

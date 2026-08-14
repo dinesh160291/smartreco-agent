@@ -209,6 +209,23 @@ def test_story1_security_evaluator(seeded, chroma, backend, policies, user, fake
     top3 = [(e["product_id"], e["overall_coverage"]) for e in pkg.entries[:3]]
     assert top3 == [("PROD-003", 82), ("PROD-001", 78), ("PROD-004", 53)]
 
+    # --- The ranking knows what this shopper is looking at (Decision #082) ---
+    # BC-026 Identity Platform Evaluation is held at 0.20 here: real, and well
+    # below POL-REQ-004's 0.5 anchoring bar. POL-REC-002 now has its own, lower
+    # floor, so "identity & access" counts as a category this shopper has been
+    # researching even though it is not confident enough to anchor the profile.
+    #
+    # The consequence is the point: Microsoft 365 covers 78% of what this
+    # shopper needs and is still not the kind of product they have been opening.
+    # Coverage says so honestly, the match score demotes it, and the order is
+    # unchanged — which is what #078's split bought.
+    by_id = {e["product_id"]: e for e in pkg.entries}
+    assert by_id["PROD-003"]["on_subject"] is True          # Okta, an identity platform
+    assert by_id["PROD-003"]["match_score"] == 82
+    for off in ("PROD-001", "PROD-004"):                    # M365, Google Workspace
+        assert by_id[off]["on_subject"] is False
+        assert by_id[off]["match_score"] < by_id[off]["overall_coverage"]
+
     # --- Stubbed AAR persisted for the package (unique per surface/prompt) ---
     aar = db.execute(select(models.AdvisoryResponse).where(
         models.AdvisoryResponse.rpkg_id == pkg.rpkg_id)).scalars().first()

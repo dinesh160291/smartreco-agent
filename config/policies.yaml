@@ -6,7 +6,7 @@
 # changes the decisions a run produces, and policy_version is how that run says
 # which build of the rules produced it.
 
-catalog_version: "1.10"
+catalog_version: "1.11"
 
 policies:
 
@@ -179,8 +179,12 @@ policies:
       kind of product being shopped for — and being the wrong kind of product is not a capability
       it lacks, so the discount must not reach the figure the shopper and the narrative are given
       (Decision #078). A ranked list is therefore not always ordered by the coverage beside it;
-      an entry carries whether it is on subject so the surfaces can say why. Tie-break on total
-      capability count, then Product ID.
+      an entry carries whether it is on subject so the surfaces can say why. The categories a
+      candidate is measured against are those of every subject held above
+      subject_category_min_confidence — deliberately a lower bar than POL-REQ-004's
+      subject_min_confidence, because "what kinds of product am I looking at" is a weaker claim
+      than "what is this journey about" and does not deserve the anchoring bar (Decision #082).
+      Tie-break on total capability count, then Product ID.
     params:
       priority_weights:
         Critical: 3
@@ -192,6 +196,7 @@ policies:
         Secondary: 0.6
         Supporting: 0.3
       off_subject_factor: 0.6
+      subject_category_min_confidence: 0.2
       tie_breakers: [total_capability_count, product_id]
 
   POL-REC-003:
