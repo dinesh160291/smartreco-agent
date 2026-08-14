@@ -1100,7 +1100,7 @@ capabilities join new requirements only.
 
 | ID | Requirement | What the buyer is trying to do | Capabilities |
 |---|---|---|---|
-| REQ-013 | **Work Management** | Plan, assign and track a team's work, and see who has capacity for more | Task Management *(Primary)* · Workload Management *(Secondary)* · Template Library *(Supporting)* |
+| REQ-013 | **Work Management** | Plan, assign and track a team's work, and see who has capacity for more | Task Management *(Primary)* · Workload Management *(Secondary)* |
 
 **Why REQ-013 exists.** Task Management, Workload Management and Template
 Library were the last three capabilities in the catalog that reached no
@@ -1169,3 +1169,24 @@ This separation ensures:
 The Business Requirement Catalog serves as the bridge between behavioral understanding and product capability matching, enabling the Behavioral Intelligence Platform to transform observed user behavior into meaningful business needs while remaining completely independent of vendors, products, and recommendation logic.
 
 ---
+
+---
+
+# v1.6 Extension — REQ-014
+
+| ID | Requirement | What the buyer is trying to do | Capabilities |
+|---|---|---|---|
+| REQ-014 | **Content & Knowledge** | Keep what the organisation knows and produces findable, shareable and reusable | Knowledge Base · Content Versioning *(Primary)* · Template Library *(Secondary)* · Digital Asset Management *(Supporting)* |
+
+**Why it needed a vocabulary first.** Content Management, Knowledge & Docs and
+Design were the last categories with no subject — 22 products. The requirement
+could not be written from what existed: the Collaboration domain holds four
+capabilities, none about content, and every set built from it was fully covered
+by 14 to 24 products against a Candidate Set of 8. Three purpose-built
+capabilities were added instead (doc 10, v1.6), and Template Library moved into
+their domain, which is where it always belonged.
+
+**REQ-013 is stronger for it.** Losing Template Library leaves Work Management as
+two capabilities from a single domain rather than three from two, and it still
+covers and discriminates: seven products satisfy it in full, six of them
+non-canonical, against a Candidate Set of 8.

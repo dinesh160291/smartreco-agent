@@ -287,6 +287,19 @@ without the platform forming any idea of what was being shopped for.
 
 ---
 
+# v1.6 Extension — BC-028
+
+| ID | Concept | Activated by | Primary requirement |
+|---|---|---|---|
+| BC-028 | Content & Knowledge Evaluation | BP-022 | REQ-014 Content & Knowledge |
+
+Three catalog categories, one buying subject: a shopper comparing Confluence,
+Box and Figma is furnishing the same shelf — the place the organisation's
+documents, knowledge and design assets live. Splitting it three ways would have
+produced three requirements each too thin to discriminate (Decision #081).
+
+---
+
 # Ontology Invariants
 
 The following rules must always hold.

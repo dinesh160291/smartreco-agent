@@ -4189,3 +4189,85 @@ the right direction even so: they had the *wrong* subject, and a wrong anchor is
 worse than none. Three categories now wait on the same fix — Content Management,
 Knowledge & Docs and Design (22 products, the Content & Knowledge requirement),
 and AI (8 products, needing a subject concept of its own).
+
+---
+
+# Decision #081
+
+## Content & Knowledge gets a vocabulary, then a requirement
+
+Content Management, Knowledge & Docs and Design were the last three categories a
+shopper could browse without the platform forming any idea of what they wanted —
+22 products. **REQ-014 Content & Knowledge** closes it, evaluated by a new
+subject **BC-028** via **BP-022** over all three categories: a shopper comparing
+Confluence, Box and Figma is furnishing the same shelf.
+
+## The requirement could not be written from what existed
+
+The plan said the capabilities were already there — CAP-007 Document
+Collaboration, CAP-009 File Sharing, CAP-057 Template Library. Measured, that is
+wrong twice over.
+
+**It does not discriminate.** The Collaboration domain holds four capabilities
+and not one is about content. Every set built from it is fully covered by far
+more products than a Candidate Set can hold (POL-RETR-001 top_k = 8):
+
+| Candidate set | Fully covered by |
+|---|---|
+| Document Collaboration + File Sharing | 24 non-canonical |
+| + Messaging | 14 non-canonical |
+| + Video Meetings | 15 non-canonical |
+
+A requirement every product satisfies is as useless as one none does
+(Decision #061).
+
+**And the three-capability version borrows.** `{CAP-007, CAP-009, CAP-057}` has
+Collaboration as its home domain and takes Template Library from Work
+Management, which `test_no_requirement_quietly_borrows_another_domain` rejects.
+Declaring it in `CROSS_DOMAIN_REQUIREMENTS` was available and was refused: that
+list is a ratchet whose own rule is that entries may be removed and never added,
+and the case was weak anyway. The need is not cross-domain — the vocabulary was
+missing.
+
+## So the vocabulary was built, as #074 built one for Security Operations
+
+- **CAP-063 Knowledge Base** — what the organisation knows, in one searchable
+  place rather than in the heads of the people who know it
+- **CAP-064 Content Versioning** — every change recoverable, so people edit the
+  current document instead of mailing copies
+- **CAP-065 Digital Asset Management** — find the right image, video or design
+  file without asking whoever made it
+
+**CAP-057 Template Library moved into their domain.** It was filed under Work
+Management because it arrived beside Task Management and Workload Management,
+but reusing a proven structure is a content idea, not a scheduling one. REQ-013
+is better for the loss: two capabilities from one domain rather than three from
+two, still covered by seven products and still discriminating.
+
+REQ-014 is `CAP-063` + `CAP-064` Primary, `CAP-057` Secondary, `CAP-065`
+Supporting — all four from one domain, borrowing nothing.
+
+## Assignment, and one editorial correction
+
+The 22 products were profiled individually: repositories get versioning and
+assets, knowledge tools get the knowledge base, design tools get assets and
+templates. Distractors got partial sets on purpose so the family discriminates.
+
+The first pass left **AtlasDocs — a fictional product — as the only full
+coverer**, ahead of Confluence and Notion. The formal distractor constraint is
+scoped to REQ-001…005 and would not have caught it, but a made-up product
+topping a real category is exactly what that constraint exists to prevent.
+Corrected: Digital Asset Management off AtlasDocs, onto Confluence, which
+genuinely manages attachments and media. Confluence now leads at 100%, Notion
+and Coda at 90%.
+
+## Verified end to end
+
+Browsing two Knowledge & Docs products and searching `wiki knowledge base` and
+`cms content` fires BP-022 Strong → BC-028 → REQ-014 published Critical as the
+anchored subject → Confluence 100%, Figma 66%, PandaDoc 55%, every candidate on
+subject.
+
+**Categories with no subject: 8 products, all of them AI** — down from 110 when
+this sweep began. That one needs a concept of its own and is not a free change
+(Decision #080).

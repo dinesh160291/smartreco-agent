@@ -94,12 +94,15 @@ Every Capability entry defines:
 | CAP-027 | Compliance Reporting | Compliance |
 | … | v1.1 extension CAP-028 … CAP-055 | CRM · HR · Finance · Marketing · DevOps · Data & Analytics |
 | CAP-056 | Task Management | Work Management |
-| CAP-057 | Template Library | Work Management |
+| CAP-057 | Template Library | Content & Knowledge |
 | CAP-058 | Workload Management | Work Management |
 | CAP-059 | Endpoint Detection & Response | Security |
 | CAP-060 | Threat Intelligence | Security |
 | CAP-061 | Security Monitoring | Security |
 | CAP-062 | Vulnerability Management | Security |
+| CAP-063 | Knowledge Base | Content & Knowledge |
+| CAP-064 | Content Versioning | Content & Knowledge |
+| CAP-065 | Digital Asset Management | Content & Knowledge |
 
 ---
 
@@ -408,12 +411,15 @@ Three capabilities, append-only, in a new **Work Management** Capability Domain.
 | ID | Capability | Domain |
 |---|---|---|
 | CAP-056 | Task Management | Work Management |
-| CAP-057 | Template Library | Work Management |
+| CAP-057 | Template Library | Content & Knowledge |
 | CAP-058 | Workload Management | Work Management |
 | CAP-059 | Endpoint Detection & Response | Security |
 | CAP-060 | Threat Intelligence | Security |
 | CAP-061 | Security Monitoring | Security |
 | CAP-062 | Vulnerability Management | Security |
+| CAP-063 | Knowledge Base | Content & Knowledge |
+| CAP-064 | Content Versioning | Content & Knowledge |
+| CAP-065 | Digital Asset Management | Content & Knowledge |
 
 **Why they were needed.** Work Management was a product *category* with 31
 products across it and no capabilities of its own, so each product described
@@ -489,3 +495,34 @@ Software buyers routinely name a capability by an acronym that shares no letters
 **Expansion is read-only.** An alias widens what a query *retrieves*; it never rewrites what the platform *records*. The `SEARCH` event stores the shopper's literal text, so the Behavioral Reasoning Engine never receives vocabulary the user did not type — pattern matching on search terms (BP-003, BP-006, BP-007) stays grounded in observed behaviour rather than in an expansion the platform invented.
 
 Consuming surface and ranking behaviour: `ui-design-spec.md` §4.7a.
+
+
+---
+
+# v1.6 Extension — Content & Knowledge vocabulary (Decision #081)
+
+| ID | Capability | Domain |
+|---|---|---|
+| CAP-063 | Knowledge Base | Content & Knowledge |
+| CAP-064 | Content Versioning | Content & Knowledge |
+| CAP-065 | Digital Asset Management | Content & Knowledge |
+
+**Why new capabilities rather than a mapping.** Content Management, Knowledge &
+Docs and Design — 22 products — were the last categories a shopper could browse
+without the platform forming any idea of what they wanted. The requirement that
+would fix it could not be written from what existed: the Collaboration domain
+holds four capabilities and not one of them is about content. Every set built
+from it was fully covered by **14 to 24 products against a Candidate Set of 8**,
+and a requirement that cannot discriminate is as useless as one no product
+satisfies (Decision #061).
+
+Borrowing was the alternative and was refused. `CROSS_DOMAIN_REQUIREMENTS` is a
+ratchet whose own rule is that entries may be removed and never added, and the
+case here was weak anyway: the need is not genuinely cross-domain, the
+vocabulary was simply missing. This is Decision #074's move repeated.
+
+**CAP-057 Template Library moved with them.** It arrived beside Task Management
+and Workload Management and was filed under Work Management for that reason, but
+reusing a proven structure is a content idea rather than a scheduling one. Its
+old requirement, REQ-013, is stronger for the change: it is now two capabilities
+from a single domain rather than three from two.

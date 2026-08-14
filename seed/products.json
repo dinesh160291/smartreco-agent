@@ -1204,13 +1204,15 @@
    "name": "Figma",
    "vendor": "Figma",
    "category": "Design",
-   "description": "Figma is a design platform offering Document Collaboration, File Sharing, Template Library.",
+   "description": "Figma is a design platform offering Document Collaboration, File Sharing, Template Library, Content Versioning, Digital Asset Management.",
    "business_purpose": "Help design teams work faster with document collaboration at the core.",
    "business_value_narrative": "Figma supports document collaboration and file sharing for teams that need both in one place.",
    "capabilities": [
     "CAP-007",
     "CAP-009",
-    "CAP-057"
+    "CAP-057",
+    "CAP-064",
+    "CAP-065"
    ],
    "fictional": false
   },
@@ -1228,7 +1230,9 @@
     "CAP-007",
     "CAP-022",
     "CAP-023",
-    "CAP-024"
+    "CAP-024",
+    "CAP-057",
+    "CAP-065"
    ],
    "fictional": false
   },
@@ -1247,7 +1251,9 @@
     "CAP-009",
     "CAP-011",
     "CAP-025",
-    "CAP-026"
+    "CAP-026",
+    "CAP-064",
+    "CAP-065"
    ],
    "fictional": false
   },
@@ -1270,7 +1276,9 @@
     "CAP-014",
     "CAP-025",
     "CAP-026",
-    "CAP-027"
+    "CAP-027",
+    "CAP-064",
+    "CAP-065"
    ],
    "fictional": false
   },
@@ -1288,7 +1296,8 @@
     "CAP-013",
     "CAP-015",
     "CAP-016",
-    "CAP-017"
+    "CAP-017",
+    "CAP-064"
    ],
    "fictional": false
   },
@@ -1308,7 +1317,8 @@
     "CAP-017",
     "CAP-018",
     "CAP-019",
-    "CAP-027"
+    "CAP-027",
+    "CAP-064"
    ],
    "fictional": false
   },
@@ -1317,14 +1327,15 @@
    "name": "PandaDoc",
    "vendor": "PandaDoc",
    "category": "Content Management",
-   "description": "PandaDoc is a content management platform offering Document Collaboration, File Sharing, API Integration, Template Library.",
+   "description": "PandaDoc is a content management platform offering Document Collaboration, File Sharing, API Integration, Template Library, Content Versioning.",
    "business_purpose": "Help content management teams work faster with document collaboration at the core.",
    "business_value_narrative": "PandaDoc enables dynamic content management through robust API integration and event-driven workflows.",
    "capabilities": [
     "CAP-007",
     "CAP-009",
     "CAP-019",
-    "CAP-057"
+    "CAP-057",
+    "CAP-064"
    ],
    "fictional": false
   },
@@ -1343,7 +1354,10 @@
     "CAP-020",
     "CAP-023",
     "CAP-024",
-    "CAP-057"
+    "CAP-057",
+    "CAP-063",
+    "CAP-064",
+    "CAP-065"
    ],
    "fictional": false
   },
@@ -1364,7 +1378,8 @@
     "CAP-021",
     "CAP-022",
     "CAP-024",
-    "CAP-057"
+    "CAP-057",
+    "CAP-063"
    ],
    "fictional": false
   },
@@ -1385,7 +1400,9 @@
     "CAP-017",
     "CAP-018",
     "CAP-019",
-    "CAP-057"
+    "CAP-057",
+    "CAP-063",
+    "CAP-064"
    ],
    "fictional": false
   },
@@ -1394,14 +1411,15 @@
    "name": "Evernote Teams",
    "vendor": "Bending Spoons",
    "category": "Knowledge & Docs",
-   "description": "Evernote Teams is a knowledge & docs platform offering Video Meetings, Document Collaboration, File Sharing.",
+   "description": "Evernote Teams is a knowledge & docs platform offering Video Meetings, Document Collaboration, File Sharing, Template Library, Knowledge Base.",
    "business_purpose": "Help knowledge & docs teams work faster with video meetings at the core.",
    "business_value_narrative": "Evernote Teams streamlines document collaboration with integrated video meeting functionalities.",
    "capabilities": [
     "CAP-006",
     "CAP-007",
     "CAP-009",
-    "CAP-057"
+    "CAP-057",
+    "CAP-063"
    ],
    "fictional": false
   },
@@ -2120,13 +2138,14 @@
    "name": "FlowDocs",
    "vendor": "Flow Labs",
    "category": "Content Management",
-   "description": "FlowDocs is a content management platform offering Messaging, Video Meetings, Document Collaboration.",
+   "description": "FlowDocs is a content management platform offering Messaging, Video Meetings, Document Collaboration, Content Versioning.",
    "business_purpose": "Give content management teams messaging without the overhead.",
-   "business_value_narrative": "FlowDocs gives content management teams a dependable home for their work, leading with messaging, video meetings, document collaboration.",
+   "business_value_narrative": "FlowDocs gives content management teams a dependable home for their work, leading with Messaging, Video Meetings, Document Collaboration.",
    "capabilities": [
     "CAP-005",
     "CAP-006",
-    "CAP-007"
+    "CAP-007",
+    "CAP-064"
    ],
    "fictional": true
   },
@@ -2286,13 +2305,15 @@
    "name": "NovaDocs",
    "vendor": "Nova Labs",
    "category": "Content Management",
-   "description": "NovaDocs is a content management platform offering File Sharing, Audit Logging, Encryption.",
+   "description": "NovaDocs is a content management platform offering File Sharing, Audit Logging, Encryption, Content Versioning, Digital Asset Management.",
    "business_purpose": "Give content management teams file sharing without the overhead.",
-   "business_value_narrative": "NovaDocs gives content management teams a dependable home for their work, leading with file sharing, audit logging, encryption.",
+   "business_value_narrative": "NovaDocs gives content management teams a dependable home for their work, leading with File Sharing, Audit Logging, Encryption.",
    "capabilities": [
     "CAP-009",
     "CAP-010",
-    "CAP-011"
+    "CAP-011",
+    "CAP-064",
+    "CAP-065"
    ],
    "fictional": true
   },
@@ -2452,13 +2473,15 @@
    "name": "BrightDocs",
    "vendor": "Bright Labs",
    "category": "Content Management",
-   "description": "BrightDocs is a content management platform offering Information Governance, Data Retention, eDiscovery.",
+   "description": "BrightDocs is a content management platform offering Information Governance, Data Retention, eDiscovery, Knowledge Base, Content Versioning.",
    "business_purpose": "Give content management teams information governance without the overhead.",
-   "business_value_narrative": "BrightDocs gives content management teams a dependable home for their work, leading with information governance, data retention, ediscovery.",
+   "business_value_narrative": "BrightDocs gives content management teams a dependable home for their work, leading with Information Governance, Data Retention, eDiscovery.",
    "capabilities": [
     "CAP-012",
     "CAP-013",
-    "CAP-014"
+    "CAP-014",
+    "CAP-063",
+    "CAP-064"
    ],
    "fictional": true
   },
@@ -2619,13 +2642,14 @@
    "name": "QuillDocs",
    "vendor": "Quill Labs",
    "category": "Content Management",
-   "description": "QuillDocs is a content management platform offering Workflow Automation, Integration Connectors, Event Triggers.",
+   "description": "QuillDocs is a content management platform offering Workflow Automation, Integration Connectors, Event Triggers, Digital Asset Management.",
    "business_purpose": "Give content management teams workflow automation without the overhead.",
-   "business_value_narrative": "QuillDocs gives content management teams a dependable home for their work, leading with workflow automation, integration connectors, event triggers.",
+   "business_value_narrative": "QuillDocs gives content management teams a dependable home for their work, leading with Workflow Automation, Integration Connectors, Event Triggers.",
    "capabilities": [
     "CAP-015",
     "CAP-016",
-    "CAP-017"
+    "CAP-017",
+    "CAP-065"
    ],
    "fictional": true
   },
@@ -2785,13 +2809,15 @@
    "name": "VertexDocs",
    "vendor": "Vertex Labs",
    "category": "Content Management",
-   "description": "VertexDocs is a content management platform offering Business Rules, API Integration, Threat Protection.",
+   "description": "VertexDocs is a content management platform offering Business Rules, API Integration, Threat Protection, Template Library, Content Versioning.",
    "business_purpose": "Give content management teams business rules without the overhead.",
-   "business_value_narrative": "VertexDocs gives content management teams a dependable home for their work, leading with business rules, api integration, threat protection.",
+   "business_value_narrative": "VertexDocs gives content management teams a dependable home for their work, leading with Business Rules, API Integration, Threat Protection.",
    "capabilities": [
     "CAP-018",
     "CAP-019",
-    "CAP-025"
+    "CAP-025",
+    "CAP-057",
+    "CAP-064"
    ],
    "fictional": true
   },
@@ -2952,13 +2978,15 @@
    "name": "LumenDocs",
    "vendor": "Lumen Labs",
    "category": "Content Management",
-   "description": "LumenDocs is a content management platform offering Messaging, Data Loss Prevention, Compliance Reporting.",
+   "description": "LumenDocs is a content management platform offering Messaging, Data Loss Prevention, Compliance Reporting, Template Library, Knowledge Base.",
    "business_purpose": "Give content management teams messaging without the overhead.",
-   "business_value_narrative": "LumenDocs gives content management teams a dependable home for their work, leading with messaging, data loss prevention, compliance reporting.",
+   "business_value_narrative": "LumenDocs gives content management teams a dependable home for their work, leading with Messaging, Data Loss Prevention, Compliance Reporting.",
    "capabilities": [
     "CAP-005",
     "CAP-026",
-    "CAP-027"
+    "CAP-027",
+    "CAP-057",
+    "CAP-063"
    ],
    "fictional": true
   },
@@ -3116,13 +3144,16 @@
    "name": "PaceDocs",
    "vendor": "Pace Labs",
    "category": "Content Management",
-   "description": "PaceDocs is a content management platform offering Video Meetings, Document Collaboration, File Sharing.",
+   "description": "PaceDocs is a content management platform offering Video Meetings, Document Collaboration, File Sharing, Template Library, Content Versioning.",
    "business_purpose": "Give content management teams video meetings without the overhead.",
-   "business_value_narrative": "PaceDocs gives content management teams a dependable home for their work, leading with video meetings, document collaboration, file sharing.",
+   "business_value_narrative": "PaceDocs gives content management teams a dependable home for their work, leading with Video Meetings, Document Collaboration, File Sharing.",
    "capabilities": [
     "CAP-006",
     "CAP-007",
-    "CAP-009"
+    "CAP-009",
+    "CAP-057",
+    "CAP-064",
+    "CAP-065"
    ],
    "fictional": true
   },
@@ -3282,13 +3313,14 @@
    "name": "HarborDocs",
    "vendor": "Harbor Labs",
    "category": "Content Management",
-   "description": "HarborDocs is a content management platform offering Audit Logging, Encryption, Information Governance.",
+   "description": "HarborDocs is a content management platform offering Audit Logging, Encryption, Information Governance, Knowledge Base.",
    "business_purpose": "Give content management teams audit logging without the overhead.",
-   "business_value_narrative": "HarborDocs gives content management teams a dependable home for their work, leading with audit logging, encryption, information governance.",
+   "business_value_narrative": "HarborDocs gives content management teams a dependable home for their work, leading with Audit Logging, Encryption, Information Governance.",
    "capabilities": [
     "CAP-010",
     "CAP-011",
-    "CAP-012"
+    "CAP-012",
+    "CAP-063"
    ],
    "fictional": true
   },
@@ -3447,13 +3479,15 @@
    "name": "CinderDocs",
    "vendor": "Cinder Labs",
    "category": "Content Management",
-   "description": "CinderDocs is a content management platform offering Data Retention, eDiscovery, Workflow Automation.",
+   "description": "CinderDocs is a content management platform offering Data Retention, eDiscovery, Workflow Automation, Content Versioning, Digital Asset Management.",
    "business_purpose": "Give content management teams data retention without the overhead.",
-   "business_value_narrative": "CinderDocs gives content management teams a dependable home for their work, leading with data retention, ediscovery, workflow automation.",
+   "business_value_narrative": "CinderDocs gives content management teams a dependable home for their work, leading with Data Retention, eDiscovery, Workflow Automation.",
    "capabilities": [
     "CAP-013",
     "CAP-014",
-    "CAP-015"
+    "CAP-015",
+    "CAP-064",
+    "CAP-065"
    ],
    "fictional": true
   },
@@ -3615,13 +3649,16 @@
    "name": "AtlasDocs",
    "vendor": "Atlas Labs",
    "category": "Content Management",
-   "description": "AtlasDocs is a content management platform offering Integration Connectors, Event Triggers, Business Rules.",
+   "description": "AtlasDocs is a content management platform offering Integration Connectors, Event Triggers, Business Rules, Template Library, Knowledge Base.",
    "business_purpose": "Give content management teams integration connectors without the overhead.",
-   "business_value_narrative": "AtlasDocs gives content management teams a dependable home for their work, leading with integration connectors, event triggers, business rules.",
+   "business_value_narrative": "AtlasDocs gives content management teams a dependable home for their work, leading with Integration Connectors, Event Triggers, Business Rules.",
    "capabilities": [
     "CAP-016",
     "CAP-017",
-    "CAP-018"
+    "CAP-018",
+    "CAP-057",
+    "CAP-063",
+    "CAP-064"
    ],
    "fictional": true
   },
@@ -3784,13 +3821,15 @@
    "name": "FableDocs",
    "vendor": "Fable Labs",
    "category": "Content Management",
-   "description": "FableDocs is a content management platform offering API Integration, Threat Protection, Data Loss Prevention.",
+   "description": "FableDocs is a content management platform offering API Integration, Threat Protection, Data Loss Prevention, Template Library, Content Versioning.",
    "business_purpose": "Give content management teams api integration without the overhead.",
-   "business_value_narrative": "FableDocs gives content management teams a dependable home for their work, leading with api integration, threat protection, data loss prevention.",
+   "business_value_narrative": "FableDocs gives content management teams a dependable home for their work, leading with API Integration, Threat Protection, Data Loss Prevention.",
    "capabilities": [
     "CAP-019",
     "CAP-025",
-    "CAP-026"
+    "CAP-026",
+    "CAP-057",
+    "CAP-064"
    ],
    "fictional": true
   },

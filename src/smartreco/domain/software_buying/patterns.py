@@ -547,6 +547,19 @@ DOMAIN_RESEARCH_PATTERNS = (
      frozenset(),
      {"compliance"},
      {"grc", "compliance", "soc2", "iso27001", "gdpr", "hipaa"}),
+    # v1.6 (Decision #081). Three catalog categories, one buying subject: a
+    # shopper comparing Confluence, Box and Figma is furnishing the same shelf.
+    #
+    # Empty documentation topics for the reason BP-020 and BP-021 carry none —
+    # every topic that would belong here is already owned. `co-editing` is
+    # BP-005's and `templates` is BP-006's, and BC-028 shares REQ-001 with
+    # BC-005 and REQ-014's Template Library with BC-006, so reading either
+    # would count one page twice (Decision #077).
+    ("BP-022", "BC-028",
+     frozenset(),
+     {"content management", "knowledge & docs", "design"},
+     {"wiki", "knowledge", "cms", "dam", "whiteboard", "docs", "content",
+      "intranet"}),
 )
 
 

@@ -398,6 +398,23 @@ It was a rule nothing could ever satisfy.
 
 ---
 
+# v1.6 Domain Research Pattern — BP-022
+
+| Pattern | Concept | Doc topics | Categories | Search terms |
+|---|---|---|---|---|
+| BP-022 Content & Knowledge | BC-028 | *(none — see below)* | Content Management · Knowledge & Docs · Design | wiki, knowledge, cms, dam, whiteboard, docs, content, intranet |
+
+Three catalog categories, one buying subject: a shopper comparing Confluence,
+Box and Figma is furnishing the same shelf (Decision #081).
+
+**Empty documentation topics, for the reason BP-020 and BP-021 carry none.**
+Every topic that would belong here is already owned — `co-editing` is BP-005's
+and `templates` is BP-006's — and BC-028 shares REQ-001 with BC-005 and REQ-014's
+Template Library with the concept BP-006 evaluates. Reading either would put one
+page into two contributions to the same requirement (Decision #077).
+
+---
+
 # Subjects that already had an evaluator — BC-005, BC-007
 
 Collaboration, Productivity and Automation Evaluation state a subject as plainly

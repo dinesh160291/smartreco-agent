@@ -528,7 +528,7 @@ Regulatory Compliance
 
 Association level says how strongly a Behavioral Concept implies a Business Requirement. It does not say whether the Concept describes **what the shopper is shopping for** or **how they are vetting a candidate**. Those are different claims, and conflating them made the platform answer a question nobody asked.
 
-A **subject** Concept states the object of the search: BC-019 through BC-027 (CRM, People Operations, Financial, Marketing, Engineering Delivery, Data & Insight, Security Operations, Identity Platform, Compliance Programme), together with BC-005 Collaboration Evaluation, BC-006 Productivity Evaluation and BC-007 Automation Evaluation, which state a subject just as plainly but already had evaluators of their own (Decisions #077 and #079, doc 02 — *Subjects that already had an evaluator*).
+A **subject** Concept states the object of the search: BC-019 through BC-028 (CRM, People Operations, Financial, Marketing, Engineering Delivery, Data & Insight, Security Operations, Identity Platform, Compliance Programme), together with BC-005 Collaboration Evaluation, BC-006 Productivity Evaluation and BC-007 Automation Evaluation, which state a subject just as plainly but already had evaluators of their own (Decisions #077 and #079, doc 02 — *Subjects that already had an evaluator*).
 
 An **evaluation lens** Concept states diligence applied to any candidate, in any category — BC-001 Security Evaluation, BC-002 Enterprise Evaluation, BC-004 Compliance Evaluation, BC-008 Integration Evaluation. An HR buyer reads the security page of an HR product; that is not a request for identity software.
 
@@ -1372,3 +1372,18 @@ The Behavioral Concept to Business Requirement Mapping document completes the br
 Together with the Behavioral Ontology, Business Requirement Catalog, Capability Catalog, and Product Capability Profiles, it provides the complete knowledge foundation required for deterministic requirement inference within the Behavioral Intelligence Platform.
 
 ---
+
+---
+
+# v1.6 Extension — BC-028 Mapping
+
+| Concept | Primary | Secondary | Supporting |
+|---|---|---|---|
+| BC-028 Content & Knowledge Evaluation | REQ-014 Content & Knowledge | — | REQ-001 Secure Collaboration |
+
+One Supporting link, and it is the honest one: documents are worked on together,
+so a content shopper does acquire a collaboration question. There is deliberately
+no link to REQ-004 Regulatory Compliance, tempting as retention and governance
+make it — records retention is that requirement's own subject, and a route into
+it from here is how one journey's evidence publishes another journey's need
+(Decisions #049, #050).

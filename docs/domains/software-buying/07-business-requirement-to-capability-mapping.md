@@ -1109,8 +1109,33 @@ REQ-012  Security Operations
 REQ-013  Work Management
   Primary     CAP-056 Task Management
   Secondary   CAP-058 Workload Management
-  Supporting  CAP-057 Template Library
 ```
+
+**Template Library left in v1.6** (Decision #081). It was filed under the Work
+Management capability domain because it arrived beside Task Management and
+Workload Management, but reusing a proven structure is a content idea rather
+than a scheduling one. REQ-013 is two capabilities from one domain as a result,
+and still covers and discriminates.
+
+---
+
+# v1.6 Extension — REQ-014 Mapping
+
+```text
+REQ-014  Content & Knowledge
+  Primary     CAP-063 Knowledge Base / CAP-064 Content Versioning
+  Secondary   CAP-057 Template Library
+  Supporting  CAP-065 Digital Asset Management
+```
+
+Knowing something and being able to get back to what you wrote are what the
+family shares; reuse is what separates a knowledge base from a document store,
+and asset management is what separates a design library from either.
+
+All four are Content & Knowledge capabilities, so the requirement borrows from
+no other domain — `CROSS_DOMAIN_REQUIREMENTS` is a ratchet whose own rule is
+that entries may be removed and never added, and the honest reading here was
+that the vocabulary was missing rather than the need being cross-domain.
 
 Task Management is what a shopper means by work management, so it carries the
 requirement alone at Primary. Workload Management is the capacity view a team

@@ -15,8 +15,8 @@ from smartreco.domain.software_buying.patterns import (
     ADOPTION_DOC_TOPICS, BP011_TRIGGERS, DOMAIN_RESEARCH_PATTERNS, INTENT_CONCEPTS,
     SUBJECTS_WITH_OWN_EVALUATOR)
 
-DOMAIN_PACK_VERSION = "1.5"   # v1.5 adds REQ-013 Work Management and rehomes
-                              # Productivity Evaluation onto it (Decision #079)
+DOMAIN_PACK_VERSION = "1.6"   # v1.6 adds the content & knowledge vocabulary and
+                              # REQ-014 built from it (Decision #081)
 
 # ---- Behavioral Concept Registry (doc 01) ----
 
@@ -58,6 +58,10 @@ BEHAVIORAL_CONCEPTS: dict[str, str] = {
     # them is what POL-REQ-004 exists to separate.
     "BC-026": "Identity Platform Evaluation",
     "BC-027": "Compliance Programme Evaluation",
+    # v1.6 (Decision #081). Content Management, Knowledge & Docs and Design were
+    # the last three categories a shopper could browse without the platform
+    # forming any idea of what they wanted — 22 products between them.
+    "BC-028": "Content & Knowledge Evaluation",
 }
 
 # ---- Business Requirement Catalog (doc 04) ----
@@ -86,6 +90,9 @@ REQUIREMENTS: dict[str, str] = {
     # filing them under a "Work Management" domain of their own. This is that
     # domain's requirement.
     "REQ-013": "Work Management",
+    # v1.6 (Decision #081). Documents, knowledge and design assets are one need:
+    # keep what the organisation knows findable, shareable and reusable.
+    "REQ-014": "Content & Knowledge",
 }
 
 # ---- Capability Catalog (doc 10 — 27 capabilities, 6 domains) ----
@@ -219,8 +226,6 @@ CAPABILITIES: list[tuple[str, str, str, str]] = [
     # page (Decision #053). ----
     ("CAP-056", "Task Management", "Work Management",
      "Turns intent into assigned, trackable work with clear ownership and due dates."),
-    ("CAP-057", "Template Library", "Work Management",
-     "Removes the blank page: proven structures are reused instead of reinvented."),
     ("CAP-058", "Workload Management", "Work Management",
      "Makes capacity visible so commitments match the team that has to deliver them."),
     # ---- v1.3 extension: security operations vocabulary (Decision #074) ----
@@ -248,6 +253,31 @@ CAPABILITIES: list[tuple[str, str, str, str]] = [
     ("CAP-062", "Vulnerability Management", "Security",
      "Finds the exposures before an attacker does and puts them in an order somebody "
      "can actually work through."),
+    # ---- v1.6 extension: content & knowledge vocabulary (Decision #081) ----
+    #
+    # Twenty-two products across Content Management, Knowledge & Docs and Design
+    # could be browsed without the platform forming any idea of what was wanted,
+    # and the requirement that would fix it could not be written: the Collaboration
+    # domain holds four capabilities and not one of them is about content. Every
+    # set built from it was fully covered by 14 to 24 products against a Candidate
+    # Set of 8 — a requirement that cannot discriminate is as useless as one no
+    # product satisfies.
+    #
+    # So this is #074's move again: give the subject area a vocabulary of its own
+    # rather than borrowing one. Template Library comes with them — it arrived
+    # beside Task Management and Workload Management and was filed with them, but
+    # reusing a proven structure is a content idea, not a scheduling one.
+    ("CAP-057", "Template Library", "Content & Knowledge",
+     "Removes the blank page: proven structures are reused instead of reinvented."),
+    ("CAP-063", "Knowledge Base", "Content & Knowledge",
+     "Keeps what the organisation knows in one searchable place instead of in "
+     "the heads of the people who happen to know it."),
+    ("CAP-064", "Content Versioning", "Content & Knowledge",
+     "Every change is recoverable, so people edit the current document instead of "
+     "mailing copies of it."),
+    ("CAP-065", "Digital Asset Management", "Content & Knowledge",
+     "Finds the right image, video or design file without asking the person who "
+     "made it."),
 ]
 
 # ---- Buyer shorthand (doc 10 § Buyer Shorthand) ----
@@ -325,6 +355,12 @@ BC_TO_REQ: dict[str, dict[str, str]] = {
     # publication floor.
     "BC-026": {"REQ-002": "Primary"},
     "BC-027": {"REQ-004": "Primary", "REQ-002": "Supporting"},
+    # v1.6 (Decision #081). One Supporting link only, and it is the honest one:
+    # documents are worked on together, so a content shopper does acquire a
+    # collaboration question. No link to Regulatory Compliance, tempting as it
+    # is — records retention is REQ-004's subject, and giving this requirement
+    # a route into it is how one journey's evidence publishes another's need.
+    "BC-028": {"REQ-014": "Primary", "REQ-001": "Supporting"},
 }
 
 # ---- Subjects and evaluation lenses (POL-REQ-004; doc 06 §Association classes) ----
@@ -436,7 +472,20 @@ REQ_TO_CAP: dict[str, dict[str, str]] = {
     "REQ-013": {
         "CAP-056": "Primary",
         "CAP-058": "Secondary",
-        "CAP-057": "Supporting",
+    },
+    # v1.6 (Decision #081). Working on a document together and getting it to the
+    # people who need it are what the whole family shares — 13 and 12 of the 24
+    # products hold them. Template Library is reuse, which is the difference
+    # between a document store and a knowledge base.
+    #
+    # Information Governance and Data Retention were the obvious additions, and
+    # are deliberately absent: they are REQ-004's subject, and requirements that
+    # borrow capabilities from another domain are how REQ-011 ended up ranking a
+    # DevOps monitoring tool first (Decision #061).
+    "REQ-014": {
+        "CAP-063": "Primary", "CAP-064": "Primary",
+        "CAP-057": "Secondary",
+        "CAP-065": "Supporting",
     },
     # Move the data, store it, show it — the three things a shopper means by
     # "data and insight", and nothing borrowed from another domain.
@@ -758,7 +807,7 @@ CANONICAL_PRODUCTS: list[dict] = [
         "description": "Connected workspace for documents, knowledge, and lightweight project management with integrated AI.",
         "business_purpose": "Consolidate team knowledge and docs into one flexible, AI-assisted workspace.",
         "capabilities": ["CAP-007", "CAP-009", "CAP-019", "CAP-020", "CAP-021", "CAP-022",
-                          "CAP-023"],
+                          "CAP-023", "CAP-057", "CAP-063", "CAP-064"],
     },
     {
         "product_id": "PROD-010", "name": "Box", "vendor": "Box",
@@ -766,6 +815,6 @@ CANONICAL_PRODUCTS: list[dict] = [
         "description": "Governed cloud content management: secure file storage, sharing, and collaboration with enterprise-grade governance controls.",
         "business_purpose": "Provide a single, secure, compliant home for organizational content.",
         "capabilities": ["CAP-007", "CAP-009", "CAP-010", "CAP-011", "CAP-012", "CAP-013",
-                          "CAP-026"],
+                          "CAP-026", "CAP-064", "CAP-065"],
     },
 ]
