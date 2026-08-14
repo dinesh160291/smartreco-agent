@@ -4367,3 +4367,41 @@ could still create by hand what the ratchets forbid, so `_admin_save` now
 rejects two things: a category outside the enum, and a product whose
 capabilities reach no requirement — one that could be searched, viewed and added
 to a cart and could never be recommended.
+
+---
+
+# Decision #084
+
+## Two reported UI complaints, one real bug between them
+
+**The For-You "5-minute skew" is browser throttling, not a wrong interval.**
+For-You polls `every 20s` and the admin table `every 10s`, and the reported gap
+was far larger than 10 seconds could explain. Browsers throttle timers in
+background tabs — Chrome to roughly once a minute, further on battery — so a
+shopper who leaves For-You open while browsing products in another tab returns to
+a panel minutes stale and waits up to 20s more. The admin table looked healthy
+because it is polled while it is the visible tab.
+
+The poll stays; a `visibilitychange` trigger joins it, guarded on
+`document.visibilityState === 'visible'` so it fires on return and not on leave,
+and `from:document` because that is where the event is dispatched. One request,
+at the only moment the shopper is looking.
+
+## The Reasoning Panel really was showing a different journey
+
+Not staleness — disagreement. The panel selected its journey with
+`ORDER BY created_at DESC`, while For-You selects the journey the shopper is
+actually *in*: the one their most recent activity was filed to (Decision #071).
+The two agree on a fresh fork and diverge the moment a new session resumes an
+older journey — the workflow files events there and reasons about it, the panel
+goes on explaining the newer stub.
+
+An explainability surface disagreeing with the page it explains is worse than a
+stale one: an admin reads it and draws conclusions about a journey the shopper is
+not in. Both now call one `current_journey` helper, so they cannot drift again.
+
+**The first version of the test was worthless and sabotage said so.** It imported
+the selector and asserted on its return value, which passes with the route still
+choosing for itself — green with the bug fully restored. It now drives
+`/reasoning` over HTTP and asserts the rendered heading names the journey For-You
+is showing.

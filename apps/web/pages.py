@@ -392,6 +392,33 @@ def _other_journeys(db, user, active_id: str) -> list[dict]:
     return out
 
 
+def current_journey(db, user):
+    """The journey the shopper is *in* — the one their most recent activity was
+    filed to, not the most recently created (Decision #071).
+
+    The two agree on a fresh fork and disagree the moment a new session resumes
+    an older journey: the workflow files the events there and reasons about it,
+    while a page picking by `created_at` goes on leading with a stub the shopper
+    left hours earlier. Seen live: a Decision-stage journey with 83 events
+    relegated beneath an Awareness stub untouched for three hours.
+
+    Shared with the Reasoning Panel since Decision #084 — it had its own
+    `created_at` query, so the panel and For-You could describe different
+    journeys at the same moment, which is precisely the disagreement an
+    explainability surface must never show.
+    """
+    last_event = db.execute(
+        select(models.Event.journey_id)
+        .where(models.Event.user_id == user.id,
+               models.Event.journey_id.is_not(None))
+        .order_by(models.Event.ts.desc())).scalars().first()
+    query = select(models.Journey).where(models.Journey.user_id == user.id)
+    return (
+        db.execute(query.where(models.Journey.journey_id == last_event)).scalars().first()
+        if last_event else None
+    ) or db.execute(query.order_by(models.Journey.created_at.desc())).scalars().first()
+
+
 def _build_feed(db, user, journey_id: str | None = None) -> dict | None:
     if journey_id is not None:
         journey = db.execute(
@@ -399,23 +426,7 @@ def _build_feed(db, user, journey_id: str | None = None) -> dict | None:
                 models.Journey.user_id == user.id,          # never another user's journey
                 models.Journey.journey_id == journey_id)).scalars().first()
     else:
-        # The journey the shopper is *in*, which is the one their most recent
-        # activity was filed to — not the most recently created one (Decision
-        # #071). The two agree on a fresh fork and disagree the moment a new
-        # session resumes an older journey: the workflow files the events there
-        # and reasons about it, while the page went on leading with a stub the
-        # shopper had left hours earlier.
-        last_event = db.execute(
-            select(models.Event.journey_id)
-            .where(models.Event.user_id == user.id,
-                   models.Event.journey_id.is_not(None))
-            .order_by(models.Event.ts.desc())).scalars().first()
-        query = select(models.Journey).where(models.Journey.user_id == user.id)
-        journey = (
-            db.execute(query.where(models.Journey.journey_id == last_event)).scalars().first()
-            if last_event else None
-        ) or db.execute(
-            query.order_by(models.Journey.created_at.desc())).scalars().first()
+        journey = current_journey(db, user)
     if journey is None:
         return None
     pkg = db.execute(
@@ -775,9 +786,11 @@ def reasoning(request: Request, user_id: int | None = None, sd=Depends(_db)):
     if selected is None:
         return templates.TemplateResponse(request, "reasoning.html", ctx)
 
-    journey = db.execute(
-        select(models.Journey).where(models.Journey.user_id == selected.id)
-        .order_by(models.Journey.created_at.desc())).scalars().first()
+    # The same journey For-You leads with, by the same rule (Decision #084).
+    # This picked the newest by `created_at`, so the panel could explain one
+    # journey while the shopper's page showed another — the disagreement an
+    # explainability surface must never show.
+    journey = current_journey(db, selected)
     if journey is None:
         return templates.TemplateResponse(request, "reasoning.html", ctx)
 

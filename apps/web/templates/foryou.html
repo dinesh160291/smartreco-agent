@@ -3,7 +3,17 @@
 {% block content %}
 <h1>For you</h1>
 <p class="sub">Recommendations grounded in your own research — refreshed as your journey evolves.</p>
-<div id="feed" hx-get="/for-you/feed" hx-trigger="every 20s" hx-swap="innerHTML">
+{# `visibilitychange` alongside the poll (Decision #084). Browsers throttle
+   timers in background tabs — Chrome to roughly once a minute, and further
+   still on battery — so a shopper who leaves this tab open while browsing
+   products in another comes back to a panel that is minutes stale and
+   waits up to 20s more for the next tick. The reported "5-minute skew"
+   against the admin table is that throttling, not two different intervals:
+   the admin table is polled while it is the visible tab. Refreshing on
+   return costs one request at the only moment the shopper is looking. #}
+<div id="feed" hx-get="/for-you/feed"
+     hx-trigger="every 20s, visibilitychange[document.visibilityState==='visible'] from:document"
+     hx-swap="innerHTML">
   {% include "_feed.html" %}
 </div>
 {% endblock %}

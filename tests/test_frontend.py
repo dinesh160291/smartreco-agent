@@ -219,3 +219,18 @@ def test_checkout_demo_notice_verbatim(client):
     client.post("/cart/add/PROD-001", follow_redirects=False)
     body = client.get("/cart").text
     assert "Demo checkout — card details are format-checked only, never stored, and always succeed." in body
+
+
+def test_for_you_refreshes_when_the_tab_comes_back(client):
+    """Decision #084. Browsers throttle timers in background tabs, so the poll
+    alone leaves a shopper who returns from another tab looking at a stale panel
+    — the "5-minute skew" reported against the admin table, which is polled
+    while it is the visible one.
+    """
+    _register(client)
+    body = client.get("/for-you").text
+    assert "every 20s" in body                      # the poll still runs
+    assert "visibilitychange" in body
+    assert "document.visibilityState==='visible'" in body, (
+        "unguarded visibilitychange also fires on *hide*, doubling requests")
+    assert "from:document" in body, "visibilitychange is fired at document, not the element"

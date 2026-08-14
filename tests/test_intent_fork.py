@@ -444,3 +444,65 @@ def test_for_you_reports_the_run_that_produced_what_it_is_showing(
     feed = _build_feed(db, user)
     assert feed["trigger"] == run.trigger_type
     assert run.journey_id is not None
+
+
+def test_reasoning_panel_explains_the_journey_for_you_is_showing(
+        seeded, session_factory, chroma, backend, policies, fake_gateway):
+    """Decision #084. The panel picked the newest journey by `created_at` while
+    For-You picks the one the shopper is in (#071), so after a fork-and-return
+    they described different journeys at the same moment.
+
+    An explainability surface disagreeing with the page it explains is worse
+    than one that is merely stale: an admin reading it draws conclusions about
+    a journey the shopper is not in.
+    """
+    import apps.web.main as web
+    from fastapi.testclient import TestClient
+
+    from apps.web.pages import _build_feed
+
+    db = seeded
+    user = _user(db, "panel-agrees@example.com")
+    s = "panel-s1"
+
+    _insert(db, user.id, s, DAY, _analytics("r"))
+    _run(db, chroma, backend, policies, user, fake_gateway, DAY + timedelta(minutes=2))
+    analytics = _journeys(db, user)[0].journey_id
+
+    _switch_to_devops(db, chroma, backend, policies, user, fake_gateway, s, "t",
+                      DAY + timedelta(minutes=5))
+    assert len(_journeys(db, user)) == 2, "precondition: the session should have forked"
+    # The devops journey is the newest by created_at — what the panel used to pick.
+    assert _journeys(db, user)[1].journey_id != analytics
+
+    # …then back to analytics in a new session, which resumes the older journey.
+    _insert(db, user.id, "panel-s2", DAY + timedelta(hours=2), _analytics("u"))
+    resumed = _run(db, chroma, backend, policies, user, fake_gateway,
+                   DAY + timedelta(hours=2, minutes=2))
+    assert resumed.journey_id == analytics, "precondition: the run should have resumed"
+
+    feed = _build_feed(db, user)
+    assert feed["journey_id"] == analytics
+
+    # Through the real page, not the helper: importing the selector directly
+    # would pass with the route still choosing for itself, which is how the
+    # first version of this test stayed green under sabotage.
+    db.add(models.User(email="panel-admin@example.com",
+                       password_hash=web._hash_password("adminpw"), role="admin"))
+    db.commit()
+    web._state.clear()
+    web._state.update({"policies": policies, "session_factory": session_factory,
+                       "chroma": chroma, "backend": backend, "gateway": fake_gateway})
+    try:
+        with TestClient(web.app) as client:
+            client.post("/auth/login", json={"email": "panel-admin@example.com",
+                                             "password": "adminpw"})
+            html = client.get(f"/reasoning?user_id={user.id}").text
+    finally:
+        web._state.clear()
+
+    devops = next(j.journey_id for j in _journeys(db, user) if j.journey_id != analytics)
+    heading = f'Journey <span class="mono">{analytics}</span>'
+    assert heading in html, (
+        f"the panel is not explaining {analytics}; the shopper's page is. "
+        f"(the other journey is {devops})")
