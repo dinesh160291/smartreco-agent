@@ -30,6 +30,10 @@ def catalog():
 
 
 def test_catalog_version_is_recorded(catalog):
+    # v1.10: POL-REC-002 split the published figure from the ranking one (#078).
+    # `off_subject_factor` no longer multiplies coverage, so the same events
+    # under 1.10 publish a *different percentage* than under 1.9 with the same
+    # order — the widest kind of change this version string exists to record.
     # v1.9: POL-REQ-004's demotion narrowed — a lens is demoted only where it
     # feeds a Requirement other than an anchored one (#077). No parameter moved,
     # and the rule's scope did: an automation shopper who checks integrations
@@ -54,7 +58,7 @@ def test_catalog_version_is_recorded(catalog):
     # produced it — #056 shipped without bumping it and the omission cost a
     # debugging round, because policy_version 1.4 could not distinguish a
     # server running the fork from one that was not.
-    assert catalog.version == "1.9"
+    assert catalog.version == "1.10"
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
     assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 45
     assert catalog.param("POL-TRIG-001", "unprocessed_event_threshold") == 3

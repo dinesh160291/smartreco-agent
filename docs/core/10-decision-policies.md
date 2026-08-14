@@ -679,7 +679,7 @@ The following are the platform's initial published policy values. They are confi
 | Policy ID | Policy | v1 Value |
 |---|---|---|
 | POL-REC-001 | Recommendation Readiness | READY when ≥ 1 Requirement at confidence ≥ 0.6 AND journey has ≥ 5 high-signal events |
-| POL-REC-002 | Ranking | Rank by weighted coverage: Critical ×3, High ×2, Medium ×1, Low ×0.5. Within a Requirement each required Capability counts for its association weight — Primary 1.0, Secondary 0.6, Supporting 0.3 — not one apiece. A candidate outside every category the shopper has been researching is multiplied by 0.6; with no subject held the term drops out. Tie-break on total capability count, then Product ID |
+| POL-REC-002 | Ranking | Rank by weighted coverage: Critical ×3, High ×2, Medium ×1, Low ×0.5. Within a Requirement each required Capability counts for its association weight — Primary 1.0, Secondary 0.6, Supporting 0.3 — not one apiece. That figure is the published coverage; ranking is on a separate match score — coverage × 0.6 for a candidate outside every category the shopper has been researching, with no subject held the term drops out. The discount never reaches the published coverage, which keeps its arithmetic definition, so a ranked list is not always ordered by the figure beside it (Decision #078). Tie-break on total capability count, then Product ID |
 | POL-REC-003 | Publication | Publish top 3 entries; include up to 2 alternatives |
 | POL-REC-004 | Constraint derivation | Budget Unknown when the journey contains no PRICING_VIEWED events; additional constraint rules (deployment preference, team size, data residency) deferred to v1.1 |
 

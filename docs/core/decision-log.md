@@ -3943,3 +3943,63 @@ one signal stronger, the block would fork and the story would fail on its own
 stated failure mode. A contradiction can only be observed where the hypothesis
 lives. Both behaviours are correct; what no single block can do is express both
 and have the platform honour each.
+
+---
+
+# Decision #078
+
+## Coverage is what a product covers; the ranking discount stopped pretending otherwise
+
+POL-REC-002's `off_subject_factor` multiplied `overall_coverage` itself. That
+field is not the ranker's private working. It is:
+
+- the meter and the percentage on For-you,
+- a fact handed to the Tier-1 narrative, printed beside the list of capabilities
+  the product *does* hold,
+- the figure in the Telegram digest.
+
+So Scenario 2 published *"Notion — coverage 29%"* next to four of the five AI
+capabilities the shopper had asked for, while its own per-requirement figures
+averaged `(3×21 + 2×91) ÷ 5 = 49`. The number disagreed with its own components
+and with the facts printed next to it, in the one place Law 11 says the
+narrative may use nothing but Runtime Object facts.
+
+**Coverage now keeps the arithmetic definition doc 09 gives it.** The category
+term produces a separate `match_score`, which is what the ranker sorts on, and
+each entry records `on_subject`. Being the wrong *kind* of product is not a
+capability the product lacks. Decision #073's behaviour is untouched — the
+factor, the ordering it produces and the case it was built for are all the same.
+
+## The consequence, taken deliberately
+
+A ranked list is no longer monotonic in the figure beside it: Scenario 2 shows
+Zoom at 33% above Notion at 49%. Left bare that reads as a broken sort, so both
+surfaces state the reason:
+
+- For-you prints *"Ranked lower — not the kind of product you've been looking
+  at"* on off-subject entries only.
+- The generate and digest prompts carry the same fact per product, which is why
+  both go to **v2**. The model is told not to reorder or re-score; without the
+  fact it had an ordering to justify and nothing true to justify it with, and
+  invented rationale in grounded copy is exactly the failure Law 11 forbids.
+
+Rendering and composing are pinned separately, which is the lesson from the
+long-form panes: a view key the template never reads passes its unit tests over
+a blank page.
+
+## What this does not fix
+
+The factor still keys on the candidate's catalog category alone, so it cannot
+tell a product retrieval surfaced from one the shopper studied — Scenario 2's
+shopper opened Notion repeatedly and searched for it by name, and it still ranks
+last. That remains open, and the shape of the fix is a floor rather than an
+exemption: `subject_categories` is built at POL-REQ-004's `subject_min_confidence`,
+the bar for *anchoring a profile*, when "what kinds of product am I looking at"
+is a weaker claim deserving a lower one. It belongs with the category sweep's
+step 4, where the ratchet makes every category able to reach a subject at all;
+today Knowledge & Docs cannot reach one at any floor.
+
+Splitting the fields first is what makes that safe to try: with coverage
+restored to pure capability arithmetic, widening or narrowing the category set
+can only reorder a package. It can no longer move a published percentage, so
+Decision #076's exact-number contract is out of its way.

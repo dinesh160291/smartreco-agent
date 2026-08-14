@@ -133,6 +133,61 @@ def test_feed_partial_serves_for_htmx(client):
     assert response.status_code == 200
 
 
+def _render_feed(entries):
+    from apps.web.pages import templates
+
+    return templates.get_template("_feed.html").render(feed={
+        "readiness": "READY", "label": "Identity", "updated": "just now",
+        "trigger": "EVENT_ACCUMULATION",
+        "sections": {"executive_summary": "s", "persuasive_narrative": "n",
+                     "trade_offs": "", "next_best_actions": []},
+        "entries": entries})
+
+
+def _entry(product_id, name, rank, coverage, on_subject):
+    return {"product_id": product_id, "name": name, "vendor": "v",
+            "initials": "XX", "hue": "#000", "rank": rank, "coverage": coverage,
+            "on_subject": on_subject, "why_covered": ["Single Sign-On"],
+            "why_missing": []}
+
+
+def test_feed_says_why_a_higher_covering_product_ranks_lower():
+    """Decision #078 made the list non-monotonic in the figure it prints: an
+    off-subject product shows its true coverage and still sits below one that
+    covers less. Unexplained, that reads as a broken sort.
+
+    Rendered, not composed. The two fail separately — a view key the template
+    never reads produces green unit tests over a blank page.
+    """
+    html = _render_feed([_entry("PROD-005", "Zoom", 1, 33, True),
+                         _entry("PROD-009", "Notion", 2, 49, False)])
+    assert html.count("Ranked lower") == 1, "the off-subject entry carries no reason"
+    assert "49%" in html and "33%" in html          # true coverage, both shown
+    for banned in ("CAP-", "REQ-", "BC-", "BP-"):
+        assert banned not in html                   # vocabulary rule (Law 10)
+
+
+def test_feed_says_nothing_when_every_entry_is_on_subject():
+    html = _render_feed([_entry("PROD-005", "Zoom", 1, 33, True)])
+    assert "Ranked lower" not in html
+
+
+def test_the_view_actually_carries_the_key_the_template_reads():
+    """The other half. The render tests above hand the template a dict they
+    built themselves, so they cannot see `_build_feed` failing to supply the
+    key — and Jinja resolves a missing key to Undefined, which is falsy, so
+    `not entry.on_subject` would print the caveat on *every* product.
+    """
+    import inspect
+
+    from apps.web import pages
+
+    source = inspect.getsource(pages._build_feed)
+    assert '"on_subject"' in source, (
+        "_build_feed no longer supplies on_subject; the feed will caveat every "
+        "entry, because Jinja reads a missing key as falsy")
+
+
 def test_checkout_demo_notice_verbatim(client):
     _register(client)
     client.post("/cart/add/PROD-001", follow_redirects=False)

@@ -13,9 +13,13 @@ import json
 
 from smartreco.gateway import AIGateway
 
-PROMPT_VERSION_GENERATE = "aar-generate-v1"
+# v2 of the two prompts that print a ranked list: both now state when an entry
+# is off-subject, because coverage no longer carries that discount and the list
+# is not monotonic in the figure beside it (Decision #078). The clarify prompt
+# names no products and is untouched.
+PROMPT_VERSION_GENERATE = "aar-generate-v2"
 PROMPT_VERSION_CLARIFY = "aar-clarify-v1"
-PROMPT_VERSION_DIGEST = "aar-digest-v1"
+PROMPT_VERSION_DIGEST = "aar-digest-v2"
 
 # Required ownership disclaimer (ui-design-spec.md; AAR §12) — platform-supplied,
 # never model-authored.
@@ -37,6 +41,21 @@ def _delimit(label: str, text: str) -> str:
     return f'<data name="{label}">\n{text}\n</data>'
 
 
+def _off_subject_note(product: dict) -> str:
+    """Why a product can sit below one that covers less (Decision #078).
+
+    Coverage stopped carrying the category discount, so a ranked list is no
+    longer monotonic in the percentage beside it. Left unexplained, the model
+    has an ordering to justify and no fact that justifies it — which is how
+    invented reasoning gets into grounded copy. The fact is in the
+    Recommendation Package entry, so it belongs in the facts block.
+    """
+    if product.get("on_subject", True):
+        return ""
+    return ("  note: outside the product category this shopper has been "
+            "researching, which is why it ranks below products that cover less\n")
+
+
 def build_generate_prompt(facts: dict) -> str:
     """facts: {products: [{name, vendor, coverage, why_lines, missing, narrative}],
     requirements: [{name, priority, confidence}], stage, behavior_summary,
@@ -47,6 +66,7 @@ def build_generate_prompt(facts: dict) -> str:
             f"- {p['name']} by {p['vendor']} — overall coverage {p['coverage']}%\n"
             f"  covered: {', '.join(p['covered']) or 'none'}\n"
             f"  missing: {', '.join(p['missing']) or 'none'}\n"
+            f"{_off_subject_note(p)}"
             f"  {_delimit('editorial product narrative', p['narrative'])}"
         )
     requirements = "\n".join(
@@ -110,6 +130,8 @@ def build_digest_prompt(facts: dict) -> str:
     clear next action. Grounding rules identical to every AAR."""
     product_lines = "\n".join(
         f"- {p['name']} by {p['vendor']} — overall coverage {p['coverage']}%"
+        + ("" if p.get("on_subject", True)
+           else " (outside the category this shopper has been researching)")
         for p in facts["products"])
     return f"""### TASK: aar-digest
 You are the AI Buying Advisor writing a short daily digest message.

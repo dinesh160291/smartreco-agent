@@ -6,7 +6,7 @@
 # changes the decisions a run produces, and policy_version is how that run says
 # which build of the rules produced it.
 
-catalog_version: "1.9"
+catalog_version: "1.10"
 
 policies:
 
@@ -173,9 +173,14 @@ policies:
       Rank by weighted coverage: Critical x3, High x2, Medium x1, Low x0.5. Within a Requirement,
       each required Capability counts for capability_weights[association] rather than one apiece —
       a product holding both Primary Capabilities must outscore one holding neither plus two
-      optional ones. A candidate outside every category the shopper has been researching is
-      multiplied by off_subject_factor: coverage says a product *can* do the job, not that it is
-      the kind of product being shopped for. Tie-break on total capability count, then Product ID.
+      optional ones. That figure is the published *coverage*. Ranking is on a separate *match
+      score*: coverage multiplied by off_subject_factor for a candidate outside every category the
+      shopper has been researching. Coverage says a product *can* do the job, not that it is the
+      kind of product being shopped for — and being the wrong kind of product is not a capability
+      it lacks, so the discount must not reach the figure the shopper and the narrative are given
+      (Decision #078). A ranked list is therefore not always ordered by the coverage beside it;
+      an entry carries whether it is on subject so the surfaces can say why. Tie-break on total
+      capability count, then Product ID.
     params:
       priority_weights:
         Critical: 3

@@ -206,7 +206,7 @@ cs_id PK · journey_id · rp_id FK · query_document TEXT · params JSON (top_k,
 
 ### recommendation_packages
 
-rpkg_id PK · journey_id · rp_id FK · cs_id FK nullable · entries JSON `[{product_id, rank, overall_coverage, per_requirement JSON, missing_capability_ids}]` · readiness (`READY/NOT_READY`) · constraints JSON · policy_version · created_at.
+rpkg_id PK · journey_id · rp_id FK · cs_id FK nullable · entries JSON `[{product_id, rank, overall_coverage, match_score, on_subject, per_requirement JSON, missing_capability_ids}]` · readiness (`READY/NOT_READY`) · constraints JSON · policy_version · created_at.
 
 ### advisory_responses
 

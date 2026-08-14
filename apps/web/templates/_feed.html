@@ -23,6 +23,14 @@
             <span class="v">{{ entry.vendor }}</span>
           </div>
         </div>
+        {% if not entry.on_subject %}
+        {# The list is ordered by match, not by the coverage figure beside it, so
+           an entry can sit below one showing a lower percentage. Say why rather
+           than leave the shopper to find the list out of order. #}
+        <div style="font-size:13px; color:var(--muted); margin-bottom:4px;">
+          Ranked lower — not the kind of product you've been looking at
+        </div>
+        {% endif %}
         <details>
           <summary style="font-size:13px; color:var(--muted); cursor:pointer;">Why this?</summary>
           <ul style="font-size:13.5px; margin:6px 0;">

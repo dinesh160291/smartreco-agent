@@ -181,7 +181,12 @@ def test_full_coverage_is_still_exactly_100(policies):
 def test_an_off_subject_product_is_discounted(policies):
     """Coverage says a product *can* do the job. A shopper who has only opened
     Security products is not shopping for a productivity suite, however much of
-    the requirement that suite happens to cover."""
+    the requirement that suite happens to cover.
+
+    The discount lands on `match_score` since Decision #078; it used to be
+    applied to `overall_coverage`. Same factor, same ordering — a different
+    field, because coverage has an arithmetic definition it has to keep.
+    """
     caps = {"PROD-SUITE": set(K.REQ_TO_CAP["REQ-012"]), "PROD-SEC": set(K.REQ_TO_CAP["REQ-012"])}
     cats = {"PROD-SUITE": "Productivity & Collaboration", "PROD-SEC": "Security"}
     entries = rank_products(REQS_CRITICAL_SECOPS, sorted(caps), caps, K.REQ_TO_CAP, policies,
@@ -189,7 +194,62 @@ def test_an_off_subject_product_is_discounted(policies):
     by_id = {e["product_id"]: e for e in entries}
     assert by_id["PROD-SEC"]["rank"] == 1
     factor = policies.param("POL-REC-002", "off_subject_factor")
-    assert by_id["PROD-SUITE"]["overall_coverage"] == round(100 * factor)
+    assert by_id["PROD-SUITE"]["match_score"] == round(100 * factor)
+
+
+def test_off_subject_discounts_the_match_score_and_leaves_coverage_alone(policies):
+    """Coverage is capability arithmetic; being the wrong kind of product is not
+    a capability the product lacks (Decision #078).
+
+    The factor used to multiply `overall_coverage` itself, and that number is
+    not private to the ranker: it is the meter and percentage on For-you, it is
+    handed to the Tier-1 narrative beside the list of capabilities the product
+    *does* hold, and it goes out in the digest. Notion was published at 29%
+    alongside four of the five AI capabilities the shopper asked for — a figure
+    that contradicted the facts printed next to it, in the one place Law 11 says
+    the narrative may use nothing but Runtime Object facts.
+    """
+    caps = {"PROD-SUITE": set(K.REQ_TO_CAP["REQ-012"]), "PROD-SEC": set(K.REQ_TO_CAP["REQ-012"])}
+    cats = {"PROD-SUITE": "Productivity & Collaboration", "PROD-SEC": "Security"}
+    entries = rank_products(REQS_CRITICAL_SECOPS, sorted(caps), caps, K.REQ_TO_CAP, policies,
+                            product_categories=cats, subject_categories={"security"})
+    by_id = {e["product_id"]: e for e in entries}
+
+    # The off-subject suite covers the requirement completely, and says so —
+    # in the figure, in the parts, and in the satisfied list, all three of which
+    # the narrative and the Reasoning Panel read.
+    assert by_id["PROD-SUITE"]["overall_coverage"] == 100
+    assert by_id["PROD-SUITE"]["per_requirement"]["REQ-012"]["coverage"] == 100
+    assert by_id["PROD-SUITE"]["satisfied_requirements"] == ["REQ-012"]
+    assert by_id["PROD-SUITE"]["on_subject"] is False
+    assert by_id["PROD-SEC"]["on_subject"] is True
+
+
+def test_published_coverage_reconciles_with_its_own_parts(policies):
+    """Doc 09 defines Overall Coverage as the priority-weighted average of the
+    per-Requirement coverages. Anyone — a shopper, an admin in the Reasoning
+    Panel, a test — can do that arithmetic from the entry itself, and it must
+    come out to the published figure whether or not the product is on subject.
+    """
+    requirements = [{"req_id": "REQ-001", "priority": "CRITICAL", "confidence": 0.83},
+                    {"req_id": "REQ-005", "priority": "HIGH", "confidence": 0.75}]
+    caps = {p["product_id"]: set(p["capabilities"]) for p in K.CANONICAL_PRODUCTS}
+    cats = {p["product_id"]: p["category"] for p in K.CANONICAL_PRODUCTS}
+    entries = rank_products(requirements, ["PROD-004", "PROD-009", "PROD-005"], caps,
+                            K.REQ_TO_CAP, policies, product_categories=cats,
+                            subject_categories={"collaboration"})
+    weights = policies.param("POL-REC-002", "priority_weights")
+    for entry in entries:
+        recomputed = sum(
+            weights[r["priority"].capitalize()] * entry["per_requirement"][r["req_id"]]["coverage"]
+            for r in requirements) / sum(weights[r["priority"].capitalize()] for r in requirements)
+        # One point of slack, and one only: the engine averages exact fractions
+        # and rounds once, while this recomputes from the parts as stored, which
+        # are already rounded. Nothing else may separate the two — the defect
+        # this pins put Notion 20 points below its own figures.
+        assert abs(entry["overall_coverage"] - recomputed) <= 1, (
+            f"{entry['product_id']} publishes {entry['overall_coverage']}% but its own "
+            f"per-requirement figures average {recomputed:.1f}%")
 
 
 def test_no_declared_subject_means_no_category_discount(policies):

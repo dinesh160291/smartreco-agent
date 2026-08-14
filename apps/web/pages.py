@@ -464,6 +464,7 @@ def _build_feed(db, user, journey_id: str | None = None) -> dict | None:
             "product_id": p.product_id, "name": p.name, "vendor": p.vendor,
             "initials": initials, "hue": hue, "rank": entry["rank"],
             "coverage": entry["overall_coverage"],
+            "on_subject": entry.get("on_subject", True),
             "why_covered": covered[:6], "why_missing": missing[:4],
         })
 

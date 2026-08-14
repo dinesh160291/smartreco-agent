@@ -2,7 +2,9 @@
 
 Coverage Calculation Model (Domain 05/09): per-requirement coverage = supported
 required capabilities ÷ total required; overall = priority-weighted average with
-POL-REC-002 weights. Ranking by overall coverage; ties break on total capability
+POL-REC-002 weights. Ranking is by `match_score` — coverage with the off-subject
+category term applied — while `overall_coverage` stays the pure capability
+arithmetic the scenarios derive (Decision #078); ties break on total capability
 count, then Product ID (POL-REC-002). Readiness per POL-REC-001. Exact rational
 arithmetic (Fraction) so published percentages match the scenario derivations.
 """
@@ -124,20 +126,34 @@ def rank_products(
         # of product I am shopping for". A shopper who has only opened Security
         # products is not shopping for a productivity suite, however much of the
         # requirement that suite covers.
+        #
+        # So the category term scores the *match*, and leaves coverage alone
+        # (Decision #078). It used to multiply `overall_coverage` itself, and
+        # that field is not the ranker's private working: it is the meter and
+        # the percentage on For-you, it is handed to the Tier-1 narrative beside
+        # the list of capabilities the product holds, and it goes out in the
+        # digest. A product was published at 29% next to four of the five
+        # capabilities the shopper asked for, and its own per-requirement
+        # figures averaged 49% — the number disagreed with the facts printed
+        # next to it. Being the wrong kind of product is not a capability the
+        # product lacks, and coverage is the only thing that reconciles.
+        on_subject = True
         if subject_categories:
             category = product_categories.get(product_id, "").lower()
-            if not any(subject in category for subject in subject_categories):
-                overall *= off_subject
+            on_subject = any(subject in category for subject in subject_categories)
+        match = overall if on_subject else overall * off_subject
         entry = {
             "product_id": product_id,
             "overall_coverage": round(overall * 100),
+            "match_score": round(match * 100),
+            "on_subject": on_subject,
             "per_requirement": per_requirement,
             "satisfied_requirements": satisfied,
             "partially_satisfied_requirements": partial,
             "unsupported_requirements": unsupported,
             "missing_capability_ids": sorted(missing),
         }
-        scored.append((overall, len(caps), product_id, entry))
+        scored.append((match, len(caps), product_id, entry))
 
     scored.sort(key=lambda item: (-item[0], -item[1], item[2]))
     entries = []

@@ -509,7 +509,8 @@ Every number in these scenarios is derivable — nothing is illustrative.
 - **Required Capabilities per Requirement** come from 07 — Business Requirement to Capability Mapping (all associations: Primary + Secondary + Supporting).
 - **Per-Requirement Coverage** = supported association weight ÷ total association weight × 100 (Coverage Calculation Model, 05 — Product Capability Profiles), using each product's Supported Capability IDs. Each required Capability counts for its association weight — Primary 1.0, Secondary 0.6, Supporting 0.3 (POL-REC-002 `capability_weights`) — not one apiece. Counting them equally let a product holding every Primary Capability of a Requirement score below one holding none of them and more optional extras (Decision #073). Full coverage is still exactly 100% and zero coverage exactly 0%, so every ranking below is unchanged in order and winner; the partial percentages rose.
 - **Overall Coverage** = priority-weighted average of per-Requirement coverage, using POL-REC-002 weights (Critical ×3, High ×2, Medium ×1, Low ×0.5).
-- **Ranking** follows Overall Coverage; ties break per POL-REC-002.
+- **Match Score** = Overall Coverage × POL-REC-002's `off_subject_factor` for a candidate outside every category the shopper has been researching, and equal to Overall Coverage otherwise. It is a separate figure because coverage has an arithmetic definition to keep: being the wrong *kind* of product is not a capability the product lacks (Decision #078).
+- **Ranking** follows Match Score; ties break per POL-REC-002. A ranked list is therefore not always ordered by the coverage figure beside it — an off-subject product can cover more and still rank lower, and the surfaces say so rather than leaving the order unexplained.
 
 These scenarios therefore double as executable acceptance tests: an implementation that seeds these profiles and replays these behaviors must reproduce these exact numbers.
 
@@ -1084,7 +1085,7 @@ REQ-001 coverage: 1.0/4.8 = 21%   (has CAP-007 only)
 REQ-005 coverage: 3.2/3.5 = 91%   (missing CAP-015)
 
 Overall (3×0.208 + 2×0.914) ÷ 5 = 49%
-Off subject (Knowledge & Docs, not Collaboration): 49% × 0.6 = 29%
+Match score: off subject (Knowledge & Docs, not Collaboration) 49% × 0.6 = 29%
 
 Partially Satisfied Requirements
 
@@ -1104,7 +1105,7 @@ REQ-001 coverage: 1.2/4.8 = 25%   (has CAP-005, CAP-006)
 REQ-005 coverage: 1.6/3.5 = 46%   (has CAP-020, CAP-023)
 
 Overall (3×0.25 + 2×0.457) ÷ 5 = 33%
-On subject (Collaboration): no adjustment
+Match score: on subject (Collaboration), so 33%
 
 Partially Satisfied Requirements
 
@@ -1121,23 +1122,33 @@ CAP-001, CAP-002, CAP-007, CAP-010, CAP-011, CAP-015, CAP-021, CAP-022
 Collaboration became a declared subject in v1.4, so POL-REC-002's
 `off_subject_factor` — dormant here until now, because this journey held no
 subject the platform could name — applies to any candidate outside the category
-being shopped. Notion is catalogued under Knowledge & Docs, so its 49% becomes
-29% and it falls below Zoom Workplace at 33%.
+being shopped. Notion is catalogued under Knowledge & Docs, so its **match
+score** is 29% against Zoom Workplace's 33%, and it ranks below it.
 
-That is a product covering *less* of the requirement ranked above one covering
-more, and it is the intended reading: Notion's 49% is carried almost entirely by
-REQ-005 AI Assistance at 91%, while on REQ-001 Secure Collaboration — the
-Critical requirement, and the one the shopper's behaviour anchored — it holds
-one capability of seven. A shopper consolidating collaboration tools is shown
-collaboration tools first.
+**Its coverage is still 49%, and that is the number the shopper is shown**
+(Decision #078). The two were one field until the discount was found in the
+figure printed beside the capability list, in the digest, and in the facts block
+handed to the narrative — Notion published at 29% next to four of the five AI
+capabilities this shopper asked for. Coverage answers what a product covers;
+being the wrong kind of product is not a capability it lacks.
+
+So this scenario's list is deliberately not ordered by the percentage beside it:
+Zoom at 33% sits above Notion at 49%. That is the intended reading — Notion's
+49% is carried almost entirely by REQ-005 AI Assistance at 91%, while on
+REQ-001 Secure Collaboration, the Critical requirement its behaviour anchored,
+it holds one capability of seven. A shopper consolidating collaboration tools is
+shown collaboration tools first, and told plainly why the one covering more is
+not at the top.
 
 **The known limitation, recorded rather than papered over.** The factor keys on
 the candidate's catalog category alone, so it cannot tell a product the
 retrieval surfaced from one the shopper studied. This shopper opened Notion
-repeatedly and searched for it by name, and is still shown it demoted. The rule
-as specified in POL-REC-002 says *outside every category the shopper has been
+repeatedly and searched for it by name, and it still ranks last. The rule as
+specified in POL-REC-002 says *outside every category the shopper has been
 researching*, and Notion's category is outside it; changing that reading is a
-policy change, not an implementation detail, and is deliberately not made here.
+policy change and is deliberately not made here. What #078 removes is the part
+that was indefensible either way — the shopper being told a coverage figure that
+disagreed with its own components.
 
 ---
 

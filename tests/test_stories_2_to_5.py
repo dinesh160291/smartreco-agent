@@ -139,20 +139,23 @@ def test_story2_collaboration_modernizer(seeded, chroma, backend, policies, fake
                      ).scalars().first()
     assert pkg.readiness == "READY"
     coverage = {e["product_id"]: e["overall_coverage"] for e in pkg.entries}
+    match = {e["product_id"]: e["match_score"] for e in pkg.entries}
     rank = {e["product_id"]: e["rank"] for e in pkg.entries}
     # Scenario 2 exact coverages (Decision #037: exact numbers + relative order;
     # full-coverage products may rank above).
     #
-    # Notion is 29, not the 49 its capabilities alone earn: Collaboration became
-    # a declared subject in Decision #077, so POL-REC-002's off_subject_factor
-    # now applies to a candidate outside every category the shopper researched.
-    # Notion is catalogued under Knowledge & Docs, so 49 × 0.6 = 29, and it
-    # ranks below Zoom — a product that covers less of the requirement but is
-    # the kind of product being shopped for. The order therefore moved, which
-    # is a change to what the platform tells a shopper and is recorded as one.
+    # Notion covers 49% and is ranked last of the three. Both halves matter and
+    # they are now different fields (Decision #078): coverage is what its
+    # capabilities earn, and the ranking is on match_score, where Collaboration
+    # being a declared subject (Decision #077) puts Notion — catalogued under
+    # Knowledge & Docs — at 49 × 0.6 = 29. So it ranks below Zoom, which covers
+    # less but is the kind of product being shopped for, while still telling the
+    # shopper honestly how much of their requirement it covers.
     assert coverage["PROD-004"] == 97
-    assert coverage["PROD-009"] == 29
+    assert coverage["PROD-009"] == 49
     assert coverage["PROD-005"] == 33
+    assert match["PROD-009"] == 29
+    assert match["PROD-005"] == 33
     assert rank["PROD-004"] < rank["PROD-005"] < rank["PROD-009"]
     top3 = [e["product_id"] for e in pkg.entries[:3]]
     assert "PROD-007" not in top3 and "PROD-008" not in top3  # automation absent
