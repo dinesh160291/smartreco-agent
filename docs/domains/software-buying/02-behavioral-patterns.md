@@ -341,7 +341,13 @@ within a session.
 | BP-019 Security Operations | BC-025 | threat · dlp | Security | edr, dlp, threat, endpoint, antivirus |
 
 **These are evaluation patterns**, so they carry the Research and Technical
-Validation stage milestones alongside BP-001 … BP-008. Omitting them would
+Validation stage milestones alongside BP-001 … BP-008. The descriptor derives that
+list from this table rather than enumerating it (Decision #087): it was written
+as a range, so BP-020, BP-021 and BP-022 were silently left out when they were
+added, and an identity, compliance or content shopper sat at Awareness on
+evidence that took a CRM shopper to Technical Validation — the exact inequity
+the next sentence forbids, arriving by the one route the sentence could not
+prevent. Omitting them would
 strand a CRM or payroll journey at Awareness — and because stage gates the
 Critical priority band (POL-REQ-002), a need those journeys produced could never
 reach Critical while an identity journey's could. Same behaviour, different

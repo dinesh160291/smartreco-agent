@@ -4461,3 +4461,46 @@ breadcrumb rather than being offered a return to a search that never happened.
 
 Both halves are pinned, and the carrying half is sabotage-verified — dropping the
 query string from the card link reddens the test.
+
+---
+
+# Decision #087
+
+## The doc-02 audit's second half, and the defect it found
+
+The pattern audit of Decision #045 covered activation and strength and left two
+things unchecked: each pattern's supported concept sets, and the stage-milestone
+mapping. Both are now checked.
+
+**Concept sets: all twelve match.** BP-005's co-support of BC-006, BP-009's of
+BC-014, BP-010's of BC-016 and BP-011's pair are each conditional in the code
+exactly as doc 02 describes them. BC-018 Preference Reversal appears in doc 02's
+BP-010 block and nowhere in the code, which is correct — the document defers it
+in the same sentence, "in a future pattern version".
+
+**Stage milestones: a real defect, and mine.** `EVALUATION_PATTERNS` was written
+as `range(1, 9) + range(13, 20)`. BP-020 and BP-021 (#077) and BP-022 (#081)
+were therefore left out silently, and the consequence is the one the surrounding
+paragraph in doc 02 explicitly forbids:
+
+| One Strong subject evidence | Stage reached |
+|---|---|
+| BP-013 CRM | Technical Validation |
+| BP-001 Security | Technical Validation |
+| BP-020 Identity | **Awareness** |
+| BP-021 Compliance | **Awareness** |
+| BP-022 Content & Knowledge | **Awareness** |
+
+POL-REQ-002 gates the Critical band on stage ≥ Technical Validation, so an
+identity, compliance or content shopper's requirement could never be banded
+Critical while a CRM shopper's could, on identical evidence. "Same behaviour,
+different domain, different ceiling: not defensible" — written in doc 02 in
+Decision #056, and broken twice since by the one route that sentence could not
+prevent: a hardcoded range a new row does not join.
+
+**The list is now derived from the pattern table**, so a new row joins by
+construction. Two ratchets hold it: every domain-research pattern must appear in
+both milestones, and — separately, through the stage engine rather than the
+descriptor — one Strong subject evidence must reach Technical Validation
+whichever domain it belongs to. Sabotage-verified: restoring the range reddens
+both.

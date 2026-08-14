@@ -222,3 +222,44 @@ def test_returning_to_a_subject_next_session_makes_it_strong(policies):
     assert any(d.strength == "STRONG" for d in came_back), (
         f"returning the next session did not strengthen the belief: "
         f"{[(d.strength, d.explanation) for d in came_back]}")
+
+
+def test_every_domain_pattern_carries_the_evaluation_stage_milestones():
+    """Decision #087. Doc 02 states these are evaluation patterns and therefore
+    carry the Research and Technical Validation milestones — "same behaviour,
+    different domain, different ceiling: not defensible".
+
+    The list was written as a hardcoded range, so BP-020, BP-021 and BP-022 were
+    silently excluded when #077 and #081 added them: an identity, compliance or
+    content shopper sat at Awareness on evidence that took a CRM shopper to
+    Technical Validation, and POL-REQ-002 gates the Critical band on stage, so
+    their requirements could never be Critical.
+    """
+    from smartreco.domain.software_buying import EVALUATION_PATTERNS, STAGE_MILESTONES
+
+    declared = {row[0] for row in DOMAIN_RESEARCH_PATTERNS}
+    assert declared <= set(EVALUATION_PATTERNS), (
+        f"not evaluation patterns: {sorted(declared - set(EVALUATION_PATTERNS))}")
+
+    for stage in ("Research", "Technical Validation"):
+        milestone = next(m for m in STAGE_MILESTONES if m["stage"] == stage)
+        missing = sorted(declared - set(milestone["patterns"]))
+        assert not missing, (
+            f"{stage} milestone omits {missing} — a journey built on them is "
+            "stranded below the stage that gates the Critical band")
+
+
+def test_a_subject_pattern_alone_reaches_technical_validation():
+    """The behavioural half of the same claim, through the stage engine rather
+    than the descriptor: one Strong subject evidence must be worth the same
+    stage whichever domain it belongs to."""
+    from smartreco.engines.stages import determine_stage
+
+    reached = {}
+    for pattern_id, concept_id, *_rest in DOMAIN_RESEARCH_PATTERNS:
+        evidence = [{"pattern_id": pattern_id, "strength": "STRONG",
+                     "concept_ids": [concept_id], "supporting_event_ids": ["e1"]}]
+        reached[pattern_id] = determine_stage(evidence, {concept_id: 0.7},
+                                              [], load_policies())[0]
+    laggards = {p: s for p, s in reached.items() if s != "Technical Validation"}
+    assert not laggards, f"these subjects cannot reach Technical Validation: {laggards}"

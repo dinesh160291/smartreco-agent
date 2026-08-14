@@ -563,8 +563,15 @@ REQ_TO_CAP: dict[str, dict[str, str]] = {
 # journeys produced could never reach Critical while an identity journey's
 # could. Same behavior, different domain, different ceiling: not defensible.
 
+# Derived from the table rather than enumerated (Decision #087). It was written
+# as `range(13, 20)`, so BP-020, BP-021 and BP-022 — added by Decisions #077 and
+# #081 — were left out silently, and an identity, compliance or content shopper
+# sat at Awareness while a CRM shopper with identical evidence reached Technical
+# Validation. That is precisely the inequity the paragraph above forbids, and it
+# arrived by the one route the paragraph could not prevent: a hardcoded range
+# that a new row does not join. Now it joins by construction.
 EVALUATION_PATTERNS = (tuple(f"BP-{i:03d}" for i in range(1, 9))
-                       + tuple(f"BP-{i:03d}" for i in range(13, 20)))
+                       + tuple(pattern_id for pattern_id, *_rest in DOMAIN_RESEARCH_PATTERNS))
 
 STAGE_MILESTONES: list[dict] = [
     {"stage": "Awareness", "kind": "events_no_evidence"},
