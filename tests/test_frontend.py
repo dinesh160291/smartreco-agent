@@ -127,6 +127,32 @@ def test_admin_save_validates_capability_ids(client, session_factory):
     assert response.status_code == 422  # unknown IDs rejected (Core 14)
 
 
+def test_admin_save_rejects_a_category_outside_the_enum(client):
+    """Law 7, Decision #083. A mistyped category is not a cosmetic error: it is
+    matched against SUBJECT_CATEGORIES, so the product becomes off-subject for
+    every shopper, quietly and permanently."""
+    _login_admin(client)
+    response = client.post("/admin/product/PROD-009", data={
+        "name": "Notion", "vendor": "Notion Labs", "category": "Knowledge and Docs",
+        "description": "d", "business_purpose": "b", "price_note": "",
+        "capabilities": ["CAP-007"]})
+    assert response.status_code == 422
+    assert "unknown category" in response.text
+
+
+def test_admin_save_rejects_a_product_no_requirement_can_reach(client):
+    """The seed catalog has had this ratchet since #075; an admin could still
+    create one by hand. Such a product is searchable, viewable, cartable and
+    permanently unrecommendable."""
+    _login_admin(client)
+    response = client.post("/admin/product/PROD-009", data={
+        "name": "Notion", "vendor": "Notion Labs", "category": "Knowledge & Docs",
+        "description": "d", "business_purpose": "b", "price_note": "",
+        "capabilities": ["CAP-024"]})       # allowlisted as reaching nothing
+    assert response.status_code == 422
+    assert "never be recommended" in response.text
+
+
 def test_feed_partial_serves_for_htmx(client):
     _register(client)
     response = client.get("/for-you/feed")

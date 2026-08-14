@@ -1749,3 +1749,33 @@ The Product Capability Profiles document completes the knowledge bridge between 
 Together with the Behavioral Ontology and Business Requirement Catalog, it provides the complete domain knowledge required for deterministic recommendation generation.
 
 ---
+
+
+---
+
+# v1.7 — Product category is a closed enum (Decision #083)
+
+Category was the last free-text categorical value in the pack, and Law 7 closes
+it. The eighteen:
+
+AI · CRM · Collaboration · Compliance · Content Management · Customer Support ·
+Data & Analytics · Design · DevOps · Finance · HR · Identity & Access
+Management · Knowledge & Docs · Marketing · Productivity & Collaboration ·
+Security · Work Management · Workflow Automation
+
+**Why it matters more than a label.** SUBJECT_CATEGORIES is matched against this
+string, so a mistyped category does not read as a typo anywhere — it produces a
+product that is off-subject for every shopper, quietly and for good, and the
+only visible symptom is a match score 40% lower than it should be. Decisions
+#079, #080 and #081 each turned on a category being wrong, and while the set was
+open none of them could have been caught by a test.
+
+Two ratchets hold it, in both directions: no product may use a category outside
+the enum, and no enum entry may exist that no product uses — dead vocabulary
+being what Decision #080 dissolved. A third requires every category to have a
+subject or a stated reason; **AI is the only entry**, and it is there because a
+subject for it needs a concept of its own (#080).
+
+Admin-time validation enforces the same two rules the seed catalog is held to:
+an unknown category is rejected, and so is a product whose capabilities reach no
+requirement — searchable, viewable, cartable and permanently unrecommendable.

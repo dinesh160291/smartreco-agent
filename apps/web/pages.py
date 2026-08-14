@@ -704,9 +704,29 @@ async def _admin_save(request: Request, db, state, product: models.Product):
     unknown = [c for c in cap_ids if c not in valid]
     if unknown:
         raise HTTPException(422, f"unknown capability IDs: {unknown}")  # Core 14
+
+    # Category is a closed enum (Law 7, Decision #083). It is matched against
+    # SUBJECT_CATEGORIES, so a typo does not produce a visibly wrong label — it
+    # produces a product that is off-subject for every shopper, quietly and for
+    # good.
+    category = str(form.get("category", "")).strip()
+    if category not in domain.PRODUCT_CATEGORIES:
+        raise HTTPException(
+            422, f"unknown category {category!r}; expected one of "
+                 f"{sorted(domain.PRODUCT_CATEGORIES)}")
+
+    # A product whose capabilities reach no requirement can be searched, viewed
+    # and added to a cart, and can never be recommended. The seed catalog has a
+    # ratchet for this; until now an admin could create one by hand.
+    reachable = {cap for caps in domain.REQ_TO_CAP.values() for cap in caps}
+    if not set(cap_ids) & reachable:
+        raise HTTPException(
+            422, "none of these capabilities reaches a business requirement, so "
+                 "this product could never be recommended")
+
     product.name = str(form.get("name", "")).strip()
     product.vendor = str(form.get("vendor", "")).strip()
-    product.category = str(form.get("category", "")).strip()
+    product.category = category
     product.description = str(form.get("description", "")).strip()
     product.business_purpose = str(form.get("business_purpose", "")).strip()
     product.price_note = str(form.get("price_note", "")).strip() or None

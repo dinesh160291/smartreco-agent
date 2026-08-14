@@ -4322,3 +4322,48 @@ has not formed at all, since POL-BEH-001 promotes on two evidence objects or one
 Strong. So the floor is "the shopper did this at least twice, or did it
 convincingly once" — which is the weakest honest reading of *has been
 researching*, and POL-REC-002's own wording is exactly that.
+
+---
+
+# Decision #083
+
+## Product category becomes a closed enum, with the ratchets to keep it closed
+
+Category was the last free-text categorical value in the pack. Law 7 closes it,
+and the reason is not tidiness: `SUBJECT_CATEGORIES` is matched against this
+string, so a mistyped or invented category does not read as a mistake anywhere.
+It produces a product that is off-subject for every shopper, permanently, and
+the only visible symptom is a match score 40% below where it belongs.
+
+Decisions #079, #080 and #081 each turned on a category being wrong — Work
+Management products holding no work-management capability, a Productivity shelf
+that was not a subject, three content categories with no requirement between
+them. While the set was open, none of them could have been caught by a test.
+
+**`PRODUCT_CATEGORIES` — eighteen entries**, held by ratchets in both directions:
+no product may use a category outside the enum, and no enum entry may exist that
+no product uses. The second matters as much as the first; dead vocabulary is
+exactly what #080 dissolved.
+
+## Every category has a subject, or a stated reason
+
+The sweep's closing invariant. When it began, **110 of 250 products sat in a
+category with no subject** — browsing them declared nothing and the ranking had
+nothing to anchor on. The allowlist now has **one entry**:
+
+- **AI** — needs a concept of its own. BC-003 is a lens, and promoting it forks
+  any journey whose shopper researches AI alongside something else (#080).
+
+The stale-entry ratchet earned its place immediately: *Productivity &
+Collaboration* was written into the allowlist on the assumption it had no
+subject, and the test rejected it — "collaboration" is a subject category and
+the match is a substring, so Microsoft 365 and Google Workspace are on subject
+for a collaboration shopper already. The allowlist may only shrink.
+
+## Admin-time validation
+
+The seed catalog has been held to these rules by ratchets since #075. An admin
+could still create by hand what the ratchets forbid, so `_admin_save` now
+rejects two things: a category outside the enum, and a product whose
+capabilities reach no requirement — one that could be searched, viewed and added
+to a cart and could never be recommended.

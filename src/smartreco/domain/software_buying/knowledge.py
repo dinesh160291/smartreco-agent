@@ -95,6 +95,35 @@ REQUIREMENTS: dict[str, str] = {
     "REQ-014": "Content & Knowledge",
 }
 
+# ---- Product categories (doc 05; Law 7 — closed enums) ----
+#
+# Category was the last free-text categorical value in the pack, and it is not a
+# label: SUBJECT_CATEGORIES matches against it, so a typo silently makes a
+# product off-subject for every shopper, and an invented category makes it
+# off-subject permanently. Decisions #079-#081 each turned on a category being
+# wrong, and none of them could have been caught by a test while the set was
+# open (Decision #083).
+PRODUCT_CATEGORIES: frozenset[str] = frozenset({
+    "AI",
+    "CRM",
+    "Collaboration",
+    "Compliance",
+    "Content Management",
+    "Customer Support",
+    "Data & Analytics",
+    "Design",
+    "DevOps",
+    "Finance",
+    "HR",
+    "Identity & Access Management",
+    "Knowledge & Docs",
+    "Marketing",
+    "Productivity & Collaboration",
+    "Security",
+    "Work Management",
+    "Workflow Automation",
+})
+
 # ---- Capability Catalog (doc 10 — 27 capabilities, 6 domains) ----
 # (capability_id, name, domain, business_value_narrative)
 

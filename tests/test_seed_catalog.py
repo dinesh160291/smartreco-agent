@@ -358,3 +358,61 @@ def test_workload_management_sits_only_where_it_is_meant(seed):
     stray = {n: c for n, c in holders.items() if c not in ("Work Management",)}
     assert not stray, f"Workload Management claimed outside Work Management: {stray}"
     assert len(holders) >= 5, f"only {len(holders)} products manage capacity"
+
+
+# --- Decision #083: category is a closed enum, and every one needs a subject ---
+
+# Categories that exist and have no subject concept. A ratchet: entries may be
+# removed as subjects are built, never added. An entry here means every product
+# in that category is off-subject for every shopper — POL-REC-002 multiplies it
+# by off_subject_factor no matter what they are researching.
+CATEGORIES_WITHOUT_A_SUBJECT = {
+    "AI": "needs a concept of its own — BC-003 is a lens, and promoting it forks "
+          "any journey whose shopper researches AI alongside something else (#080)",
+}
+
+
+def test_every_product_category_is_in_the_closed_enum(seed):
+    """Law 7. Category is matched against SUBJECT_CATEGORIES, so a typo does not
+    look like a typo — it produces a product that is off-subject for every
+    shopper, silently and permanently."""
+    from smartreco.domain.software_buying import PRODUCT_CATEGORIES
+
+    used = {p["category"] for p in seed["products"] + list(CANONICAL_PRODUCTS)}
+    assert used <= PRODUCT_CATEGORIES, (
+        f"categories outside the enum: {sorted(used - PRODUCT_CATEGORIES)}")
+
+
+def test_the_enum_has_no_categories_nothing_uses(seed):
+    """The other direction: a category no product is in is dead vocabulary, and
+    Decision #080 dissolved one exactly like it."""
+    from smartreco.domain.software_buying import PRODUCT_CATEGORIES
+
+    used = {p["category"] for p in seed["products"] + list(CANONICAL_PRODUCTS)}
+    assert PRODUCT_CATEGORIES <= used, (
+        f"enum entries no product uses: {sorted(PRODUCT_CATEGORIES - used)}")
+
+
+def test_every_category_has_a_subject_or_a_stated_reason():
+    """The sweep's closing invariant. 110 of 250 products sat in a category with
+    no subject when this began; a shopper browsing them declared nothing, and the
+    ranking had nothing to anchor on."""
+    from smartreco.domain.software_buying import PRODUCT_CATEGORIES, SUBJECT_CATEGORIES
+
+    subject_terms = {c for cats in SUBJECT_CATEGORIES.values() for c in cats}
+    uncovered = {c for c in PRODUCT_CATEGORIES
+                 if not any(term in c.lower() for term in subject_terms)}
+    unexplained = sorted(uncovered - set(CATEGORIES_WITHOUT_A_SUBJECT))
+    assert not unexplained, (
+        f"these categories have no subject and no stated reason: {unexplained} — "
+        "every product in them is off-subject for every shopper")
+
+
+def test_no_stale_entries_in_the_subjectless_allowlist():
+    """A ratchet only ratchets if entries are removed as they are fixed."""
+    from smartreco.domain.software_buying import SUBJECT_CATEGORIES
+
+    subject_terms = {c for cats in SUBJECT_CATEGORIES.values() for c in cats}
+    fixed = sorted(c for c in CATEGORIES_WITHOUT_A_SUBJECT
+                   if any(term in c.lower() for term in subject_terms))
+    assert not fixed, f"now has a subject — remove from the allowlist: {fixed}"
