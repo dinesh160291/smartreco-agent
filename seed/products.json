@@ -1585,8 +1585,8 @@
       "product_id": "PROD-192",
       "name": "Vanta",
       "vendor": "Vanta",
-      "category": "Security",
-      "description": "Vanta is a security platform offering Information Governance, Compliance Reporting, Vulnerability Management, Data Retention, eDiscovery.",
+      "category": "Compliance",
+      "description": "Vanta is a compliance platform offering Information Governance, Compliance Reporting, Vulnerability Management, Data Retention, eDiscovery.",
       "business_purpose": "Keep security controls continuously evidenced rather than reconstructed before an audit.",
       "business_value_narrative": "Vanta monitors controls and exposures continuously and keeps the evidence current, so compliance status is demonstrable at any moment rather than assembled under deadline.",
       "capabilities": [
@@ -1605,8 +1605,8 @@
       "product_id": "PROD-193",
       "name": "Drata",
       "vendor": "Drata",
-      "category": "Security",
-      "description": "Drata is a security platform offering Compliance Reporting, Vulnerability Management, Audit Logging, eDiscovery, Data Loss Prevention.",
+      "category": "Compliance",
+      "description": "Drata is a compliance platform offering Compliance Reporting, Vulnerability Management, Audit Logging, eDiscovery, Data Loss Prevention.",
       "business_purpose": "Automate the evidence-gathering that compliance frameworks demand.",
       "business_value_narrative": "Drata watches controls and exposures on an ongoing basis and assembles the audit trail as it goes, replacing the scramble before each assessment.",
       "capabilities": [

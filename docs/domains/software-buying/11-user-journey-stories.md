@@ -37,7 +37,7 @@ deliberately a repeat, and contributes half.
 
 **Expected pipeline:** BP-001 fires (Medium→Strong with dwell), BP-002 fires (enterprise tier + admin docs) → BC-001 0.80, BC-002 0.70 → REQ-002 0.80 Critical, REQ-004 0.56 Medium, REQ-001 0.48 **held** → stage Technical Validation → retrieval + match.
 
-**Expected outcome:** For-you page READY. **Okta rank 1 (83%)**, Microsoft 365 rank 2 (74%), Google Workspace rank 3 (62%). Persuasive narrative references *this user's* security/SSO research and names the SCIM/provisioning advantage; plain language only. Reasoning Panel (admin) shows both hypotheses, the held REQ-001 at 0.48, stage chip on Technical Validation.
+**Expected outcome:** For-you page READY. **Okta rank 1 (82%)**, Microsoft 365 rank 2 (78%), Google Workspace rank 3 (53%). Persuasive narrative references *this user's* security/SSO research and names the SCIM/provisioning advantage; plain language only. Reasoning Panel (admin) shows both hypotheses, the held REQ-001 at 0.48, stage chip on Technical Validation.
 
 **Failure looks like:** M365 ranked first (priority weighting broken) · narrative cites facts not in Runtime Objects · REQ-001 published · CAP codes visible on For-you.
 

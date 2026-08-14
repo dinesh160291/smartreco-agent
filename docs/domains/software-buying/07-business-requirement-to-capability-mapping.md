@@ -1103,6 +1103,14 @@ REQ-012  Security Operations
   Supporting  CAP-062 Vulnerability Management / CAP-026 Data Loss Prevention
 ```
 
+**Rehomed with it (Decision #075).** REQ-012's two borrowed capabilities were removed
+without being given a home, so both reached no requirement at all and any product
+holding only them became unrecommendable. **CAP-008 Identity Federation** now sits in
+REQ-002 Identity Management at Secondary, and **CAP-027 Compliance Reporting** in REQ-004
+Regulatory Compliance at Secondary — the requirements each has always described. A
+ratchet in `tests/test_seed_catalog.py` now fails on any capability that reaches no
+requirement, which is what was missing when #074 shipped.
+
 **REQ-012 no longer borrows (Decision #074).** v1.2 built it from Compliance
 Reporting and Identity Federation because the pack had no security-operations
 vocabulary of its own. The identity capability was the more expensive of the two:

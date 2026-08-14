@@ -711,10 +711,10 @@ PROD-004   Google Workspace
 ```text
 PROD-003  (Okta)
 
-REQ-002 coverage: 5/5 = 100%
-REQ-004 coverage: 1.0/3.2 = 31%   (has CAP-010)
+REQ-002 coverage: 4.1/4.1 = 100%
+REQ-004 coverage: 1.0/3.8 = 26%   (has CAP-010)
 
-Overall (3×1.00 + 1×0.3125) ÷ 4 = 83%
+Overall (3×1.00 + 1×0.263) ÷ 4 = 82%
 
 Satisfied Requirements
 
@@ -732,10 +732,10 @@ CAP-012, CAP-013, CAP-014
 ```text
 PROD-001  (Microsoft 365)
 
-REQ-002 coverage: 2.3/3.5 = 66%   (missing CAP-003, CAP-004)
+REQ-002 coverage: 2.9/4.1 = 71%   (missing CAP-003, CAP-004)
 REQ-004 coverage: 4/4 = 100%
 
-Overall (3×0.657 + 1×1.00) ÷ 4 = 74%
+Overall (3×0.707 + 1×1.00) ÷ 4 = 78%
 
 Satisfied Requirements
 
@@ -753,10 +753,10 @@ CAP-003, CAP-004
 ```text
 PROD-004  (Google Workspace)
 
-REQ-002 coverage: 2.3/3.5 = 66%   (missing CAP-003, CAP-004)
-REQ-004 coverage: 2/4 = 50%   (missing CAP-012, CAP-014)
+REQ-002 coverage: 2.3/4.1 = 56%   (missing CAP-003, CAP-004, CAP-008)
+REQ-004 coverage: 1.6/3.8 = 42%   (missing CAP-012, CAP-014, CAP-027)
 
-Overall (3×0.657 + 1×0.50) ÷ 4 = 62%
+Overall (3×0.561 + 1×0.421) ÷ 4 = 53%
 
 Partially Satisfied Requirements
 
@@ -1593,9 +1593,9 @@ None
 ```text
 PROD-010  (Box)
 
-REQ-004 coverage: 2.6/3.2 = 81%   (missing CAP-014)
+REQ-004 coverage: 2.6/3.8 = 68%   (missing CAP-014, CAP-027)
 
-Overall (3×0.8125) ÷ 3 = 81%
+Overall (3×0.684) ÷ 3 = 68%
 
 Partially Satisfied Requirements
 
@@ -1609,7 +1609,7 @@ CAP-014
 ```text
 PROD-004  (Google Workspace)
 
-REQ-004 coverage: 2/4 = 50%   (missing CAP-012, CAP-014)
+REQ-004 coverage: 1.6/3.8 = 42%   (missing CAP-012, CAP-014, CAP-027)
 
 Overall (3×0.50) ÷ 3 = 50%
 

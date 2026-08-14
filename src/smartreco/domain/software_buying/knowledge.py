@@ -345,6 +345,11 @@ REQ_TO_CAP: dict[str, dict[str, str]] = {
     "REQ-002": {
         "CAP-001": "Primary", "CAP-002": "Primary",
         "CAP-003": "Secondary", "CAP-004": "Secondary",
+        # Rehomed from Security Operations, where it never belonged and where its
+        # presence let identity products out-cover endpoint-security ones
+        # (Decisions #074, #075). Federation is an identity mechanism; this is
+        # the requirement it has always described.
+        "CAP-008": "Secondary",
         "CAP-010": "Supporting",
     },
     "REQ-003": {
@@ -355,6 +360,11 @@ REQ_TO_CAP: dict[str, dict[str, str]] = {
     "REQ-004": {
         "CAP-010": "Primary", "CAP-012": "Primary",
         "CAP-013": "Secondary", "CAP-014": "Secondary",
+        # Rehomed from Security Operations (Decisions #074, #075). Decision #074's
+        # own amendment said "Compliance Reporting is what REQ-004 is for" and
+        # then did not put it there; demonstrating compliance status to auditors
+        # is this requirement's entire subject.
+        "CAP-027": "Secondary",
     },
     # v1.2 (doc 14 Table 1). Additive only: nothing above changes, because those
     # set sizes are the denominators the pinned derivations assert.

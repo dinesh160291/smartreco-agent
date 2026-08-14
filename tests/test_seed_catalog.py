@@ -296,3 +296,39 @@ def test_no_product_prose_claims_a_capability_it_does_not_hold(seed):
     assert offenders == [], (
         f"{len(offenders)} product(s) describe capabilities they do not have:\n  "
         + "\n  ".join(offenders[:15]))
+
+
+# Every Capability must reach some Requirement, or a product holding it can be
+# searched and viewed but never recommended. A ratchet like
+# CROSS_DOMAIN_REQUIREMENTS above: entries may be removed, never added.
+#
+# It exists because Decision #074 removed Identity Federation and Compliance
+# Reporting from Security Operations and rehomed neither — doc 07 had said in as
+# many words that Security Operations was housing them "which are otherwise
+# stranded", and nothing failed when that stopped being true (Decision #075).
+UNMAPPED_CAPABILITIES = {
+    "CAP-009": "File Sharing — belongs to an existing requirement's domain (doc 07)",
+    "CAP-024": "AI Workflow Assistance — same",
+    "CAP-056": "Task Management — awaiting the Work Management requirement",
+    "CAP-057": "Template Library — same",
+    "CAP-058": "Workload Management — awaiting the Productivity requirement",
+}
+
+
+def test_every_capability_reaches_a_requirement():
+    from smartreco.domain.software_buying import CAPABILITIES, REQ_TO_CAP
+
+    mapped = {cap for caps in REQ_TO_CAP.values() for cap in caps}
+    orphans = {cap_id for cap_id, *_rest in CAPABILITIES} - mapped - set(UNMAPPED_CAPABILITIES)
+    assert not orphans, (
+        "these capabilities reach no requirement, so a product holding them can "
+        f"never be recommended: {sorted(orphans)}")
+
+
+def test_the_unmapped_allowlist_does_not_list_mapped_capabilities():
+    """The ratchet only ratchets if stale entries are removed as they are fixed."""
+    from smartreco.domain.software_buying import REQ_TO_CAP
+
+    mapped = {cap for caps in REQ_TO_CAP.values() for cap in caps}
+    stale = sorted(set(UNMAPPED_CAPABILITIES) & mapped)
+    assert not stale, f"now mapped — remove from UNMAPPED_CAPABILITIES: {stale}"

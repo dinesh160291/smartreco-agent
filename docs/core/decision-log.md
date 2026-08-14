@@ -3753,3 +3753,58 @@ The catalog holds six Security-category products against 240 total, and only two
 of them are endpoint tools. The reasoning is now correct; the roster is narrow
 enough that a demo browsing security sees a short list. Widening it is catalog
 work, not a defect in the pack.
+
+---
+
+# Decision #075
+
+## Two capabilities stranded by #074, and the ratchet that should have caught it
+
+Decision #074 rebuilt Security Operations from purpose-built capabilities and
+removed the two it had been borrowing. Doc 07 said in as many words that
+REQ-012 was housing Compliance Reporting and Identity Federation "which are
+otherwise stranded in frozen requirements' domains". #074's own amendment
+asserted that "Compliance Reporting is what REQ-004 is for" — and then did not
+put it there. Both capabilities came out of every requirement in the pack.
+
+A capability in no requirement is not cosmetic: a product holding only such
+capabilities can be searched, viewed and clicked but can never be recommended,
+silently and forever.
+
+**CAP-008 Identity Federation → REQ-002 Identity Management (Secondary).**
+Federation is an identity mechanism; it never described security operations, and
+its presence there is how identity products out-covered endpoint-security ones.
+
+**CAP-027 Compliance Reporting → REQ-004 Regulatory Compliance (Secondary).**
+Demonstrating compliance status to auditors is that requirement's whole subject.
+
+## Vanta and Drata moved to Compliance
+
+Both were filed under Security while being compliance-automation products. Vanta
+covers Regulatory Compliance 3/4 — identical to OneTrust and LogicGate, the two
+products already in that category. Filing them by what they do leaves Security
+holding four products that are actually security tools (1Password, LastPass,
+CrowdStrike, SentinelOne) and Compliance holding four that are actually
+compliance tools.
+
+## The ratchet
+
+`test_every_capability_reaches_a_requirement` fails on any capability mapped by
+no requirement, with an allowlist that may shrink and never grow — the same shape
+as CROSS_DOMAIN_REQUIREMENTS. It was written before the fix and went red for
+exactly CAP-008 and CAP-027. Five pre-existing orphans are listed with the
+requirement each is waiting for: File Sharing, AI Workflow Assistance, and the
+three Work Management capabilities, which no requirement has ever reached.
+
+## Cost
+
+Widening REQ-002 and REQ-004 changes their coverage denominators, so the pinned
+derivations move again — order, winners and the requirement sets are unchanged.
+Scenario 1: Okta 82 / Microsoft 365 78 / Google Workspace 53 (was 83/74/62).
+Scenario 4: Microsoft 365 100 / Box 68 / Google Workspace 42. Docs 07, 09 and 11
+amended here.
+
+This is the second commit in a row to move those numbers. That is the price of
+having pinned exact percentages to a coverage model still being corrected; the
+ordering assertions, which are what the stories actually promise, have not moved
+once.
