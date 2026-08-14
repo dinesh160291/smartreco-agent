@@ -34,12 +34,12 @@ def test_scenario_1_okta_m365_google(policies):
     entries = rank_products(requirements, candidates, PRODUCT_CAPS, REQ_TO_CAP, policies)
     assert [e["product_id"] for e in entries] == ["PROD-003", "PROD-001", "PROD-004"]
     by = entries_by_product(entries)
-    assert by["PROD-003"]["overall_coverage"] == 81
-    assert by["PROD-001"]["overall_coverage"] == 70
-    assert by["PROD-004"]["overall_coverage"] == 58
+    assert by["PROD-003"]["overall_coverage"] == 83
+    assert by["PROD-001"]["overall_coverage"] == 74
+    assert by["PROD-004"]["overall_coverage"] == 62
     okta = by["PROD-003"]
     assert okta["per_requirement"]["REQ-002"]["coverage"] == 100
-    assert okta["per_requirement"]["REQ-004"]["coverage"] == 25
+    assert okta["per_requirement"]["REQ-004"]["coverage"] == 31
     assert set(okta["missing_capability_ids"]) == {"CAP-012", "CAP-013", "CAP-014"}
     assert by["PROD-001"]["missing_capability_ids"] == ["CAP-003", "CAP-004"]
 
@@ -50,10 +50,10 @@ def test_scenario_2_google_notion_zoom(policies):
     entries = rank_products(requirements, candidates, PRODUCT_CAPS, REQ_TO_CAP, policies)
     assert [e["product_id"] for e in entries] == ["PROD-004", "PROD-009", "PROD-005"]
     by = entries_by_product(entries)
-    assert by["PROD-004"]["overall_coverage"] == 92
-    assert by["PROD-009"]["overall_coverage"] == 41
+    assert by["PROD-004"]["overall_coverage"] == 97
+    assert by["PROD-009"]["overall_coverage"] == 49
     assert by["PROD-005"]["overall_coverage"] == 33
-    assert by["PROD-009"]["per_requirement"]["REQ-001"]["coverage"] == 14  # 1/7
+    assert by["PROD-009"]["per_requirement"]["REQ-001"]["coverage"] == 21  # 1 Primary of 7
 
 
 def test_scenario_3_servicenow_zapier_m365(policies):
@@ -64,8 +64,8 @@ def test_scenario_3_servicenow_zapier_m365(policies):
     by = entries_by_product(entries)
     assert by["PROD-007"]["overall_coverage"] == 100
     assert by["PROD-007"]["missing_capability_ids"] == []
-    assert by["PROD-008"]["overall_coverage"] == 80
-    assert by["PROD-001"]["overall_coverage"] == 60
+    assert by["PROD-008"]["overall_coverage"] == 83
+    assert by["PROD-001"]["overall_coverage"] == 74
 
 
 def test_scenario_4_m365_box_google(policies):
@@ -75,7 +75,7 @@ def test_scenario_4_m365_box_google(policies):
     assert [e["product_id"] for e in entries] == ["PROD-001", "PROD-010", "PROD-004"]
     by = entries_by_product(entries)
     assert by["PROD-001"]["overall_coverage"] == 100
-    assert by["PROD-010"]["overall_coverage"] == 75
+    assert by["PROD-010"]["overall_coverage"] == 81
     assert by["PROD-004"]["overall_coverage"] == 50
 
 

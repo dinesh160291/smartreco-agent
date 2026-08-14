@@ -513,7 +513,7 @@ DOMAIN_RESEARCH_PATTERNS = (
     ("BP-019", "BC-025",
      {"threat", "dlp"},
      {"security"},
-     {"edr", "dlp", "threat", "endpoint", "antivirus"}),
+     {"edr", "xdr", "siem", "dlp", "threat", "endpoint", "antivirus", "vulnerability"}),
 )
 
 
@@ -534,6 +534,10 @@ DOMAIN_RESEARCH_PATTERNS = (
 # reports compliance.
 
 UI_DOC_TOPICS = (
+    # Endpoint detection is the least ambiguous entry in this table and so leads
+    # it: nothing acquires it by being large, and a product holding it is a
+    # security-operations product whatever else it also does (Decision #074).
+    ("CAP-059", "threat"),                                     # BP-019 Security Ops
     ("CAP-001", "sso"), ("CAP-002", "mfa"),                    # BP-001 Security
     ("CAP-004", "admin"),                                      # BP-002 Enterprise
     # v1.2 product-type topics. Support before sales: a helpdesk product must
@@ -561,17 +565,34 @@ UI_DOC_TOPICS = (
     ("CAP-014", "ediscovery"), ("CAP-027", "compliance"),
     ("CAP-010", "audit"),                                      # BP-004 Compliance
     ("CAP-025", "threat"), ("CAP-026", "dlp"),                 # BP-019 Security Ops
+    ("CAP-060", "threat"), ("CAP-061", "threat"), ("CAP-062", "threat"),
 )
 UI_DOC_TOPIC_DEFAULT = "api"
 
-# The Security & Compliance pane is a certifications surface when the product
-# carries governance capabilities, an audit surface when it only logs, and a
-# general posture page otherwise (BP-004 keys on "certifications"; BP-002 on
+# The Security & Compliance pane is a threat surface on a product that detects and
+# responds to attacks, a certifications surface when the product carries governance
+# capabilities, an audit surface when it only logs, and a general posture page
+# otherwise (BP-019 keys on "threat"; BP-004 on "certifications"; BP-002 on
 # "compliance"/"audit").
+#
+# The threat rows lead, and their absence was a bug in its own right: with no
+# threat entry at all, the security pane of every endpoint-security product fell
+# to the "compliance" default and voted for Enterprise Evaluation. A shopper
+# reading CrowdStrike's security page was emitting evidence that they were vetting
+# a vendor's paperwork (Decision #074).
+#
+# Threat Protection is deliberately *not* one of the threat rows here. Twenty-one
+# products hold it, including content-management and analytics suites, so on this
+# pane it discriminates nothing; endpoint detection and security monitoring are
+# held only by products whose job this is. Ordering CAP-025 first made Microsoft
+# 365 report its security pane as a threat surface and put Compliance Evaluation
+# out of reach of the browser entirely.
 UI_SECURITY_TOPICS = (
+    ("CAP-059", "threat"),                                     # EDR: unambiguous
     ("CAP-012", "certifications"), ("CAP-013", "certifications"),
     ("CAP-014", "certifications"), ("CAP-027", "certifications"),
     ("CAP-010", "audit"),
+    ("CAP-061", "threat"),        # monitoring, on a product with no governance duties
 )
 UI_SECURITY_TOPIC_DEFAULT = "compliance"
 

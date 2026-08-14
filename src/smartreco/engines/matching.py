@@ -58,11 +58,29 @@ def rank_products(
     product_capabilities: dict[str, set[str]],
     req_to_cap: dict[str, dict[str, str]],
     policies: PolicyCatalog,
+    product_categories: dict[str, str] | None = None,
+    subject_categories: set[str] | None = None,
 ) -> list[dict]:
+    """`subject_categories` empty or omitted means no subject has been declared,
+    and there is correspondingly no such thing as an off-subject candidate — the
+    category term drops out entirely rather than defaulting to a preference
+    nobody expressed (POL-REC-002, Decision #073).
+    """
     weight_by_priority = {
         priority: Fraction(value).limit_denominator()
         for priority, value in policies.param("POL-REC-002", "priority_weights").items()
     }
+    # Association weights, not one-per-capability. The Requirement→Capability map
+    # has always said which capabilities are Primary; ranking used to discard
+    # that, so a product holding every Primary capability of a Requirement could
+    # score below one holding none of them and more optional extras.
+    weight_by_association = {
+        association: Fraction(value).limit_denominator()
+        for association, value in policies.param("POL-REC-002", "capability_weights").items()
+    }
+    off_subject = Fraction(policies.param("POL-REC-002", "off_subject_factor")).limit_denominator()
+    subject_categories = {c.lower() for c in (subject_categories or set())}
+    product_categories = product_categories or {}
 
     scored: list[tuple[Fraction, int, str, dict]] = []
     for product_id in candidate_ids:
@@ -75,9 +93,14 @@ def rank_products(
 
         for entry in requirements:
             req_id = entry["req_id"]
-            required = set(req_to_cap[req_id])
+            associations = req_to_cap[req_id]
+            required = set(associations)
             supported = required & caps
-            coverage = Fraction(len(supported), len(required))
+            required_weight = sum((weight_by_association[a] for a in associations.values()),
+                                  Fraction(0))
+            supported_weight = sum((weight_by_association[associations[cap]] for cap in supported),
+                                   Fraction(0))
+            coverage = supported_weight / required_weight if required_weight else Fraction(0)
             weight = weight_by_priority[entry["priority"].capitalize()
                                         if entry["priority"].capitalize() in weight_by_priority
                                         else entry["priority"]]
@@ -97,6 +120,14 @@ def rank_products(
                 unsupported.append(req_id)
 
         overall = weighted_sum / weight_total if weight_total else Fraction(0)
+        # Coverage answers "can this product do the job", never "is this the kind
+        # of product I am shopping for". A shopper who has only opened Security
+        # products is not shopping for a productivity suite, however much of the
+        # requirement that suite covers.
+        if subject_categories:
+            category = product_categories.get(product_id, "").lower()
+            if not any(subject in category for subject in subject_categories):
+                overall *= off_subject
         entry = {
             "product_id": product_id,
             "overall_coverage": round(overall * 100),

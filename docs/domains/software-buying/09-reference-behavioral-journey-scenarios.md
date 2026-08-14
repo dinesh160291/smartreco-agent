@@ -507,7 +507,7 @@ Every number in these scenarios is derivable — nothing is illustrative.
 
 - **Requirement confidence** derives from activated Behavioral Hypotheses via the BC → REQ mappings (06) under POL-REQ-003: noisy-OR of (association weight × hypothesis confidence), weights Primary 1.0 / Secondary 0.6 / Supporting 0.3. Requirements publish at ≥ 0.5 (POL-REQ-001); priorities follow POL-REQ-002 bands. Each scenario shows this derivation explicitly.
 - **Required Capabilities per Requirement** come from 07 — Business Requirement to Capability Mapping (all associations: Primary + Secondary + Supporting).
-- **Per-Requirement Coverage** = supported required capabilities ÷ total required capabilities × 100 (Coverage Calculation Model, 05 — Product Capability Profiles), using each product's Supported Capability IDs.
+- **Per-Requirement Coverage** = supported association weight ÷ total association weight × 100 (Coverage Calculation Model, 05 — Product Capability Profiles), using each product's Supported Capability IDs. Each required Capability counts for its association weight — Primary 1.0, Secondary 0.6, Supporting 0.3 (POL-REC-002 `capability_weights`) — not one apiece. Counting them equally let a product holding every Primary Capability of a Requirement score below one holding none of them and more optional extras (Decision #073). Full coverage is still exactly 100% and zero coverage exactly 0%, so every ranking below is unchanged in order and winner; the partial percentages rose.
 - **Overall Coverage** = priority-weighted average of per-Requirement coverage, using POL-REC-002 weights (Critical ×3, High ×2, Medium ×1, Low ×0.5).
 - **Ranking** follows Overall Coverage; ties break per POL-REC-002.
 
@@ -712,9 +712,9 @@ PROD-004   Google Workspace
 PROD-003  (Okta)
 
 REQ-002 coverage: 5/5 = 100%
-REQ-004 coverage: 1/4 = 25%   (has CAP-010)
+REQ-004 coverage: 1.0/3.2 = 31%   (has CAP-010)
 
-Overall (3×1.00 + 1×0.25) ÷ 4 = 81%
+Overall (3×1.00 + 1×0.3125) ÷ 4 = 83%
 
 Satisfied Requirements
 
@@ -732,10 +732,10 @@ CAP-012, CAP-013, CAP-014
 ```text
 PROD-001  (Microsoft 365)
 
-REQ-002 coverage: 3/5 = 60%   (missing CAP-003, CAP-004)
+REQ-002 coverage: 2.3/3.5 = 66%   (missing CAP-003, CAP-004)
 REQ-004 coverage: 4/4 = 100%
 
-Overall (3×0.60 + 1×1.00) ÷ 4 = 70%
+Overall (3×0.657 + 1×1.00) ÷ 4 = 74%
 
 Satisfied Requirements
 
@@ -753,10 +753,10 @@ CAP-003, CAP-004
 ```text
 PROD-004  (Google Workspace)
 
-REQ-002 coverage: 3/5 = 60%   (missing CAP-003, CAP-004)
+REQ-002 coverage: 2.3/3.5 = 66%   (missing CAP-003, CAP-004)
 REQ-004 coverage: 2/4 = 50%   (missing CAP-012, CAP-014)
 
-Overall (3×0.60 + 1×0.50) ÷ 4 = 58%
+Overall (3×0.657 + 1×0.50) ÷ 4 = 62%
 
 Partially Satisfied Requirements
 
@@ -1025,9 +1025,9 @@ PROD-005   Zoom Workplace
 PROD-004  (Google Workspace)
 
 REQ-001 coverage: 7/7 = 100%
-REQ-005 coverage: 4/5 = 80%   (missing CAP-015)
+REQ-005 coverage: 3.2/3.5 = 91%   (missing CAP-015)
 
-Overall (3×1.00 + 2×0.80) ÷ 5 = 92%
+Overall (3×1.00 + 2×0.914) ÷ 5 = 97%
 
 Satisfied Requirements
 
@@ -1045,10 +1045,10 @@ CAP-015
 ```text
 PROD-009  (Notion)
 
-REQ-001 coverage: 1/7 = 14%   (has CAP-007 only)
-REQ-005 coverage: 4/5 = 80%   (missing CAP-015)
+REQ-001 coverage: 1.0/4.8 = 21%   (has CAP-007 only)
+REQ-005 coverage: 3.2/3.5 = 91%   (missing CAP-015)
 
-Overall (3×0.14 + 2×0.80) ÷ 5 = 41%
+Overall (3×0.208 + 2×0.914) ÷ 5 = 49%
 
 Partially Satisfied Requirements
 
@@ -1064,10 +1064,10 @@ CAP-001, CAP-002, CAP-005, CAP-006, CAP-010, CAP-011, CAP-015
 ```text
 PROD-005  (Zoom Workplace)
 
-REQ-001 coverage: 2/7 = 29%   (has CAP-005, CAP-006)
-REQ-005 coverage: 2/5 = 40%   (has CAP-020, CAP-023)
+REQ-001 coverage: 1.2/4.8 = 25%   (has CAP-005, CAP-006)
+REQ-005 coverage: 1.6/3.5 = 46%   (has CAP-020, CAP-023)
 
-Overall (3×0.29 + 2×0.40) ÷ 5 = 33%
+Overall (3×0.25 + 2×0.457) ÷ 5 = 33%
 
 Partially Satisfied Requirements
 
@@ -1328,9 +1328,9 @@ None
 ```text
 PROD-008  (Zapier)
 
-REQ-003 coverage: 4/5 = 80%   (missing CAP-018)
+REQ-003 coverage: 2.9/3.5 = 83%   (missing CAP-018)
 
-Overall (3×0.80) ÷ 3 = 80%
+Overall (3×0.829) ÷ 3 = 83%
 
 Partially Satisfied Requirements
 
@@ -1344,9 +1344,9 @@ CAP-018
 ```text
 PROD-001  (Microsoft 365)
 
-REQ-003 coverage: 3/5 = 60%   (missing CAP-018, CAP-019)
+REQ-003 coverage: 2.6/3.5 = 74%   (missing CAP-018, CAP-019)
 
-Overall (3×0.60) ÷ 3 = 60%
+Overall (3×0.743) ÷ 3 = 74%
 
 Partially Satisfied Requirements
 
@@ -1593,9 +1593,9 @@ None
 ```text
 PROD-010  (Box)
 
-REQ-004 coverage: 3/4 = 75%   (missing CAP-014)
+REQ-004 coverage: 2.6/3.2 = 81%   (missing CAP-014)
 
-Overall (3×0.75) ÷ 3 = 75%
+Overall (3×0.8125) ÷ 3 = 81%
 
 Partially Satisfied Requirements
 

@@ -3607,3 +3607,149 @@ assertions cannot fail for the reason in its own name is worse than no test: it
 occupied the slot where a real one would have gone. It now asserts which journey
 the run used, that all six returning events landed there, and that confidence
 strictly increased.
+
+---
+
+# Decision #073
+
+## The shopper's subject was never the top requirement, in any domain
+
+A live trace reported a purely cyber-security session — five Security-category
+products opened, searches for "cyber", "threat", "Threat Protection" — that
+published Identity Management 0.72 HIGH above Security Operations 0.65 and
+recommended Microsoft 365, CyberArk, LastPass, Okta and Auth0. CrowdStrike and
+SentinelOne did not appear.
+
+Simulating a pure single-subject session in each of the seven research areas
+showed this was not a security defect. In **all seven**, the top published
+Requirement was one the shopper never expressed; Okta or Microsoft 365 took rank
+1 in six of them. Three independent causes, each general.
+
+**1. Evaluation lenses were treated as purchase subjects.** BC-001, BC-002,
+BC-004 and BC-008 describe diligence applied to any candidate in any category.
+They feed the Requirements many Concepts share — Identity Management has five
+feeders, Workflow Automation seven, Regulatory Compliance six — while each
+subject Requirement has one or two. Noisy-OR rewards feeder count, so the
+incidental always out-derived the intentional. POL-REQ-004 demotes lens
+associations one band once a subject is held, and anchors the profile on the
+leading subject's Primary Requirement. The demotion is conditional, which is what
+preserves Scenario 1: that shopper holds no subject, so Security Evaluation still
+publishes Identity Management at 0.80 Critical and Okta still ranks 1.
+
+**2. Coverage discarded the association weights it was given.** The
+Requirement→Capability map has always marked capabilities Primary, Secondary or
+Supporting; ranking counted them equally. Security Operations lists Threat
+Protection and Data Loss Prevention as Primary, Compliance Reporting as
+Secondary, Identity Federation as Supporting — so CrowdStrike, holding **both**
+Primary capabilities, scored 2/4 = 50% while CyberArk, holding one Primary and
+two optional, scored 3/4 = 75%. A product with everything that mattered lost to
+one with less of it. POL-REC-002 now weights coverage by association.
+
+**3. Ranking had no notion of category fit.** Coverage answers "can this product
+do the job", never "is this the kind of product I am shopping for", so Microsoft
+365 took rank 1 on a cyber-security search at 87% on breadth alone. POL-REC-002
+multiplies an off-subject candidate by 0.6, using the categories the held
+subject's own pattern activates on. With no subject held there is no such thing
+as off-subject and the term drops out entirely.
+
+## Cost, paid deliberately
+
+Fix 2 moves the four pinned derivations in domain doc 09. **Every scenario keeps
+its order, its winner and its missing-capability sets**; only partial percentages
+rose, because optional capabilities now count for less than the Primary ones a
+product does hold: Scenario 1 → 83/74/62 (was 81/70/58), Scenario 2 → 97/49/33,
+Scenario 3 → 100/83/74, Scenario 4 → 100/81/50. Docs 05, 09 and 11 are amended in
+this commit rather than the next; the assertions stay exact.
+
+## What the tests nearly missed
+
+The seven-area anchoring tests passed with the lens demotion deleted — banding and
+sort alone put the subject on top, so the arm doing most of the numerical work was
+unpinned. The ordering arm was likewise dead weight against every case then
+written. Both now have tests that fail without them (Identity Management pinned at
+0.51 under a held subject; a 0.50 subject leading a 0.66 lens Requirement). All
+five arms were verified by sabotage.
+
+## Still open
+
+The capability catalog cannot describe endpoint security. CrowdStrike Falcon and
+SentinelOne hold Encryption, Threat Protection and Data Loss Prevention — three
+capabilities, identical to each other and a strict subset of LastPass's eight. In
+the pack's vocabulary CrowdStrike is a worse LastPass, so no ranking change can
+lift it: a security session now returns Vanta, Drata and LastPass. Security
+Operations was given two purpose-built capabilities where People Operations and
+Engineering Delivery each got five. Closing that is catalog work — new
+capabilities, re-profiling, re-embedding — and is deliberately not in this commit.
+
+---
+
+# Decision #074
+
+## The catalog could not describe endpoint security
+
+Decision #073 fixed the reasoning: a cyber-security session now anchors on
+Security Operations and ranks Security-category products. It returned Vanta,
+Drata and LastPass — compliance automation and a password manager — while
+CrowdStrike Falcon and SentinelOne stayed off the list. That last part was not a
+ranking defect. It was the vocabulary.
+
+```
+CrowdStrike Falcon   Encryption, Threat Protection, Data Loss Prevention
+SentinelOne          Encryption, Threat Protection, Data Loss Prevention
+LastPass             ...those three, plus SSO, MFA, SCIM, Conditional Access, Federation
+```
+
+The two archetypal endpoint products held **identical** capability sets, and both
+were a **strict subset** of a password manager's. In the pack's own terms
+CrowdStrike was a worse LastPass, so no ranking rule could honestly lift it.
+
+Two structural causes. Security Operations was described by two purpose-built
+capabilities where People Operations and Engineering Delivery each had five. And
+it made up the difference by borrowing: Compliance Reporting, which is what
+REQ-004 exists for, and **Identity Federation** — an identity capability, whose
+presence in the security requirement is precisely how identity products
+out-covered endpoint-security ones.
+
+## What changed
+
+Four Security capabilities: CAP-059 Endpoint Detection & Response, CAP-060 Threat
+Intelligence, CAP-061 Security Monitoring, CAP-062 Vulnerability Management. None
+is something a suite acquires by being large. REQ-012 is rebuilt from them and no
+longer borrows from any other capability domain — it left the
+`CROSS_DOMAIN_REQUIREMENTS` ratchet by that ratchet's own rule.
+
+Six products re-profiled against what they actually do: CrowdStrike Falcon,
+SentinelOne, Splunk, Vanta, Drata, BrightWatch. Their description, purpose and
+value prose were regenerated with them — CrowdStrike's said its purpose was to
+"help security teams work faster with encryption at the core", which is not what
+CrowdStrike is. No canonical product (PROD-001 … 010) was touched, so the fixture
+behind the pinned derivations is untouched.
+
+The UI vocabulary gained the matching surfaces. The Security & Compliance pane had
+**no threat row at all**, so the security page of every endpoint-security product
+fell to the `compliance` default and voted for Enterprise Evaluation: a shopper
+reading CrowdStrike's security page was emitting evidence that they were vetting a
+vendor's paperwork. `siem` also aliased to "audit logging" — a shopper searching
+SIEM was answered with compliance logging.
+
+## Result
+
+A pure cyber-security session now returns **CrowdStrike Falcon 60%, SentinelOne
+55%**, then Vanta, LastPass, Drata. The other six subject areas are unchanged.
+CrowdStrike is not at 100% because the profile also publishes Regulatory
+Compliance and Identity Management at Medium, which it does not cover — that is
+the ranking working, not failing.
+
+## What the sabotage pass caught
+
+Removing CAP-059 from the security pane left the suite green, because CrowdStrike
+also holds Security Monitoring, which maps to the same topic — redundancy in the
+vocabulary, not a gap in the tests. Removing both threat rows went red, as did
+restoring the old REQ-012 map and stripping CrowdStrike's endpoint capability.
+
+## Still thin
+
+The catalog holds six Security-category products against 240 total, and only two
+of them are endpoint tools. The reasoning is now correct; the roster is narrow
+enough that a demo browsing security sees a short list. Widening it is catalog
+work, not a defect in the pack.

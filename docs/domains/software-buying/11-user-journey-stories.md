@@ -37,7 +37,7 @@ deliberately a repeat, and contributes half.
 
 **Expected pipeline:** BP-001 fires (Medium→Strong with dwell), BP-002 fires (enterprise tier + admin docs) → BC-001 0.80, BC-002 0.70 → REQ-002 0.80 Critical, REQ-004 0.56 Medium, REQ-001 0.48 **held** → stage Technical Validation → retrieval + match.
 
-**Expected outcome:** For-you page READY. **Okta rank 1 (81%)**, Microsoft 365 rank 2 (70%), Google Workspace rank 3 (58%). Persuasive narrative references *this user's* security/SSO research and names the SCIM/provisioning advantage; plain language only. Reasoning Panel (admin) shows both hypotheses, the held REQ-001 at 0.48, stage chip on Technical Validation.
+**Expected outcome:** For-you page READY. **Okta rank 1 (83%)**, Microsoft 365 rank 2 (74%), Google Workspace rank 3 (62%). Persuasive narrative references *this user's* security/SSO research and names the SCIM/provisioning advantage; plain language only. Reasoning Panel (admin) shows both hypotheses, the held REQ-001 at 0.48, stage chip on Technical Validation.
 
 **Failure looks like:** M365 ranked first (priority weighting broken) · narrative cites facts not in Runtime Objects · REQ-001 published · CAP codes visible on For-you.
 
@@ -51,7 +51,7 @@ deliberately a repeat, and contributes half.
 
 **Expected pipeline:** BP-005 (0.8), BP-006 (0.5), BP-003 (0.5) → REQ-001 0.83 Critical, REQ-005 0.75 High, REQ-003 0.41 held.
 
-**Expected outcome:** **Google Workspace 92%**, Notion 41%, Zoom 33% (exact, per Scenario 2), ranked in that relative order. Broad-suite products whose profiles fully cover both requirements (Microsoft 365 at 100%) may legitimately rank above Google Workspace over the full catalog — the Scenario 2 derivation evaluated only the three products above, and the deterministic ranker must not be bent to exclude a product that honestly covers more (Decision #037). Narrative connects collaboration consolidation + AI curiosity. Workflow-automation products (ServiceNow, Zapier) absent from the top 3.
+**Expected outcome:** **Google Workspace 97%**, Notion 49%, Zoom 33% (exact, per Scenario 2), ranked in that relative order. Broad-suite products whose profiles fully cover both requirements (Microsoft 365 at 100%) may legitimately rank above Google Workspace over the full catalog — the Scenario 2 derivation evaluated only the three products above, and the deterministic ranker must not be bent to exclude a product that honestly covers more (Decision #037). Narrative connects collaboration consolidation + AI curiosity. Workflow-automation products (ServiceNow, Zapier) absent from the top 3.
 
 **Failure looks like:** REQ-003 published from secondary/supporting signals alone · automation products recommended.
 

@@ -10,7 +10,7 @@ from smartreco.policies import PolicyError, load_policies
 CATALOG_V1_IDS = [
     "POL-BEH-001", "POL-BEH-002",
     "POL-CONF-001", "POL-CONF-002", "POL-CONF-003", "POL-CONF-004", "POL-CONF-005",
-    "POL-REQ-001", "POL-REQ-002", "POL-REQ-003",
+    "POL-REQ-001", "POL-REQ-002", "POL-REQ-003", "POL-REQ-004",
     "POL-STAGE-001", "POL-STAGE-002",
     "POL-REC-001", "POL-REC-002", "POL-REC-003", "POL-REC-004",
     "POL-RETR-001", "POL-RETR-002", "POL-RETR-003", "POL-RETR-004", "POL-RETR-005",
@@ -30,6 +30,12 @@ def catalog():
 
 
 def test_catalog_version_is_recorded(catalog):
+    # v1.8: POL-REQ-004 is new (subject anchoring) and POL-REC-002 gained
+    # capability_weights + off_subject_factor (#073). Both change what a run
+    # concludes, not merely how fast it gets there — the four doc 09 derivations
+    # publish different percentages under v1.8 than under v1.7, with the same
+    # ordering, so policy_version is the only thing distinguishing a package
+    # produced before the change from one produced after.
     # v1.7: POL-JRES-001's recent_window_events changed meaning (#072) — it
     # bounds the journey's own history; the settled block is now "now".
     # v1.6: POL-STAGE-001 gained the evidence-free milestone arm and
@@ -43,7 +49,7 @@ def test_catalog_version_is_recorded(catalog):
     # produced it — #056 shipped without bumping it and the omission cost a
     # debugging round, because policy_version 1.4 could not distinguish a
     # server running the fork from one that was not.
-    assert catalog.version == "1.7"
+    assert catalog.version == "1.8"
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
     assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 45
     assert catalog.param("POL-TRIG-001", "unprocessed_event_threshold") == 3

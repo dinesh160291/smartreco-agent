@@ -142,8 +142,8 @@ def test_story2_collaboration_modernizer(seeded, chroma, backend, policies, fake
     rank = {e["product_id"]: e["rank"] for e in pkg.entries}
     # Scenario 2 exact coverages (Decision #037: exact numbers + relative order;
     # full-coverage products may rank above)
-    assert coverage["PROD-004"] == 92
-    assert coverage["PROD-009"] == 41
+    assert coverage["PROD-004"] == 97
+    assert coverage["PROD-009"] == 49
     assert coverage["PROD-005"] == 33
     assert rank["PROD-004"] < rank["PROD-009"] < rank["PROD-005"]
     top3 = [e["product_id"] for e in pkg.entries[:3]]

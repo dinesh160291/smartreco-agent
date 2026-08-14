@@ -1127,7 +1127,7 @@ Coverage Percentage is never stored within Product Capability Profiles.
 
 Coverage Percentage is calculated dynamically during recommendation generation.
 
-Future Decision Policies may extend the Coverage Calculation Model with weighted or policy-driven scoring while preserving backward compatibility.
+POL-REC-002 extends the Coverage Calculation Model with weighted scoring: a required Capability contributes its association weight (Primary 1.0, Secondary 0.6, Supporting 0.3) rather than one apiece, so a product holding a Requirement's Primary Capabilities cannot be outscored by one holding only its optional ones (Decision #073). Full and zero coverage are unchanged; partial coverage is not.
 
 ---
 

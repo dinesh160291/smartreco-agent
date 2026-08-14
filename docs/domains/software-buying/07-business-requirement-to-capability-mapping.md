@@ -1098,10 +1098,20 @@ REQ-011  Data & Insight
   Secondary   CAP-053 Data Visualization
 
 REQ-012  Security Operations
-  Primary     CAP-025 Threat Protection / CAP-026 Data Loss Prevention
-  Secondary   CAP-027 Compliance Reporting
-  Supporting  CAP-008 Identity Federation
+  Primary     CAP-059 Endpoint Detection & Response / CAP-025 Threat Protection
+  Secondary   CAP-060 Threat Intelligence / CAP-061 Security Monitoring
+  Supporting  CAP-062 Vulnerability Management / CAP-026 Data Loss Prevention
 ```
+
+**REQ-012 no longer borrows (Decision #074).** v1.2 built it from Compliance
+Reporting and Identity Federation because the pack had no security-operations
+vocabulary of its own. The identity capability was the more expensive of the two:
+it let identity products out-cover endpoint-security ones on the security
+requirement, and CrowdStrike Falcon and SentinelOne — holding both Primary
+capabilities — scored below CyberArk, which held one Primary and two optional.
+The v1.3 capabilities (CAP-059 … CAP-062) say what detecting and responding to
+threats requires, and all six of REQ-012's capabilities are now Security
+capabilities. Compliance Reporting is what REQ-004 is for.
 
 **Two capabilities remain in no requirement:** CAP-009 File Sharing and CAP-024
 AI Workflow Assistance. Both belong to existing requirements' domains, so

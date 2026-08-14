@@ -13,7 +13,7 @@ Domain Pack v1 values (doc 02: "the numbers are their v1 defaults").
 
 from smartreco.domain.software_buying.patterns import ADOPTION_DOC_TOPICS, BP011_TRIGGERS, DOMAIN_RESEARCH_PATTERNS
 
-DOMAIN_PACK_VERSION = "1.0"
+DOMAIN_PACK_VERSION = "1.3"   # v1.3 adds the security-operations vocabulary (Decision #074)
 
 # ---- Behavioral Concept Registry (doc 01) ----
 
@@ -206,6 +206,31 @@ CAPABILITIES: list[tuple[str, str, str, str]] = [
      "Removes the blank page: proven structures are reused instead of reinvented."),
     ("CAP-058", "Workload Management", "Work Management",
      "Makes capacity visible so commitments match the team that has to deliver them."),
+    # ---- v1.3 extension: security operations vocabulary (Decision #074) ----
+    #
+    # Security Operations was the only subject area described by two purpose-built
+    # capabilities where People Operations and Engineering Delivery had five. The
+    # cost was that the pack could not tell an endpoint-security product from a
+    # password manager: CrowdStrike Falcon and SentinelOne each held exactly
+    # Encryption, Threat Protection and Data Loss Prevention — identical to one
+    # another and a strict subset of LastPass's eight — so a shopper researching
+    # endpoint security was correctly routed to the Security category and then
+    # ranked below products that merely held more of the same three.
+    #
+    # These four say what a security-operations product actually does, and none
+    # of them is something a suite acquires by being large.
+    ("CAP-059", "Endpoint Detection & Response", "Security",
+     "Catches the attack already inside the estate, on the device where it lands, "
+     "and gives responders somewhere to act."),
+    ("CAP-060", "Threat Intelligence", "Security",
+     "Turns what is known about attackers elsewhere into defenses that are already "
+     "in place when they arrive here."),
+    ("CAP-061", "Security Monitoring", "Security",
+     "Collects and correlates security signal continuously, so detection does not "
+     "depend on someone happening to look."),
+    ("CAP-062", "Vulnerability Management", "Security",
+     "Finds the exposures before an attacker does and puts them in an order somebody "
+     "can actually work through."),
 ]
 
 # ---- Buyer shorthand (doc 10 § Buyer Shorthand) ----
@@ -225,7 +250,9 @@ SEARCH_ALIASES: dict[str, str] = {
     "iam": "identity access management",
     "rbac": "conditional access",
     "dlp": "data loss prevention",
-    "siem": "audit logging",
+    # Was "audit logging" while the pack had no security-monitoring capability to
+    # point at; a shopper searching SIEM was answered with compliance logging.
+    "siem": "security monitoring",
     "cicd": "ci cd pipelines",
 }
 
@@ -264,6 +291,44 @@ BC_TO_REQ: dict[str, dict[str, str]] = {
     "BC-023": {"REQ-010": "Primary", "REQ-011": "Secondary", "REQ-003": "Supporting"},
     "BC-024": {"REQ-011": "Primary", "REQ-005": "Secondary"},
     "BC-025": {"REQ-012": "Primary", "REQ-004": "Secondary", "REQ-002": "Supporting"},
+}
+
+# ---- Subjects and evaluation lenses (POL-REQ-004; doc 06 §Association classes) ----
+#
+# The four concepts below say nothing about *what* the shopper wants. Security
+# posture, enterprise readiness, regulatory fit and integration fit are things a
+# careful buyer checks about any candidate, in any category — an HR buyer reads
+# the security page of an HR product, and that is not a request for identity
+# software.
+#
+# Mapped at full strength they outvoted the subject in every one of the seven
+# domain areas, because the requirements they feed are fed by many concepts
+# (Identity Management 5, Workflow Automation 7, Regulatory Compliance 6) while
+# each subject requirement is fed by one or two. Under noisy-OR, feeder count
+# alone decided the top requirement, and the answer was "Identity Management"
+# whether the shopper was researching payroll, dashboards or endpoint security
+# (Decision #073).
+#
+# So the demotion is conditional, not absolute: while no subject is declared
+# these concepts still derive requirements on their own — that is Scenario 1,
+# where Security Evaluation genuinely *is* the subject and must keep publishing
+# Identity Management at Critical.
+EVALUATION_LENS_CONCEPTS = frozenset({"BC-001", "BC-002", "BC-004", "BC-008"})
+
+# {subject concept: the Requirement it is the Primary evidence for}. Derived
+# from BC_TO_REQ rather than restated, so a new subject pattern cannot acquire
+# an anchor that disagrees with the mapping it was declared in.
+SUBJECT_REQUIREMENT: dict[str, str] = {
+    bc: next(req for req, assoc in BC_TO_REQ[bc].items() if assoc == "Primary")
+    for _pattern, bc, *_rest in DOMAIN_RESEARCH_PATTERNS
+}
+
+# {subject concept: product categories that subject is shopped in} — the same
+# categories the pattern activates on, so "what the shopper researched" and
+# "what counts as on-subject when ranking" cannot drift apart.
+SUBJECT_CATEGORIES: dict[str, frozenset[str]] = {
+    bc: frozenset(categories)
+    for _pattern, bc, _topics, categories, _terms in DOMAIN_RESEARCH_PATTERNS
 }
 
 # ---- REQ → CAP Mapping (doc 07 — all associations are "required") ----
@@ -335,11 +400,17 @@ REQ_TO_CAP: dict[str, dict[str, str]] = {
         "CAP-054": "Primary", "CAP-055": "Primary",
         "CAP-053": "Secondary",
     },
-    # Four capabilities stranded inside the *original* domains. Housing them in
-    # a new requirement reaches them without editing a frozen set.
+    # v1.2 housed four capabilities stranded inside the *original* domains here,
+    # to reach them without editing a frozen set. Two of those four described the
+    # wrong thing: Compliance Reporting is what REQ-004 is for, and Identity
+    # Federation is an identity capability whose presence let identity products
+    # out-cover endpoint-security ones on the security requirement. Both are gone,
+    # replaced by the v1.3 vocabulary that says what detecting and responding to
+    # threats actually requires (Decision #074).
     "REQ-012": {
-        "CAP-025": "Primary", "CAP-026": "Primary",
-        "CAP-027": "Secondary", "CAP-008": "Supporting",
+        "CAP-059": "Primary", "CAP-025": "Primary",
+        "CAP-060": "Secondary", "CAP-061": "Secondary",
+        "CAP-062": "Supporting", "CAP-026": "Supporting",
     },
     "REQ-005": {
         "CAP-020": "Primary", "CAP-021": "Primary",

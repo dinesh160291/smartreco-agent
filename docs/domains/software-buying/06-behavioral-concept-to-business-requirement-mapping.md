@@ -524,6 +524,20 @@ Regulatory Compliance
 
 ---
 
+# Subjects and Evaluation Lenses
+
+Association level says how strongly a Behavioral Concept implies a Business Requirement. It does not say whether the Concept describes **what the shopper is shopping for** or **how they are vetting a candidate**. Those are different claims, and conflating them made the platform answer a question nobody asked.
+
+A **subject** Concept states the object of the search: BC-019 through BC-025 (CRM, People Operations, Financial, Marketing, Engineering Delivery, Data & Insight, Security Operations).
+
+An **evaluation lens** Concept states diligence applied to any candidate, in any category — BC-001 Security Evaluation, BC-002 Enterprise Evaluation, BC-004 Compliance Evaluation, BC-008 Integration Evaluation. An HR buyer reads the security page of an HR product; that is not a request for identity software.
+
+Mapped at full strength, the lenses out-derived every subject. The Requirements they feed are fed by many Concepts — Identity Management by five, Workflow Automation by seven, Regulatory Compliance by six — while each subject Requirement is fed by one or two. Under noisy-OR (POL-REQ-003) feeder count alone decided the top Requirement, and in all seven research areas the answer was Identity Management, whether the shopper was researching payroll, dashboards or endpoint security.
+
+POL-REQ-004 resolves this without unmapping anything. While no subject is held, lenses derive Requirements exactly as this document has always specified — that is Scenario 1, where Security Evaluation genuinely *is* the subject and must keep publishing Identity Management at Critical. Once a subject is held, every lens association is demoted one band, and the Primary Requirement of the most strongly held subject anchors the profile. See Decision #073.
+
+---
+
 # Relationship Hierarchy
 
 A single Behavioral Concept may contribute to multiple Business Requirements.

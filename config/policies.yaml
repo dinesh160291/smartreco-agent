@@ -6,7 +6,7 @@
 # changes the decisions a run produces, and policy_version is how that run says
 # which build of the rules produced it.
 
-catalog_version: "1.7"
+catalog_version: "1.8"
 
 policies:
 
@@ -108,6 +108,27 @@ policies:
         Supporting: 0.3
       combination: noisy_or
 
+  POL-REQ-004:
+    name: Subject anchoring
+    category: requirement
+    rule: >-
+      A Behavioral Concept that states what the shopper is shopping for is a *subject*; one that
+      states how they vet a candidate (security posture, enterprise readiness, regulatory fit,
+      integration fit) is an *evaluation lens*. While no subject is held above
+      subject_min_confidence, both contribute at their mapped association. Once any subject is
+      held, every lens association is demoted one band by lens_demotion. The Primary Requirement
+      of the *most strongly held* subject (all of them, on a tie) is banded subject_priority
+      regardless of its derived confidence and sorts first — the shopper told us why they are
+      here, so that Requirement anchors the ranking. A more weakly held second subject bands by
+      its own confidence as usual.
+    params:
+      subject_min_confidence: 0.5
+      subject_priority: CRITICAL
+      lens_demotion:
+        Primary: Secondary
+        Secondary: Supporting
+        Supporting: Supporting
+
   POL-STAGE-001:
     name: Stage advancement
     category: stage
@@ -145,13 +166,24 @@ policies:
   POL-REC-002:
     name: Ranking
     category: recommendation
-    rule: "Rank by weighted coverage: Critical x3, High x2, Medium x1, Low x0.5; tie-break on total capability count, then Product ID"
+    rule: >-
+      Rank by weighted coverage: Critical x3, High x2, Medium x1, Low x0.5. Within a Requirement,
+      each required Capability counts for capability_weights[association] rather than one apiece —
+      a product holding both Primary Capabilities must outscore one holding neither plus two
+      optional ones. A candidate outside every category the shopper has been researching is
+      multiplied by off_subject_factor: coverage says a product *can* do the job, not that it is
+      the kind of product being shopped for. Tie-break on total capability count, then Product ID.
     params:
       priority_weights:
         Critical: 3
         High: 2
         Medium: 1
         Low: 0.5
+      capability_weights:
+        Primary: 1.0
+        Secondary: 0.6
+        Supporting: 0.3
+      off_subject_factor: 0.6
       tie_breakers: [total_capability_count, product_id]
 
   POL-REC-003:

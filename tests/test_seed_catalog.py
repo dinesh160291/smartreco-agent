@@ -210,8 +210,11 @@ CROSS_DOMAIN_REQUIREMENTS = {
     "REQ-001": "Secure Collaboration is collaboration plus the security that makes it safe",
     "REQ-002": "identity governance rests on audit logging",
     "REQ-005": "AI Assistance includes automating what the AI drafts",
-    "REQ-012": "houses Compliance Reporting and Identity Federation, which are "
-               "otherwise stranded in frozen requirements' domains",
+    # REQ-012 removed by the ratchet's own rule (Decision #074). It borrowed
+    # Compliance Reporting and Identity Federation only because the pack had no
+    # security-operations vocabulary of its own; the identity capability was also
+    # how identity products out-covered endpoint-security ones on the security
+    # requirement. All six of its capabilities are now Security capabilities.
 }
 
 

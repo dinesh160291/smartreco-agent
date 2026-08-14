@@ -670,6 +670,7 @@ The following are the platform's initial published policy values. They are confi
 | POL-REQ-001 | Requirement publication | Include a Requirement when derived confidence ≥ 0.5 |
 | POL-REQ-002 | Priority bands | Critical ≥ 0.8 with stage ≥ Technical Validation; High ≥ 0.65; Medium ≥ 0.5; else Low |
 | POL-REQ-003 | Requirement confidence derivation | Each active Hypothesis contributes (association weight × hypothesis confidence) to its mapped Requirements — weights: Primary 1.0, Secondary 0.6, Supporting 0.3. Contributions combine via noisy-OR: confidence = 1 − ∏(1 − wᵢ·cᵢ). Retired hypotheses contribute nothing |
+| POL-REQ-004 | Subject anchoring | A Behavioral Concept states either what the shopper is shopping for (a *subject*) or how they vet a candidate (an *evaluation lens*). While no subject is held above 0.5 both contribute at their mapped association. Once any subject is held, every lens association is demoted one band (Primary→Secondary→Supporting); the Primary Requirement of the most strongly held subject — all of them on a tie — is banded CRITICAL regardless of derived confidence and sorts first. A more weakly held second subject bands by its own confidence |
 | POL-STAGE-001 | Stage advancement | Current stage = highest stage whose Domain Pack milestone is satisfied (Software Buying: 00 — §4.1 Stage Qualification Milestones) with stage confidence ≥ 0.6, where stage confidence = max confidence among hypotheses supported by the milestone-satisfying Evidence. A milestone offering an evidence-free arm is satisfied by that arm at stage confidence 0.0 whenever its Evidence arm fails the threshold — acquiring Evidence never lowers a stage |
 | POL-STAGE-002 | Stage regression | Regress on 3 consecutive high-signal events characteristic of an earlier stage. A regression may only lower the journey's recorded stage; where the regressed stage is not strictly earlier than the recorded one, no regression applies. Advancement is POL-STAGE-001's alone |
 
@@ -678,7 +679,7 @@ The following are the platform's initial published policy values. They are confi
 | Policy ID | Policy | v1 Value |
 |---|---|---|
 | POL-REC-001 | Recommendation Readiness | READY when ≥ 1 Requirement at confidence ≥ 0.6 AND journey has ≥ 5 high-signal events |
-| POL-REC-002 | Ranking | Rank by weighted coverage: Critical ×3, High ×2, Medium ×1, Low ×0.5; tie-break on total capability count, then Product ID |
+| POL-REC-002 | Ranking | Rank by weighted coverage: Critical ×3, High ×2, Medium ×1, Low ×0.5. Within a Requirement each required Capability counts for its association weight — Primary 1.0, Secondary 0.6, Supporting 0.3 — not one apiece. A candidate outside every category the shopper has been researching is multiplied by 0.6; with no subject held the term drops out. Tie-break on total capability count, then Product ID |
 | POL-REC-003 | Publication | Publish top 3 entries; include up to 2 alternatives |
 | POL-REC-004 | Constraint derivation | Budget Unknown when the journey contains no PRICING_VIEWED events; additional constraint rules (deployment preference, team size, data residency) deferred to v1.1 |
 

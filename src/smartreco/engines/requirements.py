@@ -2,6 +2,9 @@
 
 POL-REQ-003: each active hypothesis contributes (association weight × confidence)
 to its mapped requirements; contributions combine via noisy-OR.
+POL-REQ-004: once the shopper has declared a subject, evaluation-lens concepts
+are demoted one association band and the subject's own requirement is banded
+Critical.
 POL-REQ-001: publish at derived confidence ≥ threshold.
 POL-REQ-002: priority bands (Critical additionally requires stage ≥ Technical
 Validation). Pure function; retired hypotheses are simply absent from the input.
@@ -30,10 +33,31 @@ def derive_requirements(
 
     stage_allows_critical = domain.stage_index(current_stage) >= _critical_stage_index(critical_stage)
 
+    subject_min = policies.param("POL-REQ-004", "subject_min_confidence")
+    demotion = policies.param("POL-REQ-004", "lens_demotion")
+    subject_priority = policies.param("POL-REQ-004", "subject_priority")
+
+    # POL-REQ-004. A held subject says what the shopper is shopping for; the
+    # evaluation lenses say how they are vetting it. While both feed requirements
+    # at full strength the lenses win on feeder count alone — they are mapped
+    # into the requirements many concepts share, and noisy-OR rewards that.
+    subjects = {bc: confidence for bc, confidence in active_hypotheses.items()
+                if bc in domain.SUBJECT_REQUIREMENT and confidence >= subject_min}
+    # Only the *leading* subject anchors. A shopper can hold two subjects at
+    # once — a CRM buyer often also wants marketing reach — and banding a
+    # just-past-the-floor second interest Critical alongside a 0.80 primary one
+    # erases the difference between why they are here and what else caught their
+    # eye (doc 09 Scenario 5). Ties all anchor: equally held is equally the reason.
+    leading = max(subjects.values(), default=0.0)
+    anchored = {domain.SUBJECT_REQUIREMENT[bc]
+                for bc, confidence in subjects.items() if confidence == leading}
+
     # Collect weighted contributions per requirement
     contributions: dict[str, list[tuple[str, str, float, float]]] = {}
     for bc_id, confidence in active_hypotheses.items():
         for req_id, association in bc_to_req.get(bc_id, {}).items():
+            if subjects and bc_id in domain.EVALUATION_LENS_CONCEPTS:
+                association = demotion[association]
             weight = weights[association]
             contributions.setdefault(req_id, []).append((bc_id, association, weight, confidence))
 
@@ -45,7 +69,11 @@ def derive_requirements(
         raw = 1.0 - survival
         if raw < publish_min:
             continue
-        if raw >= critical_min and stage_allows_critical:
+        if req_id in anchored:
+            # The shopper told us why they are here. That is not a confidence
+            # estimate to be out-banded by a requirement they never expressed.
+            priority = subject_priority
+        elif raw >= critical_min and stage_allows_critical:
             priority = "CRITICAL"
         elif raw >= high_min:
             priority = "HIGH"
@@ -63,7 +91,9 @@ def derive_requirements(
             "explanation": f"{terms} combined via noisy-OR (POL-REQ-003) = {round(raw, 4)}",
         })
 
-    profile.sort(key=lambda entry: (-entry["confidence"], entry["req_id"]))
+    # Anchors lead (POL-REQ-004); the rest by confidence, then id, as before.
+    profile.sort(key=lambda entry: (entry["req_id"] not in anchored,
+                                    -entry["confidence"], entry["req_id"]))
     return profile
 
 

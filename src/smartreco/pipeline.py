@@ -27,7 +27,8 @@ from smartreco.advisor import (
     generate_sections,
 )
 from smartreco.domain.software_buying import (
-    BC_TO_REQ, CAPABILITIES, INTENT_CONCEPTS, REQ_TO_CAP, REQUIREMENTS)
+    BC_TO_REQ, CAPABILITIES, INTENT_CONCEPTS, REQ_TO_CAP, REQUIREMENTS,
+    SUBJECT_CATEGORIES)
 from smartreco.engines.confidence import EvidenceInput, compute_confidence
 from smartreco.engines.journey_resolution import resolve, subject_abandoned
 from smartreco.engines.learning import derive_traits, reinforced_strength
@@ -807,8 +808,21 @@ def stage_match(ctx: WorkflowContext, state: dict) -> bool:
                     models.ProductCapability.product_id == product_id)
             ).scalars().all()
             product_caps[product_id] = set(caps)
+        product_categories = dict(db.execute(
+            select(models.Product.product_id, models.Product.category).where(
+                models.Product.product_id.in_(list(candidate_ids)))
+        ).all())
+        # The categories the shopper's held subjects are shopped in (POL-REC-002).
+        # Empty while no subject is held, which switches the term off entirely.
+        subject_min = ctx.policies.param("POL-REQ-004", "subject_min_confidence")
+        subject_categories: set[str] = set()
+        for bc_id, confidence in state["active"].items():
+            if confidence >= subject_min:
+                subject_categories |= set(SUBJECT_CATEGORIES.get(bc_id, ()))
         entries = rank_products(state["requirements"], list(candidate_ids),
-                                product_caps, REQ_TO_CAP, ctx.policies)
+                                product_caps, REQ_TO_CAP, ctx.policies,
+                                product_categories=product_categories,
+                                subject_categories=subject_categories)
         top = ctx.policies.param("POL-REC-003", "top_entries")
         alternatives = ctx.policies.param("POL-REC-003", "max_alternatives")
         published_entries = entries[: top + alternatives]

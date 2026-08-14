@@ -96,6 +96,10 @@ Every Capability entry defines:
 | CAP-056 | Task Management | Work Management |
 | CAP-057 | Template Library | Work Management |
 | CAP-058 | Workload Management | Work Management |
+| CAP-059 | Endpoint Detection & Response | Security |
+| CAP-060 | Threat Intelligence | Security |
+| CAP-061 | Security Monitoring | Security |
+| CAP-062 | Vulnerability Management | Security |
 
 ---
 
@@ -406,6 +410,10 @@ Three capabilities, append-only, in a new **Work Management** Capability Domain.
 | CAP-056 | Task Management | Work Management |
 | CAP-057 | Template Library | Work Management |
 | CAP-058 | Workload Management | Work Management |
+| CAP-059 | Endpoint Detection & Response | Security |
+| CAP-060 | Threat Intelligence | Security |
+| CAP-061 | Security Monitoring | Security |
+| CAP-062 | Vulnerability Management | Security |
 
 **Why they were needed.** Work Management was a product *category* with 31
 products across it and no capabilities of its own, so each product described

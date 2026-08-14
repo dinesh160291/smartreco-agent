@@ -729,9 +729,9 @@
       "name": "Splunk",
       "vendor": "Cisco",
       "category": "DevOps",
-      "description": "Splunk is a devops platform offering Encryption, Event Triggers, API Integration, Intelligent Search, Threat Protection.",
-      "business_purpose": "Help devops teams work faster with encryption at the core.",
-      "business_value_narrative": "Splunk enhances security through encryption and threat protection while providing robust CI/CD pipeline capabilities.",
+      "description": "Splunk is a devops platform offering Security Monitoring, Threat Intelligence, Threat Protection, Intelligent Search, Log Management.",
+      "business_purpose": "Collect security and operational signal in one place so detection does not depend on someone happening to look.",
+      "business_value_narrative": "Splunk ingests and correlates security events across the estate, turning scattered logs into detections analysts can investigate.",
       "capabilities": [
         "CAP-011",
         "CAP-017",
@@ -740,7 +740,9 @@
         "CAP-025",
         "CAP-026",
         "CAP-050",
-        "CAP-053"
+        "CAP-053",
+        "CAP-060",
+        "CAP-061"
       ],
       "fictional": false
     },
@@ -1547,13 +1549,17 @@
       "name": "CrowdStrike Falcon",
       "vendor": "CrowdStrike",
       "category": "Security",
-      "description": "CrowdStrike Falcon is a security platform offering Encryption, Threat Protection, Data Loss Prevention.",
-      "business_purpose": "Help security teams work faster with encryption at the core.",
-      "business_value_narrative": "CrowdStrike Falcon protects against threats with advanced encryption and data loss prevention features.",
+      "description": "CrowdStrike Falcon is a security platform offering Endpoint Detection & Response, Threat Protection, Threat Intelligence, Security Monitoring, Vulnerability Management.",
+      "business_purpose": "Detect and stop attacks on the endpoints where they land, before they become an incident.",
+      "business_value_narrative": "CrowdStrike Falcon watches every endpoint continuously, correlates what it sees against intelligence on active attackers, and gives responders a place to contain the ones that get through.",
       "capabilities": [
         "CAP-011",
         "CAP-025",
-        "CAP-026"
+        "CAP-026",
+        "CAP-059",
+        "CAP-060",
+        "CAP-061",
+        "CAP-062"
       ],
       "fictional": false
     },
@@ -1562,13 +1568,16 @@
       "name": "SentinelOne",
       "vendor": "SentinelOne",
       "category": "Security",
-      "description": "SentinelOne is a security platform offering Encryption, Threat Protection, Data Loss Prevention.",
-      "business_purpose": "Help security teams work faster with encryption at the core.",
-      "business_value_narrative": "SentinelOne delivers ongoing threat protection focused on encryption and data integrity.",
+      "description": "SentinelOne is a security platform offering Endpoint Detection & Response, Threat Protection, Threat Intelligence, Security Monitoring, Data Loss Prevention.",
+      "business_purpose": "Give security teams autonomous detection and response across the endpoint estate.",
+      "business_value_narrative": "SentinelOne detects attacks on the device itself and acts on them without waiting for an analyst, backed by continuous monitoring and current threat intelligence.",
       "capabilities": [
         "CAP-011",
         "CAP-025",
-        "CAP-026"
+        "CAP-026",
+        "CAP-059",
+        "CAP-060",
+        "CAP-061"
       ],
       "fictional": false
     },
@@ -1577,9 +1586,9 @@
       "name": "Vanta",
       "vendor": "Vanta",
       "category": "Security",
-      "description": "Vanta is a security platform offering Encryption, Information Governance, Data Retention, eDiscovery, Threat Protection.",
-      "business_purpose": "Help security teams work faster with encryption at the core.",
-      "business_value_narrative": "Vanta strengthens data governance through encryption and comprehensive compliance mechanisms.",
+      "description": "Vanta is a security platform offering Information Governance, Compliance Reporting, Vulnerability Management, Data Retention, eDiscovery.",
+      "business_purpose": "Keep security controls continuously evidenced rather than reconstructed before an audit.",
+      "business_value_narrative": "Vanta monitors controls and exposures continuously and keeps the evidence current, so compliance status is demonstrable at any moment rather than assembled under deadline.",
       "capabilities": [
         "CAP-011",
         "CAP-012",
@@ -1587,7 +1596,8 @@
         "CAP-014",
         "CAP-025",
         "CAP-026",
-        "CAP-027"
+        "CAP-027",
+        "CAP-062"
       ],
       "fictional": false
     },
@@ -1596,16 +1606,17 @@
       "name": "Drata",
       "vendor": "Drata",
       "category": "Security",
-      "description": "Drata is a security platform offering Audit Logging, Encryption, eDiscovery, Threat Protection, Data Loss Prevention.",
-      "business_purpose": "Help security teams work faster with audit logging at the core.",
-      "business_value_narrative": "Drata enhances security compliance with efficient audit logging and threat protection measures.",
+      "description": "Drata is a security platform offering Compliance Reporting, Vulnerability Management, Audit Logging, eDiscovery, Data Loss Prevention.",
+      "business_purpose": "Automate the evidence-gathering that compliance frameworks demand.",
+      "business_value_narrative": "Drata watches controls and exposures on an ongoing basis and assembles the audit trail as it goes, replacing the scramble before each assessment.",
       "capabilities": [
         "CAP-010",
         "CAP-011",
         "CAP-014",
         "CAP-025",
         "CAP-026",
-        "CAP-027"
+        "CAP-027",
+        "CAP-062"
       ],
       "fictional": false
     },
@@ -2366,13 +2377,14 @@
       "name": "BrightWatch",
       "vendor": "Bright Labs",
       "category": "DevOps",
-      "description": "BrightWatch is a devops platform offering Threat Protection, Data Loss Prevention, CI/CD Pipelines.",
-      "business_purpose": "Give devops teams threat protection without the overhead.",
-      "business_value_narrative": "BrightWatch gives devops teams a dependable home for their work, leading with threat protection, data loss prevention, ci/cd pipelines.",
+      "description": "BrightWatch is a devops platform offering Security Monitoring, Threat Protection, Data Loss Prevention, CI/CD Pipelines.",
+      "business_purpose": "Watch build and runtime security signal in one pane.",
+      "business_value_narrative": "BrightWatch keeps continuous watch over pipeline and runtime security events so problems surface while they are still cheap to fix.",
       "capabilities": [
         "CAP-025",
         "CAP-026",
-        "CAP-048"
+        "CAP-048",
+        "CAP-061"
       ],
       "fictional": true
     },
