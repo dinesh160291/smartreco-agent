@@ -3808,3 +3808,31 @@ This is the second commit in a row to move those numbers. That is the price of
 having pinned exact percentages to a coverage model still being corrected; the
 ordering assertions, which are what the stories actually promise, have not moved
 once.
+
+---
+
+# Decision #076
+
+## Coverage percentages stay pinned exactly
+
+Three commits in a row moved the percentages in doc 09's derivations, each time
+because the Coverage Calculation Model itself was being corrected — association
+weighting (#073), the security-operations remap (#074), rehoming two capabilities
+(#075). Ordering, winners and requirement sets survived all three untouched,
+which raised the question of whether the exact numbers are worth their
+maintenance and whether ordering plus a tolerance would be the honest contract.
+
+**Decided: keep them exact.** Ordering plus tolerance is too loose.
+
+The percentages are not decoration on the derivations — they *are* the
+derivation. Doc 09 shows the arithmetic term by term and the assertion is what
+proves the code computes that arithmetic and no other. A tolerance admits any
+change small enough to hide inside it, and the flat-counting bug this all started
+with was exactly that shape: a coverage model that had silently stopped honouring
+its own association weights, visible as a few points of drift and nothing else.
+Ordering would not have caught it — CrowdStrike and CyberArk were in the wrong
+order for a *different* reason, which is why it survived so long.
+
+The maintenance cost is the intended cost. A change that moves a published
+percentage is a change to what the platform tells a shopper, and it should
+require amending the document that promises it.
