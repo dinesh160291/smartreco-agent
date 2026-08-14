@@ -7,6 +7,17 @@ winners stay deterministic. Narratives are LLM-assisted via the AI Provider
 Gateway when available (--no-llm or gateway failure falls back to editorial
 templates). Run once, review, commit — never generated at runtime.
 
+**DO NOT re-run this to make a catalog edit.** `seed/products.json` has been
+hand-maintained since it was generated, and this script no longer reproduces it:
+regenerating today rewrites **208 of 240** capability profiles and both of the
+categories #075 corrected. Two reasons, and neither is a bug here —
+`enforce_distractor_constraint` reads `REQ_TO_CAP`, which has moved with every
+requirement decision (#073, #074, #075, #079), and several products were
+re-profiled by hand for #074/#075. A regeneration would silently undo all of it.
+
+Edit the JSON surgically instead, and mirror the change here so a future run
+starts from the corrected declarations (Decision #080).
+
 Run:  .venv\\Scripts\\python scripts\\generate_seed.py [--no-llm]
 """
 
@@ -93,14 +104,14 @@ REAL_PRODUCTS = [
     ("Amplitude", "Amplitude", "Data & Analytics", ["Data & Analytics"]),
     ("Mixpanel", "Mixpanel", "Data & Analytics", ["Data & Analytics"]),
     ("Segment", "Twilio", "Data & Analytics", ["Data & Analytics", "Automation"]),
-    ("Asana", "Asana", "Work Management", ["Automation", "Collaboration"]),
-    ("Monday.com", "monday.com", "Work Management", ["Automation", "Collaboration"]),
-    ("ClickUp", "ClickUp", "Work Management", ["Automation", "Collaboration", "Artificial Intelligence"]),
-    ("Trello", "Atlassian", "Work Management", ["Collaboration"]),
-    ("Basecamp", "37signals", "Work Management", ["Collaboration"]),
-    ("Wrike", "Wrike", "Work Management", ["Automation", "Collaboration"]),
-    ("Smartsheet", "Smartsheet", "Work Management", ["Automation", "Data & Analytics"]),
-    ("Airtable", "Airtable", "Work Management", ["Automation", "Data & Analytics"]),
+    ("Asana", "Asana", "Work Management", ["Work Management", "Automation", "Collaboration"]),
+    ("Monday.com", "monday.com", "Work Management", ["Work Management", "Automation", "Collaboration"]),
+    ("ClickUp", "ClickUp", "Work Management", ["Work Management", "Automation", "Collaboration"]),
+    ("Trello", "Atlassian", "Work Management", ["Work Management", "Collaboration"]),
+    ("Basecamp", "37signals", "Work Management", ["Work Management", "Collaboration"]),
+    ("Wrike", "Wrike", "Work Management", ["Work Management", "Automation", "Collaboration"]),
+    ("Smartsheet", "Smartsheet", "Work Management", ["Work Management", "Data & Analytics"]),
+    ("Airtable", "Airtable", "Work Management", ["Work Management", "Data & Analytics"]),
     ("Miro", "Miro", "Collaboration", ["Collaboration"]),
     ("Figma", "Figma", "Design", ["Collaboration"]),
     ("Canva", "Canva", "Design", ["Collaboration", "Artificial Intelligence"]),
@@ -132,14 +143,14 @@ REAL_PRODUCTS = [
     ("GoTo Meeting", "GoTo", "Collaboration", ["Collaboration"]),
     ("RingCentral", "RingCentral", "Collaboration", ["Collaboration"]),
     ("Twilio Flex", "Twilio", "Customer Support", ["CRM", "Automation"]),
-    ("Calendly", "Calendly", "Productivity", ["Automation", "Collaboration"]),
-    ("Loom", "Atlassian", "Productivity", ["Collaboration", "Artificial Intelligence"]),
-    ("Grammarly Business", "Grammarly", "Productivity", ["Artificial Intelligence"]),
-    ("Otter.ai", "Otter.ai", "Productivity", ["Artificial Intelligence"]),
-    ("Jasper", "Jasper AI", "Productivity", ["Artificial Intelligence", "Marketing"]),
-    ("Todoist", "Doist", "Productivity", ["Collaboration"]),
-    ("Linear", "Linear", "Work Management", ["DevOps", "Automation"]),
-    ("Shortcut", "Shortcut", "Work Management", ["DevOps"]),
+    ("Calendly", "Calendly", "Work Management", ["Work Management", "Collaboration"]),
+    ("Loom", "Atlassian", "AI", ["Artificial Intelligence", "Collaboration"]),
+    ("Grammarly Business", "Grammarly", "AI", ["Artificial Intelligence"]),
+    ("Otter.ai", "Otter.ai", "AI", ["Artificial Intelligence"]),
+    ("Jasper", "Jasper AI", "AI", ["Artificial Intelligence", "Marketing"]),
+    ("Todoist", "Doist", "Work Management", ["Work Management", "Collaboration"]),
+    ("Linear", "Linear", "Work Management", ["Work Management", "DevOps"]),
+    ("Shortcut", "Shortcut", "Work Management", ["Work Management", "DevOps"]),
     ("Retool", "Retool", "DevOps", ["Automation", "DevOps"]),
     ("Make", "Make.com", "Workflow Automation", ["Automation"]),
     ("Workato", "Workato", "Workflow Automation", ["Automation"]),
@@ -159,7 +170,8 @@ FICTIONAL_SUFFIXES = {
     "Collaboration": ["Space", "Hub", "Sync"], "Workflow Automation": ["Bots", "Chain", "Loop"],
     "Identity & Access Management": ["ID", "Gate", "Key"],
     "Content Management": ["Docs", "Shelf", "Archive"],
-    "Productivity": ["Focus", "Sprint", "Note"],
+    "Work Management": ["Board", "Sprint", "Track"],
+    "AI": ["Mind", "Muse", "Cortex"],
 }
 # Each category draws from its own domain plus one plausible adjacent domain.
 # The pairing is not decoration: several domains hold only 3-5 capabilities, and
@@ -176,7 +188,8 @@ FICTIONAL_DOMAIN_FOR_CATEGORY = {
     "Workflow Automation": ["Automation", "Artificial Intelligence"],
     "Identity & Access Management": ["Identity & Access", "Security"],
     "Content Management": ["Compliance", "Collaboration"],
-    "Productivity": ["Artificial Intelligence", "Collaboration"],
+    "Work Management": ["Work Management", "Automation"],
+    "AI": ["Artificial Intelligence", "Collaboration"],
 }
 
 

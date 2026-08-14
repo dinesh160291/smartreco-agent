@@ -4114,3 +4114,78 @@ each resolve it — a Content & Knowledge requirement, which would give that
 category a subject, and a lower confidence floor for POL-REC-002's category set
 than POL-REQ-004 uses for anchoring. Neither is made here, and the cost is
 recorded rather than absorbed quietly.
+
+---
+
+# Decision #080
+
+## The Productivity category is dissolved
+
+Decision #079 established that Productivity is a shelf rather than a subject:
+sixteen of its seventeen products held Workload Management only because the seed
+generator stamped it on them, and stripping that stamp leaves products with
+nothing in common. Leaving the shelf mapped to Work Management was worse than
+leaving it unmapped, because BC-006 claimed it — **browsing Grammarly Business
+declared a work-management intent its shopper never had.**
+
+All seventeen redistributed by what they hold:
+
+| Destination | Products |
+|---|---|
+| **AI** (new category) | Loom, Grammarly Business, Otter.ai, Jasper + four fictional |
+| Workflow Automation | NovaSprint, BrightSprint, HarborSprint, CinderSprint |
+| Collaboration | FlowSprint, PaceSprint |
+| Marketing | LumenSprint |
+| Work Management | Calendly, Todoist |
+
+**Workload Management moved to where it is meant.** Stripped from fifteen
+products that never did capacity management, kept on Calendly — managing when
+people are available is what the capability describes — and granted to Asana,
+Monday.com, Wrike, Smartsheet and ClickUp, which all run real workload views and
+held none of it. A test now fails if it appears outside Work Management.
+
+**BP-006's product-view branch moved with the category.** It read
+`productivity`, which after this change no product is in — a rule nothing could
+satisfy, which is the dead vocabulary the emitted-vocabulary contract forbids. It
+reads `work management`, the concept's own subject category. Verified both ways:
+browsing Asana now forms the subject, browsing Grammarly no longer does.
+
+## The generator is not the source of truth, and nearly cost the catalog
+
+The plan said to fix `scripts/generate_seed.py` and regenerate, on the reasoning
+that `seed/products.json` is a build artifact. It is not one any more. A trial
+regeneration rewrote **208 of 240 capability profiles** and both categories #075
+corrected, because `enforce_distractor_constraint` reads `REQ_TO_CAP` — which has
+moved with every requirement decision since — and because #074/#075 re-profiled
+several products by hand. The file was restored from a backup taken beforehand,
+byte-identical.
+
+So the catalog is edited surgically and the generator is corrected to match, with
+a warning in its docstring. Its Work Management entries were declared with
+capability domains `["Automation", "Collaboration"]`, which is the original
+reason no work-management product ever held a work-management capability.
+
+## BC-003 AI Evaluation is not the AI category's subject
+
+The AI category needed one, and BC-003 looked free: already Primary to AI
+Assistance, already evaluated by BP-003, no new concept required. Measured, it
+does not work. **Making it a subject forked Story 2 in two.** That shopper's
+fourth block is AI documentation and AI searches and nothing else, so it names
+BC-003 alone; against an established Collaboration subject that reads as
+abandonment, and "consolidating collaboration tools, curious about AI" became
+two journeys — the one thing that story exists to say does not happen.
+
+AI Evaluation is a **lens**. A shopper asks "does this candidate have AI?" of
+products in every category, exactly as BC-001 asks about security posture. A
+subject for AI-first products is the BC-001/BC-026 split done again: BC-003
+becomes a lens, and a new concept takes REQ-005's Primary. That is a real change
+with its own blast radius and is not made here.
+
+## What this leaves open
+
+Categories with no subject went from 22 products to **30** — the eight AI
+products moved out of a shelf that had a subject into one that does not. That is
+the right direction even so: they had the *wrong* subject, and a wrong anchor is
+worse than none. Three categories now wait on the same fix — Content Management,
+Knowledge & Docs and Design (22 products, the Content & Knowledge requirement),
+and AI (8 products, needing a subject concept of its own).

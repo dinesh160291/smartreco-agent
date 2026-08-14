@@ -157,15 +157,21 @@ def _evaluate_bp005(session_events: list[EventView]) -> EvidenceDraft | None:
 def _evaluate_bp006(session_events: list[EventView]) -> EvidenceDraft | None:
     """BP-006 Productivity Evaluation: ≥2 among DOCUMENTATION_VIEWED topic
     productivity/templates/tasks, SEARCH with productivity terms,
-    PRODUCT_VIEWED in productivity categories. Weak; Medium at ≥3.
-    No Strong level defined (Domain 02)."""
+    PRODUCT_VIEWED in the Work Management category. Weak; Medium at ≥3.
+    No Strong level defined (Domain 02).
+
+    The product-view branch read `productivity` until Decision #080 dissolved
+    that category. It would have become a rule nothing could satisfy — the same
+    dead vocabulary the emitted-vocabulary contract exists to forbid — and the
+    concept's own subject category is Work Management, so that is what it reads.
+    """
     qualifying = []
     for e in session_events:
         if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in BP006_DOC_TOPICS:
             qualifying.append(e)
         elif e.event_type == "SEARCH" and _tokens(e.metadata.get("query", "")) & BP006_SEARCH_TERMS:
             qualifying.append(e)
-        elif e.event_type == "PRODUCT_VIEWED" and "productivity" in str(e.metadata.get("category", "")).lower():
+        elif e.event_type == "PRODUCT_VIEWED" and "work management" in str(e.metadata.get("category", "")).lower():
             qualifying.append(e)
     if len(qualifying) < 2:
         return None
@@ -705,13 +711,29 @@ def _evaluate_domain_research(session_events: list[EventView],
 SUBJECTS_WITH_OWN_EVALUATOR = {
     "BC-005": frozenset({"collaboration"}),        # BP-005 -> REQ-001
     "BC-007": frozenset({"workflow automation"}),  # BP-007 -> REQ-003
-    # BP-006 -> REQ-013 (Decision #079). Two categories, because the catalog
-    # splits into "Work Management" and "Productivity" what is one buying
-    # subject: the Productivity shelf is held together by a single capability
-    # the seed generator stamped on 16 of its 17 products, and none of its
-    # members is a productivity tool once that stamp is removed.
-    "BC-006": frozenset({"work management", "productivity"}),
+    # BP-006 -> REQ-013 (Decision #079). One category since #080: Productivity
+    # was dissolved rather than mapped, because once the stamped Workload
+    # Management capability came off it, not one of its seventeen products was
+    # a productivity tool.
+    "BC-006": frozenset({"work management"}),
 }
+
+# BC-003 AI Evaluation is deliberately NOT here (Decision #080). The AI category
+# it would have claimed does now exist, and BC-003 is already Primary to AI
+# Assistance, so it looked like a free subject. It is not one: AI Evaluation is
+# a *lens*. A shopper asks "does this candidate have AI?" of products in every
+# category, which is exactly what BC-001 does for security posture.
+#
+# Measured, not argued. Making it a subject forked Story 2 in two: that
+# shopper's fourth block is AI documentation and AI searches and nothing else,
+# so it names BC-003 alone, and against an established Collaboration subject
+# that reads as abandonment. "Consolidating collaboration tools, curious about
+# AI" became two journeys, which is the one thing that story exists to say does
+# not happen.
+#
+# A subject for AI-first products is a real gap and a real concept — the
+# BC-001/BC-026 split done again, with BC-003 becoming a lens and a new concept
+# taking REQ-005's Primary. That is not a free change and is not made here.
 
 INTENT_CONCEPTS = frozenset(
     [concept_id for _p, concept_id, *_rest in DOMAIN_RESEARCH_PATTERNS]

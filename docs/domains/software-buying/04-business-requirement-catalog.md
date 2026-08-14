@@ -1118,6 +1118,13 @@ indiscriminately. Strip that one capability and the shelf is automation,
 collaboration, marketing and AI products with nothing in common. A requirement
 built on it would answer a question no shopper asks.
 
+**Decision #080 went further and dissolved the category**, redistributing all
+seventeen by what they hold: eight to a new AI category, four to Workflow
+Automation, two to Collaboration, one to Marketing, and Calendly and Todoist to
+Work Management. Leaving the shelf in place would have been worse than leaving
+it unmapped, because BC-006 claimed it: browsing Grammarly Business declared a
+work-management intent its shopper never had.
+
 **Why REQ-012 exists.** Four capabilities were stranded inside the *original*
 domains — Threat Protection, Data Loss Prevention, Compliance Reporting and
 Identity Federation belong to Security, Compliance and Identity, but no

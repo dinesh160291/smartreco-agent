@@ -414,7 +414,24 @@ from the table, each with the categories it is shopped in:
 |---|---|---|---|
 | BC-005 Collaboration Evaluation | BP-005 | Collaboration | REQ-001 Secure Collaboration |
 | BC-007 Automation Evaluation | BP-007 | Workflow Automation | REQ-003 Workflow Automation |
-| BC-006 Productivity Evaluation | BP-006 | Work Management · Productivity | REQ-013 Work Management |
+| BC-006 Productivity Evaluation | BP-006 | Work Management | REQ-013 Work Management |
+
+BC-006 carried a second category, Productivity, until Decision #080 dissolved
+it. Its evaluator's product-view branch moved with it: BP-006 reads
+`work management` where it read `productivity`, because a rule keyed to a
+category no product is in is a rule nothing can satisfy — the dead vocabulary
+the emitted-vocabulary contract above exists to forbid.
+
+**BC-003 AI Evaluation is not here, and the omission is deliberate.** The AI
+category #080 created has no subject, and BC-003 looked like a free one: it is
+already Primary to AI Assistance and already has BP-003 as an evaluator. It is a
+*lens*. A shopper asks "does this candidate have AI?" of products in every
+category, exactly as BC-001 asks about security posture. Making it a subject
+split Story 2 in two — that shopper's fourth block is AI documentation and AI
+searches and nothing else, so against an established Collaboration subject it
+read as abandonment, and "consolidating collaboration tools, curious about AI"
+became two journeys. A subject for AI-first products is the BC-001/BC-026 split
+done again, and needs its own concept rather than this one.
 
 Consequences, both intended and both visible in the acceptance suite: a shopper
 who moves onto collaboration or automation products can now abandon a journey

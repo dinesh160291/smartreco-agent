@@ -329,3 +329,32 @@ def test_the_unmapped_allowlist_does_not_list_mapped_capabilities():
     mapped = {cap for caps in REQ_TO_CAP.values() for cap in caps}
     stale = sorted(set(UNMAPPED_CAPABILITIES) & mapped)
     assert not stale, f"now mapped — remove from UNMAPPED_CAPABILITIES: {stale}"
+
+
+# --- Decision #080: the Productivity shelf ---------------------------------
+
+def test_productivity_is_gone_from_the_catalog(seed):
+    """It was never a subject anybody shopped for. Sixteen of its seventeen
+    products held Workload Management because the generator stamped it on them,
+    and stripping that left automation, collaboration, marketing and AI products
+    with nothing in common — so the category was dissolved rather than mapped.
+    """
+    survivors = [p["name"] for p in seed["products"] + list(CANONICAL_PRODUCTS)
+                 if p["category"] == "Productivity"]
+    assert not survivors, f"Productivity is back on {survivors}"
+
+
+def test_workload_management_sits_only_where_it_is_meant(seed):
+    """The stamp is the reason the shelf looked coherent. A product claiming to
+    manage capacity while doing nothing of the kind is not cosmetic: it covers
+    REQ-013 at Secondary, so Grammarly Business ranked for a work-management
+    shopper.
+    """
+    holders = {p["name"]: p["category"]
+               for p in seed["products"] + list(CANONICAL_PRODUCTS)
+               if "CAP-058" in p["capabilities"]}
+    # Calendly earns it on its own terms — managing when people are available is
+    # what the capability describes — and is filed under Work Management.
+    stray = {n: c for n, c in holders.items() if c not in ("Work Management",)}
+    assert not stray, f"Workload Management claimed outside Work Management: {stray}"
+    assert len(holders) >= 5, f"only {len(holders)} products manage capacity"
