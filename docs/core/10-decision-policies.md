@@ -700,7 +700,7 @@ The following are the platform's initial published policy values. They are confi
 | Policy ID | Policy | v1 Value |
 |---|---|---|
 | POL-TRIG-001 | Event accumulation | v1.3: Run workflow after **3** unprocessed high/medium-signal events. v1 was 5 — retuned for demo pacing (Decision #048) |
-| POL-TRIG-002 | Debounce / cooldown | v1.3: Debounce 30s; cooldown **45s** (STAGE_TRANSITION bypasses cooldown). v1.1 was 30s / 3min (Decision #038), v1 was 60s / 10min — both retunings are demo pacing (Decision #048); historical runs record the policy_version they ran under |
+| POL-TRIG-002 | Debounce / cooldown | v1.3: Debounce 30s; cooldown **45s** (STAGE_TRANSITION bypasses cooldown). A journey-closing event under POL-JRES-003 bypasses **both** gates whatever its trigger type — "immediate" closure cannot wait out a debounce window, and closure is deterministic so the cooldown has no AI spend to protect (Decision #085). v1.1 was 30s / 3min (Decision #038), v1 was 60s / 10min — both retunings are demo pacing (Decision #048); historical runs record the policy_version they ran under |
 | POL-TRIG-003 | AI budgets | v1.3: Tier 1: **30** calls/user/day; Tier 2: **40** calls/user/day. v1 was 10 / 20 — raised alongside the faster cadence so a demo does not exhaust the budget mid-journey (Decision #048) |
 | POL-TRIG-004 | Material change | New/removed Requirement, priority band change, stage change, or top-candidate change |
 | POL-TRIG-005 | Run concurrency | At most one in-flight workflow run per user; a trigger arriving during a run is recorded as SKIP (already-running) and its events remain accumulated for the next evaluation |

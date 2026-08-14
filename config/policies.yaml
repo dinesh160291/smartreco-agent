@@ -295,6 +295,12 @@ policies:
       debounce_seconds: 30
       cooldown_seconds: 45
       cooldown_bypass_triggers: [STAGE_TRANSITION]
+      # A journey-closing event bypasses both gates whatever its trigger type.
+      # POL-JRES-003 says PURCHASE_COMPLETED closes a journey *immediately*, and
+      # a purchase arrives as SIGNIFICANT_EVENT, so debounce held it 30s and
+      # cooldown up to 45s more while the confirmation page said the journey was
+      # still open (Decision #085).
+      closing_events_bypass_debounce_and_cooldown: true
 
   POL-TRIG-003:
     name: AI budgets

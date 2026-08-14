@@ -310,3 +310,52 @@ def test_story8_mind_changer_gradual_reversal(seeded, chroma, backend, policies,
     req2 = next((r for r in rp.requirements if r["req_id"] == "REQ-002"), None)
     if req2 is not None:
         assert req2["confidence"] < 0.94
+
+
+def test_a_purchase_closes_the_journey_without_waiting_for_the_cooldown(
+        seeded, chroma, backend, policies, fake_gateway):
+    """POL-JRES-003 says PURCHASE_COMPLETED closes a journey *immediately*, and
+    until Decision #085 that word was not true of the implementation.
+
+    Closure only happens inside a completed run, and a purchase arrives as
+    SIGNIFICANT_EVENT — so it waited out POL-TRIG-002's 30s debounce and then up
+    to 45s of cooldown behind the run that had just processed the checkout. The
+    confirmation page showed an open journey and no traits, which is the one
+    moment the learning arc is the thing being demonstrated.
+    """
+    db = seeded
+    user = _user(db, "instant-close@example.com")
+    replay_story1(db, chroma, backend, policies, user, fake_gateway)
+    journey = db.execute(select(models.Journey).where(
+        models.Journey.user_id == user.id)).scalars().one()
+
+    # A run happens, then the purchase lands seconds later — inside both windows.
+    when = datetime(2026, 8, 2, 11, 0)
+    _insert(db, user.id, "story1-s2", when, [
+        ("cart1", "ADD_TO_CART", "HIGH", {"product_id": "PROD-003"}),
+        ("cart2", "PRODUCT_VIEWED", "HIGH", {"product_id": "PROD-003"}),
+        ("cart3", "SECURITY_VIEWED", "HIGH", {"page": "final-check"}),
+    ])
+    warmup = run_workflow(db, chroma, backend, policies, user.id, "EVENT_ACCUMULATION",
+                          now=when + timedelta(minutes=1), gateway=fake_gateway)
+    assert warmup.status == "COMPLETED", "precondition: a run must precede the purchase"
+
+    debounce = policies.param("POL-TRIG-002", "debounce_seconds")
+    cooldown = policies.param("POL-TRIG-002", "cooldown_seconds")
+    _insert(db, user.id, "story1-s2", when + timedelta(minutes=1, seconds=5), [
+        ("buy9", "CHECKOUT_STARTED", "HIGH", {}),
+        ("buy10", "PURCHASE_COMPLETED", "HIGH", {"product_id": "PROD-003"}),
+    ])
+    # Five seconds later: inside the debounce window *and* the cooldown window.
+    now = when + timedelta(minutes=1, seconds=10)
+    assert 5 < debounce and 10 < cooldown, "fixture must sit inside both windows"
+
+    run = run_workflow(db, chroma, backend, policies, user.id, "SIGNIFICANT_EVENT",
+                       now=now, gateway=fake_gateway)
+    assert run.status == "COMPLETED", f"purchase run was skipped: {run.gates}"
+
+    db.refresh(journey)
+    assert journey.lifecycle == "CLOSED"
+    assert journey.outcome == "PURCHASED"
+    # Closure is what feeds the Learning Engine — the arc the confirmation shows.
+    assert _traits(db, user.id), "no traits: the journey closed too late to learn"

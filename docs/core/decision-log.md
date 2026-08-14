@@ -4405,3 +4405,35 @@ the selector and asserted on its return value, which passes with the route still
 choosing for itself — green with the bug fully restored. It now drives
 `/reasoning` over HTTP and asserts the rendered heading names the journey For-You
 is showing.
+
+---
+
+# Decision #085
+
+## "Immediate" closure was waiting up to 75 seconds
+
+POL-JRES-003 says PURCHASE_COMPLETED closes a journey **immediately**. The
+implementation closes it inside a completed workflow run, and a purchase arrives
+as SIGNIFICANT_EVENT — so it waited out POL-TRIG-002's 30-second debounce, and
+then up to 45 seconds of cooldown behind the run that had just processed the
+checkout events.
+
+The cost lands at the worst moment. Closure is what feeds the Learning Engine,
+so the confirmation page — the one surface whose entire job is showing the
+learning arc, event → closure → trait — could report an open journey and no
+traits. Raised 2026-08-10 and open since.
+
+**A journey-closing event now bypasses both gates**, whatever its trigger type.
+Neither gate has anything to wait for once one arrives: debounce exists to let a
+burst of clicks finish and a purchase ends the journey, and cooldown protects AI
+spend while closure is deterministic. The rule is POL-TRIG-002's
+`closing_events_bypass_debounce_and_cooldown`, because a rule the catalog does
+not state is a rule the code owns (Law 4).
+
+The existing `cooldown_bypass_triggers: [STAGE_TRANSITION]` was not the place for
+it: that list keys on trigger *type*, and a purchase is an ordinary
+SIGNIFICANT_EVENT. What distinguishes it is the event, not the trigger.
+
+Pinned by a test that lands the purchase five seconds after a completed run —
+inside both windows — and asserts the journey is CLOSED/PURCHASED with traits
+written. Sabotaged: the run skips on debounce, exactly as reported.

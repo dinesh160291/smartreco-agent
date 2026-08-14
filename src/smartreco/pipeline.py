@@ -1008,6 +1008,11 @@ def run_workflow(
         run_in_flight=bool(in_flight),
         tier1_calls_today=_usage_calls(db, user_id, _today(now), "tier1"),
         tier2_calls_today=_usage_calls(db, user_id, _today(now), "tier2"),
+        # POL-JRES-003 says a purchase closes the journey immediately; the
+        # waiting gates were making "immediately" mean up to 75 seconds
+        # (Decision #085).
+        closing_event_pending=any(
+            e.event_type == "PURCHASE_COMPLETED" for e in unprocessed),
     )
     decision = evaluate_trigger(trigger_type, trigger_ctx, policies)
     gates = {"trigger": trigger_type, "decision": decision.reason,

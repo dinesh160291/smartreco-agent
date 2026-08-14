@@ -18,6 +18,11 @@ class TriggerContext:
     run_in_flight: bool
     tier1_calls_today: int
     tier2_calls_today: int
+    # An unprocessed event that closes the journey under POL-JRES-003. Neither
+    # waiting gate has anything to wait for once one arrives: debounce waits for
+    # a burst to finish and a purchase ends the journey, cooldown protects AI
+    # spend and closure is deterministic (Decision #085).
+    closing_event_pending: bool = False
 
 
 @dataclass(frozen=True)
@@ -33,6 +38,9 @@ def evaluate_trigger(trigger_type: str, ctx: TriggerContext, policies: PolicyCat
     debounce_seconds = policies.param("POL-TRIG-002", "debounce_seconds")
     cooldown_seconds = policies.param("POL-TRIG-002", "cooldown_seconds")
     cooldown_bypass = policies.param("POL-TRIG-002", "cooldown_bypass_triggers")
+    closing_bypass = policies.param(
+        "POL-TRIG-002", "closing_events_bypass_debounce_and_cooldown")
+    bypass_waits = closing_bypass and ctx.closing_event_pending
     tier1_budget = policies.param("POL-TRIG-003", "tier1_calls_per_user_per_day")
     tier2_budget = policies.param("POL-TRIG-003", "tier2_calls_per_user_per_day")
 
@@ -60,13 +68,14 @@ def evaluate_trigger(trigger_type: str, ctx: TriggerContext, policies: PolicyCat
                 f"{session_timeout}s (POL-TRACK-003)")
 
     # 2. Debounce — wait for the burst to finish (SIGNIFICANT_EVENT)
-    if trigger_type == "SIGNIFICANT_EVENT" and ctx.newest_event_age_seconds < debounce_seconds:
+    if (trigger_type == "SIGNIFICANT_EVENT" and not bypass_waits
+            and ctx.newest_event_age_seconds < debounce_seconds):
         return TriggerDecision(False,
             f"debounce: newest event {ctx.newest_event_age_seconds}s old < "
             f"{debounce_seconds}s window (POL-TRIG-002)")
 
     # 3. Cooldown (STAGE_TRANSITION bypasses)
-    if (trigger_type not in cooldown_bypass
+    if (trigger_type not in cooldown_bypass and not bypass_waits
             and ctx.seconds_since_last_run is not None
             and ctx.seconds_since_last_run < cooldown_seconds):
         return TriggerDecision(False,
