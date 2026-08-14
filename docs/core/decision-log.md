@@ -3973,19 +3973,42 @@ factor, the ordering it produces and the case it was built for are all the same.
 ## The consequence, taken deliberately
 
 A ranked list is no longer monotonic in the figure beside it: Scenario 2 shows
-Zoom at 33% above Notion at 49%. Left bare that reads as a broken sort, so both
-surfaces state the reason:
+Zoom at 33% above Notion at 49%. Left bare that reads as a broken sort, so
+**For-you prints "Ranked lower — not the kind of product you've been looking
+at"** on off-subject entries only. Rendering and composing are pinned
+separately, which is the lesson from the long-form panes: a view key the
+template never reads passes its unit tests over a blank page. A third test
+serves the whole chain over the real route, because neither of the first two
+would notice the route wiring dropping the field on the way past.
 
-- For-you prints *"Ranked lower — not the kind of product you've been looking
-  at"* on off-subject entries only.
-- The generate and digest prompts carry the same fact per product, which is why
-  both go to **v2**. The model is told not to reorder or re-score; without the
-  fact it had an ordering to justify and nothing true to justify it with, and
-  invented rationale in grounded copy is exactly the failure Law 11 forbids.
+## The prompt change that was tried, measured, and reverted
 
-Rendering and composing are pinned separately, which is the lesson from the
-long-form panes: a view key the template never reads passes its unit tests over
-a blank page.
+The same fact was first added to the generate and digest prompts, on the
+reasoning that a model told "do not reorder or re-score" has an ordering to
+justify and — without the fact — nothing true to justify it with. Both prompts
+went to v2.
+
+Sabotage says otherwise, and the rule is explicit: delete the instruction the
+eval case depends on, and if the case still passes, the model was already doing
+it. New eval case **E3** covers the inverted list. With the note removed it
+passed 3/3 — the deterministic order survived regardless. With the note present
+the copy never once referenced the category reason, across three runs. The model
+neither needed the fact nor used it.
+
+So the note is gone and both prompts are back to **v1**, byte-identical to their
+pre-#078 text. Two consequences worth having: no AAR anywhere regenerates for a
+prompt-version change, and the explanation for the ordering lives on the
+deterministic surface rather than depending on a model that demonstrably will
+not produce it. E3 stays, minus the grounding assertion — it now pins that an
+inverted list keeps its deterministic order and stays free of invented
+persuasion, which nothing covered before.
+
+**Packages already on disk keep working.** They are insert-only (Law 6), so
+every stored row has the old entry shape; the readers default `on_subject` to
+true. That default is load-bearing rather than cosmetic — Jinja resolves a
+missing key to Undefined, which is falsy, so getting it wrong prints the caveat
+against *every* product rather than raising. Pinned by a test that inserts a
+pre-#078 package and renders it.
 
 ## What this does not fix
 

@@ -182,8 +182,7 @@ def run_digest_cycle(db: OrmSession, chroma_client, backend, gateway,
             for entry in pkg.entries[:3]:
                 product = db.get(models.Product, entry["product_id"])
                 products.append({"name": product.name, "vendor": product.vendor,
-                                 "coverage": entry["overall_coverage"],
-                                 "on_subject": entry.get("on_subject", True)})
+                                 "coverage": entry["overall_coverage"]})
             facts = {"products": products,
                      "behavior_summary": _behavior_summary(
                          repos.journey_events(db, journey.journey_id))}

@@ -44,35 +44,6 @@ def test_generate_prompt_uses_display_names_and_delimited_data():
     assert "Okta" in prompt and "Identity Management" in prompt
 
 
-def test_an_off_subject_entry_is_given_its_reason_in_the_prompt():
-    """Decision #078: coverage stopped carrying the category discount, so a
-    ranked list can put a 49%-covering product below a 33%-covering one. The
-    model is told not to reorder, which leaves it an ordering to explain and —
-    unless the fact is supplied — nothing true to explain it with. Invented
-    rationale in grounded copy is the Law 11 failure this forecloses.
-
-    Asserted on the fact, never on wording: the on-subject entry gets no note.
-    """
-    facts = {**FACTS, "products": [
-        {**FACTS["products"][0], "name": "Zoom Workplace", "coverage": 33, "on_subject": True},
-        {**FACTS["products"][0], "name": "Notion", "coverage": 49, "on_subject": False},
-    ]}
-    prompt = build_generate_prompt(facts)
-    notes = [line for line in prompt.splitlines() if line.strip().startswith("note:")]
-    assert len(notes) == 1, f"expected exactly one off-subject note, got {notes}"
-    assert "categor" in notes[0]
-
-    on_subject_only = {**FACTS, "products": [
-        {**FACTS["products"][0], "on_subject": True}]}
-    assert "note:" not in build_generate_prompt(on_subject_only)
-
-
-def test_facts_without_the_flag_are_treated_as_on_subject():
-    """A package written before the field existed still renders. Defaulting the
-    other way would annotate every historical entry as off-subject."""
-    assert "note:" not in build_generate_prompt(FACTS)
-
-
 def test_clarify_prompt_never_lists_products():
     prompt = build_clarify_prompt({"behavior_summary": "browsed", "constraints": {"budget": "Unknown"}})
     assert "Do not recommend any product" in prompt

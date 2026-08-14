@@ -891,7 +891,6 @@ def stage_tier1(ctx: WorkflowContext, state: dict) -> bool:
         products.append({
             "name": product.name, "vendor": product.vendor,
             "coverage": entry["overall_coverage"],
-            "on_subject": entry.get("on_subject", True),
             "covered": covered,
             "missing": [_CAP_NAME.get(c, c) for c in entry["missing_capability_ids"]],
             "narrative": product.business_value_narrative or product.description,

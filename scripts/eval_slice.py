@@ -7,6 +7,9 @@ Cases:
      facts, and contain no banned persuasion or canonical IDs.
   E2 retrieval evaluation contract — a deliberately mismatched candidate list
      must yield a parseable fail verdict with missing aspects.
+  E3 off-subject ordering — a ranked list that is deliberately *not* ordered by
+     the coverage beside it (Decision #078) must keep its deterministic order
+     and stay free of invented persuasion.
 
 Per the eval caveats: a failing case must fail 3x to count as a bug —
 single-run LLM variance is not a signal. This script runs each case up to 3x
@@ -62,6 +65,56 @@ def case_e1(gateway) -> list[str]:
     return problems
 
 
+OFF_SUBJECT_FACTS = {
+    "products": [
+        {"name": "Zoom Workplace", "vendor": "Zoom", "coverage": 33, "on_subject": True,
+         "covered": ["Video Meetings", "Messaging"],
+         "missing": ["Single Sign-On", "Workflow Automation"],
+         "narrative": "Meetings, chat and rooms in one place."},
+        {"name": "Notion", "vendor": "Notion Labs", "coverage": 49, "on_subject": False,
+         "covered": ["AI Chat", "Content Generation", "Intelligent Search",
+                     "Document Summarization"],
+         "missing": ["Single Sign-On", "Workflow Automation"],
+         "narrative": "Connected docs, wikis and projects."}],
+    "requirements": [{"name": "Secure Collaboration", "priority": "Critical",
+                      "confidence": 0.83}],
+    "stage": "Technical Validation",
+    "behavior_summary": "browsed collaboration tools; read pages about: meetings, co-editing",
+    "alternatives": [],
+    "constraints": {},
+}
+
+
+def case_e3(gateway) -> list[str]:
+    """E3 off-subject ordering — the Decision #078 path.
+
+    The ranked list is deliberately not ordered by the coverage beside it: the
+    second entry covers more and ranks lower because it is outside the category
+    being shopped. The prompt states that as a fact and forbids re-ordering.
+    What must hold is that the copy stays grounded and keeps the deterministic
+    order — asserted on facts present and banned content absent, never on
+    wording (testing contract).
+    """
+    payload, _version, _calls = generate_sections(gateway, OFF_SUBJECT_FACTS, "READY")
+    problems = []
+    text = json.dumps(payload).lower()
+    for fragment in BANNED:
+        if fragment in text:
+            problems.append(f"banned persuasion: {fragment!r}")
+    for banned_id in ("cap-0", "req-0", "prod-0"):
+        if banned_id in text:
+            problems.append(f"canonical ID leaked: {banned_id}")
+    if "zoom" not in text:
+        problems.append("narrative never names the top-ranked product")
+    # The rank-1 product must not be described as the runner-up. Coverage alone
+    # would put Notion first, which is exactly the inversion the note exists to
+    # explain; if the model silently re-ranks, the page and the prose disagree.
+    summary = str(payload.get("executive_summary", "")).lower()
+    if "notion" in summary and "zoom" not in summary:
+        problems.append("executive summary leads with the off-subject product")
+    return problems
+
+
 def case_e2(gateway) -> list[str]:
     try:
         verdict = evaluate_candidates(
@@ -100,6 +153,7 @@ def main() -> int:
     gateway = AIGateway(load_policies())
     ok = run_case("E1 persuasion-grounding", case_e1, gateway)
     ok = run_case("E2 retrieval-evaluation", case_e2, gateway) and ok
+    ok = run_case("E3 off-subject-ordering", case_e3, gateway) and ok
     print("\nEVAL SLICE:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 

@@ -79,7 +79,7 @@ def test_story10_digest_pair(seeded, chroma, backend, policies, fake_gateway):
     # Digest AAR rendered in-app: DIGEST surface, distinct from ONSITE
     digest_aar = db.get(models.AdvisoryResponse, records[user_a.id].aar_id)
     assert digest_aar.surface == "DIGEST"
-    assert digest_aar.prompt_version == "aar-digest-v2"  # off-subject note, #078
+    assert digest_aar.prompt_version == "aar-digest-v1"
 
 
 def test_story11_catalog_shift(seeded, chroma, backend, policies, fake_gateway):
