@@ -234,3 +234,23 @@ def test_for_you_refreshes_when_the_tab_comes_back(client):
     assert "document.visibilityState==='visible'" in body, (
         "unguarded visibilitychange also fires on *hide*, doubling requests")
     assert "from:document" in body, "visibilitychange is fired at document, not the element"
+
+
+def test_a_search_result_offers_the_way_back(client):
+    """Decision #086. A shopper who opens a result had no route back to the list
+    they built: the browser Back button covers it only until they open a tab or
+    follow a recommendation, and the query was already addressable."""
+    listing = client.get("/?q=single+sign-on").text
+    assert "?q=single+sign-on" in listing, "product links do not carry the search"
+
+    page = client.get("/product/PROD-003?q=single+sign-on").text
+    assert "Back to results" in page
+    assert 'href="/?q=single+sign-on"' in page
+    assert "single sign-on" in page  # the search is named, so the link is honest
+
+
+def test_a_product_opened_without_a_search_offers_no_false_return(client):
+    """The link must never promise a return to a search that did not happen."""
+    page = client.get("/product/PROD-003").text
+    assert "Back to results" not in page
+    assert '<div class="breadcrumb"><a href="/">Explore</a>' in page

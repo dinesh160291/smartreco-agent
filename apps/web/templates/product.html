@@ -1,7 +1,17 @@
 {% extends "base.html" %}
 {% block title %}{{ p.name }} · SmartReco{% endblock %}
 {% block content %}
+{# The way back to the results this product was opened from (Decision #086).
+   Falls back to the plain breadcrumb when the shopper arrived any other way,
+   so the page never offers a return to a search that did not happen. #}
+{% if back %}
+<div class="breadcrumb">
+  <a href="{{ back }}">&larr; Back to results{% if back_label %} for “{{ back_label }}”{% endif %}</a>
+  / {{ p.category }}
+</div>
+{% else %}
 <div class="breadcrumb"><a href="/">Explore</a> / {{ p.category }}</div>
+{% endif %}
 
 <div class="phrow" style="align-items:flex-start;">
   <div class="thumb thumb-lg" style="background:{{ p.hue }}">{{ p.initials }}</div>

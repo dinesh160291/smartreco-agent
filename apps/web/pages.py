@@ -9,6 +9,7 @@ they appear only on Admin and the Reasoning Panel.
 import hashlib
 import re
 import uuid
+from urllib.parse import urlencode
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
@@ -229,8 +230,13 @@ def explore(request: Request, q: str | None = None, category: str | None = None,
 
     views = [_product_view(p, len(_caps_of(db, p.product_id))) for p in products]
     ctx = _base_ctx(request, db, user, state, "explore", events)
+    # The search a product click should be able to return to. Empty when the
+    # shopper is browsing the whole catalog — there is nothing to go back to.
+    back_qs = ""
+    if q or category:
+        back_qs = "?" + urlencode({k: v for k, v in (("q", q), ("category", category)) if v})
     ctx.update({"products": views, "categories": categories, "q": q, "category": category,
-                "shown": len(views), "total": total})
+                "shown": len(views), "total": total, "back_qs": back_qs})
     return templates.TemplateResponse(request, "explore.html", ctx)
 
 
@@ -265,7 +271,8 @@ def _doc_topic(cap_ids, table, default: str | None) -> str | None:
 
 
 @router.get("/product/{product_id}", response_class=HTMLResponse)
-def product_page(request: Request, product_id: str, sd=Depends(_db)):
+def product_page(request: Request, product_id: str, q: str | None = None,
+                 category: str | None = None, sd=Depends(_db)):
     state, db = sd
     user = _optional_user(request, db)
     p = db.get(models.Product, product_id)
@@ -302,7 +309,15 @@ def product_page(request: Request, product_id: str, sd=Depends(_db)):
     events = [{"type": "PRODUCT_VIEWED",
                "metadata": {"product_id": product_id, "category": (p.category or "").lower()}}]
     ctx = _base_ctx(request, db, user, state, "explore", events)
-    ctx.update({"p": view})
+    # Where this product was opened from, so the page can offer the way back
+    # (Decision #086). Reconstructed rather than trusted: only the two search
+    # parameters are carried, so the link cannot be pointed anywhere else.
+    back = ""
+    label = ""
+    if q or category:
+        back = "/?" + urlencode({k: v for k, v in (("q", q), ("category", category)) if v})
+        label = q if q else category
+    ctx.update({"p": view, "back": back, "back_label": label})
     return templates.TemplateResponse(request, "product.html", ctx)
 
 

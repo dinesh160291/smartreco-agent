@@ -4437,3 +4437,27 @@ SIGNIFICANT_EVENT. What distinguishes it is the event, not the trigger.
 Pinned by a test that lands the purchase five seconds after a completed run —
 inside both windows — and asserts the journey is CLOSED/PURCHASED with traits
 written. Sabotaged: the run skips on debounce, exactly as reported.
+
+---
+
+# Decision #086
+
+## A search result can get back to its results
+
+The catalog search was already addressable — `/?q=…&category=…` reproduces a
+result list exactly — but nothing carried that address forward. A shopper who
+opened a result had only the browser Back button, which holds until the moment
+they open a product in a new tab or follow a recommendation, and then the list
+they built is gone.
+
+Product cards now carry the current search in their link, and the product page
+offers **"← Back to results for <query>"** in place of the plain breadcrumb.
+
+Two things it deliberately does not do. It carries **only** `q` and `category`,
+rebuilt server-side into a fresh URL, so the link cannot be pointed anywhere
+else by a crafted parameter. And it appears **only** when there was a search:
+a product opened from For-You, a comparison or a direct link keeps the ordinary
+breadcrumb rather than being offered a return to a search that never happened.
+
+Both halves are pinned, and the carrying half is sabotage-verified — dropping the
+query string from the card link reddens the test.

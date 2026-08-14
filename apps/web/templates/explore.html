@@ -34,7 +34,12 @@
 
 <div class="grid-cards">
   {% for p in products %}
-  <a class="card pcard" href="/product/{{ p.product_id }}" style="text-decoration:none; color:inherit;">
+{# Carry the search back with the click (Decision #086). Without it a
+   shopper who opens a result has no way back to the list they built —
+   the browser Back button works, but only until they open a tab or
+   follow a recommendation, and the query is already addressable. #}
+  <a class="card pcard" href="/product/{{ p.product_id }}{{ back_qs }}"
+     style="text-decoration:none; color:inherit;">
     <div class="phrow">
       <div class="thumb thumb-md" style="background:{{ p.hue }}">{{ p.initials }}</div>
       <div class="pcol">
