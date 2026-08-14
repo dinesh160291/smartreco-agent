@@ -188,7 +188,15 @@ def test_staying_on_one_subject_does_not_fork(
 def test_returning_to_the_first_subject_resumes_that_journey(
         seeded, chroma, backend, policies, fake_gateway):
     """A -> B -> A opens two journeys, not three, and the analytics beliefs
-    resume where they were rather than starting over."""
+    resume where they were rather than starting over.
+
+    The first version of this test asserted only the journey count and that the
+    first journey's confidence had not *decreased* — both of which hold
+    trivially when the returning events never reach that journey at all. It
+    passed for a year of decisions while the behaviour it names did not work
+    (Decision #072). The assertions that matter are which journey the run used
+    and whether the returning events landed there.
+    """
     db = seeded
     user = _user(db, "returner2@example.com")
     s = "fork-s3"
@@ -211,13 +219,23 @@ def test_returning_to_the_first_subject_resumes_that_journey(
         ("g5", "SEARCH", "HIGH", {"query": "bi"}),
         ("g6", "DOCUMENTATION_VIEWED", "HIGH", {"topic": "warehouse"}),
     ])
-    _run(db, chroma, backend, policies, user, fake_gateway, DAY + timedelta(minutes=12))
+    resumed = _run(db, chroma, backend, policies, user, fake_gateway,
+                   DAY + timedelta(minutes=12))
 
     assert len(_journeys(db, user)) == 2, "returning to the first subject opened a third journey"
+    assert resumed.journey_id == first, (
+        "the run reasoned about the journey the shopper had left, not the one "
+        "they came back to")
+    returned_events = db.execute(select(models.Event).where(
+        models.Event.journey_id == first,
+        models.Event.event_id.in_(["g1", "g2", "g3", "g4", "g5", "g6"]))).scalars().all()
+    assert len(returned_events) == 6, (
+        f"only {len(returned_events)}/6 returning events were filed to the "
+        f"resumed journey")
     after = {h.concept_id: h.confidence for h in db.execute(select(models.Hypothesis).where(
         models.Hypothesis.journey_id == first)).scalars().all()}
-    assert after["BC-024"] >= before["BC-024"], (
-        "resumed journey lost ground instead of continuing from where it was")
+    assert after["BC-024"] > before["BC-024"], (
+        "resumed journey did not gain from the returning research")
 
 
 def test_for_you_shows_the_abandoned_journey_without_ranking_it(

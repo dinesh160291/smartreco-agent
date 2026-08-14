@@ -6,7 +6,7 @@
 # changes the decisions a run produces, and policy_version is how that run says
 # which build of the rules produced it.
 
-catalog_version: "1.6"
+catalog_version: "1.7"
 
 policies:
 
@@ -374,10 +374,15 @@ policies:
       # mid-session gets a second journey instead of contaminating the first.
       # Same guard as above — a block too small to judge inherits.
       fork_min_events: 5
-      # How much recent activity defines "what the shopper is doing now"
-      # (Decision #057). Comparing against the journey's whole history could
-      # never fork, because one transitional block puts both subjects in it
-      # permanently. Insensitive between 10 and 20 on replayed sessions.
+      # How much of a journey's own history defines what it is *about*
+      # (Decision #057, restated by #072). Comparing against the whole history
+      # could never fork, because one transitional block puts both subjects in
+      # it permanently. What the shopper is doing *now* is the settled block
+      # itself, not a slice of a combined list: slicing at a fixed offset made
+      # "before" mean everything except the last 15 events, which is empty for
+      # any journey younger than that — so a journey created by a fork could
+      # never itself be abandoned. Insensitive between 10 and 20 on replayed
+      # sessions.
       recent_window_events: 15
 
   POL-JRES-002:

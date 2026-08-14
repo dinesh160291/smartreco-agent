@@ -348,13 +348,22 @@ def _resolve_continuation(db: OrmSession, policies: PolicyCatalog, user_id: int,
     if len(pending) < fork_min:
         return owner_id  # too little to judge on — inherit, revisit next run
 
-    # Before and after, sampled from disjoint slices. "Established" must not
+    # Before and after, from two sources that cannot overlap: what the journey
+    # is about, and what the shopper is doing now. "Established" must not
     # include the activity it is being compared against, or a long enough new
     # subject simply becomes the dominant one and there is nothing left to
     # abandon (Decision #057).
-    combined = list(repos.journey_events(db, owner_id)) + list(pending)
-    established, _older_subjects = _intent_profile(combined[:-window], policies)
-    _dominant_now, recent_subjects = _intent_profile(combined[-window:], policies)
+    #
+    # The block is the unit of "now" (Decision #072). Slicing one combined list
+    # at a fixed offset made "before" mean *everything except the last 15
+    # events*, which is empty for any journey younger than that — so a journey
+    # created by a fork, always younger, could never itself be abandoned and
+    # forking was one-way. The window still bounds the owner's own history, for
+    # the reason #057 introduced it, but a shopper's return is now judged
+    # against the block they actually returned in.
+    established, _older_subjects = _intent_profile(
+        list(repos.journey_events(db, owner_id))[-window:], policies)
+    _dominant_now, recent_subjects = _intent_profile(pending, policies)
     if not subject_abandoned(established, recent_subjects):
         return owner_id
 

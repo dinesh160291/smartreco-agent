@@ -3536,3 +3536,74 @@ Objects and that journey has not run since the catalog was corrected. The
 arithmetic was right over the data it had; the data is what changed. It will
 re-rank on that journey's next run — and against the corrected catalog the same
 requirement now returns GitLab at 5/5 where those three sit at 1/5.
+
+---
+
+# Decision #072
+
+## Title
+
+A forked journey can be abandoned too: the settled block is "now", not a slice
+
+## Status
+
+Accepted
+
+## Decision
+
+`_resolve_continuation` computes the established subject from the owner
+journey's own recent events and the current subject from the pending block,
+rather than slicing one combined list at a fixed offset.
+
+## Rationale
+
+Found while writing a For-You test whose *precondition* failed: a shopper who
+went analytics → DevOps → analytics inside one session never got back to the
+analytics journey. The run kept reasoning about the journey they had left.
+
+The cause is arithmetic, and the probe was worth running rather than reasoning
+about — the first explanation was wrong. `established` was
+`combined[:-recent_window_events]`, i.e. *everything except the last 15 events*.
+At the moment of the return the owner journey held 8 events and the block held
+6: 14 in total, so the slice was **empty**, `established` came back `None`, and
+`subject_abandoned` returns False on a `None` subject by design. Not a close
+call — the comparison had no left-hand side at all.
+
+**So a journey younger than the window could never be abandoned, and a journey
+created by a fork is always younger.** Forking was one-way: the first switch
+split correctly, and nothing after it could ever move again. The resume branch
+below it — which scans other journeys for the returning subject and reactivates
+a DORMANT one — was unreachable code from the day it was written.
+
+The fix removes the combined list rather than retuning the window. The two sides
+are different things and reading them from one sequence is what let them
+overlap: what a journey is *about* is a property of that journey's history, and
+what the shopper is doing *now* is the settled block — which
+`fork_min_events` already guarantees is big enough to judge. #057's protection
+is unchanged, because the window still bounds the owner's own history, which is
+the thing #057 was about.
+
+**This is the fourth instance of one failure mode**, after #054, #057 and #065:
+a comparison baseline that grows, slides or straddles until the signal it was
+meant to detect cannot appear in it. Worth naming as a review question rather
+than a fix — *what happens to this comparison when one side gets longer?*
+
+## Consequences
+
+The return resumes the earlier journey, its events are filed there, and its
+hypotheses continue from the confidence they had reached.
+
+**The fork also fires one block sooner.** Under the old slicing the first switch
+needed two blocks before `established` was non-empty; it now splits on the
+first, and a block on the same subject still correctly declines to fork —
+verified by probe at each step. `fork_min_events` remains the guard on how
+little evidence may split a journey.
+
+**The test that named this behaviour had been passing while it did not work.**
+`test_returning_to_the_first_subject_resumes_that_journey` asserted the journey
+*count* and that the first journey's confidence had not *decreased* — both
+trivially true when the returning events never reach that journey. A test whose
+assertions cannot fail for the reason in its own name is worse than no test: it
+occupied the slot where a real one would have gone. It now asserts which journey
+the run used, that all six returning events landed there, and that confidence
+strictly increased.
