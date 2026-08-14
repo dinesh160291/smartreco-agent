@@ -6,7 +6,7 @@
 # changes the decisions a run produces, and policy_version is how that run says
 # which build of the rules produced it.
 
-catalog_version: "1.11"
+catalog_version: "1.12"
 
 policies:
 

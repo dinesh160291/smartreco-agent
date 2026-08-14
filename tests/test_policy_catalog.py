@@ -30,6 +30,10 @@ def catalog():
 
 
 def test_catalog_version_is_recorded(catalog):
+    # v1.12: POL-TRIG-002 gained closing_events_bypass_debounce_and_cooldown
+    # (#085). A purchase now runs immediately where 1.11 made it wait out the
+    # debounce window and the cooldown — the same events, a journey CLOSED up to
+    # 75 seconds earlier, and traits written in time for the confirmation page.
     # v1.11: POL-REC-002 gained subject_category_min_confidence (#082) — the
     # categories a candidate is measured against now come from a lower bar than
     # POL-REQ-004's anchoring one. Same events, different match scores: a
@@ -63,7 +67,7 @@ def test_catalog_version_is_recorded(catalog):
     # produced it — #056 shipped without bumping it and the omission cost a
     # debugging round, because policy_version 1.4 could not distinguish a
     # server running the fork from one that was not.
-    assert catalog.version == "1.11"
+    assert catalog.version == "1.12"
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
     assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 45
     assert catalog.param("POL-TRIG-001", "unprocessed_event_threshold") == 3
