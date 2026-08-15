@@ -1,7 +1,10 @@
 # Semantic Search Fallback — Specification
 
-**Status: proposed, not implemented.** No code, policy or event-registry change
-has landed. This document is the decision `ui-design-spec.md` §4.7a defers when
+**Status: proposed, not implemented — but the shipping gate has been run.** No
+code, policy or event-registry change has landed. §4's similarity floor is
+**measured** (`scripts/measure_search_floor.py`, in the repository so the number
+is reproducible); §5.2's vocabulary-drift eval is the one measurement still
+outstanding, and it can only run once the feature exists. This document is the decision `ui-design-spec.md` §4.7a defers when
 it says reusing the vector index on the search surface "would be a new use of
 that seam and requires its own decision".
 
@@ -87,24 +90,93 @@ Rules:
   must not degrade into a list of unrelated products** — that is the exact
   behaviour §4.7a already forbids, and the similarity floor is what enforces it.
 
-## 4. The similarity floor
+## 4. The similarity floor — MEASURED
 
 The floor is what separates this feature from guessing, so it is the one number
-that must be **measured before it is set**, not chosen because it looks
-reasonable.
+that had to be **measured before it was set**.
 
-Method: assemble a fixture of natural-language queries in two classes —
-*answerable* ("stop people sharing passwords", "keep track of who signed what",
-"our designers need to share mockups") and *unanswerable* ("book a meeting room",
-"order more laptops", "who is on holiday next week") — run each through the
-index, and pick the floor that admits the first class and rejects the second. If
-no floor separates them cleanly, the feature does not ship: a floor that lets
-"order more laptops" return a DevOps product is worse than the empty state,
-because the empty state is honest.
+Method, now in `scripts/measure_search_floor.py` and reproducible: build a
+throwaway index from the current seed catalog with the configured embedding
+backend, then run a fixture of natural-language queries in two classes —
+*answerable* (work the capability taxonomy genuinely covers) and *unanswerable*
+(work no business software catalog does) — and find the floor that admits the
+first class and rejects the second. Labels are fixed before the run; reclassify
+a query after seeing its score and the measurement becomes a rationalisation.
 
-The value lands in `config/policies.yaml` like every other threshold (Law 4).
-The provisional starting point for the measurement is **0.35**, and it carries
-no authority until the fixture above has been run.
+### 4.1 Result: 22 queries, gateway backend, 250 products
+
+**All 22 fixture queries miss lexically**, so all 22 would reach the fallback —
+the fixture is testing the right path.
+
+**Retrieval quality is not the problem. It is excellent.** All twelve answerable
+queries returned the correct product area at rank 1, and usually the whole top
+three:
+
+| Query | Top three |
+|---|---|
+| stop people sharing passwords | 1Password, LastPass, FableKey |
+| prove to an auditor what everyone did | OneTrust, Vanta, Drata |
+| our designers need somewhere to put mockups | Figma, Canva, Notion |
+| we keep losing track of who is doing what this week | Monday.com, Wrike, Todoist |
+| find out why the website went down last night | NovaWatch, QuillWatch, FableWatch |
+| make sure new starters have everything on day one | BrightCrew, VertexCrew, PaceCrew |
+
+**The floor is the problem.** Unanswerable queries do not score low — they score
+*plausibly*, because an embedding index has no way to say "I don't know". "Book
+a meeting room" returns Calendly at **-0.386**, above ten of the twelve genuine
+queries. "Play some music while I work" returns three Work Management products
+at -0.518. The two classes overlap in the band **[-0.547, -0.386]**.
+
+**The §4 gate as originally written therefore fails: there is no clean
+separation.** What exists instead is a precision/recall curve:
+
+| Floor | Answerable admitted | Unanswerable admitted |
+|---|---|---|
+| -0.30 | 4/12 | **0/10** |
+| -0.35 | 5/12 | **0/10** |
+| **-0.38** | **7/12** | **0/10** |
+| -0.40 | 7/12 | 1/10 |
+| -0.50 | 11/12 | 3/10 |
+| -0.547 | 12/12 | 6/10 |
+
+(Similarity is `1 - distance`, so these are negative numbers on the same scale
+POL-RETR-002 already uses. Note the shape: recall is bought steeply in wrong
+answers past -0.40.)
+
+### 4.2 Verdict
+
+**The feature ships, at a precision-first floor of -0.38, and only because its
+failure mode is silence.** At that floor no unanswerable query in the fixture
+produces any result at all, and seven of twelve genuine ones get help. The other
+five fall back to today's empty state — not a regression, just an absence.
+
+That is the reading the original gate was protecting: it forbade *misleading*,
+not *incomplete*. A feature that helps with roughly half of the queries it sees
+and misleads on none is worth having; the same feature at -0.50 would answer
+"best pizza near the office" with a CRM, and that one is worse than nothing.
+
+**-0.38 is fitted to this fixture's closest negative and has only 0.005 of
+margin.** It should be re-measured whenever the catalog changes materially, and
+a deployment that prefers caution should take -0.35 and lose two queries.
+
+### 4.3 Two findings that change other parts of this spec
+
+**The floor is backend-specific, so it is a deployment value.** The same fixture
+against the local backend gives ten of twelve correct areas (it puts an
+onboarding query in Customer Support and a workload query in HR) and a much
+wider overlap: its precision-clean floor is about **-0.33**, admitting only four
+of twelve. One number cannot serve both. The floor therefore belongs to the
+deployment exactly as `EMBEDDINGS_BACKEND` does — one `min_similarity` in
+policy, measured for the configured backend with the script above, and
+re-measured if the backend changes. No per-backend policy structure; the
+deployment already declares its backend.
+
+**Similarity is not bit-stable.** Embedding the same query twice moved scores by
+around 3×10⁻⁴ ("book a meeting room" gave -0.3861 and -0.3858 on consecutive
+runs). Two consequences: never fit the floor to within a rounding error of a
+sample value, and §3's tie-break on Product ID is load-bearing rather than
+decorative — without it, near-equal hits could reorder between identical
+searches.
 
 ## 5. What evidence a `SEARCH` event produces
 
@@ -229,7 +301,7 @@ New IDs, mirrored into `config/policies.yaml`, with a `catalog_version` bump:
 
 | ID | Params |
 |---|---|
-| `POL-SRCH-001` Catalog search fallback | `lexical_min_results`, `top_k`, `min_similarity` (§4), `max_query_chars` |
+| `POL-SRCH-001` Catalog search fallback | `lexical_min_results`, `top_k`, `min_similarity` = **-0.38**, measured (§4), `max_query_chars` |
 | `POL-SRCH-002` Search embedding budget | `searches_per_user_per_day`, `searches_per_anonymous_session`, `cache_ttl_seconds` |
 
 Policy Catalog v1 (`docs/core/10`) is the authority and `config/policies.yaml`
@@ -249,7 +321,9 @@ contradicts.
 - `docs/domains/software-buying/13-…` event registry — `result_count` and
   `fallback_used`, both marked *not read by any evaluator*
 - `docs/core/decision-log.md` — the architectural entry
-- This file — status changed from proposed to shipped, with the measured floor
+- This file — status changed from proposed to shipped
+- `scripts/measure_search_floor.py` already carries the fixture and method; it
+  is re-run whenever the catalog or the embedding backend changes materially
 
 ## 10. Testing contract
 
