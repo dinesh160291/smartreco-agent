@@ -529,3 +529,58 @@ def test_buying_actions_do_not_leak_across_subjects(policies):
         events = buying_journey(categories, 3)
         others = {p for p in fired(events, policies) if p in family} - {pattern_id}
         assert not others, f"{pattern_id}'s buying actions also fired {sorted(others)}"
+
+
+# --- Every subject asks the same question (Decision #096) --------------------
+
+SUBJECTS_WITH_EVALUATORS = [("BP-005", "BC-005", "collaboration"),
+                            ("BP-006", "BC-006", "work management"),
+                            ("BP-007", "BC-007", "workflow automation")]
+
+
+@pytest.mark.parametrize("pattern_id,concept_id,category", SUBJECTS_WITH_EVALUATORS)
+def test_committing_to_a_product_reaches_every_subject(policies, pattern_id,
+                                                       concept_id, category):
+    """Decision #092 made buying evidence about what is being bought — but only
+    for the v1.2 table patterns. BC-005, BC-006 and BC-007 are subjects too
+    (Decisions #077, #079) and kept hand-written evaluators that read research
+    only, so filling a cart with collaboration tools said nothing about wanting
+    collaboration software while the same act on a DevOps product did.
+    """
+    events = [E(1, "PRODUCT_VIEWED", category=category, product_id="P1"),
+              E(2, "ADD_TO_CART", product_id="P1"),
+              E(3, "DEMO_REQUESTED", product_id="P1"),
+              E(4, "TRIAL_STARTED", product_id="P1")]
+    draft = fired(events, policies).get(pattern_id)
+    assert draft is not None, f"{pattern_id} ignored the shopper's commitments"
+    assert concept_id in draft.concept_ids
+    assert draft.strength == "STRONG", (
+        f"three commitments and a view left {pattern_id} at {draft.strength}")
+
+
+@pytest.mark.parametrize("pattern_id,concept_id,category", SUBJECTS_WITH_EVALUATORS)
+def test_browsing_the_category_reaches_every_subject(policies, pattern_id,
+                                                     concept_id, category):
+    """BP-006 and BP-007 had no CATEGORY_VIEWED route where BP-005 and every
+    table pattern had one, so opening the shelf counted for nothing."""
+    events = [E(1, "CATEGORY_VIEWED", category=category),
+              E(2, "CATEGORY_VIEWED", category=category.title())]
+    draft = fired(events, policies).get(pattern_id)
+    assert draft is not None, f"{pattern_id} ignored the category browse"
+    assert concept_id in draft.concept_ids
+
+
+@pytest.mark.parametrize("pattern_id,_concept,category", SUBJECTS_WITH_EVALUATORS)
+def test_commitments_do_not_leak_across_subjects(policies, pattern_id, _concept,
+                                                 category):
+    """The category comes from the shopper's own product views, so a commitment
+    to something else must not qualify. Without this the shared route would make
+    every subject fire on every purchase."""
+    events = [E(1, "PRODUCT_VIEWED", category=category, product_id="P1"),
+              E(2, "PRODUCT_VIEWED", category="finance", product_id="P2"),
+              E(3, "ADD_TO_CART", product_id="P2"),
+              E(4, "DEMO_REQUESTED", product_id="P2"),
+              E(5, "TRIAL_STARTED", product_id="P2")]
+    draft = fired(events, policies).get(pattern_id)
+    assert draft is None or draft.strength != "STRONG", (
+        f"{pattern_id} reached {draft.strength} on commitments to a finance product")

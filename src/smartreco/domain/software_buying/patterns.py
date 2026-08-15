@@ -57,12 +57,88 @@ BP003_SEARCH_TERMS = {"ai", "copilot", "assistant"}
 SECURITY_DWELL_TOPIC = "security"
 DWELL_TOPICS = frozenset({SECURITY_DWELL_TOPIC})
 BP005_DOC_TOPICS = {"messaging", "meetings", "co-editing"}
+# Doc 02 gives BP-005 no search route, and inventing a collaboration
+# vocabulary here would be adding a rule the spec does not state. An empty
+# set switches the route off rather than matching everything.
+BP005_SEARCH_TERMS: frozenset[str] = frozenset()
 BP006_DOC_TOPICS = {"productivity", "templates", "tasks"}
 BP006_SEARCH_TERMS = {"productivity", "templates", "tasks"}
 
 
 def _tokens(query: str) -> set[str]:
     return set(query.lower().split())
+
+
+# The events by which a shopper says *what kind of software* they are after.
+#
+# Committing to a product is a statement about what is being bought
+# (Decision #092). SECURITY_VIEWED is deliberately absent, and the distinction
+# is the one POL-REQ-004 rests on: reading a product's security pages is how a
+# shopper *vets* a candidate, not a statement of what they are shopping for. It
+# already feeds the lens concept of the same name. Folding it in would make
+# every security-conscious buyer look like they were shopping for whatever they
+# happened to be vetting.
+BUYING_ACTIONS = frozenset({
+    "ADD_TO_CART", "DEMO_REQUESTED", "TRIAL_STARTED", "PRICING_VIEWED",
+    "COMPARISON_STARTED",
+})
+
+
+def subject_qualifying(events: list[EventView], journey_events: list[EventView],
+                       doc_topics: set[str], categories: set[str],
+                       search_terms: set[str]) -> list[EventView]:
+    """Which of `events` say "I am researching *this* kind of software".
+
+    One definition for every subject evaluator (Decision #096). The v1.2 table
+    patterns had it; BP-005, BP-006 and BP-007 — subjects too, since Decisions
+    #077 and #079 — each carried a hand-written variant that had drifted: none
+    read the commercial actions Decision #092 added, BP-006 and BP-007 had no
+    `CATEGORY_VIEWED` route, and BP-005 had no `SEARCH` route. A shopper who
+    filled a cart with collaboration tools contributed nothing to the concept
+    deciding they wanted collaboration software, while the same act on a DevOps
+    product did — the inequity Decision #087 called not defensible, arrived at
+    by a different road.
+
+    A pattern still declares its own vocabulary; what is shared is only the
+    *shape* of the question. An empty `search_terms` or `doc_topics` switches
+    that route off rather than matching everything.
+    """
+    # A commercial action names a product, never a category (doc 13), so the
+    # category is resolved from the shopper's own product views. That keeps the
+    # evaluator working on events alone — EventView is deliberately "reduced to
+    # what pattern evaluation may look at", and reaching into the product
+    # catalog here would put the system of record for a category behind a seam
+    # that has never needed it, and make the output depend on catalog state at
+    # scoring time rather than on observed behaviour.
+    #
+    # Built from `journey_events` rather than the session, so a cart action
+    # today resolves against a product viewed yesterday.
+    category_of: dict[str, str] = {}
+    for e in journey_events:
+        if e.event_type == "PRODUCT_VIEWED":
+            product = e.metadata.get("product_id")
+            category = str(e.metadata.get("category", "")).lower()
+            if product and category:
+                category_of.setdefault(product, category)
+
+    def on_subject(category: str) -> bool:
+        return bool(category) and any(name in category for name in categories)
+
+    out = []
+    for e in events:
+        if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in doc_topics:
+            out.append(e)
+        elif e.event_type in ("PRODUCT_VIEWED", "CATEGORY_VIEWED"):
+            if on_subject(str(e.metadata.get("category", "")).lower()):
+                out.append(e)
+        elif e.event_type == "SEARCH" and _tokens(e.metadata.get("query", "")) & search_terms:
+            out.append(e)
+        elif e.event_type in BUYING_ACTIONS:
+            products = (e.metadata.get("product_id"), e.metadata.get("product_a"),
+                        e.metadata.get("product_b"))
+            if any(on_subject(category_of.get(p, "")) for p in products if p):
+                out.append(e)
+    return out
 
 
 def _evaluate_bp001(session_events: list[EventView]) -> EvidenceDraft | None:
@@ -127,19 +203,16 @@ def _evaluate_bp003(session_events: list[EventView]) -> EvidenceDraft | None:
         explanation=f"BP-003 activated: {len(qualifying)} AI signal(s) -> {strength}")
 
 
-def _evaluate_bp005(session_events: list[EventView]) -> EvidenceDraft | None:
-    """BP-005 Collaboration Evaluation: ≥2 among PRODUCT_VIEWED in a
-    collaboration category, DOCUMENTATION_VIEWED topic messaging/meetings/
-    co-editing, CATEGORY_VIEWED collaboration. Strong at ≥4. Co-supports
+def _evaluate_bp005(session_events: list[EventView],
+                    journey_events: list[EventView]) -> EvidenceDraft | None:
+    """BP-005 Collaboration Evaluation: ≥2 among PRODUCT_VIEWED or
+    CATEGORY_VIEWED in a collaboration category, DOCUMENTATION_VIEWED topic
+    messaging/meetings/co-editing, SEARCH with collaboration terms, and the
+    commercial actions on a collaboration product. Strong at ≥4. Co-supports
     BC-006 when productivity topics co-occur in the session."""
-    qualifying = []
-    for e in session_events:
-        if e.event_type == "PRODUCT_VIEWED" and "collaboration" in str(e.metadata.get("category", "")).lower():
-            qualifying.append(e)
-        elif e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in BP005_DOC_TOPICS:
-            qualifying.append(e)
-        elif e.event_type == "CATEGORY_VIEWED" and "collaboration" in str(e.metadata.get("category", "")).lower():
-            qualifying.append(e)
+    qualifying = subject_qualifying(
+        session_events, journey_events, BP005_DOC_TOPICS,
+        SUBJECTS_WITH_OWN_EVALUATOR["BC-005"], BP005_SEARCH_TERMS)
     if len(qualifying) < 2:
         return None
     productivity_co_occurs = any(
@@ -154,10 +227,12 @@ def _evaluate_bp005(session_events: list[EventView]) -> EvidenceDraft | None:
         explanation=f"BP-005 activated: {len(qualifying)} collaboration signal(s) -> {strength}")
 
 
-def _evaluate_bp006(session_events: list[EventView]) -> EvidenceDraft | None:
+def _evaluate_bp006(session_events: list[EventView],
+                    journey_events: list[EventView]) -> EvidenceDraft | None:
     """BP-006 Productivity Evaluation: ≥2 among DOCUMENTATION_VIEWED topic
     productivity/templates/tasks, SEARCH with productivity terms,
-    PRODUCT_VIEWED in the Work Management category. Weak; Medium at ≥3;
+    PRODUCT_VIEWED or CATEGORY_VIEWED in the Work Management category, and the
+    commercial actions on a work-management product. Weak; Medium at ≥3;
     **Strong at ≥4 (Decision #094)**.
 
     The product-view branch read `productivity` until Decision #080 dissolved
@@ -177,14 +252,9 @@ def _evaluate_bp006(session_events: list[EventView]) -> EvidenceDraft | None:
     subjects with their own evaluator — and every domain research pattern
     already use.
     """
-    qualifying = []
-    for e in session_events:
-        if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in BP006_DOC_TOPICS:
-            qualifying.append(e)
-        elif e.event_type == "SEARCH" and _tokens(e.metadata.get("query", "")) & BP006_SEARCH_TERMS:
-            qualifying.append(e)
-        elif e.event_type == "PRODUCT_VIEWED" and "work management" in str(e.metadata.get("category", "")).lower():
-            qualifying.append(e)
+    qualifying = subject_qualifying(
+        session_events, journey_events, BP006_DOC_TOPICS,
+        SUBJECTS_WITH_OWN_EVALUATOR["BC-006"], BP006_SEARCH_TERMS)
     if len(qualifying) < 2:
         return None
     strength = ("STRONG" if len(qualifying) >= 4
@@ -281,18 +351,13 @@ def _evaluate_bp004(session_events: list[EventView], journey_events: list[EventV
 
 def _evaluate_bp007(session_events: list[EventView], journey_events: list[EventView]) -> EvidenceDraft | None:
     """BP-007 Automation Evaluation: ≥2 among DOC workflows/automation/triggers,
-    PV in an automation category, SEARCH with automation terms. Strong at ≥4
-    qualifying or multi-session recurrence."""
+    PRODUCT_VIEWED or CATEGORY_VIEWED in the Workflow Automation category,
+    SEARCH with automation terms, and the commercial actions on an automation
+    product. Strong at ≥4 qualifying or multi-session recurrence."""
     def quals(events):
-        out = []
-        for e in events:
-            if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in BP007_DOC_TOPICS:
-                out.append(e)
-            elif e.event_type == "PRODUCT_VIEWED" and "automation" in str(e.metadata.get("category", "")).lower():
-                out.append(e)
-            elif e.event_type == "SEARCH" and _tokens(e.metadata.get("query", "")) & BP007_SEARCH_TERMS:
-                out.append(e)
-        return out
+        return subject_qualifying(events, journey_events, BP007_DOC_TOPICS,
+                                  SUBJECTS_WITH_OWN_EVALUATOR["BC-007"],
+                                  BP007_SEARCH_TERMS)
 
     session_qualifying = quals(session_events)
     if len(session_qualifying) < 2:
@@ -693,25 +758,6 @@ UI_INTEGRATION_TOPICS = (
 # recorded and counts toward accumulation while no topic-keyed clause can act
 # on it. SECURITY_VIEWED has always worked this way.
 UI_INTEGRATION_TOPIC_DEFAULT = None
-
-
-# Actions that state *what* is being bought, once the product's category is
-# known (Decision #092). Each is a commitment toward a particular product rather
-# than a way of assessing one.
-#
-# SECURITY_VIEWED is deliberately absent, and the distinction is the one
-# POL-REQ-004 rests on: reading a product's security pages is how a shopper
-# *vets* a candidate, not a statement of what they are shopping for. It already
-# feeds the lens concept of the same name. Folding it into the subject would
-# make every security-conscious buyer look like they were shopping for whatever
-# they happened to be vetting — and the lens demotion exists precisely because
-# those are different claims.
-BUYING_ACTIONS = frozenset({
-    "ADD_TO_CART", "DEMO_REQUESTED", "TRIAL_STARTED", "PRICING_VIEWED",
-    "COMPARISON_STARTED",
-})
-
-
 def _evaluate_domain_research(session_events: list[EventView],
                               journey_events: list[EventView], pattern_id: str,
                               concept_id: str, doc_topics: set[str],
@@ -735,44 +781,9 @@ def _evaluate_domain_research(session_events: list[EventView],
     instead, and the platform grew confident someone was ready to buy while
     never establishing what.
     """
-    # A commercial action names a product, never a category (doc 13), so the
-    # category is resolved from the shopper's own product views. That keeps the
-    # evaluator working on events alone — EventView is deliberately "reduced to
-    # what pattern evaluation may look at", and reaching into the product
-    # catalog here would put the system of record for a category behind a seam
-    # that has never needed it. Measured across the recorded journeys, 381 of
-    # 384 commercial events resolve this way; the rest carry no view of that
-    # product and simply do not qualify, which is the previous behaviour.
-    #
-    # Built from `journey_events` rather than the session, so a cart action
-    # today resolves against a product viewed yesterday.
-    category_of: dict[str, str] = {}
-    for e in journey_events:
-        if e.event_type == "PRODUCT_VIEWED":
-            product = e.metadata.get("product_id")
-            category = str(e.metadata.get("category", "")).lower()
-            if product and category:
-                category_of.setdefault(product, category)
-
-    def on_subject(category: str) -> bool:
-        return bool(category) and any(name in category for name in categories)
-
     def quals(events):
-        out = []
-        for e in events:
-            if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in doc_topics:
-                out.append(e)
-            elif e.event_type in ("PRODUCT_VIEWED", "CATEGORY_VIEWED"):
-                if on_subject(str(e.metadata.get("category", "")).lower()):
-                    out.append(e)
-            elif e.event_type == "SEARCH" and _tokens(e.metadata.get("query", "")) & search_terms:
-                out.append(e)
-            elif e.event_type in BUYING_ACTIONS:
-                products = (e.metadata.get("product_id"), e.metadata.get("product_a"),
-                            e.metadata.get("product_b"))
-                if any(on_subject(category_of.get(p, "")) for p in products if p):
-                    out.append(e)
-        return out
+        return subject_qualifying(events, journey_events, doc_topics,
+                                  categories, search_terms)
 
     qualifying = quals(session_events)
     if len(qualifying) < 2:
@@ -854,8 +865,8 @@ SESSION_EVALUATORS = (
     lambda se, all_events: _evaluate_bp002_contradiction(se),
     lambda se, all_events: _evaluate_bp003(se),
     lambda se, all_events: _evaluate_bp004(se, all_events),
-    lambda se, all_events: _evaluate_bp005(se),
-    lambda se, all_events: _evaluate_bp006(se),
+    lambda se, all_events: _evaluate_bp005(se, all_events),
+    lambda se, all_events: _evaluate_bp006(se, all_events),
     lambda se, all_events: _evaluate_bp007(se, all_events),
     lambda se, all_events: _evaluate_bp008(se),
     lambda se, all_events: _evaluate_bp009(se, all_events),

@@ -15,7 +15,13 @@ from smartreco.domain.software_buying.patterns import (
     ADOPTION_DOC_TOPICS, BP011_TRIGGERS, DOMAIN_RESEARCH_PATTERNS, INTENT_CONCEPTS,
     SUBJECTS_WITH_OWN_EVALUATOR)
 
-DOMAIN_PACK_VERSION = "1.10"  # v1.10 gives BP-006 a Strong level (Decision
+DOMAIN_PACK_VERSION = "1.11"  # v1.11 gives every subject evaluator one shared
+                              # definition of what counts as researching a
+                              # subject (Decision #096): BP-005/006/007 each
+                              # carried a drifted hand-written variant, so none
+                              # read the commercial actions #092 added and two
+                              # had no category-browse route
+                              # v1.10 gives BP-006 a Strong level (Decision
                               # #094): BC-006 became a subject in #079 but kept
                               # a Medium-capped ladder, so its ceiling of 0.488
                               # sat below the 0.5 publication floor and REQ-013

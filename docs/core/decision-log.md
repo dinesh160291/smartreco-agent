@@ -5258,3 +5258,88 @@ Sabotage-checked: unbinding the handler fails the two HTML assertions and
 leaves the JSON contract test passing, which is the right shape — JSON is the
 behaviour that was already correct.
 
+
+---
+
+# Decision #096
+
+## Title
+
+One definition of what counts as researching a subject, shared by every
+subject evaluator
+
+## Status
+
+Accepted
+
+## Decision
+
+`subject_qualifying(events, journey_events, doc_topics, categories,
+search_terms)` holds the rule once. BP-005, BP-006, BP-007 and every row of the
+v1.2 domain research table call it. Each still declares its own vocabulary;
+what is shared is the shape of the question.
+
+Net behaviour change: BP-005, BP-006 and BP-007 now qualify on the commercial
+actions (Decision #092), and BP-006 and BP-007 gain a `CATEGORY_VIEWED` route.
+BP-005 still has no `SEARCH` route.
+
+Domain Pack **1.10** → **1.11**. No platform module and no policy value changed.
+
+## Rationale
+
+The follow-up Decision #094 said to make "when the next symptom appears rather
+than patch a fourth time". The symptom did not need to appear: the drift is
+visible by inspection once the three evaluators are read side by side, and each
+had drifted differently.
+
+| | commercial actions | `CATEGORY_VIEWED` | `SEARCH` |
+|---|---|---|---|
+| BP-013 … BP-023 | yes (v1.8) | yes | yes |
+| BP-005 | no | yes | no |
+| BP-006 | no | no | yes |
+| BP-007 | no | no | yes |
+
+None of those gaps was decided; they are what three hand-written functions
+written at three different times happen to say. The consequence is the one
+Decision #087 called not defensible: a shopper who filled a cart with
+collaboration tools, booked a demo and started a trial contributed nothing to
+the concept deciding they wanted collaboration software, while the identical
+act on a DevOps product did. Decision #092 fixed exactly that and could not
+reach these three, because the rule it changed did not live in one place.
+
+**Why not fold the three into the table outright**, which is the larger move
+#094 gestured at. Their vocabularies and ladders differ for reasons the
+document gives — BP-005's co-support of BC-006, BP-007's multi-session clause,
+BP-006's Weak level — and flattening those into table rows would change several
+decided things at once in order to fix one undecided thing. Sharing the
+qualifying rule removes the drift; the ladders stay where their decisions put
+them.
+
+**BP-005 keeps no search route, deliberately.** Doc 02 never gave it one, and
+inventing a collaboration search vocabulary while refactoring would be adding a
+rule the spec does not state, smuggled in as a side-effect. The empty set
+switches the route off rather than matching everything.
+
+## Consequences
+
+**Nothing pinned moved.** 482 → **491** green, the nine new tests being this
+decision's own; Story 1 and Story 2 are untouched. As with Decision #092, that
+is a statement about coverage rather than a reassurance: the acceptance stories
+do not exercise commitments-as-subject-evidence for these three concepts, so
+the suite could not have caught the gap and cannot vouch for the fix. The nine
+tests are the whole of it, and they are parametrised over all three patterns so
+none can drift alone again.
+
+**Discrimination survives, and is pinned.** The category still comes from the
+shopper's own product views, so a cart action on a Finance product does not
+qualify the Work Management subject. One of the three parametrised tests
+asserts exactly that for each pattern — without it, a shared route would make
+every subject fire on every purchase, which would be a worse defect than the
+one being fixed.
+
+Sabotage-checked: dropping the two routes from the shared helper fails six of
+the nine.
+
+**BC-007's ceiling, flagged in #094 as the tightest remaining at 0.640, is no
+longer tight.** It gains the category-browse and commercial-action buckets,
+which is the incidental benefit of the three asking the same question.

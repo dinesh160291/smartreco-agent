@@ -483,6 +483,42 @@ service buyer types.
 
 ---
 
+# One question, asked the same way — v1.11 (Decision #096)
+
+The three subjects above keep their own evaluators, but they no longer keep
+their own idea of what counts as researching a subject. `subject_qualifying`
+holds that definition once, and BP-005, BP-006, BP-007 and every row of the
+v1.2 table now call it.
+
+They had drifted, each in a different direction, and none of it was decided:
+
+| | commercial actions | `CATEGORY_VIEWED` | `SEARCH` |
+|---|---|---|---|
+| BP-013 … BP-023 (the table) | yes (since v1.8) | yes | yes |
+| BP-005 Collaboration | **no** | yes | no — and still no, see below |
+| BP-006 Work Management | **no** | **no** | yes |
+| BP-007 Automation | **no** | **no** | yes |
+
+So a shopper who filled a cart with collaboration tools, booked a demo and
+started a trial contributed nothing to the concept deciding they wanted
+collaboration software, while the identical act on a DevOps product did — the
+inequity Decision #087 named, arrived at from a different direction. Decision
+#092 fixed it for the table and could not reach these three, because the rule
+it changed did not live in one place.
+
+**BP-005 still has no search route.** Doc 02 never gave it one, and inventing a
+collaboration search vocabulary here would be adding a rule this document does
+not state. The empty set switches the route off rather than matching
+everything; if the vocabulary is wanted it is a deliberate addition, not a
+side-effect of sharing machinery.
+
+**A pattern still declares its own vocabulary.** What is shared is the shape of
+the question, never the answer — which is why a cart action on a Finance
+product cannot qualify the Work Management subject, and a test pins that for
+all three.
+
+---
+
 # Subjects that already had an evaluator — BC-005, BC-007
 
 Collaboration, Productivity and Automation Evaluation state a subject as plainly
@@ -761,7 +797,11 @@ Conventions:
 
 **Intent:** The user is evaluating team communication and co-work capability.
 
-**Required Evidence:** ≥ 2 events among: PRODUCT_VIEWED in a collaboration category, DOCUMENTATION_VIEWED topic = messaging/meetings/co-editing, CATEGORY_VIEWED = collaboration, within a session.
+**Required Evidence:** ≥ 2 events among: PRODUCT_VIEWED or CATEGORY_VIEWED in a collaboration category, DOCUMENTATION_VIEWED topic = messaging/meetings/co-editing, within a session.
+  **v1.11 (Decision #096):** and the commercial actions —
+`ADD_TO_CART`, `DEMO_REQUESTED`, `TRIAL_STARTED`, `PRICING_VIEWED`,
+`COMPARISON_STARTED` — on a product this journey has seen in that category.
+
 
 **Optional Supporting:** COMPARISON_STARTED between collaboration products.
 
@@ -783,7 +823,11 @@ Conventions:
 
 **Intent:** The user seeks efficiency and output improvements.
 
-**Required Evidence:** ≥ 2 events among: DOCUMENTATION_VIEWED topic = productivity/templates/tasks, SEARCH with productivity terms, PRODUCT_VIEWED in productivity categories, within a session.
+**Required Evidence:** ≥ 2 events among: DOCUMENTATION_VIEWED topic = productivity/templates/tasks, SEARCH with productivity terms, PRODUCT_VIEWED or CATEGORY_VIEWED in the Work Management category, within a session.
+  **v1.11 (Decision #096):** and the commercial actions —
+`ADD_TO_CART`, `DEMO_REQUESTED`, `TRIAL_STARTED`, `PRICING_VIEWED`,
+`COMPARISON_STARTED` — on a product this journey has seen in that category.
+
 
 **Optional Supporting:** AI-topic co-occurrence (strengthens BP-003 concurrently).
 
@@ -815,7 +859,11 @@ Conventions:
 
 **Intent:** The user is evaluating workflow/process automation.
 
-**Required Evidence:** ≥ 2 events among: DOCUMENTATION_VIEWED topic = workflows/triggers, PRODUCT_VIEWED in an automation category, SEARCH with automation terms, within a session.
+**Required Evidence:** ≥ 2 events among: DOCUMENTATION_VIEWED topic = workflows/triggers, PRODUCT_VIEWED or CATEGORY_VIEWED in the Workflow Automation category, SEARCH with automation terms, within a session.
+  **v1.11 (Decision #096):** and the commercial actions —
+`ADD_TO_CART`, `DEMO_REQUESTED`, `TRIAL_STARTED`, `PRICING_VIEWED`,
+`COMPARISON_STARTED` — on a product this journey has seen in that category.
+
 
 **Optional Supporting:** DWELL ≥ 60s on workflow-builder pages; DOCUMENTATION_VIEWED topic = business rules.
 
