@@ -165,6 +165,37 @@ and misleads on none is worth having; the same feature at -0.50 would answer
 margin.** It should be re-measured whenever the catalog changes materially, and
 a deployment that prefers caution should take -0.35 and lose two queries.
 
+### 4.2.1 One threshold was doing two jobs (Decision #090)
+
+The floor above answers **"does this query have an answer at all?"** — a
+precision question about the *query*. It was also, by accident of being a
+per-hit filter, answering **"which products belong on the page?"** — a relevance
+question about each *product*. Those are not the same question, and conflating
+them cost the feature its evidence: §5.2.1 measured pages holding a **single**
+product, and one product is one click against an activation ladder that needs
+two signals.
+
+The gate now reads the **top hit only**; the page is then filled from hits
+within `neighbour_band` (0.15) of that top hit, up to `top_k`.
+
+**Why this is not the retune §4.2 refused.** The two obvious fixes — lower the
+floor, or lower the pack's ladder — are still wrong, and this is neither.
+Because the gate reads the top hit, widening the band **cannot promote a query
+the gate rejected**: measured across the whole fixture, unanswerable pages stay
+at **0/10 for every band from 0.05 to 0.50**. The set of queries that produce a
+page is *identical* to before; only their contents grew. That property is what
+makes this a design correction rather than a threshold nudge, and it is pinned
+by a test.
+
+| | one-product pages | unanswerable pages |
+|---|---|---|
+| Floor as a per-hit filter | 3 of 7 | 0 of 10 |
+| Gate on top hit + band 0.15 | **0 of 7** | **0 of 10** |
+
+0.10 is where one-product pages first disappear; 0.15 is chosen for margin,
+having already been burned once by fitting a value to a fixture's edge (§4.2).
+Beyond 0.30 the band saturates against `top_k` and stops meaning anything.
+
 ### 4.3 Two findings that change other parts of this spec
 
 **The floor is backend-specific, so it is a deployment value.** The same fixture
@@ -260,11 +291,34 @@ that would make the drift a genuine loss: a shopper who *would have* typed
 keywords now typing sentences. That needs live search logs, and the fields to
 detect it are already recorded (`fallback_used` marks precisely those searches).
 
-**The design finding worth acting on later: a one-product fallback page is an
-evidence dead end.** Not to be fixed by lowering the floor — §4.2 measured what
-that costs — and not by lowering the pack's activation ladder, which would make
-every subject easier to claim in order to fix a case that has nothing to do with
-confidence. It is recorded here rather than patched.
+**The design finding: a one-product fallback page is an evidence dead end.**
+Neither obvious fix would do — lowering the floor reintroduces the wrong answers
+§4.2 measured, and lowering the pack's activation ladder would make every
+subject in every domain easier to claim in order to fix a case that has nothing
+to do with confidence.
+
+**It was fixed by a third route: §4.2.1, splitting the gate from the band.**
+Re-running this eval afterwards, **dark cases fell 4 → 1** and one-product pages
+3 → 0:
+
+| | restored by clicking | still dark |
+|---|---|---|
+| Floor as a per-hit filter | 3 of 7 | 4 |
+| Gate on top hit + band | **6 of 7** | **1** |
+
+**The one remaining case is left alone deliberately.** "Know when someone tries
+to break into our systems" shows five products whose top two are Security and
+DevOps — one signal each, neither reaching two. The fix would be to reorder
+results so same-category products sit together, and that is corrupt: it ranks by
+what generates evidence rather than by what answers the shopper, and the DevOps
+product genuinely is relevant to the question asked. A subject the platform
+misses is a smaller cost than a ranking that serves the platform.
+
+**What this fix does not claim.** It removes a *structural* barrier — you cannot
+click two products when only one is shown. It does not make anyone click twice.
+Arm C simulates a shopper clicking the top two results; that is an assumption
+about behaviour, not a measurement of it, and it is the same assumption in both
+runs, which is what makes the comparison fair.
 
 Three responses, in order of preference:
 

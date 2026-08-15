@@ -192,7 +192,7 @@ The distinction is worth keeping sharp, because the two are answering different 
 Three constraints keep the second reader from becoming a second engine:
 
 - It is reachable **only** on a zero-result lexical query, so it can never alter a result set the deterministic path could produce.
-- Its hits are discarded below POL-SRCH-001's `min_similarity`, a floor **measured** rather than chosen. An index has no way to say "I don't know" — a query the catalog cannot answer still returns its nearest neighbours at a plausible-looking score — so without the floor the surface would guess.
+- It is gated by POL-SRCH-001's `min_similarity`, a floor **measured** rather than chosen, applied to the **top hit**: an index has no way to say "I don't know" — a query the catalog cannot answer still returns its nearest neighbours at a plausible-looking score — so without the gate the surface would guess. The page is then filled from hits within `neighbour_band` of that top hit. The two are separate because they answer separate questions (*does this query have an answer* vs *which products belong on the page*), and because the gate reads the top hit, the band cannot make an unanswerable query answerable (Decision #090).
 - What it retrieves is **never evidence**. The `SEARCH` event records the typed query and nothing about what came back; a result list is the platform's proposal, and a proposal that fed the reasoning engines would let the platform infer intent from its own guess.
 
 Its budget is its own (POL-SRCH-002), deliberately not POL-TRIG-003's: searches must never spend the Tier 2 reasoning budget a shopper's recommendations depend on.

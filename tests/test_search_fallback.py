@@ -26,7 +26,7 @@ import apps.web.main as web
 from smartreco import models
 from smartreco.policies import load_policies
 from smartreco.retrieval import embedding_document
-from smartreco.search_fallback import QueryCache, apply_floor, fallback_search
+from smartreco.search_fallback import QueryCache, fallback_search, select_results
 from smartreco.seeding import seed_canonical_products, seed_capabilities
 
 
@@ -37,20 +37,56 @@ def policies():
 
 # --- The pure part: floor and ordering -------------------------------------
 
-def test_hits_below_the_floor_are_discarded():
-    """§10.3. The floor is the whole safety argument — without it the page
-    answers "best pizza near the office" with whatever ranked first."""
-    hits = [("PROD-001", -0.20), ("PROD-002", -0.50), ("PROD-003", -0.38)]
-    kept = apply_floor(hits, min_similarity=-0.38, top_k=8)
-    assert [pid for pid, _s in kept] == ["PROD-001", "PROD-003"], (
-        "a hit at exactly the floor is admitted; one below it is not")
+def test_the_gate_is_the_top_hit_alone(policies):
+    """Decision #090. One number was doing two jobs — deciding whether the query
+    has an answer *and* which products belong on the page — and the second job
+    was starving the first's own page.
+
+    The gate answers only the first question, and it asks it of the **best** hit:
+    if nothing is close, the query is unanswered and the page is empty.
+    """
+    band = policies.param("POL-SRCH-001", "neighbour_band")
+    assert select_results([("PROD-001", -0.9), ("PROD-002", -0.95)],
+                          min_similarity=-0.38, neighbour_band=band, top_k=8) == []
 
 
-def test_everything_below_the_floor_yields_nothing_not_a_short_list():
-    """The empty state is the correct answer, and it is a different answer from
-    a one-item list. §3: a fallback that finds nothing must not degrade into a
-    list of unrelated products."""
-    assert apply_floor([("PROD-001", -0.9)], min_similarity=-0.38, top_k=8) == []
+def test_a_neighbour_below_the_gate_still_makes_the_page(policies):
+    """The point of the change, and the part that looks wrong until you see why.
+
+    -0.45 would have been discarded by the old rule. It is admitted now because
+    the *query* was already judged answerable by a top hit at -0.30 — and the
+    page it lands on says "products with related capabilities", which is exactly
+    what it is. Precision is set by the gate; the band is about company.
+    """
+    # -0.44, not -0.45: the band edge is a float subtraction (-0.3 - 0.15 is
+    # -0.44999999999999996), and a test sitting exactly on it would be pinning
+    # the arithmetic rather than the rule.
+    kept = select_results([("PROD-001", -0.30), ("PROD-002", -0.44)],
+                          min_similarity=-0.38, neighbour_band=0.15, top_k=8)
+    assert [pid for pid, _s in kept] == ["PROD-001", "PROD-002"]
+
+
+def test_the_band_still_excludes_distant_hits():
+    """A band that admits everything is not a band, and the index always returns
+    something — 'best pizza' would arrive with a full page of nearest
+    neighbours if the cut were only top_k."""
+    kept = select_results([("PROD-001", -0.30), ("PROD-002", -0.80)],
+                          min_similarity=-0.38, neighbour_band=0.15, top_k=8)
+    assert [pid for pid, _s in kept] == ["PROD-001"]
+
+
+def test_the_change_cannot_make_an_unanswerable_query_answerable():
+    """The safety property that made this fix legitimate rather than a retune.
+
+    Measured across the whole fixture: unanswerable pages stayed at 0/10 for
+    every band from 0.05 to 0.50, because the band cannot promote a top hit
+    the gate rejected. The set of queries that produce a page is *identical*
+    to before Decision #090; only what is on the page changed.
+    """
+    for band in (0.0, 0.05, 0.15, 0.5, 5.0):
+        assert select_results([("PROD-001", -0.39), ("PROD-002", -0.40)],
+                              min_similarity=-0.38, neighbour_band=band,
+                              top_k=8) == [], f"band {band} conjured a page"
 
 
 def test_order_is_similarity_then_product_id():
@@ -58,14 +94,14 @@ def test_order_is_similarity_then_product_id():
     found similarity is not bit-stable across calls (~3e-4), so without a total
     tie-break two identical searches could return different orders."""
     hits = [("PROD-009", -0.30), ("PROD-002", -0.30), ("PROD-005", -0.10)]
-    assert [pid for pid, _s in apply_floor(hits, -0.38, 8)] == [
+    assert [pid for pid, _s in select_results(hits, -0.38, 0.5, 8)] == [
         "PROD-005", "PROD-002", "PROD-009"]
 
 
 def test_top_k_bounds_the_result(policies):
     """Law 5. The index will always return something; the bound is ours."""
     hits = [(f"PROD-{i:03d}", -0.1) for i in range(20)]
-    assert len(apply_floor(hits, -0.38, top_k=3)) == 3
+    assert len(select_results(hits, -0.38, 0.5, top_k=3)) == 3
     assert policies.param("POL-SRCH-001", "top_k") == 8
 
 

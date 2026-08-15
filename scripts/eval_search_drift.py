@@ -79,10 +79,11 @@ def main():
         sys.exit(f"no {FLOOR_JSON} — run scripts/measure_search_floor.py first")
     policies = load_policies()
     floor = policies.param("POL-SRCH-001", "min_similarity")
+    band = policies.param("POL-SRCH-001", "neighbour_band")
     category_of = catalog_categories()
     rows = json.loads(FLOOR_JSON.read_text(encoding="utf-8"))
 
-    print(f"floor {floor}; {len(rows)} fixture queries\n")
+    print(f"gate {floor}, band {band}; {len(rows)} fixture queries\n")
     print(f"{'subject':<10}{'A kw':<9}{'B plain':<10}{'C +clicks':<11}{'shown':<7}"
           f"{'clicked':<26}query")
     print("-" * 118)
@@ -91,7 +92,11 @@ def main():
     for row in rows:
         if not row["expected"]:
             continue                                   # unanswerable: nothing to lose
-        shown = [pid for pid, sim in row["top"] if sim >= floor]
+        # Mirrors search_fallback.select_results: the gate reads the top hit,
+        # then the page fills from within the band (Decision #090).
+        ordered = sorted(row["top"], key=lambda hit: (-hit[1], hit[0]))
+        shown = ([pid for pid, sim in ordered if sim >= ordered[0][1] - band]
+                 if ordered and ordered[0][1] >= floor else [])
         if not shown:
             unreachable.append(row["query"])
             continue
@@ -122,7 +127,7 @@ def main():
     for pattern_id, query in dark:
         print(f"      {pattern_id}  {query!r}")
     if unreachable:
-        print(f"\nqueries the floor rejects entirely (no fallback, no clicks, no evidence): "
+        print(f"\nqueries the gate rejects entirely (no fallback, no clicks, no evidence): "
               f"{len(unreachable)}")
         for query in unreachable:
             print(f"      {query!r}")

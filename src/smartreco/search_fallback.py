@@ -82,17 +82,36 @@ class QueryCache:
             self._entries.popitem(last=False)   # oldest use first (Law 5: bounded)
 
 
-def apply_floor(hits, min_similarity: float, top_k: int) -> list[tuple[str, float]]:
-    """Discard hits below the floor; order by similarity, then Product ID.
+def select_results(hits, min_similarity: float, neighbour_band: float,
+                   top_k: int) -> list[tuple[str, float]]:
+    """Decide whether the query has an answer, then who else is on the page.
 
-    The tie-break is not cosmetic. Similarity is not bit-stable across embedding
-    calls — the same query measured 3e-4 apart on consecutive runs — so without
-    a total order two identical searches could disagree, and §3 promises the
-    list is replayable.
+    Two questions, and until Decision #090 one threshold answered both:
+
+      1. *Does this query have an answer at all?* A precision gate, and it reads
+         the **best** hit. An index has no way to say "I don't know", so an
+         unanswerable query still returns its nearest neighbours at a plausible
+         score; the gate is the only thing between the surface and guessing.
+      2. *Which products belong on the page?* Relevance relative to that best
+         hit — a different question, and answering it with the same gate meant a
+         page could hold a single product. One product is one click, against an
+         activation ladder needing two signals, so the fallback answered the
+         shopper and taught the platform nothing.
+
+    Splitting them is safe in the one direction that matters: because the gate
+    reads the top hit, widening the band **cannot** turn an unanswerable query
+    into an answerable one. The set of queries that produce a page is exactly
+    what it was; only their contents grew.
+
+    The Product ID tie-break is not cosmetic — similarity is not bit-stable
+    across embedding calls (the same query measured 3e-4 apart on consecutive
+    runs), so without a total order two identical searches could disagree.
     """
-    kept = [(pid, sim) for pid, sim in hits if sim >= min_similarity]
-    kept.sort(key=lambda hit: (-hit[1], hit[0]))
-    return kept[:top_k]
+    ordered = sorted(hits, key=lambda hit: (-hit[1], hit[0]))
+    if not ordered or ordered[0][1] < min_similarity:
+        return []
+    cut = ordered[0][1] - neighbour_band
+    return [hit for hit in ordered if hit[1] >= cut][:top_k]
 
 
 def fallback_search(query: str, *, backend, index, policies: PolicyCatalog,
@@ -111,6 +130,7 @@ def fallback_search(query: str, *, backend, index, policies: PolicyCatalog,
     max_chars = policies.param("POL-SRCH-001", "max_query_chars")
     top_k = policies.param("POL-SRCH-001", "top_k")
     floor = policies.param("POL-SRCH-001", "min_similarity")
+    band = policies.param("POL-SRCH-001", "neighbour_band")
 
     try:
         vector = backend.embed([query[:max_chars]])[0]
@@ -121,4 +141,4 @@ def fallback_search(query: str, *, backend, index, policies: PolicyCatalog,
         # reach the caller, or a broken feature is indistinguishable from a
         # query the catalog cannot answer.
         return []
-    return apply_floor(hits, floor, top_k)
+    return select_results(hits, floor, band, top_k)

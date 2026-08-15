@@ -4687,3 +4687,62 @@ evidence dead end**, and that it is a consequence of choosing precision at the
 floor — a trade already made deliberately, now with its full cost known.
 
 No code, policy or catalog version changed.
+
+---
+
+# Decision #090
+
+## The search floor was answering two questions, and the second starved the first
+
+The drift eval (#089 addendum) found that a fallback page holding a **single**
+product is an evidence dead end: one product is one click, against an activation
+ladder that needs two signals, so the feature answered the shopper and taught the
+platform nothing. Three of the four dark cases were exactly this.
+
+Both obvious fixes were refused and remain refused. Lowering `min_similarity` to
+show more products reintroduces the wrong answers the floor measurement rejected
+— at -0.50 the page answers "best pizza near the office" with a CRM. Lowering the
+pack's activation ladder would make every subject in every domain easier to claim
+in order to fix a case that has nothing to do with confidence.
+
+**The third route was to notice that one threshold was answering two different
+questions.** *Does this query have an answer at all?* is a precision question
+about the **query**. *Which products belong on the page?* is a relevance question
+about each **product**. `min_similarity` was answering both only because it
+happened to be written as a per-hit filter.
+
+The gate now reads the **top hit**; the page is filled from hits within
+`neighbour_band` (0.15) of it.
+
+**What makes this a design correction rather than the retune that was refused:**
+because the gate reads the top hit, widening the band **cannot promote a query
+the gate rejected**. Measured across the whole fixture, unanswerable pages stay
+at **0/10 for every band from 0.05 to 0.50**. The set of queries that produce a
+page is identical to before; only their contents grew. A test pins that property
+directly rather than trusting the argument.
+
+| | one-product pages | unanswerable pages | dark after clicking |
+|---|---|---|---|
+| Floor as a per-hit filter | 3 of 7 | 0 of 10 | 4 |
+| Gate on top hit + band 0.15 | **0 of 7** | **0 of 10** | **1** |
+
+0.10 is where one-product pages first disappear and 0.15 is chosen for margin —
+#089 was burned once by fitting a value to within 0.005 of a fixture's edge.
+Past 0.30 the band saturates against `top_k` and stops meaning anything.
+
+**The last dark case is left alone on purpose.** "Know when someone tries to
+break into our systems" returns five products whose top two are Security and
+DevOps, one signal each. Fixing it means reordering results so same-category
+products sit together — ranking by what generates evidence rather than by what
+answers the shopper, when the DevOps product is genuinely relevant to the
+question asked. A subject the platform misses is a smaller cost than a ranking
+that serves the platform.
+
+**And what the fix does not claim.** It removes a structural barrier — you cannot
+click two products when only one is shown. It does not make anyone click twice.
+The eval's third arm assumes a shopper clicks the top two results; that is an
+assumption about behaviour in both runs, which is what makes the comparison fair
+and what stops the improvement from being read as a measured behaviour change.
+
+Policy Catalog **1.14**. `apply_floor` is renamed `select_results`, because a
+function that no longer applies a floor should not be called one.

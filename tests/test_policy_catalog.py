@@ -31,6 +31,12 @@ def catalog():
 
 
 def test_catalog_version_is_recorded(catalog):
+    # v1.14: POL-SRCH-001 gained neighbour_band (#090). min_similarity now gates
+    # the *top hit only*; the page is filled from within a band of it. Same
+    # query, same set of pages — measured, the band cannot make an unanswerable
+    # query answerable — but a page that held one product now holds several,
+    # which is the difference between a fallback that produces evidence and one
+    # that does not.
     # v1.13: POL-SRCH-001/002 are new — a search that matches nothing lexically
     # may now be answered from the vector index (#089). The same query under
     # 1.12 rendered an empty page, so this is a change in what a run *does*,
@@ -72,7 +78,7 @@ def test_catalog_version_is_recorded(catalog):
     # produced it — #056 shipped without bumping it and the omission cost a
     # debugging round, because policy_version 1.4 could not distinguish a
     # server running the fork from one that was not.
-    assert catalog.version == "1.13"
+    assert catalog.version == "1.14"
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
     assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 45
     assert catalog.param("POL-TRIG-001", "unprocessed_event_threshold") == 3
@@ -135,6 +141,7 @@ def test_search_fallback_bounds_match_pol_srch_001(catalog):
     query classes overlap, so a floor set for recall answers "best pizza near
     the office" with a CRM. Pinned so a later retune is a deliberate act."""
     assert catalog.param("POL-SRCH-001", "min_similarity") == -0.38
+    assert catalog.param("POL-SRCH-001", "neighbour_band") == 0.15
     assert catalog.param("POL-SRCH-001", "lexical_min_results") == 1
     assert catalog.param("POL-SRCH-001", "top_k") == 8
     assert catalog.param("POL-SRCH-001", "max_query_chars") == 200

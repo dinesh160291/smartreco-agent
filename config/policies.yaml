@@ -6,7 +6,7 @@
 # changes the decisions a run produces, and policy_version is how that run says
 # which build of the rules produced it.
 
-catalog_version: "1.13"
+catalog_version: "1.14"
 
 policies:
 
@@ -285,13 +285,20 @@ policies:
       A catalog search that returns fewer than lexical_min_results is answered from the vector index
       instead of an empty page: top_k hits, discarding any below min_similarity, with the query
       truncated to max_query_chars before embedding. Unreachable for any query the lexical path can
-      serve. min_similarity is in the Chapter 20 quantity (1 - distance) and is MEASURED per
+      serve. min_similarity gates the *top hit only* — it decides whether the query has an answer at
+      all — and the page is then filled with hits within neighbour_band of that top hit, up to top_k.
+      One threshold used to do both jobs, and the second starved the first's own page: a page holding
+      one product is one click, against an activation ladder that needs two, so the fallback produced
+      no evidence at all (Decision #090). Because the gate reads the top hit, the band cannot make an
+      unanswerable query answerable — the set of queries that produce a page is unchanged, only their
+      contents. min_similarity is in the Chapter 20 quantity (1 - distance) and is MEASURED per
       deployment by scripts/measure_search_floor.py, not chosen — re-measure when EMBEDDINGS_BACKEND
       or the catalog changes materially.
     params:
       lexical_min_results: 1
       top_k: 8
       min_similarity: -0.38
+      neighbour_band: 0.15
       max_query_chars: 200
 
   POL-SRCH-002:
