@@ -181,13 +181,29 @@ reasoning where it should have measured. §5.2's eval case is what settles it.
 | `top_k` hits from the index | POL-RETR-001's shape, own value |
 | Query truncated to `max_query_chars` before embedding | Unbounded user text must never reach the gateway |
 | Identical normalized queries cached for `cache_ttl_seconds` | Determinism within the window, and a spam-typing shopper costs one call |
-| **Own** per-user daily cap, separate from POL-TRIG-003 | See below |
+| **Own** daily cap per signed-in user, separate from POL-TRIG-003 | See below |
+| **Per-session** cap for signed-out visitors (§12) | No account to bill, so the session is the unit |
 | Cap exhausted → empty state, silently | Never an error page, never a retry storm |
 
 **The separate cap matters.** If search embeddings drew on the Tier-2 reasoning
 budget, a shopper who typed a lot of failed searches would degrade their own
 recommendations — the platform's actual product — as a side effect of using the
 search box. The two budgets are for different things and must not compete.
+
+**The signed-out cap is counted per session, not per visitor**, and the
+difference is worth being honest about: a session is cheap to create, so the cap
+bounds the cost of one visitor's *browsing*, not of one determined attacker.
+That is the right bound for the threat it is actually facing — a curious
+newcomer typing questions — and it is the whole of what it claims. If the demo
+is ever exposed publicly, the abuse question is answered at the edge with rate
+limiting, not by this policy. On session expiry the count goes with it, by
+design: the session is the budget's lifetime.
+
+A signed-out visitor's counter therefore lives on the session record, and the
+signed-in one on the user; the moment a visitor registers or logs in, the
+per-user cap governs and the session count is abandoned rather than carried
+across. Simpler than reconciling two ledgers, and the direction of the error
+favours the shopper who has just committed to an account.
 
 **One cost note that changes the picture.** Under `EMBEDDINGS_BACKEND=local` the
 embedding is computed in-process and there is no gateway call, no network and no
@@ -214,7 +230,7 @@ New IDs, mirrored into `config/policies.yaml`, with a `catalog_version` bump:
 | ID | Params |
 |---|---|
 | `POL-SRCH-001` Catalog search fallback | `lexical_min_results`, `top_k`, `min_similarity` (§4), `max_query_chars` |
-| `POL-SRCH-002` Search embedding budget | `searches_per_user_per_day`, `cache_ttl_seconds` |
+| `POL-SRCH-002` Search embedding budget | `searches_per_user_per_day`, `searches_per_anonymous_session`, `cache_ttl_seconds` |
 
 Policy Catalog v1 (`docs/core/10`) is the authority and `config/policies.yaml`
 mirrors it; both move in the implementing commit, or `test_policy_catalog.py`
@@ -275,17 +291,27 @@ embedding backends.
 - **Search-as-you-type.** An embedding per keystroke, with none of the bounds
   above surviving contact.
 
-## 12. The one open question
+## 12. Resolved — the fallback fires for signed-out visitors
 
-**Does the fallback fire for a signed-out visitor?**
+**Decided (user, 2026-08-14): yes, bounded by a per-session cap.**
 
-For: the shopper who most needs help with vocabulary is the one who has not
-committed to anything yet.
+The shopper who most needs help with vocabulary is the one who has not committed
+to anything yet, and gating the feature behind registration would withhold it
+from exactly that person. The per-user budget in §6 has no account to bill, so
+the session becomes the unit: `searches_per_anonymous_session`, held in
+POL-SRCH-002 alongside the signed-in cap, with the counter on the session record
+and the mechanics in §6.
 
-Against: the per-user budget in §6 has no user to bill, and a public embedding
-endpoint reachable without an account is the shape of an abuse vector.
+What this costs, stated rather than discovered later: a session is cheap to
+create, so the cap bounds one visitor's browsing rather than one attacker's
+persistence. That is the threat it is scoped to. A publicly exposed deployment
+answers abuse at the edge with rate limiting; this policy does not pretend to.
 
-Recommendation: **yes, with a per-session cap** rather than a per-user one, held
-in the same policy. It preserves the feature where it is most valuable and keeps
-the bound. The alternative — signed-in only — is defensible and cheaper to
-build, and is the right call if the demo deployment is ever exposed publicly.
+The tests owed by this decision, added to §10:
+
+11. **A signed-out visitor gets the fallback**, and the count lands on the
+    session rather than being skipped for want of a user.
+12. **The per-session cap is enforced**, and exhausting it renders the empty
+    state — not an error, and not a prompt to register.
+13. **Registering mid-session moves the visitor onto the per-user cap**, with
+    the session count abandoned rather than carried.
