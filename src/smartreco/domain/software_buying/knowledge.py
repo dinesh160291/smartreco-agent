@@ -15,7 +15,13 @@ from smartreco.domain.software_buying.patterns import (
     ADOPTION_DOC_TOPICS, BP011_TRIGGERS, DOMAIN_RESEARCH_PATTERNS, INTENT_CONCEPTS,
     SUBJECTS_WITH_OWN_EVALUATOR)
 
-DOMAIN_PACK_VERSION = "1.8"   # v1.8 lets a commitment to a product qualify the
+DOMAIN_PACK_VERSION = "1.9"   # v1.9 gives Customer Support a subject of its own
+                              # (Decision #093): the category was folded into
+                              # BC-019 CRM Evaluation, so every help-desk journey
+                              # anchored a sales requirement and was answered
+                              # with CRMs — none of the products the shopper had
+                              # actually opened
+                              # v1.8 lets a commitment to a product qualify the
                               # subject that product belongs to (Decision #092):
                               # cart, demo, trial, pricing and comparison were
                               # invisible to the concept deciding what is being
@@ -71,6 +77,10 @@ BEHAVIORAL_CONCEPTS: dict[str, str] = {
     # the last three categories a shopper could browse without the platform
     # forming any idea of what they wanted — 22 products between them.
     "BC-028": "Content & Knowledge Evaluation",
+    # v1.9 (Decision #093). Customer Support shared BC-019 with CRM, so the
+    # platform could not tell a service question from a sales one and answered
+    # every help-desk journey with a CRM.
+    "BC-029": "Customer Service Evaluation",
 }
 
 # ---- Business Requirement Catalog (doc 04) ----
@@ -102,6 +112,14 @@ REQUIREMENTS: dict[str, str] = {
     # v1.6 (Decision #081). Documents, knowledge and design assets are one need:
     # keep what the organisation knows findable, shareable and reusable.
     "REQ-014": "Content & Knowledge",
+    # v1.9 (Decision #093). Answering customers is its own purchase. REQ-006
+    # already held the two capabilities that say so, but as Secondary and
+    # Supporting behind Sales Pipeline and Contact Management — so the
+    # requirement a help-desk shopper anchored described selling to customers,
+    # not serving them. REQ-006 is untouched; a capability may belong to several
+    # requirements (doc 14 §Design rule), which is what makes this reachable
+    # without moving a single pinned derivation.
+    "REQ-015": "Customer Service Operations",
 }
 
 # ---- Product categories (doc 05; Law 7 — closed enums) ----
@@ -404,6 +422,16 @@ BC_TO_REQ: dict[str, dict[str, str]] = {
     # is — records retention is REQ-004's subject, and giving this requirement
     # a route into it is how one journey's evidence publishes another's need.
     "BC-028": {"REQ-014": "Primary", "REQ-001": "Supporting"},
+    # v1.9 (Decision #093). Secondary to Sales & Customer Management, because
+    # the overlap is real and runs one way: a service desk keeps a customer
+    # record, so a support shopper does acquire a mild contact-management
+    # question. Supporting to Workflow Automation — routing and escalation are
+    # how a service desk works — matching BC-019's own Supporting link.
+    #
+    # No link to AI Assistance, tempting as deflection bots are: that is REQ-005's
+    # subject, and giving this requirement a route into it is how one journey's
+    # evidence publishes another's need.
+    "BC-029": {"REQ-015": "Primary", "REQ-006": "Secondary", "REQ-003": "Supporting"},
 }
 
 # ---- Subjects and evaluation lenses (POL-REQ-004; doc 06 §Association classes) ----
@@ -563,6 +591,20 @@ REQ_TO_CAP: dict[str, dict[str, str]] = {
         "CAP-020": "Primary", "CAP-021": "Primary",
         "CAP-022": "Secondary", "CAP-023": "Secondary",
         "CAP-015": "Supporting",
+    },
+    # v1.9 (Decision #093). Tracking the issue and talking to the person raising
+    # it are what a service desk *is*, so both lead. Contact Management follows
+    # as Secondary: a support product needs the customer record, but holding one
+    # is not what makes it a support product — every CRM holds one too, and
+    # leading with it is how the sales requirement swallowed this one.
+    #
+    # Deliberately three. Lead Scoring and Sales Pipeline are the two REQ-006
+    # capabilities a service desk has no use for, and their absence is the whole
+    # point: they are why a help desk could not out-cover a CRM on a support
+    # journey. Nothing here is borrowed from another domain (Decision #061).
+    "REQ-015": {
+        "CAP-031": "Primary", "CAP-032": "Primary",
+        "CAP-028": "Secondary",
     },
 }
 

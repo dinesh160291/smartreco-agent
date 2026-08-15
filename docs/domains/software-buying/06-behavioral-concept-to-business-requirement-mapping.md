@@ -528,7 +528,7 @@ Regulatory Compliance
 
 Association level says how strongly a Behavioral Concept implies a Business Requirement. It does not say whether the Concept describes **what the shopper is shopping for** or **how they are vetting a candidate**. Those are different claims, and conflating them made the platform answer a question nobody asked.
 
-A **subject** Concept states the object of the search: BC-019 through BC-028 (CRM, People Operations, Financial, Marketing, Engineering Delivery, Data & Insight, Security Operations, Identity Platform, Compliance Programme), together with BC-005 Collaboration Evaluation, BC-006 Productivity Evaluation and BC-007 Automation Evaluation, which state a subject just as plainly but already had evaluators of their own (Decisions #077 and #079, doc 02 — *Subjects that already had an evaluator*).
+A **subject** Concept states the object of the search: BC-019 through BC-029 (CRM, People Operations, Financial, Marketing, Engineering Delivery, Data & Insight, Security Operations, Identity Platform, Compliance Programme, Content & Knowledge, Customer Service), together with BC-005 Collaboration Evaluation, BC-006 Productivity Evaluation and BC-007 Automation Evaluation, which state a subject just as plainly but already had evaluators of their own (Decisions #077 and #079, doc 02 — *Subjects that already had an evaluator*).
 
 An **evaluation lens** Concept states diligence applied to any candidate, in any category — BC-001 Security Evaluation, BC-002 Enterprise Evaluation, BC-004 Compliance Evaluation, BC-008 Integration Evaluation. An HR buyer reads the security page of an HR product; that is not a request for identity software.
 
@@ -1387,3 +1387,23 @@ no link to REQ-004 Regulatory Compliance, tempting as retention and governance
 make it — records retention is that requirement's own subject, and a route into
 it from here is how one journey's evidence publishes another journey's need
 (Decisions #049, #050).
+
+---
+
+# v1.9 Extension — BC-029 Mapping
+
+| Concept | Primary | Secondary | Supporting |
+|---|---|---|---|
+| BC-029 Customer Service Evaluation | REQ-015 Customer Service Operations | REQ-006 Sales & Customer Management | REQ-003 Workflow Automation |
+
+The Secondary link runs one way and only one way: a service desk keeps a
+customer record, so a support shopper does acquire a mild contact-management
+question. The reverse — a CRM shopper wanting a help desk — is not asserted, and
+BC-019's own mapping is unchanged.
+
+Supporting to Workflow Automation because routing and escalation are how a
+service desk works, matching BC-019's Supporting link of the same kind.
+
+No link to REQ-005 AI Assistance, tempting as deflection bots make it: that is
+REQ-005's own subject, and a route into it from here is the same defect this
+document names twice already.

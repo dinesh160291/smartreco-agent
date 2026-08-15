@@ -363,7 +363,7 @@ within a session.
 
 | Pattern | Concept | Doc topics | Categories | Search terms |
 |---|---|---|---|---|
-| BP-013 CRM Evaluation | BC-019 | pipeline · crm · tickets | CRM · Customer Support | crm, pipeline, lead(s), ticketing, helpdesk |
+| BP-013 CRM Evaluation *(narrowed in v1.9)* | BC-019 | pipeline · crm | CRM | crm, pipeline, lead(s) |
 | BP-014 People Ops Evaluation | BC-020 | payroll · hiring · performance | HR | hr, payroll, ats, onboarding, recruiting, hiring |
 | BP-015 Finance Evaluation | BC-021 | accounting · billing · expenses · forecasting | Finance | accounting, invoicing, invoice, expenses, ledger, budgeting |
 | BP-016 Marketing Evaluation | BC-022 | campaigns · seo · experiments | Marketing | marketing, campaign(s), seo, newsletter |
@@ -449,6 +449,37 @@ Every topic that would belong here is already owned — `co-editing` is BP-005's
 and `templates` is BP-006's — and BC-028 shares REQ-001 with BC-005 and REQ-014's
 Template Library with the concept BP-006 evaluates. Reading either would put one
 page into two contributions to the same requirement (Decision #077).
+
+---
+
+# v1.9 Domain Research Pattern — BP-023, and BP-013 narrowed
+
+| Pattern | Concept | Doc topics | Categories | Search terms |
+|---|---|---|---|---|
+| BP-023 Customer Service | BC-029 | tickets | Customer Support | helpdesk, ticketing, ticket, tickets, sla |
+
+**BP-013 loses the support vocabulary it was carrying.** It now reads:
+
+| Pattern | Concept | Doc topics | Categories | Search terms |
+|---|---|---|---|---|
+| BP-013 CRM Evaluation | BC-019 | pipeline · crm | CRM | crm, pipeline, lead(s) |
+
+BP-013 activated on the Customer Support category and on `tickets`,
+`ticketing` and `helpdesk`, so a help-desk shopper formed BC-019 CRM
+Evaluation and anchored REQ-006 Sales & Customer Management. Observed live: a
+journey of five Customer Support products, three demo requests, two cart adds
+and three support searches was answered with five CRMs and none of the products
+the shopper had opened (Decision #093).
+
+**`tickets` is safe for this pattern to own**, unlike the topics BP-020,
+BP-021 and BP-022 had to forgo. It belongs to no other pattern, and REQ-015 is
+fed by BC-029 alone — so no page contributes twice to one requirement, which is
+the whole of the rule those three rows obey.
+
+**`support` is deliberately not a search term.** It is the most common word in
+the catalog's own prose, and matching is by token, so it would form a service
+subject out of almost any product description. The terms kept are ones only a
+service buyer types.
 
 ---
 
@@ -757,6 +788,7 @@ Conventions:
 **Optional Supporting:** AI-topic co-occurrence (strengthens BP-003 concurrently).
 
 **Contradicting:** None specific.
+
 
 **Produces:** *Productivity Evaluation* — Strength Weak (minimum), Medium (≥ 3 events).
 

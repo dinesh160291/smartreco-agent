@@ -163,8 +163,7 @@ def _evaluate_bp006(session_events: list[EventView]) -> EvidenceDraft | None:
     The product-view branch read `productivity` until Decision #080 dissolved
     that category. It would have become a rule nothing could satisfy — the same
     dead vocabulary the emitted-vocabulary contract exists to forbid — and the
-    concept's own subject category is Work Management, so that is what it reads.
-    """
+    concept's own subject category is Work Management, so that is what it reads.    """
     qualifying = []
     for e in session_events:
         if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in BP006_DOC_TOPICS:
@@ -488,10 +487,15 @@ def _evaluate_bp002(session_events: list[EventView], journey_events: list[EventV
 
 DOMAIN_RESEARCH_PATTERNS = (
     # (pattern_id, concept_id, doc topics, product categories, search terms)
+    # v1.9 (Decision #093) narrowed this row to the category it is named for.
+    # It carried Customer Support as well, so a help-desk shopper formed "CRM
+    # Evaluation" and anchored REQ-006, whose Primary capabilities are Sales
+    # Pipeline and Contact Management — the shopper was scored on how well the
+    # product sells. The support vocabulary moved to BP-023 below.
     ("BP-013", "BC-019",
-     {"pipeline", "crm", "tickets"},
-     {"crm", "customer support"},
-     {"crm", "pipeline", "leads", "lead", "ticketing", "helpdesk"}),
+     {"pipeline", "crm"},
+     {"crm"},
+     {"crm", "pipeline", "leads", "lead"}),
     ("BP-014", "BC-020",
      {"payroll", "hiring", "performance"},
      {"hr"},
@@ -560,6 +564,23 @@ DOMAIN_RESEARCH_PATTERNS = (
      {"content management", "knowledge & docs", "design"},
      {"wiki", "knowledge", "cms", "dam", "whiteboard", "docs", "content",
       "intranet"}),
+    # v1.9 (Decision #093). Customer Support was the last category folded into
+    # somebody else's subject, and the only one where the borrowed requirement
+    # described a different purchase: running a service desk is not running a
+    # sales pipeline. Its own row, its own concept, its own requirement.
+    #
+    # `tickets` is safe to own — unlike BP-020's and BP-022's topics it belongs
+    # to no other pattern, and the requirement it feeds is fed by this concept
+    # alone, so no page is counted twice (Decisions #049, #050, #077).
+    #
+    # `support` is deliberately not a search term. It is the most common word in
+    # the catalog's own prose ("support", "supports", "supported") and matching
+    # is by token, so it would form a service subject out of any product's
+    # description. The terms kept are ones only a service buyer types.
+    ("BP-023", "BC-029",
+     {"tickets"},
+     {"customer support"},
+     {"helpdesk", "ticketing", "ticket", "tickets", "sla"}),
 )
 
 

@@ -123,7 +123,7 @@ Activation follows the established shape: **two qualifying signals** activate,
 
 | New pattern | Activates on ≥2 of | Strong at | Concept | Primary requirement |
 |---|---|---|---|---|
-| **BP-013 CRM Evaluation** | product view in CRM / Customer Support · docs topic `pipeline` `crm` `tickets` · category browse CRM · search "crm, sales pipeline, lead, ticketing" | ≥4 | BC-019 CRM Evaluation | REQ-006 |
+| **BP-013 CRM Evaluation** | product view in CRM · docs topic `pipeline` `crm` · category browse CRM · search "crm, sales pipeline, lead" | ≥4 | BC-019 CRM Evaluation | REQ-006 |
 | **BP-014 People Ops Evaluation** | product view in HR · docs topic `payroll` `hiring` `performance` · category browse HR · search "hr, payroll, ats, onboarding" | ≥4 | BC-020 People Operations Evaluation | REQ-007 |
 | **BP-015 Finance Evaluation** | product view in Finance · docs topic `accounting` `billing` `expenses` `forecasting` · category browse Finance · search "accounting, invoicing, gl, expenses" | ≥4 | BC-021 Financial Evaluation | REQ-008 |
 | **BP-016 Marketing Evaluation** | product view in Marketing · docs topic `campaigns` `seo` `experiments` · category browse Marketing · search "marketing, email campaign, seo" | ≥4 | BC-022 Marketing Evaluation | REQ-009 |
@@ -175,9 +175,17 @@ one.
 Simulated against the live catalog, this leaves **one** product falling through
 to the generic `api` default, against 100+ today.
 
-**Ordering needs one review pass.** Zendesk (Customer Support) resolves to
-`pipeline` because it happens to hold Sales Pipeline; support-flavoured topics
-should probably precede sales ones.
+**Ordering needs one review pass — LANDED.** Zendesk (Customer Support) resolved
+to `pipeline` because it happens to hold Sales Pipeline; support-flavoured topics
+now precede sales ones in `UI_DOC_TOPICS`, so a help-desk product describes its
+docs as tickets.
+
+That fixed the *topic*. It did not fix what the topic fed: this table's BP-013
+row folded Customer Support into CRM Evaluation, so the correctly-labelled
+`tickets` page still formed a CRM subject and anchored REQ-006 Sales & Customer
+Management. Customer Support has its own pattern, concept and requirement as of
+v1.9 — see doc 02 §*v1.9 Domain Research Pattern*, and Decision #093 for what it
+looked like from the shopper's side.
 
 **Structural note:** this table is Domain Pack artifact 11 by contract, but it
 currently lives in `apps/web/pages.py`. It should move into the pack as part of

@@ -300,6 +300,26 @@ produced three requirements each too thin to discriminate (Decision #081).
 
 ---
 
+# v1.9 Extension — BC-029
+
+| ID | Concept | Activated by | Primary requirement |
+|---|---|---|---|
+| BC-029 | Customer Service Evaluation | BP-023 | REQ-015 Customer Service Operations |
+
+Customer Support was the last category folded into another subject, and the only
+one where the borrowed requirement described a different purchase. BC-019 CRM
+Evaluation covered CRM *and* Customer Support, anchoring REQ-006 Sales &
+Customer Management — whose Primary capabilities are Sales Pipeline and Contact
+Management. A shopper researching help desks was therefore scored on how well
+each product sells, and answered with CRMs (Decision #093).
+
+Where BC-028 groups three categories that genuinely share a shelf, these two do
+not: running a service desk and running a sales pipeline are different jobs
+bought by different people. Grouping is right when the categories share a need
+and wrong when they only share a customer.
+
+---
+
 # Ontology Invariants
 
 The following rules must always hold.

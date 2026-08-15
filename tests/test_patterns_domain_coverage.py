@@ -163,6 +163,79 @@ def test_a_crm_journey_publishes_a_crm_need_and_ranks_a_crm_first(policies, cata
     assert order.index("ServiceNow") > order.index("Salesforce Sales Cloud")
 
 
+def test_a_help_desk_journey_publishes_a_service_need_and_ranks_a_help_desk_first(
+        policies, catalog):
+    """The live defect, end to end (Decision #093).
+
+    Observed on the running site: a shopper who viewed five Customer Support
+    products, requested three demos, added two to the cart, compared two and
+    searched "customer support ticketing" was told to buy HubSpot CRM, with the
+    other four CRMs behind it and not one of the products they had touched
+    anywhere in the package.
+
+    Customer Support had no subject of its own — the category was folded into
+    BC-019 CRM Evaluation, which anchors REQ-006 Sales & Customer Management,
+    whose Primary capabilities are Sales Pipeline and Contact Management. A
+    help-desk buyer was scored on how well the product sells. Retrieval was not
+    the cause: ranked against the *whole* catalog, Zendesk still came 16th.
+    """
+    events = [E(1, "SEARCH", query="ticketing"),
+              E(2, "PRODUCT_VIEWED", category="customer support"),
+              E(3, "DOCUMENTATION_VIEWED", topic="tickets"),
+              E(4, "CATEGORY_VIEWED", category="customer support"),
+              E(5, "SEARCH", query="helpdesk")]
+    draft = fired(events, policies)["BP-023"]
+    assert draft.strength == "STRONG"
+    assert draft.concept_ids == ["BC-029"]
+
+    profile = derive_requirements({"BC-029": 0.80}, BC_TO_REQ,
+                                  "Technical Validation", policies)
+    published = {entry["req_id"]: entry for entry in profile}
+    assert "REQ-015" in published, "a help-desk journey published no service requirement"
+    assert REQUIREMENTS["REQ-015"] == "Customer Service Operations"
+    assert profile[0]["req_id"] == "REQ-015", (
+        f"the anchor was {profile[0]['req_id']}, not the shopper's own subject")
+
+    contenders = ["Zendesk", "Help Scout", "Intercom", "HubSpot CRM",
+                  "Salesforce Sales Cloud", "Pipedrive"]
+    ranked = rank_products(
+        profile, candidate_ids=contenders,
+        product_capabilities={name: catalog.get(name, set()) for name in contenders},
+        req_to_cap=REQ_TO_CAP, policies=policies,
+        product_categories={"Zendesk": "Customer Support",
+                            "Help Scout": "Customer Support",
+                            "Intercom": "Customer Support",
+                            "HubSpot CRM": "CRM",
+                            "Salesforce Sales Cloud": "CRM",
+                            "Pipedrive": "CRM"},
+        subject_categories={"customer support"})
+    order = [entry["product_id"] for entry in ranked]
+    assert order[0] in ("Zendesk", "Intercom"), (
+        f"a help-desk journey ranked {order[0]} first; order was {order}")
+    # The product that prompted the bug must now sit *below* the help desks.
+    assert order.index("HubSpot CRM") > order.index("Zendesk"), (
+        f"HubSpot CRM still outranks Zendesk for a support buyer: {order}")
+
+
+def test_shopping_for_a_crm_and_for_a_help_desk_are_different_subjects(policies):
+    """The two categories were one concept, so the platform could not tell a
+    sales question from a service one. Each vocabulary must now reach its own
+    subject and leave the other's alone (Decision #093)."""
+    crm = [E(1, "SEARCH", query="crm"),
+           E(2, "PRODUCT_VIEWED", category="crm"),
+           E(3, "DOCUMENTATION_VIEWED", topic="pipeline")]
+    support = [E(1, "SEARCH", query="ticketing"),
+               E(2, "PRODUCT_VIEWED", category="customer support"),
+               E(3, "DOCUMENTATION_VIEWED", topic="tickets")]
+
+    crm_fired = fired(crm, policies)
+    assert "BP-013" in crm_fired and "BP-023" not in crm_fired, (
+        "CRM research also formed a customer-service subject")
+    support_fired = fired(support, policies)
+    assert "BP-023" in support_fired and "BP-013" not in support_fired, (
+        "help-desk research still forms a CRM subject")
+
+
 def _canonical(name):
     from smartreco.domain.software_buying import CANONICAL_PRODUCTS
 

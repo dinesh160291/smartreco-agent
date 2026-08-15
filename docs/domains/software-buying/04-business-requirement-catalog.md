@@ -1190,3 +1190,30 @@ their domain, which is where it always belonged.
 two capabilities from a single domain rather than three from two, and it still
 covers and discriminates: seven products satisfy it in full, six of them
 non-canonical, against a Candidate Set of 8.
+
+---
+
+# v1.9 Extension — REQ-015
+
+| ID | Requirement | What the buyer is trying to do | Capabilities |
+|---|---|---|---|
+| REQ-015 | **Customer Service Operations** | Answer customers, track what they asked, and resolve it accountably | Customer Support Ticketing · Live Chat *(Primary)* · Contact Management *(Secondary)* |
+
+**No new capabilities, and REQ-006 is untouched.** All three already exist and
+all three already belong to Sales & Customer Management — but there they sit
+*behind* Sales Pipeline and Contact Management, as Secondary and Supporting. A
+capability may belong to several requirements (doc 14 §Design rule), so this
+requirement is reachable without editing a frozen set and without moving a
+single pinned derivation. The canonical ten hold none of REQ-006's capabilities,
+which is what makes that safe rather than merely hoped for.
+
+**Why three, and why these three.** Tracking the issue and talking to the person
+who raised it are what a service desk *is*, so both lead. Contact Management
+follows as Secondary — a support product needs the customer record, but holding
+one is not what makes it a support product, because every CRM holds one too.
+Leading with it is precisely how the sales requirement swallowed this one.
+
+Lead Scoring and Sales Pipeline are the two REQ-006 capabilities a service desk
+has no use for, and their absence is the point: they are why a help desk could
+not out-cover a CRM on a support journey. Ranked against the whole catalog under
+REQ-006, Zendesk placed 16th at 41%, below six filler CRMs (Decision #093).

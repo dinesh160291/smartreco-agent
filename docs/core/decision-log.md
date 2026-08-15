@@ -4960,3 +4960,150 @@ a commercial action that cannot be attributed to any subject. Emitting
 `category` on commercial events would close it, at the cost of duplicating into
 the event stream a fact the catalog owns and that Decision #088 has already
 shown can change.
+
+---
+
+# Decision #093
+
+## Title
+
+Customer Support is a subject of its own — serving customers is not selling
+to them
+
+## Status
+
+Accepted
+
+## Decision
+
+`BP-023 Customer Service` activates on the Customer Support category, the
+`tickets` documentation topic and the searches a service buyer types. It forms
+**BC-029 Customer Service Evaluation**, which anchors **REQ-015 Customer Service
+Operations** — Customer Support Ticketing and Live Chat Primary, Contact
+Management Secondary.
+
+`BP-013 CRM Evaluation` gives up the support vocabulary it was carrying: the
+Customer Support category, the `tickets` topic, and the `ticketing` and
+`helpdesk` search terms.
+
+REQ-006 is unchanged, and no capability is added, moved or renamed. Domain Pack
+**1.9**. No platform module and no policy value changed.
+
+## Rationale
+
+Found by running the site. A shopper viewed five Customer Support products,
+opened their pricing and docs, requested three demos, added two to the cart,
+compared two, browsed the Customer Support category and ran three searches
+about ticketing, help desks and SLAs — 36 events, every one of them about
+customer service. The For You page recommended **five CRM products**, led by
+HubSpot CRM at 93%, and did not contain a single product the shopper had
+opened.
+
+The trace runs straight through:
+
+```text
+26 Customer Support events
+  -> BP-013 "CRM Evaluation" STRONG
+  -> BC-019 "CRM Evaluation" 0.93
+  -> REQ-006 "Sales & Customer Management" CRITICAL
+  -> a CRM query document -> CRM candidates -> CRM recommendations
+```
+
+Every stage did its job. The pack told them that customer-support behaviour
+means the shopper wants sales software.
+
+**Why this is not a retrieval bug**, which is what it looks like first. Zendesk
+ranked 9th for that journey's query document against a `top_k` of 8 — one slot
+outside the Candidate Set, which invites a bigger `top_k`, a subject line in the
+query document, or a subject-category guarantee rule. All three are wrong.
+Ranked against the **whole catalog**, with retrieval removed from the question
+entirely, Zendesk placed **16th at 41%**, below six filler CRMs. Putting it in
+the pool would only have let it lose there instead. The cause was upstream of
+retrieval, and any fix at the retrieval layer would have been a way of not
+finding it.
+
+**Why REQ-006 could not be reweighted instead.** It already held all three
+service capabilities — Ticketing Secondary, Live Chat Supporting — behind Sales
+Pipeline and Contact Management at Primary. Promoting them would have made
+REQ-006 describe both purchases equally badly and moved a requirement whose
+capability set doc 14 froze. A second requirement over the same capabilities
+costs nothing (doc 14 §Design rule: a capability may belong to several
+requirements) and leaves every pinned derivation exactly where it was.
+
+**Why grouping was right for BC-028 and wrong here.** Content Management,
+Knowledge & Docs and Design share one shelf and one requirement, and splitting
+them would have produced three requirements too thin to discriminate
+(Decision #081). Customer Support and CRM share a *customer*, not a need.
+Grouping is right when the categories share a need and wrong when they only
+share who the software is pointed at.
+
+**`support` is deliberately not a search term.** It is the most common word in
+the catalog's own prose and matching is by token, so it would have formed a
+service subject out of almost any product description — the cross-contamination
+doc 14 named as this family's standing risk.
+
+## Consequences
+
+**On the journey that prompted it**, the anchor becomes REQ-015 and the
+off-subject factor now applies to CRMs, where before they were on-subject by
+inheritance: BC-019 owned both categories, so every CRM scored as though the
+support shopper had been looking for one.
+
+**It reproduced independently.** Journey `J-11-b8c3e51f`, recorded in an
+earlier session under policy 1.14 — 27 Customer Support views, 10 CRM — shows
+the same five CRM recommendations. Three other journeys the audit flagged were
+stale packages computed under policies 1.3, 1.8 and 1.14; those are pre-#091
+and not evidence of this.
+
+**Nothing pinned moved.** The canonical ten hold none of REQ-006's
+capabilities, so no derivation in doc 09 and no acceptance story could be
+touched by a requirement built from them; the full suite went from 474 to 478
+green, the four new tests being this decision's own. The parametrised tests
+over `DOMAIN_RESEARCH_PATTERNS` picked up BP-023 by construction, including the
+cross-contamination check that each domain's vocabulary fires its own pattern
+and nothing else.
+
+**Existing journeys keep their old evidence, and it keeps counting.** This was
+measured on the journey above rather than assumed, and the first draft of this
+entry got it wrong by claiming the older belief would be "superseded on the next
+run". It is not superseded. Evidence rows are insert-only and hypothesis
+confidence is recomputed from every row a journey holds, so the four BP-013 rows
+recorded before the change still stand and BC-019 still scores from them.
+
+Re-running that journey live gives:
+
+```text
+BC-029 Customer Service Evaluation  0.95   (new, from BP-023)
+BC-019 CRM Evaluation               0.9327 (legacy, from four frozen BP-013 rows)
+
+Requirement Profile v5
+  REQ-015 Customer Service Operations  CRITICAL  0.95   <- anchor, correct
+  REQ-006 Sales & Customer Management  HIGH      0.97
+```
+
+Both concepts clear POL-REC-002's subject floor, so the on-subject category set
+is their union — `{customer support, crm}` — and CRMs stay on-subject by the
+same inheritance this decision removed. HubSpot still leads that journey's
+package at 82%, with two of the shopper's own products now beside it at 63% and
+58%, where before there were none.
+
+**On a journey recorded after the change there is no such residue.** Replaying
+the identical 41 events through the current pack — the Domain Pack being the
+only variable — BP-013 does not fire at all, BC-029 forms from 32 supporting
+events, and the whole-catalog ranking is Intercom 60%, Zendesk 60%, Twilio Flex
+55%, Help Scout 48%, with the first CRM at 36%. All four products the shopper
+actually opened lead the list.
+
+This is the correct behaviour for an insert-only decision spine and no migration
+is proposed: those events really were recorded, and under the vocabulary of the
+day they really were read as CRM research. A rewrite would be a falsification of
+history to flatter a later opinion. The practical consequence is confined to
+journeys recorded before this decision, and the demo database can be reseeded if
+a clean demonstration matters more than its history.
+
+**The capability catalog's `CRM` domain label is now the loosest in the pack**,
+filing ticketing and live chat beside sales pipeline because the products that
+first carried them were CRMs. Nothing reads that label except the
+cross-domain ratchet in the seed tests, so it costs nothing today. Renaming it
+is a capability-catalog change worth making deliberately rather than folding
+into this one.

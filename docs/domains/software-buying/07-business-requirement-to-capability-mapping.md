@@ -1142,6 +1142,36 @@ requirement alone at Primary. Workload Management is the capacity view a team
 reaches for once the tasks exist, and Template Library is how repeated work
 stops being retyped — real, and secondary to the thing itself.
 
+---
+
+# v1.9 Extension — REQ-015 Mapping
+
+```text
+REQ-015  Customer Service Operations
+  Primary     CAP-031 Customer Support Ticketing / CAP-032 Live Chat
+  Secondary   CAP-028 Contact Management
+```
+
+Tracking the issue and talking to the person who raised it are what a service
+desk is, so both lead. The customer record follows: a support product needs one,
+but holding one is not what makes it a support product — every CRM holds one
+too, which is exactly how leading with it let the sales requirement swallow this
+need.
+
+**All three already belonged to REQ-006, and REQ-006 keeps them.** A capability
+may belong to several requirements, so nothing is moved and no denominator
+changes. What changes is the *order*: here Ticketing and Live Chat are Primary,
+where in REQ-006 they sit Secondary and Supporting behind Sales Pipeline.
+
+**No borrowing across capability domains.** All three are filed under the
+capability catalog's `CRM` domain, so `CROSS_DOMAIN_REQUIREMENTS` needs no new
+entry — the ratchet whose rule is that entries may be removed and never added
+stays where it is. That domain label is now the loosest one in the catalog:
+ticketing and live chat are service capabilities filed beside sales ones because
+the products that first carried them were CRMs. The label is cosmetic — nothing
+reads it but this check — and renaming it is a capability-catalog change worth
+making on its own, not folded into this one.
+
 **The canonical roster had to be corrected for this to be coverable**
 (Decision #079). Atlassian Jira is the canonical Work Management product and
 held none of these three: its profile listed Integration Connectors, Event
