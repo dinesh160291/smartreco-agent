@@ -660,6 +660,23 @@ UI_INTEGRATION_TOPICS = (
 UI_INTEGRATION_TOPIC_DEFAULT = None
 
 
+# Actions that state *what* is being bought, once the product's category is
+# known (Decision #092). Each is a commitment toward a particular product rather
+# than a way of assessing one.
+#
+# SECURITY_VIEWED is deliberately absent, and the distinction is the one
+# POL-REQ-004 rests on: reading a product's security pages is how a shopper
+# *vets* a candidate, not a statement of what they are shopping for. It already
+# feeds the lens concept of the same name. Folding it into the subject would
+# make every security-conscious buyer look like they were shopping for whatever
+# they happened to be vetting — and the lens demotion exists precisely because
+# those are different claims.
+BUYING_ACTIONS = frozenset({
+    "ADD_TO_CART", "DEMO_REQUESTED", "TRIAL_STARTED", "PRICING_VIEWED",
+    "COMPARISON_STARTED",
+})
+
+
 def _evaluate_domain_research(session_events: list[EventView],
                               journey_events: list[EventView], pattern_id: str,
                               concept_id: str, doc_topics: set[str],
@@ -674,18 +691,52 @@ def _evaluate_domain_research(session_events: list[EventView],
     the same volume of clicking in one sitting. The v1.2 patterns were built
     from a flat count ladder and were the only ones without it, so returning to
     a subject the next day counted for nothing beyond the clicks themselves.
+
+    **Buying a thing is evidence about what is being bought** (Decision #092).
+    Until then these patterns read research only — documentation, category and
+    product views, searches — so a shopper who put a product in the cart, asked
+    for a demo and started a trial contributed nothing to the concept deciding
+    what they were shopping *for*. Those events fed the subject-blind patterns
+    instead, and the platform grew confident someone was ready to buy while
+    never establishing what.
     """
+    # A commercial action names a product, never a category (doc 13), so the
+    # category is resolved from the shopper's own product views. That keeps the
+    # evaluator working on events alone — EventView is deliberately "reduced to
+    # what pattern evaluation may look at", and reaching into the product
+    # catalog here would put the system of record for a category behind a seam
+    # that has never needed it. Measured across the recorded journeys, 381 of
+    # 384 commercial events resolve this way; the rest carry no view of that
+    # product and simply do not qualify, which is the previous behaviour.
+    #
+    # Built from `journey_events` rather than the session, so a cart action
+    # today resolves against a product viewed yesterday.
+    category_of: dict[str, str] = {}
+    for e in journey_events:
+        if e.event_type == "PRODUCT_VIEWED":
+            product = e.metadata.get("product_id")
+            category = str(e.metadata.get("category", "")).lower()
+            if product and category:
+                category_of.setdefault(product, category)
+
+    def on_subject(category: str) -> bool:
+        return bool(category) and any(name in category for name in categories)
+
     def quals(events):
         out = []
         for e in events:
             if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in doc_topics:
                 out.append(e)
             elif e.event_type in ("PRODUCT_VIEWED", "CATEGORY_VIEWED"):
-                category = str(e.metadata.get("category", "")).lower()
-                if category and any(name in category for name in categories):
+                if on_subject(str(e.metadata.get("category", "")).lower()):
                     out.append(e)
             elif e.event_type == "SEARCH" and _tokens(e.metadata.get("query", "")) & search_terms:
                 out.append(e)
+            elif e.event_type in BUYING_ACTIONS:
+                products = (e.metadata.get("product_id"), e.metadata.get("product_a"),
+                            e.metadata.get("product_b"))
+                if any(on_subject(category_of.get(p, "")) for p in products if p):
+                    out.append(e)
         return out
 
     qualifying = quals(session_events)

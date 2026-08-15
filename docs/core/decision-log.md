@@ -4875,3 +4875,88 @@ function stays pure and replayable over an ordered sequence.
 rather than by careful bookkeeping: damping is indexed by position within an
 identity, not by the previous contribution, so an age factor cannot compound
 into what the next action is worth.
+
+---
+
+# Decision #092
+
+## Title
+
+Committing to a product qualifies the subject that product belongs to —
+the domain research patterns read research only
+
+## Status
+
+Accepted
+
+## Decision
+
+`ADD_TO_CART`, `DEMO_REQUESTED`, `TRIAL_STARTED`, `PRICING_VIEWED` and
+`COMPARISON_STARTED` now qualify a domain research pattern when the product
+they name sits in one of that pattern's categories. The category is resolved
+from the shopper's own `PRODUCT_VIEWED` events; an action on a product the
+journey never viewed does not qualify.
+
+Domain Pack **1.8**. No platform module and no policy value changed.
+
+## Rationale
+
+The remaining half of the journey behind Decision #091. That shopper's DevOps
+subject was capped by the confidence arithmetic, which #091 fixed — but the
+evidence feeding it was also incomplete, and for an unrelated reason.
+
+`_evaluate_domain_research` counted four things: documentation topics, product
+and category views, and searches. All four are *research*. The shopper had also
+added two DevOps products to the cart, asked sales to contact them twice,
+started three trials, opened pricing eighteen times and begun eight
+comparisons — **the strongest statements available about what they were
+shopping for, and none of it reached the concept that decides that.** Those
+events fed only the subject-blind patterns: Product Affinity and Adoption
+Readiness, which know a shopper is keen but not what about. The platform was
+simultaneously certain the journey was near a decision and unable to say what
+the decision was about.
+
+**Why the category is resolved rather than read.** No commercial event carries
+a category (doc 13 — they carry a product id), so something must supply it.
+`EventView` is deliberately "reduced to what pattern evaluation may look at",
+and reaching into the product catalog here would put the system of record for a
+product's category behind a seam that has never needed it — and would make the
+evaluator's output depend on catalog state at scoring time rather than on
+observed behaviour, which is the property that makes pattern evaluation
+replayable. The shopper's own product views already carry the category, so the
+evaluator builds the map from the journey's events. Measured across every
+recorded journey, **381 of 384** commercial events resolve this way; the three
+that do not carry no view of that product in the same journey and simply fail
+to qualify, which is exactly the previous behaviour.
+
+**Why `SECURITY_VIEWED` is excluded.** It carries a product id and would have
+been trivial to include. Reading a product's security pages is how a shopper
+*vets* a candidate, not a statement of what they are shopping for, and it
+already feeds the lens concept of the same name. Including it would make every
+security-conscious buyer look like they were shopping for whatever they
+happened to be vetting — the exact conflation POL-REQ-004's lens demotion
+exists to prevent.
+
+## Consequences
+
+**On the journey that prompted it**, the subject pattern's evidence goes from
+46 supporting events to **62**: twelve pricing views, six comparisons, three
+demo requests, two trial starts and one add-to-cart now count. A single
+evaluation pass over that journey's events yields a subject confidence of
+**0.95**, the POL-CONF-004 cap.
+
+**No existing test changed, and that is worth stating rather than celebrating.**
+With the qualifying set emptied, 472 of 473 tests still pass — only the new one
+fails. The acceptance stories never exercised this path: Story 1's
+`PRODUCT_VIEWED` events carry no category at all, so no map is built, and
+elsewhere the pairing is too sparse to move an assertion. The change is
+therefore low-risk and, before this decision, entirely uncovered. Four tests
+now pin it, including one that runs clicks through to a published Requirement,
+because the complaint was never about a pattern — it was an empty For You page.
+
+**The limit is recorded rather than designed around.** A shopper who arrives
+on a product by deep link, buys, and never opens a category-bearing view leaves
+a commercial action that cannot be attributed to any subject. Emitting
+`category` on commercial events would close it, at the cost of duplicating into
+the event stream a fact the catalog owns and that Decision #088 has already
+shown can change.

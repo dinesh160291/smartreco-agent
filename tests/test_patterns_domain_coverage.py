@@ -263,3 +263,103 @@ def test_a_subject_pattern_alone_reaches_technical_validation():
                                               [], load_policies())[0]
     laggards = {p: s for p, s in reached.items() if s != "Technical Validation"}
     assert not laggards, f"these subjects cannot reach Technical Validation: {laggards}"
+
+
+# --- Buying actions count toward what is being bought -------------------------
+
+def buying_journey(categories, n_actions):
+    """One product view that names the category, then `n_actions` on that product.
+
+    This is the shape of a shopper who has stopped researching and started
+    buying: the category is stated once, by the view, and every action after it
+    carries only a product id (Domain Pack doc 13 — no commercial event carries
+    a category).
+    """
+    category = sorted(categories)[0]
+    events = [E(1, "PRODUCT_VIEWED", category=category, product_id="PROD-X")]
+    actions = ["ADD_TO_CART", "DEMO_REQUESTED", "TRIAL_STARTED", "PRICING_VIEWED"]
+    events += [E(i + 2, etype, product_id="PROD-X")
+               for i, etype in enumerate(actions[:n_actions])]
+    return events
+
+
+def test_buying_a_product_is_evidence_about_what_is_being_bought(policies):
+    """Cart, demo, trial and pricing on a product in the subject's own category.
+
+    A shopper who adds a DevOps product to the cart, asks for a demo and starts
+    a trial has made the strongest available statement about what they are
+    shopping for — and until this test, none of it reached the concept that
+    decides that. Those events fed only the subject-blind patterns (product
+    affinity, adoption readiness), so the platform grew confident the shopper
+    was ready to buy while never working out *what*.
+
+    Observed on a live journey: 116 events, two carts and two sales contacts on
+    DevOps products, and For You held at NOT_READY.
+    """
+    for pattern_id, concept_id, _topics, categories, _terms in DOMAIN_RESEARCH_PATTERNS:
+        events = buying_journey(categories, 3)
+        draft = fired(events, policies).get(pattern_id)
+        assert draft is not None, (
+            f"{pattern_id}: a product view plus cart, demo and trial on that product "
+            "produced no evidence about the subject")
+        assert draft.concept_ids == [concept_id]
+        # The view plus three actions is four qualifying signals — the same
+        # ladder every other route climbs (POL/pack: strong_qualifying_events).
+        assert draft.strength == "STRONG", f"{pattern_id} stalled at {draft.strength}"
+
+
+def test_a_buying_action_needs_the_category_established_first(policies):
+    """A product id alone says nothing about the subject.
+
+    Category is resolved from the shopper's own product views, so an action on
+    a product this journey never viewed cannot be attributed. That is the
+    deliberate limit of the fix: it degrades to the previous behaviour rather
+    than guessing.
+    """
+    for pattern_id, _concept, _topics, _categories, _terms in DOMAIN_RESEARCH_PATTERNS:
+        orphans = [E(i + 1, etype, product_id="PROD-UNSEEN") for i, etype in enumerate(
+            ("ADD_TO_CART", "DEMO_REQUESTED", "TRIAL_STARTED", "PRICING_VIEWED"))]
+        assert pattern_id not in fired(orphans, policies)
+
+
+def test_a_buying_journey_publishes_the_subjects_requirement(policies):
+    """The reported defect, end to end: shortlist a product, then commit to it.
+
+    This shopper does almost no reading. They open two DevOps products, compare
+    them, check pricing, book a demo and add one to the cart — which is what a
+    buyer near the end of a decision actually looks like. Before Decision #092
+    the two views were the only qualifying signals, the pattern stalled at
+    Medium, the subject never reached POL-REQ-001's bar and its Primary
+    Requirement was never published at all.
+
+    Pinned at the requirement rather than the pattern because the pattern was
+    never the complaint — an empty For You page was.
+    """
+    events = [E(1, "PRODUCT_VIEWED", category="devops", product_id="PROD-A"),
+              E(2, "PRODUCT_VIEWED", category="devops", product_id="PROD-B"),
+              E(3, "COMPARISON_STARTED", product_a="PROD-A", product_b="PROD-B"),
+              E(4, "PRICING_VIEWED", product_id="PROD-A", tier="enterprise"),
+              E(5, "DEMO_REQUESTED", product_id="PROD-A"),
+              E(6, "ADD_TO_CART", product_id="PROD-A")]
+    draft = fired(events, policies)["BP-017"]
+    assert draft.strength == "STRONG"
+    # All four commitments reached the subject, not just the two product views.
+    assert len(draft.supporting_event_ids) == 6
+
+    published = {e["req_id"] for e in derive_requirements(
+        {"BC-023": 0.60}, BC_TO_REQ, "Technical Validation", policies)}
+    assert "REQ-010" in published, "a buying journey published no engineering need"
+    assert REQUIREMENTS["REQ-010"] == "Engineering Delivery"
+
+
+def test_buying_actions_do_not_leak_across_subjects(policies):
+    """An action on one subject's product must not qualify another's.
+
+    The category map is keyed by product, so the same cart event reached every
+    pattern if the lookup ignored which category came back.
+    """
+    family = {row[0] for row in DOMAIN_RESEARCH_PATTERNS}
+    for pattern_id, _concept, _topics, categories, _terms in DOMAIN_RESEARCH_PATTERNS:
+        events = buying_journey(categories, 3)
+        others = {p for p in fired(events, policies) if p in family} - {pattern_id}
+        assert not others, f"{pattern_id}'s buying actions also fired {sorted(others)}"

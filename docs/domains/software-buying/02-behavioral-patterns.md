@@ -317,6 +317,37 @@ pack without the clause, so coming back the next day counted for nothing beyond
 the clicks themselves — and a resumed journey is exactly what the intra-session
 fork makes possible.
 
+## Buying a product qualifies the subject it belongs to (v1.8, Decision #092)
+
+These patterns read research: documentation topics, category and product views,
+searches. Committing to a product — `ADD_TO_CART`, `DEMO_REQUESTED`,
+`TRIAL_STARTED`, `PRICING_VIEWED`, `COMPARISON_STARTED` — now qualifies the
+subject whose category that product belongs to.
+
+Until v1.8 none of it did, and the consequence was not subtle. A shopper who
+compared two DevOps products, checked pricing, booked a demo and filled a cart
+produced two qualifying signals — the product views — and stalled at Medium.
+Those commitments reached only the subject-blind patterns (Product Affinity,
+Adoption Readiness), so the platform became confident the shopper was ready to
+buy while never establishing *what*. Observed on a live journey of 116 events
+with two carts and two sales contacts, whose For You page never left NOT_READY.
+
+**The category comes from the shopper's own product views.** No commercial
+event carries a category (doc 13 — they carry a product id), so the evaluator
+builds a product → category map from the `PRODUCT_VIEWED` events of the
+journey, and an action on a product this journey never viewed does not qualify.
+Measured across the recorded journeys, 381 of 384 commercial events resolve;
+the remainder degrade to the previous behaviour rather than being guessed at.
+The map is built from the whole journey, not the session, so a cart action
+today resolves against a product opened yesterday.
+
+**`SECURITY_VIEWED` is deliberately not in the set.** Reading a product's
+security pages is how a shopper *vets* a candidate, not a statement of what
+they are shopping for; it already feeds the lens concept of the same name.
+Folding it into the subject would make every security-conscious buyer look like
+they were shopping for whatever they happened to be vetting — and POL-REQ-004's
+lens demotion exists precisely because those are different claims.
+
 These are also the patterns that define most of `INTENT_CONCEPTS`: their
 concepts are what journey resolution reads to tell one buying effort from
 another (core 12 — Changing subject mid-session). Two further concepts join

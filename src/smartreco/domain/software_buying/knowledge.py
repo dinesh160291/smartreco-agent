@@ -15,7 +15,13 @@ from smartreco.domain.software_buying.patterns import (
     ADOPTION_DOC_TOPICS, BP011_TRIGGERS, DOMAIN_RESEARCH_PATTERNS, INTENT_CONCEPTS,
     SUBJECTS_WITH_OWN_EVALUATOR)
 
-DOMAIN_PACK_VERSION = "1.7"   # v1.7 dissolves the AI category (Decision #088):
+DOMAIN_PACK_VERSION = "1.8"   # v1.8 lets a commitment to a product qualify the
+                              # subject that product belongs to (Decision #092):
+                              # cart, demo, trial, pricing and comparison were
+                              # invisible to the concept deciding what is being
+                              # shopped for, so a journey could be certain the
+                              # shopper was ready to buy and never know what
+                              # v1.7 dissolves the AI category (Decision #088):
                               # the enum is seventeen, and every product in the
                               # catalog now sits in a category with a subject
                               # v1.6 adds the content & knowledge vocabulary and
