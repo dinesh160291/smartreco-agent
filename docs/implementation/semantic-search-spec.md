@@ -1,10 +1,11 @@
 # Semantic Search Fallback — Specification
 
-**Status: shipped (Decision #089), Policy Catalog 1.13.** §4's similarity floor
-is measured (`scripts/measure_search_floor.py`, in the repository so the number
-is reproducible) and lives in POL-SRCH-001 at **-0.38**. §5.2's vocabulary-drift
-eval is the one measurement still outstanding; it could only run once the
-feature existed, and now it can.
+**Status: shipped (Decision #089), Policy Catalog 1.13. Both measurements run.**
+§4's similarity floor is measured (`scripts/measure_search_floor.py`) and lives
+in POL-SRCH-001 at **-0.38**. §5.2's vocabulary drift is measured
+(`scripts/eval_search_drift.py`): the mechanism is confirmed in every case, and
+the mitigation this document claimed for it turned out to work less than half
+the time — see §5.2.1, which is the part of this spec that was wrong.
 
 The permanent homes are written: ui-design-spec §4.7a for the surface, Core 20
 ("The index has a second reader, and it writes nothing") for the engine
@@ -221,6 +222,50 @@ recognised from shorthand a buyer types when they already know the category;
 **The platform would get better at finding and worse at understanding, at the
 same time, and nothing in the current test suite would notice.**
 
+### 5.2.1 MEASURED — the mechanism is confirmed, the mitigation is weaker than claimed
+
+`scripts/eval_search_drift.py`, run against the floor fixture. Three arms per
+query: **A** a keyword search by a shopper who knows the vocabulary, **B** the
+same intent in plain English, **C** plain English plus clicking the fallback
+results. Arm C exists because the two-arm version would overstate the loss — a
+click is the shopper's own act and has always been evidence. Deterministic: no
+model call, identical across three runs, so the eval-variance caveat does not
+apply to it.
+
+**The mechanism is confirmed, without exception. Arm B produced subject evidence
+in 0 of 7 cases.** A plain-English query contains none of the pack's keywords,
+so the search itself tells the platform nothing — exactly as predicted.
+
+**Response 3 below — "clicking restores it" — is where the prediction was
+wrong.** Clicking restored the subject in only **3 of 7**. The four failures
+have two causes, and neither is vocabulary:
+
+| Cause | Cases | What happened |
+|---|---|---|
+| The floor showed **one** product | 3 | One product on the page is one click, and the pack's ladder needs two signals. The precision-first floor costs not only recall but the evidence the page could have produced. |
+| The top hits **span two categories** | 1 | Five products shown, top two were Security and DevOps — one signal each, neither reaching two. The shopper clicking the obvious results splits their own evidence. |
+
+Five of the twelve answerable queries never reach a page at all: the floor
+rejects everything, so no products, no clicks, no evidence.
+
+**The finding does not make the feature negative, and the baseline is the reason.
+Before the fallback, every one of these twelve queries produced an empty page and
+a `SEARCH` event no pattern could read — subject evidence zero.** After it, three
+produce subject evidence and none produce less. The drift is real as a *ceiling*,
+not as a regression: the platform learns from three journeys it used to learn
+nothing from, and the other nine are exactly where they were.
+
+What the eval cannot measure, and no offline eval could, is the behaviour change
+that would make the drift a genuine loss: a shopper who *would have* typed
+keywords now typing sentences. That needs live search logs, and the fields to
+detect it are already recorded (`fallback_used` marks precisely those searches).
+
+**The design finding worth acting on later: a one-product fallback page is an
+evidence dead end.** Not to be fixed by lowering the floor — §4.2 measured what
+that costs — and not by lowering the pack's activation ladder, which would make
+every subject easier to claim in order to fix a case that has nothing to do with
+confidence. It is recorded here rather than patched.
+
 Three responses, in order of preference:
 
 1. **Keep the affordance keyword-shaped.** The placeholder stays "Search
@@ -237,7 +282,10 @@ Three responses, in order of preference:
    exists so the engines never learn vocabulary the shopper did not use.
    Overturning it is a separate decision needing its own evidence, and taking it
    quietly as a side effect of a search feature is how a platform ends up
-   reasoning about words nobody said.
+   reasoning about words nobody said. **§5.2.1 strengthens rather than weakens
+   this:** the measurement shows the shortfall is caused by how few products
+   clear the floor, not by the vocabulary in the event, so expanding the event
+   would take the forbidden step *and* miss the actual cause.
 
 ### 5.3 An argument, offered as an argument
 

@@ -4640,3 +4640,50 @@ once.
 Policy Catalog **1.13**. Twenty signature tests; the lexical-first guard, the
 anonymous cap and the floor are each sabotage-verified, the last through the
 route rather than the unit.
+
+---
+
+# Decision #089 — addendum: the drift eval, and the part of the spec it falsified
+
+The semantic search spec predicted a second-order risk and wrote down a
+mitigation for it. `scripts/eval_search_drift.py` now measures both. The
+prediction was right; **the mitigation was not.**
+
+Three arms per query — a keyword search by a shopper who knows the vocabulary, the
+same intent in plain English, and plain English plus clicking the fallback
+results. The third arm exists because without it the measurement would overstate
+the loss: a click is the shopper's own act and has always been evidence. The
+eval makes no model call and is identical across three runs, so the eval-variance
+caveat does not apply.
+
+**The mechanism is confirmed without exception:** a plain-English query produced
+subject evidence in **0 of 7** cases. It contains none of the pack's keywords, so
+the search tells the platform nothing.
+
+**Clicking restored the subject in only 3 of 7**, where the spec assumed it would
+generally restore it. The four failures have two causes and neither is
+vocabulary: in three, the floor admitted a **single** product, and one product is
+one click against an activation ladder that needs two signals; in the fourth, the
+top two hits spanned two categories, so the shopper clicking the obvious results
+split their own evidence one-and-one.
+
+**This does not make the feature negative, and the baseline is why.** Before the
+fallback, all twelve answerable queries produced an empty page and a `SEARCH`
+event no pattern could read — subject evidence zero. After it, three produce
+subject evidence and none produce less. The drift is real as a **ceiling**, not
+as a regression.
+
+What no offline eval can measure is the behaviour change that would turn the
+ceiling into a loss: a shopper who *would have* typed keywords now typing
+sentences. That needs live search logs, and the field that identifies exactly
+those searches — `fallback_used` — is already recorded.
+
+**The finding is recorded rather than patched.** The obvious two fixes are both
+wrong. Lowering the floor to show more products reintroduces the wrong answers
+§4.2 measured. Lowering the pack's activation ladder would make every subject in
+every domain easier to claim in order to fix a case that has nothing to do with
+confidence. The honest statement is that **a one-product fallback page is an
+evidence dead end**, and that it is a consequence of choosing precision at the
+floor — a trade already made deliberately, now with its full cost known.
+
+No code, policy or catalog version changed.
