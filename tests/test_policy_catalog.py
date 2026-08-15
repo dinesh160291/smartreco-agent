@@ -31,6 +31,12 @@ def catalog():
 
 
 def test_catalog_version_is_recorded(catalog):
+    # v1.15: POL-CONF-001/002 changed what they count (#091). The damped unit is
+    # the supporting action, not the Evidence row, and buckets combine by
+    # noisy-OR; POL-CONF-001's flat diversity increment is retired because the
+    # combination already pays for diversity. Every hypothesis confidence in the
+    # system moves, so historical runs are only interpretable against the
+    # version they recorded.
     # v1.14: POL-SRCH-001 gained neighbour_band (#090). min_similarity now gates
     # the *top hit only*; the page is filled from within a band of it. Same
     # query, same set of pages — measured, the band cannot make an unanswerable
@@ -78,7 +84,7 @@ def test_catalog_version_is_recorded(catalog):
     # produced it — #056 shipped without bumping it and the omission cost a
     # debugging round, because policy_version 1.4 could not distinguish a
     # server running the fork from one that was not.
-    assert catalog.version == "1.14"
+    assert catalog.version == "1.15"
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
     assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 45
     assert catalog.param("POL-TRIG-001", "unprocessed_event_threshold") == 3
@@ -104,7 +110,7 @@ def test_every_v1_policy_id_present_and_no_extras(catalog):
 def test_confidence_contributions_match_pol_conf_001(catalog):
     contribution = catalog.param("POL-CONF-001", "contribution")
     assert contribution == {"Weak": 0.05, "Medium": 0.10, "Strong": 0.20, "VeryStrong": 0.30}
-    assert catalog.param("POL-CONF-001", "diversity_increment") == 0.10
+    assert catalog.param("POL-CONF-002", "unit") == "supporting_event"
 
 
 def test_saturation_bounds_match_pol_conf_004(catalog):

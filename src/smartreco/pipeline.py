@@ -503,9 +503,13 @@ def _update_hypotheses(db: OrmSession, policies: PolicyCatalog, journey_id: str,
             EvidenceInput(
                 pattern_id=ev.pattern_id,
                 strength=ev.strength,
-                event_type_composition=tuple(sorted(
-                    events_by_id[eid].event_type for eid in ev.supporting_event_ids
-                    if eid in events_by_id)),
+                # Identity travels with the event, not just its kind: the
+                # Confidence Engine counts each action once per bucket, so a run
+                # that re-reported the session adds nothing (POL-CONF-002,
+                # Decision #091).
+                supporting_events=tuple(
+                    (eid, events_by_id[eid].event_type)
+                    for eid in ev.supporting_event_ids if eid in events_by_id),
                 relation=relation,
                 # POL-BEH-002 — measured at scoring time, not at insert, so a
                 # journey that lay dormant for a month is re-scored on what its

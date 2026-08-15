@@ -158,6 +158,8 @@ This collection of diverse behavioral evidence supports confidence more strongly
 
 Evidence diversity improves confidence because it demonstrates consistent intent across multiple independent behaviors.
 
+Diversity is paid by the combination rule, not by a separate bonus. Independent readings of one concept — a different kind of behavior, a different pattern, a higher strength — each contribute their own term, and the terms combine by noisy-OR. A second pattern therefore raises confidence by construction. Decision #091 retired POL-CONF-001's flat diversity increment for this reason: under a combination that already rewards independence, an added bonus paid for the same diversity twice.
+
 ---
 
 # Diminishing Returns
@@ -179,6 +181,17 @@ Viewing the same pricing page twenty times should not increase confidence as muc
 - Integrations
 
 Confidence grows through evidence quality rather than evidence quantity.
+
+## The damped unit is the action
+
+The rule above is written about actions — twenty views of one page — and that is what is counted. It is *not* the Evidence record. A session-window pattern re-reports every qualifying event in its session on each workflow run, so a single finding reaches this engine as a stream of overlapping records; treating each record as a repetition confuses how often the platform looked with how much the shopper did.
+
+Each supporting event is counted once, against the identity it belongs to (pattern, strength, kind of behavior). Two consequences follow, and both are load-bearing:
+
+- A run that observed **no new action** cannot move confidence at all. Not a little, not below the sixth decimal — nothing. Inflation from re-reporting is removed rather than damped.
+- Confidence keeps growing while the shopper keeps doing genuinely new things, saturating only at the POL-CONF-004 cap.
+
+Saturation therefore belongs to the cap, and to nothing else. Before Decision #091 the running sum was a convergent series whose limit was fixed by how many kinds of behavior a shopper happened to produce, so a concept could have a ceiling *below* the thresholds it feeds — a subject supported by 46 events converged on 0.4999… against a publication bar of 0.5 and could never be published no matter how long the shopper kept going. A ceiling that depends on browsing texture rather than on evidence is not saturation; it is an artifact.
 
 ---
 

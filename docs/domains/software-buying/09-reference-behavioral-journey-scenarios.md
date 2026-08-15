@@ -320,6 +320,20 @@ Behavioral Concepts remain canonical reference knowledge.
 
 The validation scenario records only which concepts were activated.
 
+**Where the hypothesis confidences in each scenario come from.** Scenarios 1 and
+2 *derive* theirs from the clickstream shown, under POL-CONF-001/002, and carry
+the arithmetic. Those two are replayed end to end by the acceptance suite, so
+their figures move whenever the confidence policies change and must be
+re-derived in the same commit — Decision #091 re-derived them most recently.
+
+Scenarios 3 onward *stipulate* their confidences as inputs, in order to
+demonstrate requirement derivation (POL-REQ-003), anchoring (POL-REQ-004) and
+coverage (POL-REC-002) in isolation. A stipulated 0.80 is a round number chosen
+to make the derivation legible; it is not a claim that the engine returns 0.80
+for the behavior described above it, and it should not be read as one. The
+requirement math in those scenarios is unaffected by #091, which changed how a
+confidence is *reached*, not what is done with it.
+
 ---
 
 ## 6. Requirement Profile
@@ -608,46 +622,68 @@ The customer is seeking centralized identity governance.
 ```text
 BC-001
 
-Security Evaluation — hypothesis confidence 0.80
+Security Evaluation — hypothesis confidence 0.819065
 
 BC-002
 
-Enterprise Evaluation — hypothesis confidence 0.70
+Enterprise Evaluation — hypothesis confidence 0.737605
 
 BC-026
 
-Identity Platform Evaluation — hypothesis confidence 0.20
+Identity Platform Evaluation — hypothesis confidence 0.35
 ```
 
 Journey Stage: Technical Validation
 
 ## How those confidences are reached (POL-CONF-001/002)
 
-Each run contributes at full class value only when it differs from what came
-before in **strength** or in the **kind** of behavior backing it; more of a kind
-already counted damps to half (POL-CONF-002, Decision #054). The five
-observations above therefore produce:
+Re-derived under Decision #091, which counts the supporting **action** rather
+than the Evidence record. Each action is counted once against its identity —
+pattern, strength, kind of behavior — the nth action of an identity contributes
+half the one before it, and identities combine by noisy-OR.
 
-| Run | BC-001 Security Evaluation | BC-002 Enterprise Evaluation |
+The run-by-run table this section used to carry has been replaced, because it
+described an arithmetic the engine no longer performs: it credited each *run*
+with a contribution, and the five runs here re-report a growing share of the
+same clicks. What the shopper actually did, counted once each:
+
+| BC-001 Security Evaluation | actions | contribution |
 |---|---|---|
-| 1 | Medium · security page + docs · **+0.10** | Medium · admin docs · **+0.10** |
-| 2 | Strong · + reading time · **+0.20** | Medium · + audit page · **+0.10** |
-| 3 | Strong · security pages alone · **+0.20** | Strong (2 sessions) · **+0.20** |
-| 4 | Strong · pages + docs · **+0.20** | Strong · + enterprise tier · **+0.20** |
-| 5 | Strong · repeat · **+0.10** | Strong · repeat · **+0.10** |
-| | **0.80** | **0.70** |
+| Medium · security page | 1 | 0.10 |
+| Medium · documentation | 1 | 0.10 |
+| Strong · security pages | 8 | 0.398438 |
+| Strong · documentation | 5 | 0.3875 |
+| Strong · reading time | 6 | 0.39375 |
+| **noisy-OR** | | **0.819065** |
 
-This derivation is why the observed behavior is written as five distinct
-episodes rather than one summary: under POL-CONF-002 the *shape* of the
-research, not merely its volume, is what produces the confidences. A shopper
-who performed the fifth episode ten more times would still reach 0.80.
+| BC-002 Enterprise Evaluation | actions | contribution |
+|---|---|---|
+| Medium · documentation | 2 | 0.15 |
+| Medium · audit page | 1 | 0.10 |
+| Strong · documentation | 5 | 0.3875 |
+| Strong · audit page | 1 | 0.20 |
+| Strong · enterprise pricing | 2 | 0.30 |
+| **noisy-OR** | | **0.737605** |
 
-**BC-026 Identity Platform Evaluation — 0.20** (added in v1.4, Decision #077).
+The observed behavior is still written as five distinct episodes, and the reason
+is unchanged: the *shape* of the research, not merely its volume, is what
+produces the confidences — a shopper who read one page twenty times reaches far
+less than one who read five different kinds of page. What has changed is the
+claim that used to close this section. It read: *"A shopper who performed the
+fifth episode ten more times would still reach 0.80."* That is no longer true,
+and it was never a property worth having. Ten more genuine episodes are ten more
+actions and do raise confidence, toward the POL-CONF-004 cap and nothing lower.
+Under the old arithmetic the limit was set by how many kinds of behavior a
+shopper happened to produce, which is how a subject supported by 46 events could
+converge on 0.4999… against a publication bar of 0.5 and never clear it.
+
+**BC-026 Identity Platform Evaluation — 0.35** (added in v1.4, Decision #077).
 This shopper is not only vetting candidates on security grounds; they are
 shopping for an identity platform, and now the pack has a concept that says so.
 BP-020 reaches Strong across two sessions on three searches —
 `okta scim provisioning`, `single sign-on scim provisioning okta` and
-`okta sso audit logging` — contributing **+0.20** once.
+`okta sso audit logging`. Those are three actions of one kind:
+0.20 + 0.10 + 0.05 = **0.35**.
 
 It draws on **nothing else in the clickstream**, and that restraint is the
 substance of the entry rather than a detail of it. The SSO and MFA
@@ -662,16 +698,23 @@ and REQ-002 derived 0.88 instead of 0.84 on no new evidence.
 ## Requirement Derivation (POL-REQ-003)
 
 ```text
-REQ-002:  BC-001 Primary (1.0×0.80) + BC-026 Primary (1.0×0.20)
-          = 1 − (0.20)(0.80) = 0.84
+REQ-002:  BC-001 Primary (1.0×0.819065) + BC-026 Primary (1.0×0.35)
+          = 1 − (0.180935)(0.65) = 0.88
           → publish, Critical (≥0.8, stage ≥ Technical Validation)
 
-REQ-004:  BC-001 Supporting (0.3×0.80=0.24) + BC-002 Secondary (0.6×0.70=0.42)
-          = 1 − (0.76)(0.58) = 0.56  → publish, Medium
+REQ-004:  BC-001 Supporting (0.3×0.819065=0.245720)
+          + BC-002 Secondary (0.6×0.737605=0.442563)
+          = 1 − (0.754280)(0.557437) = 0.58  → publish, Medium
 
-REQ-001:  BC-001 Secondary (0.6×0.80=0.48)
-          = 0.48  → below 0.5, not published
+REQ-001:  BC-001 Secondary (0.6×0.819065)
+          = 0.491439  → below 0.5, not published
 ```
+
+REQ-001 is the number worth watching across Decision #091. Every confidence in
+this scenario rose, and the held requirement stayed held: 0.491439 is still
+under the publication bar, so the published set, the priority bands and every
+coverage percentage below are unchanged. Had it crossed, this scenario would be
+recommending against a requirement the shopper's behavior does not support.
 
 **Why BC-002 does not appear in REQ-002 (Decision #050).** Enterprise Evaluation
 was Primary to Identity Management until this scenario was amended, which put
@@ -686,9 +729,9 @@ below. That invariance is the evidence the change was surgical.
 **And why BC-026 does (Decision #077).** The distinction #050 drew is precisely
 the one BC-026 sits on the other side of. Enterprise Evaluation is an attribute
 of the buyer; Identity Platform Evaluation is a statement of what they are
-buying, which is what a Primary association is for. REQ-002 accordingly moves
-0.80 → 0.84 — the only number in this scenario that does. Priority band,
-requirement set, stage and every coverage percentage below are unchanged.
+buying, which is what a Primary association is for. REQ-002 accordingly rose
+when BC-026 joined it, and rose again under Decision #091 to 0.88. Priority
+band, requirement set, stage and every coverage percentage below are unchanged.
 
 ---
 
@@ -930,8 +973,8 @@ documentation.
 
 The two lines of research reach the concept differently — one through the
 category and its products, the other through the products and then their
-documentation — which is what earns BC-005 0.80 under POL-CONF-002
-(Decision #054) rather than repetition of a single route.
+documentation — which is what earns BC-005 0.769473 under POL-CONF-002
+(Decision #091) rather than repetition of a single route.
 
 ---
 
@@ -971,15 +1014,15 @@ The customer is seeking integrated collaboration capabilities.
 ```text
 BC-005
 
-Collaboration Evaluation — hypothesis confidence 0.80
+Collaboration Evaluation — hypothesis confidence 0.769473
 
 BC-006
 
-Productivity Evaluation — hypothesis confidence 0.50
+Productivity Evaluation — hypothesis confidence 0.70975
 
 BC-003
 
-AI Evaluation — hypothesis confidence 0.50
+AI Evaluation — hypothesis confidence 0.746875
 ```
 
 Journey Stage: Technical Validation
@@ -989,21 +1032,35 @@ Journey Stage: Technical Validation
 ## Requirement Derivation (POL-REQ-003)
 
 ```text
-REQ-001:  BC-005 Primary (1.0×0.80) + BC-003 Supporting (0.3×0.50=0.15)
-          = 1 − (0.20)(0.85) = 0.83  → publish, Critical
+REQ-001:  BC-005 Primary (1.0×0.769473) + BC-003 Supporting (0.3×0.746875=0.224063)
+          = 1 − (0.230527)(0.775937) = 0.82  → publish, Critical, anchored
 
-REQ-013:  BC-006 Primary (1.0×0.50)
-          = 0.50  → publish, Medium
+REQ-005:  BC-003 Primary (1.0×0.746875)
+          = 0.75  → publish, High
 
-REQ-005:  BC-003 Primary (1.0×0.50)
-          = 0.50  → publish, Medium
+REQ-013:  BC-006 Primary (1.0×0.70975)
+          = 0.71  → publish, High
 
-REQ-003:  BC-006 Supporting (0.3×0.50=0.15) + BC-003 Secondary (0.6×0.50=0.30)
-          = 1 − (0.85)(0.70) = 0.41  → below 0.5, not published
+REQ-003:  BC-006 Supporting (0.3×0.70975=0.212925)
+          + BC-003 Secondary (0.6×0.746875=0.448125)
+          = 1 − (0.787075)(0.551875) = 0.57  → publish, Medium
 
-REQ-002:  BC-005 Supporting (0.3×0.80=0.24)
-          = 0.24  → not published
+REQ-002:  BC-005 Supporting (0.3×0.769473)
+          = 0.23  → not published
 ```
+
+**A fourth requirement joins under Decision #091.** REQ-003 sat at 0.41 while
+confidence counted Evidence records; counting actions credits this shopper's
+repeated documentation reading and it crosses publication at 0.57. Secure
+Collaboration remains Critical and remains the anchor — Collaboration Evaluation
+(0.769473) is still the most strongly held subject, ahead of Productivity
+Evaluation (0.70975). That ordering is the thing to watch here rather than the
+individual figures: Productivity rises a long way, but it rises partly on
+Evidence it *shares* with Collaboration, and a concept that co-tenants another's
+Evidence must not overtake the concept whose pattern produced it. It did overtake
+it in an intermediate version of #091 that kept POL-CONF-001's flat diversity
+increment alongside the new noisy-OR combination, which is why that increment
+was retired.
 
 **Why AI Assistance fell from High to Medium, and why a third requirement
 appeared** (Decision #079). Both are the same amendment. Productivity Evaluation
@@ -1214,7 +1271,7 @@ PROD-006
 **Atlassian Jira replaces Notion in the published list, and that is the cost of
 Decision #079 rather than a detail of it.** Jira enters because it covers the
 new requirement in full, which makes it a guaranteed candidate (Decision #060),
-and it is on subject because BC-006 is held at 0.50 so Work Management joins
+and it is on subject because BC-006 is held at 0.70975 so Work Management joins
 Collaboration in this shopper's subject categories. Its overall coverage is 23%.
 
 Notion's is 31% — higher — and this shopper searched for it by name. It is

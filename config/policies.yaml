@@ -6,7 +6,7 @@
 # changes the decisions a run produces, and policy_version is how that run says
 # which build of the rules produced it.
 
-catalog_version: "1.14"
+catalog_version: "1.15"
 
 policies:
 
@@ -31,26 +31,34 @@ policies:
   POL-CONF-001:
     name: Confidence contribution
     category: confidence
-    rule: "Weak +0.05, Medium +0.10, Strong +0.20, Very Strong +0.30 per Evidence; diversity increment +0.10 per distinct pattern beyond the first"
+    rule: >-
+      Weak +0.05, Medium +0.10, Strong +0.20, Very Strong +0.30 per supporting *action*, damped
+      within its bucket by POL-CONF-002 and combined across buckets by noisy-OR. The flat
+      diversity increment was retired in Decision #091: a second pattern contributes its own
+      independent buckets, so the combination already pays for diversity, and paying again
+      inverted subjects that share another concept's Evidence.
     params:
       contribution:
         Weak: 0.05
         Medium: 0.10
         Strong: 0.20
         VeryStrong: 0.30
-      diversity_increment: 0.10
 
   POL-CONF-002:
     name: Diminishing returns
     category: confidence
     rule: >-
-      Repeated identical Evidence contributes at 50% of prior contribution. Identical = same
-      pattern, same strength, same *set* of supporting event types; a different strength, or a
-      kind of event not yet seen for that pattern, contributes at full class value. More events
-      of kinds already counted is the same finding restated (Decision #054, superseding #036).
+      The unit damped is the supporting *action*, not the Evidence row (Decision #091,
+      superseding #054 on the unit while keeping its identity). A bucket is pattern + strength +
+      kind of event; the nth action counted into a bucket contributes repeat_factor^(n-1) of the
+      class value. An action already counted into a bucket contributes nothing, so a run that
+      re-reported its session without observing anything new cannot move confidence. A different
+      strength opens a new bucket and contributes full class value, which is how escalation —
+      including the multi-session clause, where no new action need arrive — still registers.
     params:
       repeat_factor: 0.5
-      identity: [pattern_id, strength, event_type_set]
+      identity: [pattern_id, strength, event_type]
+      unit: supporting_event
 
   POL-CONF-003:
     name: Contradiction penalty

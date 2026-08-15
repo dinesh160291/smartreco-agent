@@ -119,26 +119,35 @@ def test_story2_collaboration_modernizer(seeded, chroma, backend, policies, fake
             models.Hypothesis.journey_id == journey_id)
             .order_by(models.Hypothesis.version)).scalars().all():
         latest[h.concept_id] = h
-    assert latest["BC-005"].confidence == 0.80
-    assert latest["BC-006"].confidence == 0.50
-    assert latest["BC-003"].confidence == 0.50
+    # Re-derived under Decision #091 (confidence counts actions, not Evidence
+    # rows). Collaboration remains the most strongly held subject and therefore
+    # the anchor, which is what this story is about: the shopper read six
+    # productivity documents, so Productivity Evaluation rises a long way, but it
+    # rises on Evidence it shares with Collaboration and must not overtake it.
+    assert latest["BC-005"].confidence == 0.769473
+    assert latest["BC-006"].confidence == 0.70975
+    assert latest["BC-003"].confidence == 0.746875
+    assert latest["BC-005"].confidence > latest["BC-006"].confidence
 
     rp = db.execute(select(models.RequirementProfile)
                     .where(models.RequirementProfile.journey_id == journey_id)
                     .order_by(models.RequirementProfile.version.desc())).scalars().first()
     reqs = {e["req_id"]: e for e in rp.requirements}
-    # Three requirements since Decision #079. This shopper read documentation
-    # about templates and tasks, which is a work-management need and now says
-    # so; it used to be counted as Primary evidence that they wanted an AI
-    # assistant, which inflated AI Assistance to High. Their AI interest now
-    # rests on their AI research alone. REQ-003 (0.41) and REQ-002 still held.
-    assert set(reqs) == {"REQ-001", "REQ-005", "REQ-013"}
-    assert reqs["REQ-001"]["confidence"] == 0.83
+    # Four requirements under Decision #091. The three from #079 all rise —
+    # counting actions rather than Evidence rows credits this shopper's repeated
+    # documentation reading — and REQ-003 crosses publication at 0.57 where it
+    # used to sit at 0.41. Secure Collaboration is still Critical and still
+    # anchors: it is the Primary Requirement of the most strongly held subject.
+    assert set(reqs) == {"REQ-001", "REQ-005", "REQ-013", "REQ-003"}
+    assert rp.requirements[0]["req_id"] == "REQ-001"          # anchored, sorts first
+    assert reqs["REQ-001"]["confidence"] == 0.82
     assert reqs["REQ-001"]["priority"] == "CRITICAL"
-    assert reqs["REQ-005"]["confidence"] == 0.50
-    assert reqs["REQ-005"]["priority"] == "MEDIUM"
-    assert reqs["REQ-013"]["confidence"] == 0.50
-    assert reqs["REQ-013"]["priority"] == "MEDIUM"
+    assert reqs["REQ-005"]["confidence"] == 0.75
+    assert reqs["REQ-005"]["priority"] == "HIGH"
+    assert reqs["REQ-013"]["confidence"] == 0.71
+    assert reqs["REQ-013"]["priority"] == "HIGH"
+    assert reqs["REQ-003"]["confidence"] == 0.57
+    assert reqs["REQ-003"]["priority"] == "MEDIUM"
 
     pkg = db.execute(select(models.RecommendationPackage)
                      .where(models.RecommendationPackage.journey_id == journey_id)
@@ -162,25 +171,28 @@ def test_story2_collaboration_modernizer(seeded, chroma, backend, policies, fake
     # off-subject factor because Collaboration is the anchored subject and
     # Notion is catalogued under Knowledge & Docs. It therefore still ranks
     # below Zoom, which covers less but is the kind of product being shopped for.
-    assert coverage["PROD-004"] == 78
-    assert coverage["PROD-005"] == 24
-    assert match["PROD-005"] == 24
-    assert rank["PROD-001"] < rank["PROD-004"] < rank["PROD-005"]
+    assert coverage["PROD-001"] == 72
+    assert coverage["PROD-004"] == 60
+    assert rank["PROD-001"] < rank["PROD-004"]
 
-    # Atlassian Jira is published because it covers the new requirement in full,
-    # and it is on subject: BC-006 is held at 0.50, so Work Management joins
-    # Collaboration in the shopper's subject categories.
-    assert coverage["PROD-006"] == 23
-    assert pkg.entries[-1]["per_requirement"]["REQ-013"]["coverage"] == 100
+    # Atlassian Jira is published because it covers the work-management
+    # requirement in full, and it is on subject: Productivity Evaluation is held
+    # well above the subject-category bar, so Work Management joins Collaboration
+    # in the shopper's subject categories.
+    assert coverage["PROD-006"] == 36
+    assert next(e for e in pkg.entries
+                if e["product_id"] == "PROD-006")["per_requirement"]["REQ-013"]["coverage"] == 100
 
-    # Notion is no longer published at all, and this is the cost of the change
-    # rather than a detail of it. Its coverage (31) beats Jira's (23), and this
-    # shopper searched for it by name — but Knowledge & Docs is a category with
-    # no subject, so the off-subject factor takes it to 18 and Jira's arrival
-    # pushes it past the publication cut. The factor cannot tell a product the
-    # shopper studied from one retrieval dragged in (Decision #078's recorded
-    # limitation), and here that removes a studied product from the list.
-    assert "PROD-009" not in coverage
+    # Notion is published again, which reverses the cost Decision #078 recorded
+    # here. Its coverage (32) beats Jira's (36) on no requirement, but it clears
+    # the publication cut now that four requirements are in the profile. It is
+    # still off subject — Knowledge & Docs has no subject — so the factor still
+    # takes its match to 19 and it still ranks last, below products it outscores
+    # on coverage. That separation is the thing this story pins, not whether the
+    # cut happens to fall above or below one product.
+    assert coverage["PROD-009"] == 32 and match["PROD-009"] == 19
+    assert rank["PROD-009"] == max(rank.values())
+    assert rank["PROD-009"] > rank["PROD-002"] and coverage["PROD-009"] > coverage["PROD-002"]
     top3 = [e["product_id"] for e in pkg.entries[:3]]
     assert "PROD-007" not in top3 and "PROD-008" not in top3  # automation absent
 

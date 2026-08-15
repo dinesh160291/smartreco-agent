@@ -79,8 +79,14 @@ def test_story9_buyer_learning_arc(seeded, chroma, backend, policies, fake_gatew
     assert journey.closed_at is not None
 
     traits = _traits(db, user.id)
-    # Concept-derived per POL-LEARN-001: BC-001 (0.8) and BC-002 (0.7) clear 0.6
-    assert set(traits) == {"Security Evaluation", "Enterprise Evaluation"}
+    # Concept-derived per POL-LEARN-001: BC-001 (0.82) and BC-002 (0.74) clear
+    # 0.6, and under Decision #091 so do BC-015 Adoption Readiness and BC-016
+    # Decision Confidence, both at 0.657. Their Evidence is a single Very Strong
+    # row citing add-to-cart, checkout-started and purchase-completed — three
+    # distinct actions, three kinds. Counting rows valued a *completed purchase*
+    # at 0.30 and left the shopper below the bar for having been ready to adopt.
+    assert set(traits) == {"Security Evaluation", "Enterprise Evaluation",
+                           "Adoption Readiness", "Decision Confidence"}
     for t in traits.values():
         assert t.strength == policies.param("POL-LEARN-001", "new_trait_strength")
         assert t.reinforcement_count == 1
@@ -129,7 +135,8 @@ def test_story6_multi_journey_context_switch(seeded, chroma, backend, policies, 
     assert journeys[1].lifecycle == "ACTIVE"
 
     # Traits exist as priors but never drive the current ranking:
-    assert set(_traits(db, user.id)) == {"Security Evaluation", "Enterprise Evaluation"}
+    assert set(_traits(db, user.id)) == {"Security Evaluation", "Enterprise Evaluation",
+                                         "Adoption Readiness", "Decision Confidence"}
     pkg = db.execute(select(models.RecommendationPackage).where(
         models.RecommendationPackage.journey_id == journeys[1].journey_id)
         .order_by(models.RecommendationPackage.created_at.desc())).scalars().first()
@@ -295,13 +302,28 @@ def test_story8_mind_changer_gradual_reversal(seeded, chroma, backend, policies,
     hyp = _latest_hypotheses(db, journey.journey_id)["BC-002"]
     assert hyp.status == "WEAKENED"
 
-    # Stage regression: the last three high-signal events are Discovery-
-    # characteristic product views (POL-STAGE-002)
+    # The stage is held by the concept the shopper did *not* walk back.
+    #
+    # This assertion used to read "no evaluation-stage claim survives", and it
+    # passed for a reason the story never established: Security Evaluation was
+    # sitting under the 0.6 stage bar because POL-CONF-002 counted Evidence rows,
+    # not actions. Counting actions (Decision #091) puts it at 0.651925 on
+    # reading this shopper genuinely did and never contradicted — five security
+    # and documentation pages — so the Technical Validation milestone is
+    # satisfied by BC-001, and POL-STAGE-001 takes the *max* over supporting
+    # hypotheses. A reversal aimed at enterprise readiness cannot retract a
+    # security evaluation nobody argued with; the comment above already records
+    # that a contradiction is only observable where the hypothesis lives.
     stage = db.execute(select(models.JourneyStage)
                        .where(models.JourneyStage.journey_id == journey.journey_id)
                        .order_by(models.JourneyStage.version.desc())).scalars().first()
-    assert stage.stage not in ("Technical Validation", "Commercial Evaluation",
-                               "Decision", "Adoption")  # no evaluation-stage claim survives
+    hyps = _latest_hypotheses(db, journey.journey_id)
+    assert stage.stage == "Technical Validation"
+    assert stage.confidence == hyps["BC-001"].confidence   # the unrefuted concept
+    assert hyps["BC-001"].status != "WEAKENED"
+    # What the reversal *did* retract: the contradicted concept can no longer
+    # carry an evaluation-stage claim on its own.
+    assert hyps["BC-002"].confidence < policies.param("POL-STAGE-001", "min_stage_confidence")
 
     # REQ-002 recomputed downward in the latest profile
     rp = db.execute(select(models.RequirementProfile)

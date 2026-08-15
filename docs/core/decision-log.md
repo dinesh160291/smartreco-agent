@@ -4746,3 +4746,132 @@ and what stops the improvement from being read as a measured behaviour change.
 
 Policy Catalog **1.14**. `apply_floor` is renamed `select_results`, because a
 function that no longer applies a floor should not be called one.
+
+---
+
+# Decision #091
+
+## Title
+
+POL-CONF-002 damps the supporting *action*, not the Evidence record — superseding
+Decision #054 on the unit, and retiring POL-CONF-001's diversity increment
+
+## Status
+
+Accepted (supersedes Decision #054, which superseded #036)
+
+## Decision
+
+Confidence is computed over the events an Evidence record cites, each counted
+once against its identity (pattern + strength + kind of event). The nth action
+counted into an identity contributes `repeat_factor` of the one before it; an
+action already counted contributes nothing. Identities combine by **noisy-OR**,
+the combination POL-REQ-003 already uses. POL-CONF-001's flat diversity
+increment is retired, because that combination pays for diversity by
+construction.
+
+Policy Catalog **1.15**. Every hypothesis confidence in the system moves.
+
+## Rationale
+
+Found by reading the trace of a real journey (J-11-569f23cc, 18 minutes, 116
+events) whose shopper searched DevOps terms twenty times, opened eighteen DevOps
+products, read eight DevOps documentation pages, added two of those products to
+the cart and asked sales to contact them twice — and whose For You page held at
+NOT_READY throughout. The shopper's own report was that it "got stuck there
+forever" and would not trigger "no matter how much I clicked". That was very
+nearly literally true.
+
+**The mechanism.** BC-023 Engineering Delivery Evaluation is the subject the
+pack has for this journey, and BP-017 is its only feeder, so its confidence *is*
+whether the platform knows what the journey is about. It went:
+
+| Evidence rows | 1 | 2 | 3 | 4 | … | 14 |
+|---|---|---|---|---|---|---|
+| Confidence | 0.30 | 0.40 | 0.45 | 0.475 | … | 0.499951 |
+
+Every step is exactly half the last. POL-CONF-002 damped by multiplying the
+previous *increment* into a running sum, so the total is a geometric series
+whose supremum is twice the class contribution of each distinct identity —
+here 0.10 + (2 × 0.20) = **0.50 exactly**, approached from below and never
+reached. POL-REQ-001 publishes at **≥ 0.5**. The ceiling *was* the threshold.
+
+Downstream, all from that one number: REQ-010 was never published; no subject
+was ever held above POL-REQ-004's bar, so nothing anchored and every candidate
+ranked `on_subject: False`; the only requirements left were lens-derived REQ-003
+(0.55) and REQ-002 (0.52), neither reaching POL-REC-001's 0.6; readiness stayed
+NOT_READY and the feed template renders entries only when READY. The shopper was
+recommended two products, neither of them DevOps.
+
+**Why the unit is wrong, not the identity.** Session-window patterns re-report
+their whole session on every run. The fourteen rows cited 2, 4, 7 … 46 events,
+each a superset of the last — rows 5, 6 and 12 carried 5, 5 and 10 *genuinely
+new* events and were paid 0.0125, 0.00625 and 0.000097. The damping rule cannot
+tell "ten new actions arrived" from "nothing arrived", because it never looks at
+which events a row cites. Chapter 05 has always specified the action:
+"Repeated identical **actions** should never produce unlimited confidence
+growth… viewing the same pricing page twenty times". Decision #054 quoted that
+sentence while implementing it over records. Same family as #044, #045, #046,
+#049, #052, #054, #057 and #065 — a specification that agrees with itself but
+not with the running system.
+
+**Why this is the third attempt and should be the last.** #036 and #054 both
+knew about the ceiling and both moved it instead of removing it, by redefining
+which records count as identical. #054's own words: identity-by-pattern is
+"still rejected, for exactly the reason #036 gave: it caps a single-pattern
+concept near 0.4". Tuning identity granularity positions the ceiling relative to
+whichever scenarios are under test; it cannot remove it, because summing damped
+contributions always converges. Counting actions removes it: confidence grows
+while the shopper does new things and saturates at POL-CONF-004's cap, which is
+the only ceiling the specification ever asked for.
+
+**Why the diversity increment goes.** It was built for a scheme that summed
+fixed per-record values, where a second pattern's records were worth no more
+than repeats of the first, so diversity needed an explicit bonus. Under noisy-OR
+a second pattern brings independent terms and raises the total by construction;
+the bonus pays twice. Measured on Scenario 2, keeping both inverted the subject
+ordering — Productivity Evaluation (0.70975 + 0.10) overtook Collaboration
+Evaluation (0.769473) on Evidence it *shares* with Collaboration via a pattern
+that emits both concepts, which flipped the anchor and reordered the package for
+a shopper the story calls a collaboration modernizer. Chapter 05's principle is
+kept; only the double payment is removed.
+
+## Consequences
+
+**The journey that prompted this, recomputed from its stored Evidence:**
+BC-023 0.499951 → **0.823213**; REQ-010 published at **0.82 Critical** and
+anchored, where it had never appeared at all; readiness NOT_READY → **READY**.
+GitLab covers it 5/5.
+
+**Validation Scenarios 1 and 2 were re-derived, deliberately.** Scenario 1:
+BC-001 0.80 → 0.819065, BC-002 0.70 → 0.737605, BC-026 0.20 → 0.35, REQ-002
+0.84 → 0.88, REQ-004 0.56 → 0.58. The requirement *set*, the priority bands, the
+stage and the pinned coverages — Okta 81 / Microsoft 365 70 / Google 58 — are
+unchanged, because REQ-001 rose to 0.491439 and stayed under the bar. Scenario 2
+gains a fourth requirement: REQ-003 crosses at 0.57 where it sat at 0.41.
+
+**Scenario 1's closing claim was deleted, not restated.** It read: "A shopper who
+performed the fifth episode ten more times would still reach 0.80." That was the
+ceiling described as a feature.
+
+**Two story expectations were encoding the defect.** Stories 6 and 9 asserted
+that a shopper who completed a purchase had exactly two traits; Adoption
+Readiness and Decision Confidence now clear POL-LEARN-001's 0.6 at 0.657, on a
+single Very Strong record citing add-to-cart, checkout-started and
+purchase-completed. Valuing a *completed purchase* at 0.30 was never right.
+Story 8 asserted that no evaluation-stage claim survives its reversal; it passed
+only because Security Evaluation was suppressed below the stage bar. That
+shopper contradicted their enterprise signals and never touched their security
+reading, which honestly counted reaches 0.651925 and holds Technical Validation
+through POL-STAGE-001's max over supporting hypotheses. The assertion now pins
+the reason rather than the coincidence.
+
+**Evidence keeps citing its full supporting set.** Deduplication belongs in the
+engine that must not double-count, not in the Behavioral Reasoning Engine: the
+Runtime Object stays an honest audit record for the Reasoning Panel, and the
+function stays pure and replayable over an ordered sequence.
+
+**Age and repetition remain independent** (Decision #067), now structurally
+rather than by careful bookkeeping: damping is indexed by position within an
+identity, not by the previous contribution, so an age factor cannot compound
+into what the next action is worth.

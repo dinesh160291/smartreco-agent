@@ -160,14 +160,20 @@ def test_story1_security_evaluator(seeded, chroma, backend, policies, user, fake
     assert len(journeys) == 1
     journey_id = journeys[0].journey_id
 
-    # --- Hypotheses: BC-001 0.80, BC-002 0.70 (Scenario 1 stated confidences) ---
+    # --- Hypotheses: BC-001 0.82, BC-002 0.74 (Scenario 1 stated confidences) ---
+    # Re-derived under Decision #091, which counts each action once instead of
+    # each Evidence row. This shopper's security reading is spread across
+    # distinct pages and searches, so counting actions pays slightly more than
+    # counting reports did: 0.80 -> 0.819065 and 0.70 -> 0.737605. Both stay in
+    # the priority bands Scenario 1 depends on, so nothing downstream moves
+    # except the two derived figures asserted below.
     latest: dict[str, models.Hypothesis] = {}
     for h in db.execute(select(models.Hypothesis).where(
             models.Hypothesis.journey_id == journey_id)
             .order_by(models.Hypothesis.version)).scalars().all():
         latest[h.concept_id] = h
-    assert latest["BC-001"].confidence == 0.80
-    assert latest["BC-002"].confidence == 0.70
+    assert latest["BC-001"].confidence == 0.819065
+    assert latest["BC-002"].confidence == 0.737605
 
     # --- Requirement Profile: REQ-002 0.94 Critical / REQ-004 0.56 Medium / REQ-001 held ---
     rp = db.execute(select(models.RequirementProfile)
@@ -175,7 +181,10 @@ def test_story1_security_evaluator(seeded, chroma, backend, policies, user, fake
                     .order_by(models.RequirementProfile.version.desc())).scalars().first()
     reqs = {entry["req_id"]: entry for entry in rp.requirements}
     assert set(reqs) == {"REQ-002", "REQ-004"}          # REQ-001 held below 0.5
-    # 0.84 = noisy-OR of BC-001 Primary (1.0×0.80) and BC-026 Primary (1.0×0.20).
+    # 0.88 = noisy-OR of BC-001 Primary (1.0×0.819065) and BC-026 Primary
+    # (1.0×0.35). REQ-001 is the number worth watching here: BC-001 Secondary
+    # (0.6×0.819065) = 0.491, still under POL-REQ-001's 0.5, so the held
+    # requirement stays held and the published set is unchanged.
     # Enterprise Evaluation still contributes nothing here (Decision #050):
     # organizational scale is a fact about the buyer, not a statement of need.
     # What is new is BC-026 Identity Platform Evaluation (Decision #077) — this
@@ -189,9 +198,9 @@ def test_story1_security_evaluator(seeded, chroma, backend, policies, user, fake
     # twice under noisy-OR and inflate REQ-002 to 0.88 on no new evidence.
     # Downstream is unmoved: same requirement set, same priority bands, same
     # coverage percentages asserted below.
-    assert reqs["REQ-002"]["confidence"] == 0.84
+    assert reqs["REQ-002"]["confidence"] == 0.88
     assert reqs["REQ-002"]["priority"] == "CRITICAL"
-    assert reqs["REQ-004"]["confidence"] == 0.56
+    assert reqs["REQ-004"]["confidence"] == 0.58
     assert reqs["REQ-004"]["priority"] == "MEDIUM"
 
     # --- Stage: Technical Validation ---
