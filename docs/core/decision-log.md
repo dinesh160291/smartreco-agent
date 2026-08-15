@@ -5201,3 +5201,60 @@ one. Neither blocks publication now that the ladder reaches Strong, and folding
 three hand-written v1 evaluators into the table is a larger change than this
 defect justifies — but it is the same seam, and the next symptom from it should
 be read as a reason to make that move rather than patch a fourth time.
+
+---
+
+# Decision #095
+
+## Title
+
+An error a shopper can reach is a page, not the API's JSON body
+
+## Status
+
+Accepted
+
+## Decision
+
+A `StarletteHTTPException` handler renders `error.html` when the caller's
+`Accept` header asks for HTML and the request is not an htmx swap. Everything
+else — `/events/batch`, `/auth/*`, the htmx partials, any JSON client — keeps
+the exact body it had.
+
+No route, status code or gate changed. Web layer only; no Domain Pack, no
+policy, no engine.
+
+## Rationale
+
+Found by running the site: a mistyped product id rendered `{"detail":"Not
+Found"}` in the browser window. The API contract leaking onto a shopper-facing
+surface, with no route back into the catalog and none of the chrome that tells
+you where you are.
+
+Two callers, two right answers, and the only honest way to tell them apart is
+what the caller says it accepts. Sniffing the path would have been guesswork
+that goes stale the moment a route moves.
+
+**`hx-request` is checked as well.** htmx sends `Accept: text/html` but swaps
+the response into a fragment of a live page, so handing it a full document
+would nest one page inside another. It gets the JSON body, which is what its
+error handling already expects.
+
+403 is covered by the same handler: it was the other bare JSON body a shopper
+could reach by typing a URL. **The gate itself did not move** — `/reasoning`
+still refuses a non-admin, and a test asserts that alongside the new wording,
+because a friendlier refusal is worth nothing if it is also a weaker one
+(Law 10).
+
+## Consequences
+
+482 tests green. Three new tests: the HTML page, the unchanged JSON contract
+for both API and htmx callers, and the admin gate still refusing.
+
+The error page carries no canonical ID, asserted by the same regex the rest of
+the shopper surfaces are held to.
+
+Sabotage-checked: unbinding the handler fails the two HTML assertions and
+leaves the JSON contract test passing, which is the right shape — JSON is the
+behaviour that was already correct.
+

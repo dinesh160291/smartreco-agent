@@ -15,7 +15,9 @@ from smartreco.models import utcnow
 
 from dotenv import load_dotenv
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 
 from smartreco import models
@@ -287,3 +289,37 @@ def health():
 from apps.web import pages  # noqa: E402  (router needs the helpers above)
 
 app.include_router(pages.router)
+
+
+@app.exception_handler(StarletteHTTPException)
+def _http_error(request: Request, exc: StarletteHTTPException):
+    """Render errors as a page for browser navigations, as JSON for everything else.
+
+    A shopper who follows a stale product link was shown a bare
+    `{"detail":"Not Found"}` — the raw API contract leaking onto a shopper-facing
+    surface, with no way back into the catalog. The JSON body is the right answer
+    for `/events/batch`, `/auth/*` and the htmx partials, so the two are told
+    apart the only way they honestly can be: by what the caller says it accepts.
+
+    `hx-request` is checked too. htmx sends `Accept: text/html`, but it swaps the
+    response into a fragment of an existing page, so handing it a full document
+    would nest one page inside another.
+    """
+    wants_html = ("text/html" in request.headers.get("accept", "")
+                  and request.headers.get("hx-request") != "true")
+    if not wants_html:
+        return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
+    headings = {403: "Not yours to see", 404: "Nothing here"}
+    details = {
+        403: "That page is for administrators.",
+        404: "That product or page does not exist — it may have been removed.",
+    }
+    state = _init_state()
+    with state["session_factory"]() as db:
+        ctx = pages._base_ctx(request, db, pages._optional_user(request, db),
+                              state, None)
+    ctx.update({"status": exc.status_code,
+                "heading": headings.get(exc.status_code, "Something went wrong"),
+                "detail": details.get(exc.status_code, str(exc.detail))})
+    return pages.templates.TemplateResponse(request, "error.html", ctx,
+                                            status_code=exc.status_code)

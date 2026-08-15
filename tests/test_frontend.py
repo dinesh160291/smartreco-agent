@@ -254,3 +254,45 @@ def test_a_product_opened_without_a_search_offers_no_false_return(client):
     page = client.get("/product/PROD-003").text
     assert "Back to results" not in page
     assert '<div class="breadcrumb"><a href="/">Explore</a>' in page
+
+
+def test_a_stale_product_link_lands_on_a_page_not_a_json_blob(client):
+    """Decision #095. A shopper following a dead link was shown the raw API
+    contract — `{"detail":"Not Found"}` — with no route back into the catalog.
+
+    Found by running the site: a mistyped product id rendered the JSON body in
+    the browser window."""
+    response = client.get("/product/PROD-999", headers={"accept": "text/html"})
+    assert response.status_code == 404
+    body = response.text
+    assert "detail" not in body[:200], "still serving the JSON error body to a browser"
+    assert "Nothing here" in body
+    assert 'href="/"' in body, "no way back into the catalog"
+    assert CANONICAL_ID.search(body) is None, (
+        "the error page leaks a canonical id onto a shopper surface")
+
+
+def test_the_json_error_contract_is_unchanged_for_api_callers(client):
+    """The page is for browsers only. `/events/batch`, `/auth/*` and the htmx
+    partials are API surfaces and must keep the JSON body — the split is decided
+    by what the caller says it accepts, which is the only honest signal."""
+    api = client.get("/product/PROD-999", headers={"accept": "application/json"})
+    assert api.status_code == 404
+    assert api.json() == {"detail": "Not Found"}
+
+    # htmx sends Accept: text/html but swaps into a fragment of a live page, so
+    # a full document would nest one page inside another.
+    htmx = client.get("/product/PROD-999",
+                      headers={"accept": "text/html", "hx-request": "true"})
+    assert htmx.status_code == 404
+    assert htmx.json() == {"detail": "Not Found"}
+
+
+def test_the_admin_gate_still_refuses_and_now_says_so_in_words(client):
+    """403 was the other bare JSON body a shopper could reach by typing a URL.
+    The gate itself must not have moved (Law 10)."""
+    _register(client)
+    response = client.get("/reasoning", headers={"accept": "text/html"})
+    assert response.status_code == 403
+    assert "Not yours to see" in response.text
+    assert "administrators" in response.text
