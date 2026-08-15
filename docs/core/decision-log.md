@@ -4557,3 +4557,86 @@ database re-embeds these eight on next boot, on top of the 33 from #080/#081.
 Domain Pack v1.7. No policy value moved; no engine changed. This is catalog and
 vocabulary, which is why the automated suite — seeded with the canonical ten —
 sees it only through the seed-catalog ratchets.
+
+---
+
+# Decision #089
+
+## The search box gets one exception, and the floor is what makes it safe
+
+Catalog search is lexical and ANDed, and that is deliberate: same query, same
+results, explainable without a model. It has one failure mode, and it belongs to
+the buyer who most needs help — someone who types "stop people sharing
+passwords" gets an empty page, while the catalog holds twenty identity products.
+
+**The shape: lexical first, vector only on a zero-result query, never blended.**
+Three properties fall out of that ordering rather than being bolted on. Every
+query that works today keeps working identically, because the fallback is
+unreachable unless lexical returns nothing. Cost is bounded by how often search
+*fails*, not by how often it is used. And degradation is free — gateway down,
+budget spent, index empty all land on the empty state the shopper would have
+seen anyway, so there is no error page to design.
+
+Not blending is a decision. Merging a lexical list with a similarity list needs
+a rule for interleaving two incomparable scores, and that rule would be neither
+explainable nor stable.
+
+**The floor was measured before the feature was built**, and the measurement
+nearly stopped it. `scripts/measure_search_floor.py` runs twelve queries the
+catalog can answer against ten it cannot. Retrieval quality turned out
+excellent — all twelve answerable queries return the right product area at rank
+1 — but an embedding index has no way to say "I don't know", so the
+unanswerable ones do not score low, they score *plausibly*. "Book a meeting
+room" returns a scheduling product above ten of the twelve genuine queries. The
+classes overlap in [-0.547, -0.386] and **no floor separates them cleanly.**
+
+It ships at **-0.38**, where seven of twelve genuine queries get help and none
+of the ten unanswerable ones return anything, because the gate was protecting
+against *misleading*, not against *incomplete*. The five that fall through get
+the empty state, which is an absence and not a regression. At -0.50 recall
+reaches eleven of twelve and the page starts answering "best pizza near the
+office" with a CRM.
+
+Two findings from the measurement changed the design. The floor is
+**backend-specific** — the local backend needs about -0.33 and gets four of
+twelve — so it is a deployment value alongside `EMBEDDINGS_BACKEND`, re-measured
+when either changes. And **similarity is not bit-stable**: the same query moved
+3×10⁻⁴ between consecutive runs, which makes the Product ID tie-break
+load-bearing rather than decorative, and means the floor must never be fitted to
+within a rounding error of a sample value.
+
+**What the shopper is told.** "No exact matches for "…" — showing N products
+with related capabilities." The wording never claims a match. Similarity scores
+stay off the surface: they are internal, negative on the Chapter 20 scale, and
+printing one invites reading it as a percentage fit.
+
+**What the platform learns: nothing it retrieved.** The `SEARCH` event still
+records the typed query, verbatim and unexpanded. Two descriptive fields join it
+— `result_count` and `fallback_used` — and no pattern evaluator may read either,
+held by a ratchet over both the platform and Domain Pack evaluators. A
+`PRODUCT_VIEWED` is evidence because the shopper chose that product; a result
+list is the platform's own proposal, and a proposal that fed the reasoning
+engines would let the platform infer intent from its own guess and then
+recommend against it.
+
+The risk that took the longest to see is second-order and is now written into
+doc 13: a box that visibly understands sentences teaches shoppers to type
+sentences, and pattern term sets are keyword vocabularies — so the search that
+finally *works* for the shopper can be the search that tells the platform
+nothing. The platform would get better at finding and worse at understanding at
+the same time, and no existing test would notice. The placeholder stays
+keyword-shaped, and the drift is to be measured (spec §5.2) rather than assumed.
+
+**Budgets.** POL-SRCH-002 is its own ledger — `search` in `ai_usage` for a
+signed-in shopper, a counter on the session for a signed-out visitor — and
+deliberately not POL-TRIG-003's: typing unmatched searches must never spend the
+reasoning budget the shopper's recommendations depend on. Signed-out visitors
+get the fallback because they are the ones who most need vocabulary help; the
+per-session cap bounds a visitor's browsing rather than an attacker's
+persistence, and the spec says so rather than implying otherwise. A refusal is
+never cached, so a rolled-over budget or a fresh registration takes effect at
+once.
+
+Policy Catalog **1.13**. Twenty signature tests; the lexical-first guard, the
+anonymous cap and the floor are each sabotage-verified, the last through the
+route rather than the unit.

@@ -6,7 +6,7 @@
 # changes the decisions a run produces, and policy_version is how that run says
 # which build of the rules produced it.
 
-catalog_version: "1.12"
+catalog_version: "1.13"
 
 policies:
 
@@ -275,6 +275,39 @@ policies:
       timeout_seconds: 30
       max_retries: 2
       backoff: exponential
+
+  # ---- Catalog Search Policies ----
+
+  POL-SRCH-001:
+    name: Search fallback bounds
+    category: search
+    rule: >-
+      A catalog search that returns fewer than lexical_min_results is answered from the vector index
+      instead of an empty page: top_k hits, discarding any below min_similarity, with the query
+      truncated to max_query_chars before embedding. Unreachable for any query the lexical path can
+      serve. min_similarity is in the Chapter 20 quantity (1 - distance) and is MEASURED per
+      deployment by scripts/measure_search_floor.py, not chosen — re-measure when EMBEDDINGS_BACKEND
+      or the catalog changes materially.
+    params:
+      lexical_min_results: 1
+      top_k: 8
+      min_similarity: -0.38
+      max_query_chars: 200
+
+  POL-SRCH-002:
+    name: Search embedding budget
+    category: search
+    rule: >-
+      Its own ledger, deliberately not POL-TRIG-003's: searches must never spend the reasoning budget
+      the shopper's recommendations depend on. searches_per_user_per_day for a signed-in shopper,
+      searches_per_anonymous_session for a visitor with no account (the count lives with the session
+      and dies with it). Identical normalized queries are cached for cache_ttl_seconds, bounded at
+      cache_max_entries. Exhaustion renders the empty state, never an error.
+    params:
+      searches_per_user_per_day: 20
+      searches_per_anonymous_session: 5
+      cache_ttl_seconds: 3600
+      cache_max_entries: 256
 
   # ---- Trigger, Budget & Caching Policies ----
 

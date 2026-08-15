@@ -218,7 +218,7 @@ id PK · user_id · channel · aar_id FK · status (`SENT/FAILED/SKIPPED`) · re
 
 ### ai_usage (mutable counter — budgets)
 
-user_id FK · day TEXT (UTC date) · tier (`tier1` \| `tier2`) · calls INTEGER. PK (user_id, day, tier). The per-user daily AI-call counters consumed by the budget gate (POL-TRIG-003). Incremented by the gateway-calling code on every Tier-classified call (including failed/malformed calls — they spent budget). A counter, not a Runtime Object: deliberately mutable, like `behavioral_traits`. Token-level usage per call is recorded on workflow-run node spans; this table exists only so the trigger evaluator's budget gate is a cheap deterministic read.
+user_id FK · day TEXT (UTC date) · tier (`tier1` \| `tier2` \| `search`) · calls INTEGER. PK (user_id, day, tier). The per-user daily AI-call counters consumed by the budget gate (POL-TRIG-003). `search` is a **separate ledger** counting catalog-search fallback embeddings against POL-SRCH-002, deliberately not POL-TRIG-003: a shopper typing unmatched searches must not spend the reasoning budget their recommendations depend on (Decision #089). Signed-out visitors have no row here — their count lives on the session and dies with it. Incremented by the gateway-calling code on every Tier-classified call (including failed/malformed calls — they spent budget). A counter, not a Runtime Object: deliberately mutable, like `behavioral_traits`. Token-level usage per call is recorded on workflow-run node spans; this table exists only so the trigger evaluator's budget gate is a cheap deterministic read.
 
 ### workflow_runs (observability; powers the Reasoning Panel)
 

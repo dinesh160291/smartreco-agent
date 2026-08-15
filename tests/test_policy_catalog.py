@@ -14,6 +14,7 @@ CATALOG_V1_IDS = [
     "POL-STAGE-001", "POL-STAGE-002",
     "POL-REC-001", "POL-REC-002", "POL-REC-003", "POL-REC-004",
     "POL-RETR-001", "POL-RETR-002", "POL-RETR-003", "POL-RETR-004", "POL-RETR-005",
+    "POL-SRCH-001", "POL-SRCH-002",
     "POL-GATE-001",
     "POL-TRIG-001", "POL-TRIG-002", "POL-TRIG-003", "POL-TRIG-004", "POL-TRIG-005",
     "POL-CACHE-001",
@@ -30,6 +31,10 @@ def catalog():
 
 
 def test_catalog_version_is_recorded(catalog):
+    # v1.13: POL-SRCH-001/002 are new — a search that matches nothing lexically
+    # may now be answered from the vector index (#089). The same query under
+    # 1.12 rendered an empty page, so this is a change in what a run *does*,
+    # not only in how fast it gets there.
     # v1.12: POL-TRIG-002 gained closing_events_bypass_debounce_and_cooldown
     # (#085). A purchase now runs immediately where 1.11 made it wait out the
     # debounce window and the cooldown — the same events, a journey CLOSED up to
@@ -67,7 +72,7 @@ def test_catalog_version_is_recorded(catalog):
     # produced it — #056 shipped without bumping it and the omission cost a
     # debugging round, because policy_version 1.4 could not distinguish a
     # server running the fork from one that was not.
-    assert catalog.version == "1.12"
+    assert catalog.version == "1.13"
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
     assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 45
     assert catalog.param("POL-TRIG-001", "unprocessed_event_threshold") == 3
@@ -122,6 +127,31 @@ def test_retrieval_and_gateway_bounds(catalog):
     assert catalog.param("POL-RETR-002", "max_refinements") == 2
     assert catalog.param("POL-GATE-001", "timeout_seconds") == 30
     assert catalog.param("POL-GATE-001", "max_retries") == 2
+
+
+def test_search_fallback_bounds_match_pol_srch_001(catalog):
+    """The floor is measured, not chosen (scripts/measure_search_floor.py), and
+    it is the only thing standing between this feature and guessing: the two
+    query classes overlap, so a floor set for recall answers "best pizza near
+    the office" with a CRM. Pinned so a later retune is a deliberate act."""
+    assert catalog.param("POL-SRCH-001", "min_similarity") == -0.38
+    assert catalog.param("POL-SRCH-001", "lexical_min_results") == 1
+    assert catalog.param("POL-SRCH-001", "top_k") == 8
+    assert catalog.param("POL-SRCH-001", "max_query_chars") == 200
+
+
+def test_search_budget_is_its_own_ledger(catalog):
+    """POL-SRCH-002 must never be POL-TRIG-003. A shopper who types a run of
+    unmatched searches would otherwise spend the Tier 2 budget their own
+    recommendations depend on — the platform's actual product — as a side
+    effect of using the search box."""
+    assert catalog.param("POL-SRCH-002", "searches_per_user_per_day") == 20
+    assert catalog.param("POL-SRCH-002", "searches_per_anonymous_session") == 5
+    assert catalog.param("POL-SRCH-002", "cache_ttl_seconds") == 3600
+    assert catalog.param("POL-SRCH-002", "cache_max_entries") == 256
+    # The separation that matters is structural, not numeric: search spend must
+    # not appear among POL-TRIG-003's parameters at all.
+    assert not [p for p in catalog.get("POL-TRIG-003").params if "search" in p]
 
 
 def test_journey_resolution_weights_match_pol_jres_001(catalog):

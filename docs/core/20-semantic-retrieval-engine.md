@@ -183,6 +183,20 @@ For the reference deployment the index space is squared L2 over unit-normalized 
 
 Any policy threshold compared against a similarity score is expressed in this same quantity, not in cosine (see POL-RETR-002, Chapter 10). Deployments that configure a different index space change what the score means; the definition above — `1 − distance` — is what remains invariant.
 
+## The index has a second reader, and it writes nothing
+
+The Semantic Retrieval Engine is the only writer of the vector index (the dual-write contract above). Since Decision #089 it is not the only **reader**: the catalog search surface consults the same index when a shopper's typed query matches nothing lexically, under POL-SRCH-001.
+
+The distinction is worth keeping sharp, because the two are answering different questions. This engine asks *"what does this person's behaviour imply?"*, composes a Behavioral Query Document from the Requirement Profile, and produces a Candidate Set — a Runtime Object. The search reader asks *"what did this person ask for"*, embeds the shopper's own words, and produces a page. It writes no Candidate Set, no Runtime Object, and nothing to the index; the dual-write contract is untouched, because a read cannot violate it.
+
+Three constraints keep the second reader from becoming a second engine:
+
+- It is reachable **only** on a zero-result lexical query, so it can never alter a result set the deterministic path could produce.
+- Its hits are discarded below POL-SRCH-001's `min_similarity`, a floor **measured** rather than chosen. An index has no way to say "I don't know" — a query the catalog cannot answer still returns its nearest neighbours at a plausible-looking score — so without the floor the surface would guess.
+- What it retrieves is **never evidence**. The `SEARCH` event records the typed query and nothing about what came back; a result list is the platform's proposal, and a proposal that fed the reasoning engines would let the platform infer intent from its own guess.
+
+Its budget is its own (POL-SRCH-002), deliberately not POL-TRIG-003's: searches must never spend the Tier 2 reasoning budget a shopper's recommendations depend on.
+
 ---
 
 # Retrieval Evaluation and Refinement (Tier 2)

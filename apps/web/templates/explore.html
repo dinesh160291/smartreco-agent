@@ -17,8 +17,15 @@
   {% endfor %}
 </div>
 
+{# A fallback result set is not a search result set, and the shopper must never
+   have to guess which they are looking at (Decision #089). The wording never
+   claims a match: "related capabilities" is a claim the catalog supports,
+   "best match" is not. Similarity scores stay off this surface — they are an
+   internal quantity, and printing 0.62 invites reading it as a 62% fit. #}
 <p class="resultcount" role="status">
-  {% if shown == total %}
+  {% if fallback_used %}
+    No exact matches for “{{ q }}” — showing {{ shown }} products with related capabilities.
+  {% elif shown == total %}
     {{ total }} products
   {% else %}
     {{ shown }} of {{ total }} products

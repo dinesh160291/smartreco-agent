@@ -695,6 +695,19 @@ The following are the platform's initial published policy values. They are confi
 
 **Note on POL-RETR-002's skip threshold.** The 0.85 threshold is expressed in the Chapter 20 similarity quantity, so it corresponds to cosine ≥ 0.925. Measured against the reference deployment's embedding backend, a Behavioral Query Document scores 0.29–0.34 (cosine ≈ 0.65) against its best real candidate, so the skip branch does not fire in practice and **Tier 2 evaluation runs on every retrieval**. This is the conservative direction — evaluation is a quality gate, not an optimization — and it costs one Tier 2 call per retrieval against the POL-TRIG-003 budget. The threshold is retained as the documented escape hatch for backends whose query/document vectors sit closer together; retuning it is a policy-version change, not a code change.
 
+## Catalog Search Policies
+
+The search surface is deterministic and model-free (Chapter 20; ui-design-spec §4.7a). These two policies govern its **one** exception: a query that matches nothing lexically may be answered from the vector index instead of with an empty page. The fallback is unreachable for any query the lexical path can serve, so no result set that exists today is affected by either policy.
+
+| Policy ID | Policy | v1 Value |
+|---|---|---|
+| POL-SRCH-001 | Search fallback bounds | Fires only when the lexical path returns fewer than `lexical_min_results` = **1** results; retrieves top_K = **8**; discards hits below `min_similarity` = **−0.38**; truncates the query to **200** characters before embedding |
+| POL-SRCH-002 | Search embedding budget | **20** fallback embeddings per signed-in user per day, **5** per anonymous session; identical normalized queries cached **1 hour**, at most **256** cached queries. Exhaustion renders the empty state, never an error |
+
+**Note on POL-SRCH-001's `min_similarity`.** The value is expressed in the Chapter 20 similarity quantity (`1 − distance`), so it is on the same scale as POL-RETR-002's and may be negative. It is **measured, not chosen** — `scripts/measure_search_floor.py` runs a fixture of queries the catalog can answer against queries it cannot, and the value is the highest floor at which no unanswerable query returns anything. The two classes overlap, so this is a precision-first choice that admits roughly half the answerable queries and none of the rest; the remainder fall through to the empty state, which is the behaviour they had before the fallback existed. **The floor is a deployment value:** it depends on the configured embedding backend exactly as the index does, and re-measuring is required when `EMBEDDINGS_BACKEND` or the catalog changes materially.
+
+**Note on POL-SRCH-002's separation from POL-TRIG-003.** The search budget is deliberately its own ledger. If fallback embeddings drew on the Tier 2 reasoning budget, a shopper who typed a series of unmatched searches would degrade their own recommendations as a side effect of using the search box, and the two are for different things. Under `EMBEDDINGS_BACKEND=local` the embedding is computed in-process, so no budget is consumed at all.
+
 ## Trigger, Budget & Caching Policies
 
 | Policy ID | Policy | v1 Value |

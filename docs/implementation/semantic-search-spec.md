@@ -1,10 +1,15 @@
 # Semantic Search Fallback — Specification
 
-**Status: proposed, not implemented — but the shipping gate has been run.** No
-code, policy or event-registry change has landed. §4's similarity floor is
-**measured** (`scripts/measure_search_floor.py`, in the repository so the number
-is reproducible); §5.2's vocabulary-drift eval is the one measurement still
-outstanding, and it can only run once the feature exists. This document is the decision `ui-design-spec.md` §4.7a defers when
+**Status: shipped (Decision #089), Policy Catalog 1.13.** §4's similarity floor
+is measured (`scripts/measure_search_floor.py`, in the repository so the number
+is reproducible) and lives in POL-SRCH-001 at **-0.38**. §5.2's vocabulary-drift
+eval is the one measurement still outstanding; it could only run once the
+feature existed, and now it can.
+
+The permanent homes are written: ui-design-spec §4.7a for the surface, Core 20
+("The index has a second reader, and it writes nothing") for the engine
+boundary, Core 10 for the policies, event registry doc 13 for the two new
+metadata fields. This file remains the record of *why*. This document is the decision `ui-design-spec.md` §4.7a defers when
 it says reusing the vector index on the search surface "would be a new use of
 that seam and requires its own decision".
 

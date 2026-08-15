@@ -8,6 +8,7 @@ they appear only on Admin and the Reasoning Panel.
 
 import hashlib
 import re
+import time
 import uuid
 from urllib.parse import urlencode
 from pathlib import Path
@@ -19,12 +20,14 @@ from sqlalchemy import func, select
 
 from smartreco import models
 from apps.web import content
-from smartreco.catalog_search import search_catalog
+from smartreco.catalog_search import normalize, search_catalog
 from smartreco.domain.software_buying import BC_TO_REQ, BEHAVIORAL_CONCEPTS, REQUIREMENTS
 from smartreco.domain import active as domain
 from smartreco.models import utcnow
+from smartreco.pipeline import _today, _usage_calls, record_ai_call
 from smartreco.repos import insert_events_idempotent
-from smartreco.retrieval import _CAP_BY_ID, save_product
+from smartreco.retrieval import _CAP_BY_ID, get_collection, save_product
+from smartreco.search_fallback import ChromaIndex, QueryCache, fallback_search
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
@@ -78,6 +81,48 @@ def _base_ctx(request: Request, db, user, state, active_nav, page_events=None,
     return {"request": request, "user": user, "cart_count": cart_count,
             "active_nav": active_nav, "tracking": track,
             "page_events": page_events or [], "dwell_topic": dwell_topic}
+
+
+_SEARCH_TIER = "search"          # its own ai_usage ledger, never POL-TRIG-003's
+_ANON_SEARCH_KEY = "search_fallbacks"
+
+
+def _search_budget(request: Request, db, user, policies, now):
+    """A one-shot `spend()` for the search fallback (POL-SRCH-002).
+
+    Two ledgers, because a signed-out visitor has no account to bill. The
+    signed-in count is a row in ai_usage; the anonymous one lives in the session
+    cookie and dies with the session, which is the bound and also its limit —
+    it caps a visitor's browsing, not an attacker's persistence, and the spec
+    says so rather than implying otherwise.
+    """
+    def spend() -> bool:
+        if user is not None:
+            cap = policies.param("POL-SRCH-002", "searches_per_user_per_day")
+            if _usage_calls(db, user.id, _today(now), _SEARCH_TIER) >= cap:
+                return False
+            record_ai_call(db, user.id, _SEARCH_TIER, now)
+            db.commit()
+            return True
+        cap = policies.param("POL-SRCH-002", "searches_per_anonymous_session")
+        used = request.session.get(_ANON_SEARCH_KEY, 0)
+        if used >= cap:
+            return False
+        # Registering mid-session hands the shopper to the per-user cap above
+        # and abandons this count, rather than reconciling two ledgers.
+        request.session[_ANON_SEARCH_KEY] = used + 1
+        return True
+
+    return spend
+
+
+def _query_cache(state, policies) -> QueryCache:
+    cache = state.get("search_cache")
+    if cache is None:
+        cache = QueryCache(policies.param("POL-SRCH-002", "cache_ttl_seconds"),
+                           policies.param("POL-SRCH-002", "cache_max_entries"))
+        state["search_cache"] = cache
+    return cache
 
 
 def _optional_user(request: Request, db) -> models.User | None:
@@ -197,6 +242,42 @@ def logout(request: Request):
 
 # ---- Explore ----
 
+def _semantic_fallback(request: Request, db, user, state, q: str):
+    """Answer a lexical miss from the vector index (POL-SRCH-001/002).
+
+    Reads the index the Semantic Retrieval Engine writes; writes nothing. The
+    cache is consulted before the budget so retyping a failing query is free,
+    and the normalized query is the key — "Single Sign-On!" and "single sign on"
+    are one search.
+    """
+    policies = state["policies"]
+    key = normalize(q)[:policies.param("POL-SRCH-001", "max_query_chars")]
+    cache = _query_cache(state, policies)
+    now = time.monotonic()
+    cached = cache.get(key, now)
+    if cached is not None:
+        return cached
+
+    budget = _search_budget(request, db, user, policies, utcnow())
+    granted = False
+
+    def spend() -> bool:
+        nonlocal granted
+        granted = budget()
+        return granted
+
+    hits = fallback_search(
+        key, backend=state["backend"], index=ChromaIndex(get_collection(state["chroma"])),
+        policies=policies, spend=spend)
+    # Cache only a search that actually ran. A refusal and an unanswerable query
+    # both return [], and caching the refusal would outlive the reason for it —
+    # a shopper who registers, or whose daily budget rolls over, would keep
+    # getting the empty page until the TTL expired.
+    if granted:
+        cache.put(key, hits, now)
+    return hits
+
+
 @router.get("/", response_class=HTMLResponse)
 def explore(request: Request, q: str | None = None, category: str | None = None,
             sd=Depends(_db)):
@@ -206,6 +287,7 @@ def explore(request: Request, q: str | None = None, category: str | None = None,
     products = db.execute(stmt).scalars().all()
     categories = sorted({p.category for p in products if p.category})
     total = len(products)  # catalog size before search/category filtering
+    fallback_used = False
     if q:
         # Capability names are part of the haystack: they are what a product
         # *does*, and searching prose alone hid the canonical SSO product from
@@ -219,12 +301,26 @@ def explore(request: Request, q: str | None = None, category: str | None = None,
                              if c in _CAP_BY_ID],
         } for p in products]
         products = [by_id[e["product_id"]] for e in search_catalog(entries, q)]
+        # POL-SRCH-001: only a lexical miss reaches the index. Every query the
+        # deterministic path can serve is answered exactly as before — that
+        # ordering is the whole cost model, not an implementation detail.
+        if len(products) < state["policies"].param("POL-SRCH-001", "lexical_min_results"):
+            hits = _semantic_fallback(request, db, user, state, q)
+            products = [by_id[pid] for pid, _sim in hits if pid in by_id]
+            fallback_used = bool(products)
     if category:
         products = [p for p in products if p.category == category]
 
     events = []
     if q:
-        events.append({"type": "SEARCH", "metadata": {"query": q}})
+        # result_count and fallback_used are descriptive only. No pattern
+        # evaluator reads them: the products the platform retrieved are its own
+        # proposal, and letting a proposal become evidence would have the
+        # platform infer intent from its own guess (spec §5.1). The query is
+        # recorded verbatim, unexpanded, exactly as before.
+        events.append({"type": "SEARCH", "metadata": {
+            "query": q, "result_count": len(products),
+            "fallback_used": fallback_used}})
     if category:
         events.append({"type": "CATEGORY_VIEWED", "metadata": {"category": category}})
 
@@ -236,7 +332,8 @@ def explore(request: Request, q: str | None = None, category: str | None = None,
     if q or category:
         back_qs = "?" + urlencode({k: v for k, v in (("q", q), ("category", category)) if v})
     ctx.update({"products": views, "categories": categories, "q": q, "category": category,
-                "shown": len(views), "total": total, "back_qs": back_qs})
+                "shown": len(views), "total": total, "back_qs": back_qs,
+                "fallback_used": fallback_used})
     return templates.TemplateResponse(request, "explore.html", ctx)
 
 
