@@ -32,8 +32,8 @@ FACTS = {
                       "through an integrated cloud platform."},
     ],
     "requirements": [
-        {"name": "Identity Management", "priority": "Critical", "confidence": 0.94},
-        {"name": "Regulatory Compliance", "priority": "Medium", "confidence": 0.56},
+        {"name": "Identity Management", "priority": "Critical", "confidence": 0.88},
+        {"name": "Regulatory Compliance", "priority": "Medium", "confidence": 0.58},
     ],
     "stage": "Technical Validation",
     "behavior_summary": ("searched for: single sign-on okta; okta scim provisioning. "

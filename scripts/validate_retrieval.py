@@ -219,8 +219,8 @@ def check_d_discrimination(db, chroma_client, backend, policies, results) -> Non
 def check_e_query_document(db, chroma_client, backend, policies, results) -> None:
     """E — DIAGNOSTIC: the real thing. Compose a Behavioral Query Document the
     way stage_retrieval does and run the pipeline's own retrieve_candidates."""
-    requirements = [{"req_id": "REQ-002", "priority": "Critical", "confidence": 0.94},
-                    {"req_id": "REQ-004", "priority": "Medium", "confidence": 0.56}]
+    requirements = [{"req_id": "REQ-002", "priority": "Critical", "confidence": 0.88},
+                    {"req_id": "REQ-004", "priority": "Medium", "confidence": 0.58}]
     query_document = compose_query_document(
         requirements, ["Identity Consolidation", "Security Posture"], "Evaluation",
         ["single sign-on", "saml"], REQUIREMENTS)
