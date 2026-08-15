@@ -157,13 +157,26 @@ def _evaluate_bp005(session_events: list[EventView]) -> EvidenceDraft | None:
 def _evaluate_bp006(session_events: list[EventView]) -> EvidenceDraft | None:
     """BP-006 Productivity Evaluation: ≥2 among DOCUMENTATION_VIEWED topic
     productivity/templates/tasks, SEARCH with productivity terms,
-    PRODUCT_VIEWED in the Work Management category. Weak; Medium at ≥3.
-    No Strong level defined (Domain 02).
+    PRODUCT_VIEWED in the Work Management category. Weak; Medium at ≥3;
+    **Strong at ≥4 (Decision #094)**.
 
     The product-view branch read `productivity` until Decision #080 dissolved
     that category. It would have become a rule nothing could satisfy — the same
     dead vocabulary the emitted-vocabulary contract exists to forbid — and the
-    concept's own subject category is Work Management, so that is what it reads.    """
+    concept's own subject category is Work Management, so that is what it reads.
+
+    **Doc 02 defined no Strong level, and that stopped being tenable when
+    Decision #079 made BC-006 a subject** — the sole Primary feeder of REQ-013
+    Work Management. Capped at Medium, the concept's ceiling is
+    1-(1-0.20)^3 = 0.488 against POL-REQ-001's 0.5 floor: not slow to publish,
+    unable to. Observed live at 0.404 on a twenty-event journey and 0.48 on a
+    maximal one of 152 events over four sessions, both publishing nothing, while
+    the identically-shaped HR journey beside them reached 0.93 Critical.
+
+    ≥4 is not a new number: it is the ladder BP-005 and BP-007 — the other two
+    subjects with their own evaluator — and every domain research pattern
+    already use.
+    """
     qualifying = []
     for e in session_events:
         if e.event_type == "DOCUMENTATION_VIEWED" and e.metadata.get("topic") in BP006_DOC_TOPICS:
@@ -174,7 +187,8 @@ def _evaluate_bp006(session_events: list[EventView]) -> EvidenceDraft | None:
             qualifying.append(e)
     if len(qualifying) < 2:
         return None
-    strength = "MEDIUM" if len(qualifying) >= 3 else "WEAK"
+    strength = ("STRONG" if len(qualifying) >= 4
+                else "MEDIUM" if len(qualifying) >= 3 else "WEAK")
     return EvidenceDraft(
         pattern_id="BP-006", strength=strength, concept_ids=["BC-006"],
         supporting_event_ids=[e.event_id for e in qualifying],

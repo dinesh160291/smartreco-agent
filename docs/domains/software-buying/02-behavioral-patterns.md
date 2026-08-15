@@ -789,8 +789,17 @@ Conventions:
 
 **Contradicting:** None specific.
 
+**Produces:** *Productivity Evaluation* — Strength Weak (minimum), Medium (≥ 3 events), **Strong (≥ 4 events, v1.10 — Decision #094)**.
 
-**Produces:** *Productivity Evaluation* — Strength Weak (minimum), Medium (≥ 3 events).
+> **Why a Strong level was added.** This pattern was written when BC-006 was a
+> secondary reading, and Weak/Medium was proportionate to that. Decision #079
+> made BC-006 a **subject** — the sole Primary feeder of REQ-013 Work
+> Management — and the ladder was never revisited. Capped at Medium the
+> concept's confidence ceiling is 1-(1-0.20)³ = **0.488**, below POL-REQ-001's
+> **0.5** publication floor, so REQ-013 could never be published from behaviour
+> at any volume of research. Measured live: 0.404 on a twenty-event journey,
+> 0.48 on a maximal one of 152 events across four sessions. ≥ 4 is the ladder
+> BP-005, BP-007 and every domain research pattern already use.
 
 **Supports Concepts:** BC-006 Productivity Evaluation.
 

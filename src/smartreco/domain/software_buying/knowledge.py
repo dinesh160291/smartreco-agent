@@ -15,7 +15,12 @@ from smartreco.domain.software_buying.patterns import (
     ADOPTION_DOC_TOPICS, BP011_TRIGGERS, DOMAIN_RESEARCH_PATTERNS, INTENT_CONCEPTS,
     SUBJECTS_WITH_OWN_EVALUATOR)
 
-DOMAIN_PACK_VERSION = "1.9"   # v1.9 gives Customer Support a subject of its own
+DOMAIN_PACK_VERSION = "1.10"  # v1.10 gives BP-006 a Strong level (Decision
+                              # #094): BC-006 became a subject in #079 but kept
+                              # a Medium-capped ladder, so its ceiling of 0.488
+                              # sat below the 0.5 publication floor and REQ-013
+                              # could never be published from behaviour
+                              # v1.9 gives Customer Support a subject of its own
                               # (Decision #093): the category was folded into
                               # BC-019 CRM Evaluation, so every help-desk journey
                               # anchored a sales requirement and was answered

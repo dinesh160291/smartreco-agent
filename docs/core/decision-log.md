@@ -5107,3 +5107,97 @@ first carried them were CRMs. Nothing reads that label except the
 cross-domain ratchet in the seed tests, so it costs nothing today. Renaming it
 is a capability-catalog change worth making deliberately rather than folding
 into this one.
+
+---
+
+# Decision #094
+
+## Title
+
+A subject's evaluator must be able to reach Strong — BP-006's ceiling sat
+below the publication floor
+
+## Status
+
+Accepted
+
+## Decision
+
+`BP-006 Productivity Evaluation` gains a **Strong** level at ≥ 4 qualifying
+events, the ladder BP-005, BP-007 and every domain research pattern already use.
+Nothing else changes: no capability, requirement, mapping or policy value.
+
+Domain Pack **1.10**. No platform module changed.
+
+## Rationale
+
+Found by running the site, in a scenario built to test something else entirely
+— whether heavy security vetting during a purchase would wrongly become the
+subject. It did not; POL-REQ-004 held. What the journey showed instead was that
+it published **nothing at all**.
+
+Twenty events: a Work Management search, the category browsed, four products
+opened, each with its docs, security and pricing pages, and a demo request.
+Beside it, in the same test run, an HR journey of the same shape and the same
+size reached People Operations at **0.93 Critical** with five HR products
+recommended. The Work Management journey sat at Awareness with an empty profile
+and BC-006 at **0.404**.
+
+**The arithmetic makes it exact, and it is a ceiling rather than a slope.**
+POL-CONF-002 damps repeats within a bucket of (pattern, strength, event type),
+so one bucket's contributions sum to a supremum of twice its class value, and
+buckets combine by noisy-OR (Decision #091). BP-006 qualifies three event types
+and topped out at Medium (0.10), so:
+
+```text
+bucket supremum   = 0.10 / (1 - 0.5) = 0.20
+three buckets     = 1 - (1 - 0.20)^3 = 0.488
+publication floor = 0.5   (POL-REQ-001)
+```
+
+Not slow to publish — **unable to, ever**. Confirmed by construction: a maximal
+pure Work Management journey of **152 events across four sessions**, 24 products
+with docs, pricing, six demo requests and six cart adds, reaches **0.48** and
+publishes nothing. BC-006 is REQ-013's *only* Primary feeder, so REQ-013 was
+unreachable vocabulary for any shopper who did not also trip BP-005.
+
+**How it hid.** BC-006 does reach 0.71 in Story 2, which is why no test caught
+this — but not on its own. BP-005 co-supports BC-006 when productivity topics
+co-occur with collaboration ones, and Story 2 is a collaboration journey. A
+shopper looking only at Work Management products never trips that clause, and
+their own subject's evaluator cannot carry them alone.
+
+**Why the ladder and not the floor.** Lowering POL-REQ-001 to admit 0.488 would
+admit every half-formed belief in the system to publication, to fix one
+pattern. Raising the class values would move every confidence in the platform.
+The defect is local: one evaluator whose ladder was proportionate to what the
+concept used to be, and was not revisited when Decision #079 promoted it to a
+subject. The Strong level is what the promotion should have carried with it.
+
+## Consequences
+
+**Nothing pinned moved.** 478 → **479** green, the new test being this
+decision's own; Story 2's `BC-006 == 0.70975` and `REQ-013 == 0.71 HIGH` are
+untouched, because BP-006 never reaches four qualifying events in that journey
+and its evidence there comes through BP-005's co-support. The assertion is live
+and simply not triggered — checked, not assumed.
+
+**The pure Work Management journey now reaches 0.775** and publishes REQ-013 at
+Critical.
+
+**The test asserts the property, not the pattern.** This defect arrived from a
+concept being promoted to a subject without its evaluator being re-examined, so
+the pin is over *every* member of `SUBJECT_REQUIREMENT`: each must have some
+journey that drives its evaluator to Strong. The next promotion cannot
+reintroduce it silently. The test also asserts its own premise — that a
+Medium-capped evaluator really does fall short of the floor — so if the policy
+values move it fails loudly instead of passing vacuously.
+
+**Two related asymmetries are recorded, not fixed.** The three subjects with
+their own evaluator (BC-005, BC-006, BC-007) predate the domain research table
+and do not share its machinery: they do not qualify on the commercial actions
+Decision #092 added, and BP-006 has no `CATEGORY_VIEWED` route where BP-005 has
+one. Neither blocks publication now that the ladder reaches Strong, and folding
+three hand-written v1 evaluators into the table is a larger change than this
+defect justifies — but it is the same seam, and the next symptom from it should
+be read as a reason to make that move rather than patch a fourth time.

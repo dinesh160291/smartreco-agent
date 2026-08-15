@@ -24,6 +24,7 @@ from smartreco.domain.software_buying import (
     DOMAIN_RESEARCH_PATTERNS,
     REQ_TO_CAP,
     REQUIREMENTS,
+    SUBJECT_REQUIREMENT,
 )
 from smartreco.engines.matching import rank_products
 from smartreco.engines.patterns import EventView, evaluate_patterns
@@ -265,6 +266,98 @@ def test_new_concepts_all_reach_a_requirement():
         primaries = [req for req, level in BC_TO_REQ[concept_id].items()
                      if level == "Primary"]
         assert len(primaries) == 1, f"{concept_id} needs exactly one Primary: {primaries}"
+
+
+def test_every_subject_can_be_believed_strongly_enough_to_publish(policies):
+    """A subject whose evaluator cannot reach Strong cannot publish its
+    requirement — at any volume of research (Decision #094).
+
+    Found by running the site. A journey of twenty events, four Work Management
+    products with their docs, pricing and a demo request, published nothing and
+    sat at Awareness, where the identically-shaped HR journey beside it reached
+    People Operations at 0.93 Critical.
+
+    The arithmetic makes it exact. POL-CONF-002 damps repeats within a bucket of
+    (pattern, strength, event type), so one bucket's contributions sum to a
+    supremum of twice its class value; buckets then combine by noisy-OR. An
+    evaluator capped at Medium (0.10) with three qualifying event types has a
+    ceiling of 1-(1-0.20)^3 = 0.488 — below POL-REQ-001's 0.5 floor. Not slow to
+    publish: unable to, ever. Measured at 0.48 with 152 events over 4 sessions.
+
+    This asserts the property rather than the one pattern, because the defect
+    arrived from a concept being *promoted* to a subject (Decision #079) without
+    its evaluator's strength ladder being revisited. The next promotion must not
+    be able to do it again.
+    """
+    contribution = policies.param("POL-CONF-001", "contribution")
+    repeat = policies.param("POL-CONF-002", "repeat_factor")
+    floor = policies.param("POL-REQ-001", "min_confidence")
+    # Supremum of a damped bucket: v * (1 + r + r^2 + ...) = v / (1 - r).
+    strong_bucket = contribution["Strong"] / (1 - repeat)
+    medium_bucket = contribution["Medium"] / (1 - repeat)
+    assert 1 - (1 - medium_bucket) ** 3 < floor, (
+        "premise gone: a Medium-capped evaluator now clears the floor on its "
+        "own, so this test no longer proves what it claims")
+
+    for concept_id in sorted(SUBJECT_REQUIREMENT):
+        reached = set()
+        for events in _subject_journeys(concept_id):
+            for draft in evaluate_patterns(events, policies):
+                if concept_id in draft.concept_ids:
+                    reached.add(draft.strength)
+        assert reached, f"{concept_id} is a subject no journey can form"
+        assert "STRONG" in reached, (
+            f"{concept_id} anchors {SUBJECT_REQUIREMENT[concept_id]} but its "
+            f"evaluator tops out at {sorted(reached)} — with a ceiling of "
+            f"{1 - (1 - medium_bucket) ** 3:.3f} against a {floor} floor, that "
+            f"requirement can never be published from behaviour")
+        # And the strength it can reach must actually clear the floor.
+        ceiling = 1 - (1 - strong_bucket) ** 2      # two buckets is the sparsest case
+        assert ceiling > floor
+
+
+def _subject_journeys(concept_id):
+    """Generous journeys for one subject: every route its evaluator declares,
+    repeated enough to reach any ladder, in one sitting and across two."""
+    from smartreco.domain.software_buying import SUBJECT_CATEGORIES
+    from smartreco.domain.software_buying.patterns import (
+        BP005_DOC_TOPICS, BP006_DOC_TOPICS, BP006_SEARCH_TERMS)
+
+    categories = sorted(SUBJECT_CATEGORIES.get(concept_id, ()))
+    topics, terms = set(), set()
+    for pattern_id, cid, doc_topics, _cats, search_terms in DOMAIN_RESEARCH_PATTERNS:
+        if cid == concept_id:
+            topics |= set(doc_topics)
+            terms |= set(search_terms)
+    # The three subjects that predate the table carry their vocabulary in
+    # named constants rather than in a row (doc 02 — Subjects that already
+    # had an evaluator).
+    if concept_id == "BC-005":
+        topics |= BP005_DOC_TOPICS
+    if concept_id == "BC-006":
+        topics |= BP006_DOC_TOPICS
+        terms |= BP006_SEARCH_TERMS
+    if concept_id == "BC-007":
+        terms |= {"automation", "workflow", "integration", "zapier"}
+
+    for sessions in (["s1"], ["s1", "s2"]):
+        events, n = [], 0
+        for session in sessions:
+            for category in categories or ["work management"]:
+                for _ in range(3):
+                    n += 1
+                    events.append(E(n, "PRODUCT_VIEWED", session=session,
+                                    category=category, product_id=f"P{n}"))
+                    n += 1
+                    events.append(E(n, "CATEGORY_VIEWED", session=session,
+                                    category=category))
+            for topic in sorted(topics) or []:
+                n += 1
+                events.append(E(n, "DOCUMENTATION_VIEWED", session=session, topic=topic))
+            for term in sorted(terms) or []:
+                n += 1
+                events.append(E(n, "SEARCH", session=session, query=term))
+        yield events
 
 
 def test_returning_to_a_subject_next_session_makes_it_strong(policies):
