@@ -1755,6 +1755,8 @@ Together with the Behavioral Ontology and Business Requirement Catalog, it provi
 
 # v1.7 — Product category is a closed enum (Decision #083)
 
+> Superseded in part by v1.8 below: AI was dissolved and the enum is seventeen.
+
 Category was the last free-text categorical value in the pack, and Law 7 closes
 it. The eighteen:
 
@@ -1779,3 +1781,47 @@ subject for it needs a concept of its own (#080).
 Admin-time validation enforces the same two rules the seed catalog is held to:
 an unknown category is rejected, and so is a product whose capabilities reach no
 requirement — searchable, viewable, cartable and permanently unrecommendable.
+
+---
+
+# v1.8 — The AI shelf is dissolved (Decision #088)
+
+The enum is **seventeen**: AI is gone, and the allowlist of categories without a
+subject is empty. Every product in the catalog now sits in a category some
+shopper can declare an interest in.
+
+AI named an ingredient rather than a purchase. Its eight products held AI
+capabilities the way a CRM holds a database, and nobody sets out to buy AI —
+they set out to fix their writing, run a campaign, or stop taking meeting notes
+by hand. Each moved to the shelf for the work it does:
+
+| Product | Now filed under | Because |
+|---|---|---|
+| Loom | Collaboration | messaging, document collaboration, file sharing |
+| Grammarly Business | Content Management | writing and editing |
+| Otter.ai | Content Management | transcripts, which its own copy already called content |
+| Jasper | Marketing | holds Email Campaigns, Marketing Automation, Social Media Management |
+| QuillSprint | Content Management | content generation |
+| VertexSprint | Marketing | holds Email Campaigns |
+| AtlasSprint | Workflow Automation | holds API Integration |
+| FableSprint | Knowledge & Docs | intelligent search and summarisation |
+
+The category-derived prose moved with the shelf. Description and business
+purpose are composed from the category, and both feed the Embedding Document
+(Core 20) — left alone, retrieval would go on answering "ai platform" for a
+product filed under Marketing.
+
+**Why not give AI a subject instead.** That was tried and measured. Promoting
+BC-003 from lens to subject splits the evidence of any shopper who researches
+AI alongside what they are actually buying: in Story 2 the concept fell 0.50 →
+0.40 and REQ-005 dropped below the publication floor, so a shopper who plainly
+wanted AI features stopped being told about them. BC-003 is a lens — a question
+asked of a candidate in any category — and POL-REQ-004 exists to keep that
+distinct from the subject being shopped for.
+
+**A consequence worth stating plainly.** Four of the eight — Grammarly, Otter,
+QuillSprint, FableSprint — hold none of REQ-014's capabilities, so a shopper
+researching only Content & Knowledge sees them at 0% coverage. That is the
+correct answer: none of them is a knowledge base. What changed is that a shopper
+who wants content work *with* AI assistance now finds them on-subject and ranked
+on their merits, where before the AI shelf discounted them for everyone.

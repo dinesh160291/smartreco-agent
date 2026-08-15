@@ -366,10 +366,13 @@ def test_workload_management_sits_only_where_it_is_meant(seed):
 # removed as subjects are built, never added. An entry here means every product
 # in that category is off-subject for every shopper — POL-REC-002 multiplies it
 # by off_subject_factor no matter what they are researching.
-CATEGORIES_WITHOUT_A_SUBJECT = {
-    "AI": "needs a concept of its own — BC-003 is a lens, and promoting it forks "
-          "any journey whose shopper researches AI alongside something else (#080)",
-}
+# Empty since Decision #088, and the sweep is what emptied it: 110 products sat
+# in a subject-less category when this began. The last entry was "AI", removed
+# by dissolving the category rather than by inventing a subject for it — the one
+# attempt to promote BC-003 cost Story 2 its AI Assistance requirement, because
+# the shopper's evidence split between "shopping for AI" and what they were
+# actually shopping for and neither half cleared the bar.
+CATEGORIES_WITHOUT_A_SUBJECT: dict[str, str] = {}
 
 
 def test_every_product_category_is_in_the_closed_enum(seed):
@@ -416,3 +419,22 @@ def test_no_stale_entries_in_the_subjectless_allowlist():
     fixed = sorted(c for c in CATEGORIES_WITHOUT_A_SUBJECT
                    if any(term in c.lower() for term in subject_terms))
     assert not fixed, f"now has a subject — remove from the allowlist: {fixed}"
+
+
+def test_no_product_sits_on_a_shelf_no_shopper_can_declare(seed):
+    """Decision #088 closes the sweep: 110 products → 8 → none.
+
+    The allowlist above is a claim about vocabulary; this is the claim about
+    stock, and only the second one is felt by a shopper. A subject-less
+    *category* costs nothing while it is empty. A product in one is discounted
+    by off_subject_factor however well it matches, and — the half that is easier
+    to miss — browsing it declares no intent at all, so the journey it belongs
+    to never forms.
+    """
+    from smartreco.domain.software_buying import SUBJECT_CATEGORIES
+
+    subject_terms = {c for cats in SUBJECT_CATEGORIES.values() for c in cats}
+    stranded = sorted(p["name"] for p in seed["products"] + list(CANONICAL_PRODUCTS)
+                      if not any(t in p["category"].lower() for t in subject_terms))
+    assert not stranded, (
+        f"{len(stranded)} products are permanently off-subject: {stranded}")

@@ -15,7 +15,10 @@ from smartreco.domain.software_buying.patterns import (
     ADOPTION_DOC_TOPICS, BP011_TRIGGERS, DOMAIN_RESEARCH_PATTERNS, INTENT_CONCEPTS,
     SUBJECTS_WITH_OWN_EVALUATOR)
 
-DOMAIN_PACK_VERSION = "1.6"   # v1.6 adds the content & knowledge vocabulary and
+DOMAIN_PACK_VERSION = "1.7"   # v1.7 dissolves the AI category (Decision #088):
+                              # the enum is seventeen, and every product in the
+                              # catalog now sits in a category with a subject
+                              # v1.6 adds the content & knowledge vocabulary and
                               # REQ-014 built from it (Decision #081)
 
 # ---- Behavioral Concept Registry (doc 01) ----
@@ -103,8 +106,13 @@ REQUIREMENTS: dict[str, str] = {
 # off-subject permanently. Decisions #079-#081 each turned on a category being
 # wrong, and none of them could have been caught by a test while the set was
 # open (Decision #083).
+#
+# "AI" was dissolved by Decision #088: it named an ingredient, not a purchase.
+# Its eight products held AI capabilities the way a CRM holds a database, and a
+# shopper browsing them was announcing an interest in writing, marketing or
+# meetings — never in "AI" as such, which is why BC-003 is a lens applied to
+# every subject rather than a subject of its own.
 PRODUCT_CATEGORIES: frozenset[str] = frozenset({
-    "AI",
     "CRM",
     "Collaboration",
     "Compliance",

@@ -4504,3 +4504,56 @@ both milestones, and — separately, through the stage engine rather than the
 descriptor — one Strong subject evidence must reach Technical Validation
 whichever domain it belongs to. Sabotage-verified: restoring the range reddens
 both.
+
+---
+
+# Decision #088
+
+## The AI shelf named an ingredient, not a purchase
+
+The category sweep began with 110 of 250 products in a category no shopper could
+declare an interest in. After #079-#083 it was down to eight, all of them on a
+shelf called **AI**, and the shelf itself was the last open question: build a
+subject for it, or dissolve it.
+
+**Building the subject was tried, and measured.** Promoting BC-003 from lens to
+subject splits the evidence of any shopper researching AI alongside what they
+are actually buying. In Story 2 the concept fell **0.50 → 0.40** and REQ-005
+dropped under the publication floor — a shopper who plainly wanted AI features
+stopped being told about them. The design was sound and the price was wrong, so
+it was reverted rather than shipped.
+
+The finding underneath is why no version of it would have worked. **AI is a
+property, not a subject.** Its capability domain is held by products in every
+category — a CRM with AI, a wiki with AI, a marketing suite with AI — which is
+exactly the shape of a lens, and exactly what POL-REQ-004 exists to keep
+separate from the thing being shopped for. Nobody sets out to buy AI. They set
+out to fix their writing, run a campaign, or stop taking meeting notes by hand.
+
+**So the shelf was dissolved and its eight products filed under the work they
+do:** Loom → Collaboration; Grammarly Business, Otter.ai and QuillSprint →
+Content Management; Jasper and VertexSprint → Marketing; AtlasSprint → Workflow
+Automation; FableSprint → Knowledge & Docs. The three category-derived prose
+fields moved with each product — description and business purpose both feed the
+Embedding Document (Core 20), so leaving them would have had retrieval answering
+"ai platform" for a product filed under Marketing.
+
+`PRODUCT_CATEGORIES` is now **seventeen**, and the allowlist of categories
+without a subject is **empty**. The closing ratchet is stated over stock rather
+than vocabulary: *no product may sit in a category no shopper can declare*. An
+empty subject-less category costs nothing; a product in one is discounted by
+`off_subject_factor` however well it matches, and browsing it declares no intent
+at all, so the journey it belongs to never forms. Sabotage-verified — putting a
+single product back on an AI shelf reddens it.
+
+**Two consequences stated rather than hidden.** Four of the eight — Grammarly,
+Otter, QuillSprint, FableSprint — hold none of REQ-014's capabilities, so a
+shopper researching only Content & Knowledge sees them at 0%. That is the right
+answer: none of them is a knowledge base. What changed is that a shopper wanting
+content work *with* AI assistance now finds them on-subject and ranked on their
+merits, where the AI shelf had discounted them for everyone. And the demo
+database re-embeds these eight on next boot, on top of the 33 from #080/#081.
+
+Domain Pack v1.7. No policy value moved; no engine changed. This is catalog and
+vocabulary, which is why the automated suite — seeded with the canonical ten —
+sees it only through the seed-catalog ratchets.
