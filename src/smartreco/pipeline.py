@@ -858,6 +858,19 @@ def stage_match(ctx: WorkflowContext, state: dict) -> bool:
     state["rpkg"] = rpkg
     state["constraints"] = constraints
     ctx.nodes.append({"node": "match", "class": "deterministic", "readiness": readiness})
+    # Commit before the Tier-1 node, which is the one stage that waits on the
+    # gateway. Every other stage already commits; this one did not, so the
+    # write transaction opened by the package insert stayed open across a call
+    # bounded at 30s times its retries — holding SQLite's single writer for up
+    # to 90 seconds. Measured against a deliberately slow provider: 20 of 2110
+    # event ingests failed with "database is locked", which is a 500 in a
+    # shopper's browser caused entirely by somebody else's narrative.
+    #
+    # It is also the more honest boundary. The package is the deterministic
+    # answer and is finished here; the narrative is a separate artefact keyed
+    # on it. Committing the truth before generating words about it means a
+    # gateway failure costs the words and never the answer.
+    ctx.db.commit()
     return True
 
 

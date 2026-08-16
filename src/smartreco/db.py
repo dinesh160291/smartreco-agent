@@ -51,7 +51,25 @@ def make_engine(database_url: str | None = None):
         db_path = Path(url.removeprefix("sqlite:///"))
         if db_path.parent != Path("."):
             db_path.parent.mkdir(parents=True, exist_ok=True)
-    engine = create_engine(url, connect_args={"check_same_thread": False})
+    # The pool must not be smaller than the number of threads that can ask for
+    # a connection. SQLAlchemy's default (5 + 10 overflow = 15) is well under
+    # the server's 40-thread pool, so a burst of ordinary reads queues for a
+    # *connection* rather than for data — and then fails.
+    #
+    # Measured against a deliberately slow provider: background runs waiting on
+    # a call hold their connection, and requests died with "QueuePool limit of
+    # size 5 overflow 10 reached, connection timed out" after waiting the full
+    # 30 seconds. The provider was not the fault; it only made an
+    # already-undersized pool visible.
+    #
+    # SQLite connections are cheap — a file handle and a small cache — so
+    # sizing past the thread pool costs little and removes the queue entirely.
+    # In-memory SQLite uses a SingletonThreadPool, which takes none of these
+    # and needs none of them — there is one connection by construction.
+    pool_args = {} if url.endswith(":memory:") else {
+        "pool_size": 25, "max_overflow": 25, "pool_timeout": 30}
+    engine = create_engine(url, connect_args={"check_same_thread": False},
+                           **pool_args)
     if url.startswith("sqlite"):
         event.listen(engine, "connect", _sqlite_pragmas)
     return engine

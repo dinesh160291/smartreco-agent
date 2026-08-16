@@ -5490,3 +5490,95 @@ dict" decide whether background reasoning worked at all.
 
 Two tests pin it: the cap is honoured exactly, and a shed evaluation writes no
 workflow run — a half-executed shed would be worse than none.
+
+---
+
+# Decision #099
+
+## Title
+
+Nothing waits on the gateway while holding a resource somebody else needs
+
+## Status
+
+Accepted
+
+## Decision
+
+Two changes, one cause.
+
+**The Recommendation Package is committed before the Tier-1 node runs.**
+`stage_match` was the only stage in the graph that did not commit, so the write
+transaction opened by its insert stayed open across the narrative call.
+
+**The connection pool is sized past the server's thread pool** — 25 + 25
+against 40 threads, replacing SQLAlchemy's default 5 + 10.
+
+Web and pipeline layers; no Domain Pack change, no policy value change.
+
+## Rationale
+
+Found by pointing the app at a deliberately slow provider — an
+OpenAI-compatible stub with a 60-second delay, longer than POL-GATE-001's
+30-second timeout, so every call ran the full timeout and its retries — and
+running 20 concurrent shoppers against it.
+
+The instance ceiling (Decision #098) did its job: pages stayed fast while
+reasoning stalled. But the run produced **25 HTTP 500s**, and the spec is
+unambiguous that AI failure degrades to deterministic service and never an
+error page (Law 5). Two distinct causes underneath:
+
+**1. The pool was smaller than the thread pool.** SQLAlchemy defaults to 5
+connections plus 10 overflow. The server has 40 threads. Ordinary reads queued
+for a *connection* — not for data — and died after the full 30-second wait
+with `QueuePool limit of size 5 overflow 10 reached`. A stalled provider only
+made it visible, by holding three connections for 90 seconds each. Sizing the
+pool past the thread pool removed it: page latency went from a 30.1s maximum to
+0.99s.
+
+**2. The write lock was held across the narrative call.** With the pool fixed,
+20 event ingests still failed with `database is locked` — a 500 in a shopper's
+browser, caused entirely by somebody else's narrative being slow. `stage_match`
+inserts the package and returns; `stage_tier1` then calls the gateway. Every
+other stage commits and that one did not, so SQLite's single writer was held
+for the length of a call bounded at 30 seconds times its retries.
+
+**Committing there is the more honest boundary anyway.** The package is the
+deterministic answer and is finished when `stage_match` returns; the narrative
+is a separate artefact keyed on it. Committing the answer before generating
+words about it means a gateway failure costs the words and never the answer —
+which is what the degradation ladder always claimed.
+
+## Consequences
+
+**Under a provider that never responds in time**, measured at 20 concurrent
+shoppers:
+
+```text
+                     before        after
+throughput           75.7 req/s    120.0 req/s
+GET /          max   30.100s        1.280s
+POST /events   max   33.788s        0.587s
+HTTP 500s            25             0
+```
+
+Zero errors, and every endpoint at p95 under half a second while the provider
+is unusable.
+
+**Deterministic service is now visibly what survives.** The same degraded run
+produced 3 completed workflow runs, 3 READY Recommendation Packages, **0**
+narratives, and **0** stranded in-flight claims. Shoppers got ranked
+recommendations with coverage; they did not get the prose. Before the commit
+boundary moved, one run completed and two were still stuck holding their
+claims.
+
+**The healthy path got faster too**, which was not the goal but follows from
+the same two changes: 48.3 to 103.1 requests per second at the same
+concurrency, and median time to a first recommendation from 49.7s to 40.8s.
+
+**A caveat worth keeping.** A stalled provider still consumes a run slot for
+the length of its timeout and retries, so reasoning throughput collapses even
+though the site stays healthy. That is the intended trade — the deterministic
+engines need no provider, and the only thing lost is words — but it means a
+long provider outage produces packages without narratives rather than a queue
+that catches up. The degradation is graceful; it is not free.
