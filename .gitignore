@@ -10,6 +10,7 @@ problem_statement_*.md
 retrieval-explained.md
 patterns-explained.md
 test-scenarios.md
+spec-lessons-learned.html
 
 # Local data (SQLite system of record + Chroma index are runtime state)
 data/

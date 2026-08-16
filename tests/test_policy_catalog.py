@@ -84,7 +84,13 @@ def test_catalog_version_is_recorded(catalog):
     # produced it — #056 shipped without bumping it and the omission cost a
     # debugging round, because policy_version 1.4 could not distinguish a
     # server running the fork from one that was not.
-    assert catalog.version == "1.15"
+    # v1.16: POL-TRIG-005 gained a per-instance ceiling beside its per-user one.
+    # Shedding background reasoning is a behaviour change, not a retune, so the
+    # version has to move with it — a run recorded under 1.15 could shed and a
+    # run under 1.16 could not, and nothing else in the record would say which.
+    assert catalog.version == "1.16"
+    assert catalog.param("POL-TRIG-005", "max_in_flight_runs_per_user") == 1
+    assert catalog.param("POL-TRIG-005", "max_concurrent_runs") == 8
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
     assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 45
     assert catalog.param("POL-TRIG-001", "unprocessed_event_threshold") == 3

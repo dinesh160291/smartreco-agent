@@ -6,7 +6,7 @@
 # changes the decisions a run produces, and policy_version is how that run says
 # which build of the rules produced it.
 
-catalog_version: "1.15"
+catalog_version: "1.16"
 
 policies:
 
@@ -378,8 +378,13 @@ policies:
     rule: >-
       At most one in-flight workflow run per user; a trigger arriving during a run is recorded as
       SKIP (already-running) and its events remain accumulated for the next evaluation.
+      The per-user gate bounds one shopper. `max_concurrent_runs` bounds the *instance*: background
+      reasoning is shed once that many runs are in flight, because each can hold a server thread
+      for the gateway timeout times its retries, and a queue of them starves page rendering.
+      Shedding is free - the events are durable and the next flush raises the trigger again.
     params:
       max_in_flight_runs_per_user: 1
+      max_concurrent_runs: 8
 
   POL-CACHE-001:
     name: AAR cache

@@ -1,0 +1,63 @@
+# Fly.io deployment — one machine, one volume.
+#
+# Rename `app` before the first deploy. Everything else here is load-bearing;
+# the comments say why, because each line encodes a constraint of the stack
+# rather than a preference.
+
+app = "smartreco"
+primary_region = "lhr"          # put the machine near the shoppers
+
+[build]
+  dockerfile = "Dockerfile"
+
+# The relational store is the system of record and cannot be rebuilt from
+# anything else. Without this mount every deploy starts an empty marketplace.
+#   fly volumes create smartreco_data --size 1 --region lhr
+[[mounts]]
+  source      = "smartreco_data"
+  destination = "/data"
+
+[env]
+  # Must be set. The default backend embeds locally, which works but is slower
+  # to boot and lower quality than the configured provider.
+  EMBEDDINGS_BACKEND = "gateway"
+
+[http_service]
+  internal_port = 8000
+  force_https   = true
+
+  # NEVER let Fly stop this machine. The scheduler is in-process: a stopped
+  # machine fires no digest and runs no session-end sweep, and the first
+  # request after a stop pays the cold-start cost while a shopper waits.
+  auto_stop_machines  = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  # One machine, deliberately. Scaling this number is not a scaling strategy
+  # here: each machine would carry its own embedded vector index and its own
+  # scheduler. Two schedulers means two digest cycles; two indexes means two
+  # different answers depending on which machine served you. To scale
+  # horizontally, first move the relational store and vector index out of the
+  # process — the fallbacks are named in the stack decisions.
+  [http_service.concurrency]
+    type       = "requests"
+    soft_limit = 40           # matches the server's thread pool
+    hard_limit = 60
+
+  # Readiness, not liveness. `/health` answers "ok" the moment the process
+  # starts, while state is still being built — on a cold start with an empty
+  # volume that window was measured at 3m29s. Pointing the check at /health
+  # sends live traffic into it.
+  [[http_service.checks]]
+    grace_period  = "300s"     # covers a first boot that embeds the catalog
+    interval      = "15s"
+    method        = "GET"
+    path          = "/ready"
+    timeout       = "5s"
+
+[[vm]]
+  # Embedding the catalog on first boot is memory-hungry; 512MB is not enough
+  # when the local backend loads its model.
+  memory   = "1gb"
+  cpu_kind = "shared"
+  cpus     = 1

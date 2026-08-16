@@ -38,7 +38,12 @@ class LocalChromaEmbeddings:
         self._fn = DefaultEmbeddingFunction()
 
     def embed(self, texts: list[str]) -> list[list[float]]:
-        return [list(vec) for vec in self._fn(texts)]
+        # `list(vec)` over a numpy array yields numpy scalars, not floats, and
+        # the vector store rejects those on upsert and query — so the default
+        # backend could not seed a catalog at all. Coerced here, at the seam
+        # where the contract says "list of floats", rather than at each call
+        # site: the backend is what promises the type.
+        return [[float(x) for x in vec] for vec in self._fn(texts)]
 
 
 def make_embedding_backend(policies: PolicyCatalog) -> EmbeddingBackend:

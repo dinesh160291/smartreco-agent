@@ -5343,3 +5343,130 @@ the nine.
 **BC-007's ceiling, flagged in #094 as the tightest remaining at 0.640, is no
 longer tight.** It gains the category-browse and commercial-action buckets,
 which is the incidental benefit of the three asking the same question.
+
+---
+
+# Decision #097
+
+## Title
+
+Liveness and readiness are different questions, and the platform must be
+asked the second one
+
+## Status
+
+Accepted
+
+## Decision
+
+`/health` stays a liveness probe: is this process alive, answered without
+touching anything. A new `/ready` reports whether the process can actually
+serve — settings loaded, catalog queryable, vector index populated — and
+returns 503 until all three hold. State is built by a warm-up thread at
+startup rather than by whichever request arrives first.
+
+Deployment health checks point at `/ready`. Web layer only; no Domain Pack,
+no engine, no policy value.
+
+## Rationale
+
+Found while reseeding the demo database, not by review. Process state is built
+lazily on first use, and on a cold start that means embedding the whole
+catalog. Measured with an empty data directory:
+
+```text
+GET /health   ->  200 {"status":"ok"}     immediately
+GET /         ->  200                     after 3m 29s
+```
+
+For three and a half minutes the process was alive and could not serve
+anything, and the only endpoint a platform would have checked said it was
+fine. On any host that gates traffic on a health check — which is every host
+worth deploying to — that routes live shoppers into the warm-up window and
+they see timeouts.
+
+**Readiness verifies rather than assumes.** It counts the catalog and the
+index instead of reporting a flag, because the failure that matters in this
+stack is a process that came up against an empty or unattached volume. That
+process is running perfectly and has nothing to sell.
+
+**Liveness deliberately still does no work.** A liveness probe that touches
+the database is a way to have a busy instance killed for being busy, which
+converts a slowdown into an outage.
+
+## Consequences
+
+**A deadlock nearly shipped inside this change, and the suite could not have
+caught it.** Construction takes the new state lock and then calls the run
+limiter's accessor, which takes the same lock — a deadlock on first boot with
+a plain `Lock`. Every existing test injects state wholesale and never runs the
+constructor, so the suite stayed green while a cold start would hang forever.
+The lock is reentrant, and a new test boots from cold against a temporary
+directory, which is the first test in the suite to run the constructor at all.
+
+**That test immediately found a second defect, in the default configuration.**
+`EMBEDDINGS_BACKEND` defaults to `local`, and that backend returned numpy
+scalars where the contract says floats — which the vector store rejects on
+upsert. **Deploying without setting that variable could not seed a catalog at
+all.** It survived because every test supplies a stub backend, so the default
+path had never run end to end. Fixed at the seam that promises the type.
+
+Both are the same lesson as the reachability gaps elsewhere in this log: a
+green suite says the paths it covers work, and says nothing about the path a
+deployment takes.
+
+---
+
+# Decision #098
+
+## Title
+
+The instance gets a reasoning ceiling of its own, and sheds rather than queues
+
+## Status
+
+Accepted
+
+## Decision
+
+POL-TRIG-005 gains `max_concurrent_runs` (8). Background trigger evaluation
+acquires a slot without blocking and **returns immediately if none is free**.
+Nothing is recorded for a shed evaluation.
+
+Policy Catalog **1.15 → 1.16**. No Domain Pack change, no engine change.
+
+## Rationale
+
+POL-TRIG-005 has always bounded one shopper: at most one in-flight run per
+user. Nothing bounded the process. Every event flush schedules a background
+evaluation, and each one can hold a server thread for the gateway timeout
+times its retries — 30 seconds twice over under POL-GATE-001.
+
+The server's thread pool is 40, and it is the same pool that renders pages.
+So a provider slowdown does not degrade reasoning; it degrades *the site*,
+because background work nobody is waiting for occupies the threads a shopper
+is waiting on. At the target load of 20–50 concurrent shoppers the arithmetic
+is uncomfortably close: 50 shoppers past the per-user cooldown, each holding a
+thread for a slow call, exceeds the pool on their own.
+
+**Shedding, not queueing.** A dropped evaluation costs nothing: the events are
+already durable, the trigger conditions still hold, and the next flush raises
+it again. A queue costs exactly the thing being protected.
+
+**Nothing is recorded**, which departs from this platform's habit of observable
+silence. A Delivery-Record-style skip needs a journey to attach it to, and
+resolving a journey is the work being declined. Recording the skip would mean
+doing the work to say we did not do the work.
+
+## Consequences
+
+The ceiling sits at 8 against a pool of 40, leaving the majority of threads for
+request handling under any provider behaviour.
+
+**The limiter is created on first use rather than only during construction.**
+State is injected wholesale in tests and by any embedding caller, so reading
+the slot directly from the state dict would have made "who assembled this
+dict" decide whether background reasoning worked at all.
+
+Two tests pin it: the cap is honoured exactly, and a shed evaluation writes no
+workflow run — a half-executed shed would be worse than none.

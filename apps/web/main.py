@@ -9,15 +9,17 @@ Phase 3.
 import hashlib
 import os
 import secrets
+import threading
 from datetime import datetime, timezone
 
 from smartreco.models import utcnow
 
 from dotenv import load_dotenv
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from sqlalchemy import func, select
 from starlette.middleware.sessions import SessionMiddleware
 
 from smartreco import models
@@ -27,7 +29,8 @@ from smartreco.gateway import AIGateway, GatewayUnavailable
 from smartreco.pipeline import run_workflow
 from smartreco.policies import load_policies
 from smartreco.repos import insert_events_idempotent
-from smartreco.retrieval import make_embedding_backend, reconcile_pending
+from smartreco.retrieval import (
+    get_collection, make_embedding_backend, reconcile_pending)
 from smartreco.seeding import seed_capabilities
 
 load_dotenv()
@@ -44,11 +47,37 @@ app.mount("/static", StaticFiles(directory=str(Path(__file__).parent / "static")
 
 _state: dict = {}
 
+# One process builds state once. Without the lock the readiness warm-up and a
+# first request that arrives beside it both run the constructor, and both seed
+# the catalog — on a cold start that is two concurrent embedding passes over
+# 250 products against the same Chroma path.
+#
+# **Reentrant deliberately.** Construction takes this lock and then calls
+# `_run_slots`, which takes it again. With a plain Lock that is a deadlock on
+# first boot — and an invisible one, because every test injects state and never
+# runs the constructor, so the suite stays green while a cold start hangs
+# forever.
+_state_lock = threading.RLock()
+
+# Liveness and readiness answer different questions, and conflating them is how
+# a platform routes live traffic into a warm-up. Measured on a cold start with
+# an empty data directory: `/health` answered "ok" immediately while the first
+# page request took 3m29s, because state is built lazily and the first request
+# pays for the whole catalog embedding.
+_readiness: dict = {"ready": False, "detail": "warming up"}
+
 
 def _init_state():
     """Lazily constructed process state (overridable in tests via app.state)."""
     if _state:
         return _state
+    with _state_lock:
+        if _state:                      # another thread won the race
+            return _state
+        return _build_state()
+
+
+def _build_state():
     import chromadb
 
     policies = load_policies()
@@ -117,7 +146,43 @@ def _init_state():
                       id="session-end-sweep")
     scheduler.start()
     _state["scheduler"] = scheduler
+
+    _run_slots(_state)
     return _state
+
+
+def _run_slots(state: dict):
+    """The instance's reasoning ceiling, created on first use.
+
+    State is injected wholesale in tests and by any embedding caller, so the
+    limiter cannot only exist on the path that builds state — reading it
+    directly would make "who assembled this dict" decide whether background
+    reasoning works. Created under the state lock so two threads arriving at
+    once share one semaphore rather than getting a ceiling each.
+    """
+    slots = state.get("run_slots")
+    if slots is None:
+        with _state_lock:
+            slots = state.get("run_slots")
+            if slots is None:
+                slots = threading.BoundedSemaphore(
+                    state["policies"].param("POL-TRIG-005", "max_concurrent_runs"))
+                state["run_slots"] = slots
+    return slots
+
+
+def _warm_up() -> None:
+    """Build state off the request path so readiness can report it honestly."""
+    try:
+        _init_state()
+        _readiness.update(ready=True, detail="ready")
+    except Exception as exc:                      # stay live, report not-ready
+        _readiness.update(ready=False, detail=f"{type(exc).__name__}: {exc}")
+
+
+@app.on_event("startup")
+def _start_warm_up():
+    threading.Thread(target=_warm_up, name="smartreco-warmup", daemon=True).start()
 
 
 def _bootstrap_admin(db) -> None:
@@ -224,14 +289,32 @@ def _session_key(user_id: int, client_session_id: str) -> str:
 
 
 def _evaluate_triggers_async(user_id: int):
-    """Background: trigger evaluator decides whether reasoning runs (never inline)."""
+    """Background: trigger evaluator decides whether reasoning runs (never inline).
+
+    **Shed rather than queue when the instance is already at its ceiling**
+    (POL-TRIG-005 `max_concurrent_runs`). Dropping an evaluation costs nothing:
+    the events are already durable, and the next flush raises the trigger
+    again. Queueing would cost the thread the server needs to render pages,
+    which is the failure this prevents — background reasoning nobody is waiting
+    on, starving a request somebody is.
+
+    Nothing is recorded for a shed evaluation. A Delivery-Record-style
+    "observable silence" would need a journey to attach to, and resolving one
+    is the work being declined.
+    """
     from smartreco.orchestration import adk_executor
 
     state = _init_state()
-    with state["session_factory"]() as db:
-        run_workflow(db, state["chroma"], state["backend"], state["policies"],
-                     user_id, "EVENT_ACCUMULATION", gateway=state.get("gateway"),
-                     executor=adk_executor)
+    slots = _run_slots(state)
+    if not slots.acquire(blocking=False):
+        return
+    try:
+        with state["session_factory"]() as db:
+            run_workflow(db, state["chroma"], state["backend"], state["policies"],
+                         user_id, "EVENT_ACCUMULATION", gateway=state.get("gateway"),
+                         executor=adk_executor)
+    finally:
+        slots.release()
 
 
 @app.post("/events/batch", status_code=202)
@@ -283,7 +366,40 @@ def ingest_events(batch: EventBatch, background: BackgroundTasks,
 
 @app.get("/health")
 def health():
+    """Liveness: is this process alive. Deliberately does no work — a liveness
+    probe that touches the database or the index is a way to have a busy
+    instance restarted for being busy."""
     return {"status": "ok"}
+
+
+@app.get("/ready")
+def ready(response: Response):
+    """Readiness: can this process actually serve a request.
+
+    Point the platform's health check here, not at `/health`. State is built
+    off the request path, and on a cold start that means embedding the whole
+    catalog — measured at 3m29s. For that window the process is alive and
+    cannot serve anything, and only this endpoint says so.
+
+    The catalog and index counts are checked rather than assumed: a process
+    that came up against an empty volume is running, not ready.
+    """
+    if not _readiness["ready"]:
+        response.status_code = 503
+        return {"ready": False, "detail": _readiness["detail"]}
+    try:
+        with _state["session_factory"]() as db:
+            catalog = db.execute(select(func.count()).select_from(models.Product)).scalar()
+        index = get_collection(_state["chroma"]).count()
+    except Exception as exc:
+        response.status_code = 503
+        return {"ready": False, "detail": f"{type(exc).__name__}: {exc}"}
+    if not catalog or not index:
+        response.status_code = 503
+        return {"ready": False, "detail": "catalog or index empty",
+                "catalog": catalog, "index": index}
+    return {"ready": True, "detail": "ready", "catalog": catalog, "index": index,
+            "policy_version": _state["policies"].version}
 
 
 from apps.web import pages  # noqa: E402  (router needs the helpers above)
