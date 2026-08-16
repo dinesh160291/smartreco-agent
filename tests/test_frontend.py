@@ -296,3 +296,50 @@ def test_the_admin_gate_still_refuses_and_now_says_so_in_words(client):
     assert response.status_code == 403
     assert "Not yours to see" in response.text
     assert "administrators" in response.text
+
+
+def test_the_digest_preferences_form_persists_all_three_fields(client, session_factory):
+    """The opt-in is the gate on proactive delivery (POL-DELIV-001), and until
+    now nothing exercised the form that sets it — the delivery stories set the
+    column on the model directly. A form that silently failed to opt a shopper
+    in would look exactly like a shopper who was never eligible.
+    """
+    _register(client, "digest@example.com")
+    response = client.post("/account", data={"digest_opt_in": "on",
+                                             "digest_channel": "TELEGRAM",
+                                             "telegram_chat_id": " 12345 "})
+    assert response.status_code == 200
+    with session_factory() as db:
+        user = db.execute(select(models.User).where(
+            models.User.email == "digest@example.com")).scalars().one()
+        assert user.digest_opt_in is True
+        assert user.digest_channel == "TELEGRAM"
+        assert user.telegram_chat_id == "12345", "chat id not trimmed"
+
+
+def test_unticking_the_box_opts_out(client, session_factory):
+    """An unchecked checkbox submits nothing at all, so opting *out* depends on
+    the absent field meaning False rather than 'leave as it was'."""
+    _register(client, "optout@example.com")
+    client.post("/account", data={"digest_opt_in": "on",
+                                  "digest_channel": "TELEGRAM",
+                                  "telegram_chat_id": "12345"})
+    client.post("/account", data={"digest_channel": "TELEGRAM",
+                                  "telegram_chat_id": "12345"})   # box unticked
+    with session_factory() as db:
+        user = db.execute(select(models.User).where(
+            models.User.email == "optout@example.com")).scalars().one()
+        assert user.digest_opt_in is False, "unticking the box left the shopper opted in"
+
+
+def test_the_saved_form_shows_the_state_it_saved(client):
+    """A form that saves correctly but renders unticked teaches the shopper to
+    tick it again, which is how a preference gets silently toggled off."""
+    _register(client, "render@example.com")
+    body = client.post("/account", data={"digest_opt_in": "on",
+                                         "digest_channel": "TELEGRAM",
+                                         "telegram_chat_id": "12345"}).text
+    assert "Preferences saved" in body
+    checkbox = body[body.index('name="digest_opt_in"'):][:200]
+    assert "checked" in checkbox, "saved opt-in renders as unticked"
+    assert 'value="12345"' in body
