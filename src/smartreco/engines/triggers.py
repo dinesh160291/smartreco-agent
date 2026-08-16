@@ -18,6 +18,13 @@ class TriggerContext:
     run_in_flight: bool
     tier1_calls_today: int
     tier2_calls_today: int
+    # The deployment's spend for the day, beside this user's. Two ceilings,
+    # because they answer different questions: "has this shopper had their
+    # share" and "has this deployment spent its money" (Decision #100). Default
+    # zero so a caller that does not care about the instance bill — the tests
+    # of the other gates — need not supply it.
+    tier1_calls_today_all_users: int = 0
+    tier2_calls_today_all_users: int = 0
     # An unprocessed event that closes the journey under POL-JRES-003. Neither
     # waiting gate has anything to wait for once one arrives: debounce waits for
     # a burst to finish and a purchase ends the journey, cooldown protects AI
@@ -43,6 +50,8 @@ def evaluate_trigger(trigger_type: str, ctx: TriggerContext, policies: PolicyCat
     bypass_waits = closing_bypass and ctx.closing_event_pending
     tier1_budget = policies.param("POL-TRIG-003", "tier1_calls_per_user_per_day")
     tier2_budget = policies.param("POL-TRIG-003", "tier2_calls_per_user_per_day")
+    tier1_total = policies.param("POL-TRIG-003", "tier1_calls_per_day_total")
+    tier2_total = policies.param("POL-TRIG-003", "tier2_calls_per_day_total")
 
     # 1. Condition
     if trigger_type == "EVENT_ACCUMULATION":
@@ -86,10 +95,15 @@ def evaluate_trigger(trigger_type: str, ctx: TriggerContext, policies: PolicyCat
     if ctx.run_in_flight:
         return TriggerDecision(False, "SKIP (already-running) per POL-TRIG-005")
 
-    # 5. Budget — degrades the slow path, never blocks the deterministic run
+    # 5. Budget — degrades the slow path, never blocks the deterministic run.
+    #    Both ceilings apply: a shopper must be inside their own allowance *and*
+    #    the deployment inside its daily spend. Exhausting either stops the
+    #    words and not the answer, which is the whole point of the split.
     return TriggerDecision(
         True,
         f"{trigger_type} passed all gates",
-        tier1_allowed=ctx.tier1_calls_today < tier1_budget,
-        tier2_allowed=ctx.tier2_calls_today < tier2_budget,
+        tier1_allowed=(ctx.tier1_calls_today < tier1_budget
+                       and ctx.tier1_calls_today_all_users < tier1_total),
+        tier2_allowed=(ctx.tier2_calls_today < tier2_budget
+                       and ctx.tier2_calls_today_all_users < tier2_total),
     )

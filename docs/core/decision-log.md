@@ -5582,3 +5582,89 @@ though the site stays healthy. That is the intended trade — the deterministic
 engines need no provider, and the only thing lost is words — but it means a
 long provider outage produces packages without narratives rather than a queue
 that catches up. The degradation is graceful; it is not free.
+
+---
+
+# Decision #100
+
+## Title
+
+The guards a public instance needs: a ceiling on the bill, a limit on arrival,
+a backup, and logs worth reading
+
+## Status
+
+Accepted
+
+## Decision
+
+Four additions, none of which change what the platform concludes.
+
+**A global AI spend ceiling** beside the per-user budgets — POL-TRIG-003 gains
+`tier1_calls_per_day_total` (2000) and `tier2_calls_per_day_total` (3000).
+Reaching either degrades the slow path exactly as the per-user budget does.
+
+**Per-caller arrival limits** — POL-RATE-001: 120 event posts and 20 auth
+attempts per minute per caller, refused with 429 and `Retry-After`.
+
+**A scheduled backup of the relational store** — POL-BACKUP-001: hourly, via
+SQLite's backup API, keeping the newest 12.
+
+**Structured logging** — one JSON object per line on stdout, every request
+carrying an id returned to the caller in `X-Request-ID`.
+
+Policy Catalog **1.16 → 1.17**. No Domain Pack change, no engine logic change.
+
+## Rationale
+
+Everything here is invisible on a laptop and load-bearing on a host.
+
+**The bill had no ceiling.** Budgets were per user per day, which bounds one
+shopper and multiplies by however many shoppers exist. A thousand registered
+users at 30 and 40 calls is a theoretical seventy thousand calls a day with
+nothing to stop it. The new ceilings sit in the same gate as the per-user ones
+and behave identically: `run` stays true, `tier1_allowed`/`tier2_allowed` go
+false. **Running out of money must not stop recommendations** — the
+deterministic engines need no provider, so what stops is the words.
+
+**Arrival had no limit at all.** The events endpoint is designed to be called
+constantly, which makes it the cheapest thing to abuse: one script could
+exhaust the AI budget, the thread pool and the write queue together.
+
+Two details are the whole design. The caller is identified from the proxy's
+client-IP header, because behind a proxy `request.client` names the platform
+and one limit would be shared by everybody. And the limiter is itself bounded
+at 4096 tracked callers, oldest evicted first — a map keyed on
+attacker-controlled values is a memory leak wearing a safety hat.
+
+**The backup uses SQLite's backup API and never a file copy.** In WAL mode
+recent commits live in the sidecar, so copying the main file omits them. This
+was hit for real while taking a backup during this build: the copy was short by
+22 events and the mistake was invisible until the counts were compared.
+
+**Logging existed as two `print` calls.** On a deployed host stdout is the
+whole of observability, and a line that cannot be tied to a request is a line
+nobody can act on. A test now fails if `print` reappears anywhere in the web
+layer.
+
+## Consequences
+
+508 → **514** tests green. All four sabotage-checked: disabling the global cap,
+the limiter, its bound, or the request-id header each fails its own test.
+
+**Rate limiting is switchable and defaults on.** It is off in the test suite,
+and that is a real concession rather than a tidy one: every request from a test
+client shares one caller identity, so the limiter refused the legitimate bursts
+the suite makes — six unrelated tests failed the moment it shipped. Turning it
+off wholesale would have left it untested, so the tests that exist to exercise
+it turn it back on and supply distinct callers. The environment switch also
+serves a deployment already behind an edge limiter, which should not count
+twice.
+
+**What is deliberately not here.** The global spend ceilings are a stop, not a
+budget manager: reaching them stops Tier 1 and Tier 2 for everyone until the
+day rolls over, with no fairness between users and no warning as the ceiling
+approaches. For an instance of this size that is the right amount of machinery
+— the alternative is a quota system nobody asked for — but it means the first
+sign of the cap is narratives quietly disappearing, and the delivery records
+and access log are where that becomes visible.

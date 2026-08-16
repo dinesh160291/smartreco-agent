@@ -21,6 +21,12 @@ primary_region = "lhr"          # put the machine near the shoppers
   # Must be set. The default backend embeds locally, which works but is slower
   # to boot and lower quality than the configured provider.
   EMBEDDINGS_BACKEND = "gateway"
+  # Backups land on the mounted volume, beside the database they protect.
+  BACKUP_PATH = "/data/backups"
+  LOG_LEVEL = "INFO"
+  # Per-caller arrival limits (POL-RATE-001). Set to "0" only if something in
+  # front of this app is already doing it; counting twice refuses real people.
+  RATE_LIMIT_ENABLED = "1"
 
 [http_service]
   internal_port = 8000

@@ -7,9 +7,14 @@ Phase 3.
 """
 
 import hashlib
+import json
+import logging
 import os
 import secrets
 import threading
+import time
+import uuid
+from collections import OrderedDict
 from datetime import datetime, timezone
 
 from smartreco.models import utcnow
@@ -35,6 +40,14 @@ from smartreco.seeding import seed_capabilities
 
 load_dotenv()
 
+# stdout is the log stream on a deployed host, so configure it here rather than
+# leaving it to whatever imported us first. Level from the environment so a
+# noisy incident does not need a redeploy.
+logging.basicConfig(
+    level=os.environ.get("LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    force=True)
+
 app = FastAPI(title="SmartReco")
 app.add_middleware(SessionMiddleware, secret_key=os.environ.get("SECRET_KEY", "dev-only"))
 
@@ -44,6 +57,105 @@ from fastapi.staticfiles import StaticFiles
 
 app.mount("/static", StaticFiles(directory=str(Path(__file__).parent / "static")),
           name="static")
+
+access_log = logging.getLogger("smartreco.access")
+job_log = logging.getLogger("smartreco.jobs")
+
+# Per-caller arrival buckets (POL-RATE-001). An OrderedDict so the oldest entry
+# can be dropped when the map reaches its cap — the keys come from request
+# headers, which are attacker-controlled, so an unbounded map here would be a
+# memory leak wearing a safety hat.
+_rate_buckets: "OrderedDict[tuple[str, str], list[float]]" = OrderedDict()
+_rate_lock = threading.Lock()
+
+# On by default; a deployment already behind a WAF or an edge limiter can turn
+# it off rather than counting twice. Also off in tests, where every request
+# arrives from one client and legitimate bursts would otherwise be refused —
+# the limiter's own tests turn it back on and supply distinct callers.
+RATE_LIMIT_ENABLED = os.environ.get("RATE_LIMIT_ENABLED", "1") not in ("0", "false", "False")
+
+_RATE_LIMITED = (
+    ("/events/batch", "events_per_minute_per_ip"),
+    ("/auth/", "auth_per_minute_per_ip"),
+)
+
+
+def _caller(request: Request) -> str:
+    """Who to charge this request to.
+
+    Behind a proxy every request arrives from the proxy, so `request.client`
+    identifies the platform rather than the caller and one limit would be
+    shared by everybody. Fly sets `Fly-Client-IP`; the standard forwarded
+    header is the fallback, first hop only.
+    """
+    direct = request.headers.get("fly-client-ip")
+    if direct:
+        return direct
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def _rate_limited(request: Request, policies) -> int | None:
+    """Seconds to wait, or None when the request is within its allowance."""
+    rule = next((key for prefix, key in _RATE_LIMITED
+                 if request.url.path.startswith(prefix)), None)
+    if rule is None:
+        return None
+    limit = policies.param("POL-RATE-001", rule)
+    cap = policies.param("POL-RATE-001", "max_tracked_callers")
+    now = time.monotonic()
+    key = (_caller(request), rule)
+    with _rate_lock:
+        hits = _rate_buckets.get(key)
+        if hits is None:
+            hits = []
+            if len(_rate_buckets) >= cap:
+                _rate_buckets.popitem(last=False)      # drop the least recent
+            _rate_buckets[key] = hits
+        else:
+            _rate_buckets.move_to_end(key)
+        cutoff = now - 60.0
+        hits[:] = [t for t in hits if t > cutoff]
+        if len(hits) >= limit:
+            return max(1, int(60 - (now - hits[0])))
+        hits.append(now)
+    return None
+
+
+@app.middleware("http")
+async def _observe_and_limit(request: Request, call_next):
+    """One request id, one access line, one arrival check.
+
+    The id goes back to the caller as well as into the log, because an error a
+    user reports is unfindable unless they can quote something the logs also
+    hold.
+    """
+    request_id = uuid.uuid4().hex[:12]
+    request.state.request_id = request_id
+    started = time.perf_counter()
+
+    policies = _state.get("policies")
+    if policies is not None and RATE_LIMIT_ENABLED:
+        wait = _rate_limited(request, policies)
+        if wait is not None:
+            access_log.warning(json.dumps({
+                "request_id": request_id, "method": request.method,
+                "path": request.url.path, "status": 429, "duration_ms": 0.0,
+                "reason": "rate limit (POL-RATE-001)"}))
+            return JSONResponse({"detail": "too many requests"}, status_code=429,
+                                headers={"Retry-After": str(wait),
+                                         "X-Request-ID": request_id})
+
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    access_log.info(json.dumps({
+        "request_id": request_id, "method": request.method,
+        "path": request.url.path, "status": response.status_code,
+        "duration_ms": round((time.perf_counter() - started) * 1000, 1)}))
+    return response
+
 
 _state: dict = {}
 
@@ -122,7 +234,8 @@ def _build_state():
             records = run_digest_cycle(job_db, _state["chroma"], _state["backend"],
                                        _state.get("gateway"), policies, _utcnow())
             sent = sum(1 for r in records if r.status == "SENT")
-            print(f"[digest] window fired: {len(records)} evaluated, {sent} sent")
+            job_log.info(json.dumps({"job": "daily-digest",
+                                     "evaluated": len(records), "sent": sent}))
 
     def _session_end_job():
         """Event ingestion only ever raises EVENT_ACCUMULATION, so a shopper who
@@ -136,11 +249,27 @@ def _build_state():
                                      executor=adk_executor)
             if runs:
                 completed = sum(1 for r in runs if r.status == "COMPLETED")
-                print(f"[session-end] {len(runs)} closed session(s), {completed} reasoned")
+                job_log.info(json.dumps({"job": "session-end",
+                                         "sessions": len(runs), "reasoned": completed}))
+
+    def _backup_job():
+        """POL-BACKUP-001. The relational store is the only artefact that
+        cannot be rebuilt; everything else re-derives from it or from a file."""
+        from smartreco.backup import backup_database
+
+        written = backup_database(
+            os.environ.get("DATABASE_URL", "sqlite:///./data/smartreco.db"),
+            os.environ.get("BACKUP_PATH", "./data/backups"),
+            keep=policies.param("POL-BACKUP-001", "keep"))
+        job_log.info(json.dumps({"job": "backup",
+                                 "written": str(written) if written else None}))
 
     scheduler = BackgroundScheduler()
     scheduler.add_job(_digest_job, "cron", hour=hour, minute=minute,
                       id="daily-digest")
+    scheduler.add_job(_backup_job, "interval",
+                      minutes=policies.param("POL-BACKUP-001", "interval_minutes"),
+                      id="backup")
     scheduler.add_job(_session_end_job, "interval",
                       minutes=policies.param("POL-TRACK-003", "end_sweep_interval_minutes"),
                       id="session-end-sweep")

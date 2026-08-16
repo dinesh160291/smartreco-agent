@@ -6,7 +6,7 @@
 # changes the decisions a run produces, and policy_version is how that run says
 # which build of the rules produced it.
 
-catalog_version: "1.16"
+catalog_version: "1.17"
 
 policies:
 
@@ -359,6 +359,12 @@ policies:
     params:
       tier1_calls_per_user_per_day: 30
       tier2_calls_per_user_per_day: 40
+      # Per-user budgets bound one shopper; with a thousand registered users they
+      # multiply into a bill nothing caps. These bound the instance for a day.
+      # Reaching them degrades the slow path exactly as the per-user budget does -
+      # deterministic reasoning continues, only the AI stops (Decision #100).
+      tier1_calls_per_day_total: 2000
+      tier2_calls_per_day_total: 3000
 
   POL-TRIG-004:
     name: Material change
@@ -389,6 +395,34 @@ policies:
     params:
       max_in_flight_runs_per_user: 1
       max_concurrent_runs: 3
+
+  POL-RATE-001:
+    name: Arrival rate
+    category: trigger
+    rule: >-
+      Per-caller ceilings on the endpoints a script can abuse: event ingestion, which is meant to be
+      called constantly, and the auth endpoints, which are cheap to attack and expensive to serve.
+      Refusal is 429 with Retry-After. The caller is identified from the proxy's client-IP header
+      where present, because behind a proxy every request otherwise shares one address.
+      `max_tracked_callers` bounds the limiter itself - a map keyed on attacker-controlled values
+      is a memory leak wearing a safety hat; the oldest entries are dropped first.
+    params:
+      events_per_minute_per_ip: 120
+      auth_per_minute_per_ip: 20
+      max_tracked_callers: 4096
+
+  POL-BACKUP-001:
+    name: System-of-record backup
+    category: delivery
+    rule: >-
+      The relational store is the only artefact that cannot be rebuilt - the vector index is
+      re-derivable and the catalog is seeded from a file. It is copied on a schedule using SQLite's
+      backup API, never a file copy: recent writes live in the write-ahead log and a file copy
+      silently omits them. Rotation is bounded, because a backup directory that fills the volume
+      takes down the database it was protecting.
+    params:
+      interval_minutes: 60
+      keep: 12
 
   POL-CACHE-001:
     name: AAR cache

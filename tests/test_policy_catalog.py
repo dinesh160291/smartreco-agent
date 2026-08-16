@@ -16,6 +16,8 @@ CATALOG_V1_IDS = [
     "POL-RETR-001", "POL-RETR-002", "POL-RETR-003", "POL-RETR-004", "POL-RETR-005",
     "POL-SRCH-001", "POL-SRCH-002",
     "POL-GATE-001",
+    # v1.17: the guards a public instance needs (Decision #100).
+    "POL-RATE-001", "POL-BACKUP-001",
     "POL-TRIG-001", "POL-TRIG-002", "POL-TRIG-003", "POL-TRIG-004", "POL-TRIG-005",
     "POL-CACHE-001",
     "POL-TRACK-001", "POL-TRACK-002", "POL-TRACK-003",
@@ -88,7 +90,12 @@ def test_catalog_version_is_recorded(catalog):
     # Shedding background reasoning is a behaviour change, not a retune, so the
     # version has to move with it — a run recorded under 1.15 could shed and a
     # run under 1.16 could not, and nothing else in the record would say which.
-    assert catalog.version == "1.16"
+    # v1.17: the guards a public instance needs - a global spend ceiling beside
+    # the per-user one, arrival limits, and a backup schedule (Decision #100).
+    assert catalog.version == "1.17"
+    assert catalog.param("POL-TRIG-003", "tier1_calls_per_day_total") == 2000
+    assert catalog.param("POL-RATE-001", "events_per_minute_per_ip") == 120
+    assert catalog.param("POL-BACKUP-001", "keep") == 12
     assert catalog.param("POL-TRIG-005", "max_in_flight_runs_per_user") == 1
     assert catalog.param("POL-TRIG-005", "max_concurrent_runs") == 3
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30

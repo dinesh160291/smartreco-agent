@@ -39,6 +39,17 @@ class HashedEmbeddings:
         return vectors
 
 
+@pytest.fixture(autouse=True)
+def _rate_limiting_off(monkeypatch):
+    """Every request from a TestClient shares one caller identity, so the
+    per-IP limiter would refuse the legitimate bursts these tests make. Off by
+    default here and switched back on, with distinct callers, by the tests that
+    exist to exercise it."""
+    import apps.web.main as web
+
+    monkeypatch.setattr(web, "RATE_LIMIT_ENABLED", False, raising=False)
+
+
 @pytest.fixture(scope="session")
 def policies():
     return load_policies()

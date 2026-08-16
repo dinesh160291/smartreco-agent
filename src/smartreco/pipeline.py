@@ -68,6 +68,14 @@ def _usage_calls(db: OrmSession, user_id: int, day: str, tier: str) -> int:
     return row.calls if row else 0
 
 
+def _usage_calls_all_users(db: OrmSession, day: str, tier: str) -> int:
+    """The deployment's spend for the day, across everyone (POL-TRIG-003)."""
+    total = db.execute(
+        select(func.coalesce(func.sum(models.AIUsage.calls), 0)).where(
+            models.AIUsage.day == day, models.AIUsage.tier == tier)).scalar()
+    return int(total or 0)
+
+
 def record_ai_call(db: OrmSession, user_id: int, tier: str, now: datetime) -> None:
     """Every Tier-classified gateway call increments the counter — including
     failed and malformed calls; they spent budget (data-model §ai_usage)."""
@@ -1025,6 +1033,8 @@ def run_workflow(
         run_in_flight=bool(in_flight),
         tier1_calls_today=_usage_calls(db, user_id, _today(now), "tier1"),
         tier2_calls_today=_usage_calls(db, user_id, _today(now), "tier2"),
+        tier1_calls_today_all_users=_usage_calls_all_users(db, _today(now), "tier1"),
+        tier2_calls_today_all_users=_usage_calls_all_users(db, _today(now), "tier2"),
         # POL-JRES-003 says a purchase closes the journey immediately; the
         # waiting gates were making "immediately" mean up to 75 seconds
         # (Decision #085).
