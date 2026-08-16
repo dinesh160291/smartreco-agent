@@ -90,7 +90,7 @@ def test_catalog_version_is_recorded(catalog):
     # run under 1.16 could not, and nothing else in the record would say which.
     assert catalog.version == "1.16"
     assert catalog.param("POL-TRIG-005", "max_in_flight_runs_per_user") == 1
-    assert catalog.param("POL-TRIG-005", "max_concurrent_runs") == 8
+    assert catalog.param("POL-TRIG-005", "max_concurrent_runs") == 3
     assert catalog.param("POL-TRIG-002", "debounce_seconds") == 30
     assert catalog.param("POL-TRIG-002", "cooldown_seconds") == 45
     assert catalog.param("POL-TRIG-001", "unprocessed_event_threshold") == 3

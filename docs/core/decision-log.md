@@ -5460,8 +5460,28 @@ doing the work to say we did not do the work.
 
 ## Consequences
 
-The ceiling sits at 8 against a pool of 40, leaving the majority of threads for
-request handling under any provider behaviour.
+**The ceiling is 3, chosen by measuring rather than reasoning.** It shipped at
+8 on the argument that 8 of 40 threads leaves plenty for requests. A load bench
+of 20 concurrent shoppers said otherwise:
+
+```text
+                        ceiling 8      ceiling 3
+throughput              11.9 req/s     48.3 req/s
+GET /product      p95    4.014s         0.083s
+GET /for-you      p95    3.561s         0.219s
+POST /events      p95   21.925s         4.333s
+```
+
+Eight concurrent runs did not merely occupy eight threads; each one commits
+about a dozen times, and the write queue they created was what the request
+path was waiting behind. At 50 concurrent shoppers the tuned instance holds
+47.3 req/s with page loads at p95 3.6s and no errors at all.
+
+**The cost is paid where it should be.** Fewer evaluations run: within a
+two-minute window 14 of 20 shoppers saw a recommendation against 19 of 20 at
+the higher ceiling, and the median time to one is unchanged at roughly 50
+seconds. That is the trade this policy exists to make - a shed evaluation is
+retried on the next flush, while a slow page is spent and gone.
 
 **The limiter is created on first use rather than only during construction.**
 State is injected wholesale in tests and by any embedding caller, so reading

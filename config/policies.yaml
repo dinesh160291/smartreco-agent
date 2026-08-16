@@ -382,9 +382,13 @@ policies:
       reasoning is shed once that many runs are in flight, because each can hold a server thread
       for the gateway timeout times its retries, and a queue of them starves page rendering.
       Shedding is free - the events are durable and the next flush raises the trigger again.
+      **3 by measurement, not by guess** (Decision #098). At 8 the request path starved: 20
+      concurrent shoppers saw product pages at p95 4.0s and event ingest at p95 21.9s. At 3 the
+      same load gives p95 0.08s and 4.3s, and throughput goes 11.9 to 48.3 req/s. The cost is
+      paid where it should be - more evaluations shed, each retried on the next flush.
     params:
       max_in_flight_runs_per_user: 1
-      max_concurrent_runs: 8
+      max_concurrent_runs: 3
 
   POL-CACHE-001:
     name: AAR cache

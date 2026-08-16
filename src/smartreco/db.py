@@ -26,7 +26,22 @@ def _sqlite_pragmas(dbapi_connection, _connection_record):
     # busy_timeout to 0, and this app writes from request handlers and
     # background trigger evaluations concurrently, so contention is normal —
     # without this it surfaced as "database is locked" and killed a run.
-    cursor.execute("PRAGMA busy_timeout=5000")
+    #
+    # **Raised from 5s to 30s after measuring.** SQLite allows one writer, and
+    # a workflow run commits about a dozen times; with the instance ceiling at
+    # 8 concurrent runs plus ingest from every open tab, the queue for the
+    # writer is deep even though each transaction is short. At 50 concurrent
+    # shoppers a 5-second ceiling produced 98 "database is locked" failures in
+    # two minutes — 54 of them on event ingestion, which is a 500 in a
+    # shopper's browser. Waiting is the right answer: the writer is never held
+    # long, so a queued write completes in well under the new bound.
+    cursor.execute("PRAGMA busy_timeout=30000")
+    # WAL's documented companion. FULL fsyncs on every commit, which at this
+    # commit rate is the cost that makes the queue deep in the first place.
+    # NORMAL keeps WAL crash-safe for process and OS failure; the exposure it
+    # accepts is losing the most recent transactions to a power cut, which for
+    # this deployment is the right trade against refusing a shopper's events.
+    cursor.execute("PRAGMA synchronous=NORMAL")
     cursor.close()
 
 
