@@ -90,3 +90,40 @@ Automated tests run against a stubbed gateway and a fixed 10-product fixture wit
 ## Deployment
 
 Long-running host with a persistent disk (Railway / Fly.io / Render-with-volume class). SQLite is the system of record and needs the volume; the vector index self-heals by re-indexing from it. Serverless is incompatible unchanged (persistent filesystem + in-process scheduler); the designed migration seams (managed Postgres, managed vector store, platform cron) are documented in `docs/implementation/stack-decisions.md`.
+
+`Dockerfile` and `fly.toml` in the repository root deploy one machine with one
+volume. **One worker, deliberately** — the vector index and the scheduler are
+both in-process, so a second worker would mean two indexes and two digest
+cycles. The health check points at `/ready`, not `/health`: readiness reports
+whether the catalog and index are actually queryable, and on a cold start with
+an empty volume that takes minutes while the process is already alive.
+
+```bash
+fly volumes create smartreco_data --size 1 --region <region>   # once, before the first deploy
+fly deploy                                                     # build, upload, start
+```
+
+Secrets go to the host's secret store, never into the image — `.dockerignore`
+excludes `.env` for exactly that reason.
+
+### Operating a deployed instance
+
+```bash
+fly logs                       # one JSON line per request, each with a request id
+fly status                     # machine state and health checks
+curl https://<app>.fly.dev/ready   # catalog + index counts, policy version
+
+fly ssh console                # then: cd /app && python scripts/send_digest.py
+                               #       ls -la /data/backups
+```
+
+**Pausing when idle.** The machine is deliberately never auto-stopped, because a
+stopped machine fires no digest, runs no session-end sweep and takes no backups.
+To stop paying for idle time, stop it explicitly — the volume keeps the database,
+so nothing is lost and a restart skips the catalog embedding:
+
+```bash
+fly machine stop --app <app>    # pause; scheduled work stops too
+fly machine start --app <app>   # ~40s to ready, not the minutes of a first boot
+```
+
