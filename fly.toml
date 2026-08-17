@@ -1,11 +1,11 @@
 # Fly.io deployment — one machine, one volume.
 #
-# Rename `app` before the first deploy. Everything else here is load-bearing;
+# Everything here is load-bearing;
 # the comments say why, because each line encodes a constraint of the stack
 # rather than a preference.
 
-app = "smartreco"
-primary_region = "lhr"          # put the machine near the shoppers
+app = "smartreco-demo"
+primary_region = "ord"          # Chicago — the nearest Fly region to the US Midwest
 
 [build]
   dockerfile = "Dockerfile"
