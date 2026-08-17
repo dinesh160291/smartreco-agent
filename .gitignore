@@ -11,6 +11,7 @@ retrieval-explained.md
 patterns-explained.md
 test-scenarios.md
 spec-lessons-learned.html
+rework-and-ratchets.html
 
 # Local data (SQLite system of record + Chroma index are runtime state)
 data/
