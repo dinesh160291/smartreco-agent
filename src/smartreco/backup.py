@@ -19,7 +19,17 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
-_SQLITE_URL = re.compile(r"^sqlite:/{2,4}(?P<path>.+)$")
+# Exactly three slashes, and whatever follows is the path — which is the
+# convention the engine builder already relies on. A relative database is
+# `sqlite:///data/x.db`; an absolute one is `sqlite:////data/x.db`, where the
+# fourth slash is the leading slash of the path itself.
+#
+# Written as `{2,4}` first, which is greedy: it swallowed the fourth slash and
+# turned the deployed absolute path into a relative one. The backup then looked
+# beside the working directory, found nothing, and returned "nothing to copy" —
+# so a deployed instance would have taken no backups at all and said nothing
+# about it. The one configuration that mattered was the one it got wrong.
+_SQLITE_URL = re.compile(r"^sqlite:///(?P<path>.+)$")
 
 
 def database_path(database_url: str) -> Path | None:

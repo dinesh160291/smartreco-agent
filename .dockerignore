@@ -1,0 +1,43 @@
+# Build context exclusions. `COPY . .` is only safe with this file present.
+#
+# The first entry is the important one: without it the image carries .env, and
+# an image layer is readable by anyone who can pull it. Secrets reach the
+# container from the host's secret store at runtime, never from a layer.
+.env
+.env.*
+!.env.example
+
+# Runtime state. The relational store is the system of record and lives on a
+# mounted volume; baking a copy into the image means a machine whose mount
+# failed would quietly serve stale demo data instead of failing loudly.
+data/
+*.db
+*.sqlite3
+
+# Local-only working files (also gitignored) — nothing in the image should
+# depend on them, and they are not the deployed product's business.
+plan.md
+handoff.md
+problem_statement_*.md
+retrieval-explained.md
+patterns-explained.md
+test-scenarios.md
+spec-lessons-learned.html
+
+# Weight with no purpose in the image.
+.venv/
+venv/
+.git/
+.github/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

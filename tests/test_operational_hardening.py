@@ -13,6 +13,7 @@ Four things, none of which change what the platform concludes:
 
 import json
 import logging
+import pathlib
 import sqlite3
 import threading
 
@@ -237,3 +238,37 @@ def test_the_app_does_not_print(client):
             if stripped.startswith("print(") or " print(" in stripped:
                 offenders.append(f"{path}:{number}")
     assert not offenders, f"print() used instead of a logger: {offenders}"
+
+
+def test_the_deployed_database_url_form_is_the_one_that_gets_backed_up(tmp_path):
+    """The container sets an absolute path - `sqlite:////data/smartreco.db`,
+    where the fourth slash belongs to the path. A greedy pattern swallowed it
+    and produced a relative path, so the backup looked beside the working
+    directory, found nothing, and reported "nothing to copy". A deployed
+    instance would have taken no backups and said nothing about it.
+
+    Pinned here because the broken configuration was the only one that ships.
+    """
+    from smartreco.backup import backup_database, database_path
+
+    assert database_path("sqlite:////data/smartreco.db") == pathlib.Path("/data/smartreco.db")
+    assert database_path("sqlite:///./data/smartreco.db") == pathlib.Path("./data/smartreco.db")
+    assert database_path("sqlite:///:memory:") is None
+    assert database_path("postgresql://host/db") is None
+
+    # End to end with an absolute path. The container's four-slash form cannot
+    # be built portably — a POSIX absolute path starts with the slash the fourth
+    # one supplies, and a Windows one starts with a drive letter — so the
+    # round trip uses whatever absolute path this platform has. The
+    # container-specific string is covered by the assertions above, which are
+    # the part that was actually wrong.
+    source = tmp_path / "abs.db"
+    conn = sqlite3.connect(source)
+    conn.execute("CREATE TABLE t (id INTEGER PRIMARY KEY)")
+    conn.execute("INSERT INTO t VALUES (1)")
+    conn.commit()
+    conn.close()
+    assert source.is_absolute()
+    written = backup_database(f"sqlite:///{source.as_posix()}", tmp_path / "b", keep=2)
+    assert written is not None and written.exists(), (
+        "an absolute database url produced no backup")
